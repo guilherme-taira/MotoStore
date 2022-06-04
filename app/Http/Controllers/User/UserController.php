@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 
-class adminController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,7 @@ class adminController extends Controller
      */
     public function index()
     {
-        return view('admin.index');
+        //
     }
 
     /**
@@ -24,7 +26,11 @@ class adminController extends Controller
      */
     public function create()
     {
-        //
+        $viewData = [];
+        $viewData['title'] = 'MotoStore Criar Novo Usuário';
+        $viewData['subtitle'] = 'Novo Usuário';
+
+        return view('user.create')->with('viewData',$viewData);
     }
 
     /**
@@ -35,7 +41,28 @@ class adminController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = validator($request->all(),[
+            'name' => 'required|max:255',
+            'email' => 'required|email:rfc,dns',
+            'password' => 'required|min:4'
+        ]);
+
+
+        if ($validator->fails()) {
+            return redirect('user/create')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        $newUser = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password
+        ]);
+
+        if($newUser){
+            return back()->with('message','Cadastrado com Sucesso!');
+        }
     }
 
     /**
@@ -57,7 +84,7 @@ class adminController extends Controller
      */
     public function edit($id)
     {
-        print_r($id);
+        //
     }
 
     /**

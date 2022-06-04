@@ -5,7 +5,7 @@
         {{-- MESSAGE SUCCESS REMOVE ADD CART --}}
         @if (session()->get('message'))
             <div class="alert alert-success" role="alert">
-                Products in Cart {{ session()->get('message') }}
+                 {{ session()->get('message') }}
             </div>
         @else
             <div class="card-header">
@@ -49,12 +49,14 @@
             <div class="row">
                 <div class="text-end">
                     <a class="btn btn-outline-secondary mb-2"><b>Total:</b> ${{ $viewData['total'] }}</a>
-                    <a class="btn bg-primary text-white mb-2">Finalizar</a>
-                    {{-- <a href="{{ route('cart.delete') }}">
+                    @if(count($viewData['products']) > 0)
+                    <a href="{{route('cart.status')}}" class="btn bg-primary text-white mb-2">Finalizar</a>
+                    <a href="{{ route('cart.delete') }}">
                         <button class="btn btn-danger mb-2">
-                            Remove all products from Cart
+                           Limpar Carrinho
                         </button>
-                    </a> --}}
+                    </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -100,7 +102,7 @@
                             $( "select" ).change(function() {
                                 $('#final').text($(this).children("option:selected").val());
                                 var number = $('#final').text();
-                                var url = '{{route("products.show",':id')}}';
+                                var url = '{{route("product.cartshow",':id')}}';
                                 url = url.replace(':id', number);
                                 $("#ShowQuantiti").load(url);
 

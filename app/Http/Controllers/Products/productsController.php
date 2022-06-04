@@ -21,7 +21,7 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
         $viewData['products'] = Products::all();
-        return view('admin.products')->with('viewData',$viewData);
+        return view('admin.products')->with('viewData', $viewData);
     }
 
     /**
@@ -43,7 +43,7 @@ class productsController extends Controller
     public function store(Request $request)
     {
 
-        $validator = Validator::make($request->all,[
+        $validator = Validator::make($request->all, [
             'name' => 'required|min:5',
             'price' => 'required|numeric|min:1',
             'image' => 'required|file',
@@ -52,8 +52,8 @@ class productsController extends Controller
 
         if ($validator->fails()) {
             return redirect('post/create')
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $produto = new Products();
@@ -104,7 +104,13 @@ class productsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $produto = Products::where('id', $id)->first();
+
+        $viewData = [];
+        $viewData['title'] = "MotoStore" . $produto->getName();
+        $viewData['product'] = $produto;
+        return view('products.edit')->with('viewData', $viewData);
+        print_r($id);
     }
 
     /**
@@ -116,7 +122,28 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            "name" => "required|max:255",
+            "description" => "required",
+            "price" => "required|numeric|gt:0",
+            'image' => 'image',
+        ]);
+
+        $produto = Products::findOrFail($id);
+        $produto->setName($request->input('name'));
+        $produto->setPrice($request->input('price'));
+        $produto->setDescription($request->input('description'));
+
+        if ($request->hasFile('image')) {
+            $imageName = $produto->getId() . "." . $request->file('image')->extension();
+            Storage::disk('public')->put(
+                $imageName,
+                file_get_contents($request->file('image')->getRealPath())
+            );
+            $produto->setImage($imageName);
+        }
+        $produto->save();
+        return redirect()->route('products.index');
     }
 
     /**
@@ -128,5 +155,21 @@ class productsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function CartShow($id)
+    {
+        $product = Products::findOrFail($id);
+
+        if ($product) {
+            $viewData = [];
+            $viewData['title'] = "MotoStore : " . $product->name;
+            $viewData['subtitle'] = $product->name;
+            $viewData['product'] = $product;
+            $viewData['image'] = $product->image;
+            return view('store.show')->with('viewData', $viewData);
+        }
+
+        return redirect()->route('store.index');
     }
 }

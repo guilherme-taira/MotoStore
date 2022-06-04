@@ -27,8 +27,8 @@
                             <td>{{ $product->getId() }}</td>
                             <td><img src="{{ asset('/storage/'.$product->getImage())}}" style="width: 50px" alt="{{ $product->getImage() }}"></td>
                             <td>{{ $product->getName() }}</td>
-                            <td>Edit</td>
-                            <td>Delete</td>
+                            <td><a href="{{route('products.edit',['id' => $product->getId()])}}"><button class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i>Editar</button> </a></td>
+                            <td><a href="{{route('products.edit',['id' => $product->getId()])}}"><button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a></td>
                         </tr>
                     @endforeach
                 </tbody>

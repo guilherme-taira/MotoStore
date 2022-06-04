@@ -16,28 +16,62 @@ class Products extends Model
 
     protected $table = "products";
 
-    public function getName(){
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function getPrice(){
+    public function getPrice()
+    {
         return $this->price;
     }
 
-    public function getDescription(){
+    public function getDescription()
+    {
         return $this->description;
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setImage($image){
+    public function setImage($image)
+    {
         $this->image = $image;
     }
 
-    public function getImage(){
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function setPrice($price)
+    {
+        $this->price = $price;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+
+    public function getImage()
+    {
         return $this->image;
     }
 
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
+    public function getItems()
+    {
+        return $this->items;
+    }
+    public function setItems($items)
+    {
+        $this->items = $items;
+    }
 }
