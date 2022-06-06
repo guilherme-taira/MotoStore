@@ -19,20 +19,10 @@ class StoreController extends Controller
     {
         $viewData = [];
         $viewData['title'] = 'MotoStore';
-        //$produtos = Products::all();
+        $viewData['subtitle'] = "Moto Store";
+        $viewData['products'] = Products::all();
 
-        // foreach ($produtos as $produto) {
-
-        //   $imageS3 = Storage::disk('s3')->response('file-upload-motostore/'.$produto->img);
-        //   //$produto->setImage('');
-        // }
-
-        $attachment = Products::find(2);
-         return Storage::disk('s3')->get($attachment->image);
-
-        // $viewData['products'] = Products::all();
-
-        // return view('store.index')->with('viewData',$viewData);
+        return view('store.index')->with('viewData',$viewData);
     }
 
     /**
