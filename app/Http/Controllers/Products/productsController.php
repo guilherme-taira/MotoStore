@@ -43,18 +43,18 @@ class productsController extends Controller
     public function store(Request $request)
     {
 
-        // $validator = Validator::make($request->all, [
-        //     'name' => 'required|min:5',
-        //     'price' => 'required|numeric|min:1',
-        //     'image' => 'required|file',
-        //     'descrition' => 'required|max:500'
-        // ]);
+        $validator = Validator::make($request->all, [
+            'name' => 'required|min:5',
+            'price' => 'required|numeric|min:1',
+            'image' => 'required|file',
+            'descrition' => 'required|max:500'
+        ]);
 
-        // if ($validator->fails()) {
-        //     return redirect('products/add')
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
+        if ($validator->fails()) {
+            return redirect('products/add')
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $produto = new Products();
         $produto->name = $request->name;
@@ -64,15 +64,17 @@ class productsController extends Controller
         $produto->save();
 
         if ($request->hasFile('image')) {
-            $imageName = $produto->getId() . "." . $request->file('image')->extension();
-            Storage::disk('s3')->put(
-                $imageName,
-                file_get_contents($request->file('image')->getRealPath()),
-                's3'
-            );
-            $produto->setImage($imageName);
+            // $imageName = $produto->getId() . "." . $request->file('image')->extension();
+            // Storage::disk('s3')->put(
+            //     $imageName,
+            //     file_get_contents($request->file('image')->getRealPath()),
+            //     's3'
+            // );
+            $produto->setImage($produto->image);
             $produto->save();
         }
+
+        return redirect()->route('products.store');
     }
 
     /**

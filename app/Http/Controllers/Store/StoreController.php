@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class StoreController extends Controller
 {
@@ -17,8 +19,20 @@ class StoreController extends Controller
     {
         $viewData = [];
         $viewData['title'] = 'MotoStore';
-        $viewData['products'] = Products::all();
-        return view('store.index')->with('viewData',$viewData);
+        //$produtos = Products::all();
+
+        // foreach ($produtos as $produto) {
+
+        //   $imageS3 = Storage::disk('s3')->response('file-upload-motostore/'.$produto->img);
+        //   //$produto->setImage('');
+        // }
+
+        $attachment = Products::find(2);
+         return Storage::disk('s3')->get($attachment->image);
+
+        // $viewData['products'] = Products::all();
+
+        // return view('store.index')->with('viewData',$viewData);
     }
 
     /**
