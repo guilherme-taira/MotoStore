@@ -72,7 +72,6 @@ class productsController extends Controller
             $produto->save();
         }
 
-
         return redirect()->route('products.store');
     }
 
@@ -95,11 +94,7 @@ class productsController extends Controller
             return view('store.show')->with('viewData', $viewData);
         }
 
-        // return redirect()->route('store.index');
-
-
-
-        return view('store.show',compact($url));
+        return redirect()->route('store.index');
     }
 
     /**
