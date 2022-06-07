@@ -7,7 +7,7 @@
             <div class="row">
                 @csrf
                 <div class="card" style="width: 18rem;">
-                    <img src="{{asset('/storage/'.$viewData['image'])}}" class="card-img-top img-card" alt="{{ $viewData['product']->getName() }}">
+                    <img src="{!!Storage::disk('s3')->url('produtos/'.$viewData['product']->getId().'/'.$viewData['image']) !!}" class="card-img-top img-card" alt="{{ $viewData['product']->getName() }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ $viewData['product']->getName() }}
                             (${{ $viewData['product']->getPrice() }})</h5>

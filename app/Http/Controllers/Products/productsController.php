@@ -43,18 +43,18 @@ class productsController extends Controller
     public function store(Request $request)
     {
 
-        $validator = Validator::make($request->all, [
-            'name' => 'required|min:5',
-            'price' => 'required|numeric|min:1',
-            'image' => 'required|file',
-            'descrition' => 'required|max:500'
-        ]);
+        // $validator = Validator::make($request->all, [
+        //     'name' => 'required|min:5',
+        //     'price' => 'required|numeric|min:1',
+        //     'image' => 'required|file',
+        //     'descrition' => 'required|max:500'
+        // ]);
 
-        if ($validator->fails()) {
-            return redirect('products/add')
-                ->withErrors($validator)
-                ->withInput();
-        }
+        // if ($validator->fails()) {
+        //     return redirect('products/add')
+        //         ->withErrors($validator)
+        //         ->withInput();
+        // }
 
         $produto = new Products();
         $produto->name = $request->name;
@@ -64,15 +64,14 @@ class productsController extends Controller
         $produto->save();
 
         if ($request->hasFile('image')) {
-            // $imageName = $produto->getId() . "." . $request->file('image')->extension();
-            // Storage::disk('s3')->put(
-            //     $imageName,
-            //     file_get_contents($request->file('image')->getRealPath()),
-            //     's3'
-            // );
-            $produto->setImage($produto->image);
+            //$imageName = $produto->getId() . "." . $request->file('image')->extension();
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('produtos/'.$produto->getId(),$filename,'s3');
+            $produto->setImage($filename);
             $produto->save();
         }
+
 
         return redirect()->route('products.store');
     }
@@ -85,18 +84,22 @@ class productsController extends Controller
      */
     public function show($id)
     {
-        $product = Products::findOrFail($id);
+        $produto = Products::findOrFail($id);
 
-        if ($product) {
+        if ($produto) {
             $viewData = [];
-            $viewData['title'] = "MotoStore : " . $product->name;
-            $viewData['subtitle'] = $product->name;
-            $viewData['product'] = $product;
-            $viewData['image'] = $product->image;
+            $viewData['title'] = "MotoStore : " . $produto->name;
+            $viewData['subtitle'] = $produto->name;
+            $viewData['product'] = $produto;
+            $viewData['image'] = $produto->image;
             return view('store.show')->with('viewData', $viewData);
         }
 
-        return redirect()->route('store.index');
+        // return redirect()->route('store.index');
+
+
+
+        return view('store.show',compact($url));
     }
 
     /**
