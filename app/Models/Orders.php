@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\User;
 
 class Orders extends Model
 {
+    protected $table = 'orders';
+
     public function getId()
     {
         return $this->attributes['id'];
@@ -69,9 +72,9 @@ class Orders extends Model
         $this->items = $items;
     }
 
-    public function user()
+    public function User()
     {
-        return $this->belongsTo(user::class);
+        return $this->belongsTo(User::class,'user_id','id');
     }
 
     public static function validate($request)
