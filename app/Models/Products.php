@@ -11,10 +11,21 @@ class Products extends Model
         'name',
         'description',
         'image',
-        'price'
+        'price',
+        'stock',
     ];
 
     protected $table = "products";
+
+    public function getStock()
+    {
+        return $this->stock;
+    }
+
+    public function setStock($stock)
+    {
+        $this->stock = $stock;
+    }
 
     public function getName()
     {

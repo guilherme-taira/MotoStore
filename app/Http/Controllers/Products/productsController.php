@@ -43,23 +43,25 @@ class productsController extends Controller
     public function store(Request $request)
     {
 
-        // $validator = Validator::make($request->all, [
-        //     'name' => 'required|min:5',
-        //     'price' => 'required|numeric|min:1',
-        //     'image' => 'required|file',
-        //     'descrition' => 'required|max:500'
-        // ]);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5',
+            'price' => 'required|numeric|min:1',
+            'image' => 'required|file',
+            "stock" => "required|numeric",
+            'description' => 'required|max:500'
+        ]);
 
-        // if ($validator->fails()) {
-        //     return redirect('products/add')
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $produto = new Products();
         $produto->name = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
+        $produto->stock = $request->stock;
         $produto->image = 'image.png';
         $produto->save();
 
@@ -90,6 +92,7 @@ class productsController extends Controller
             $viewData['title'] = "MotoStore : " . $produto->name;
             $viewData['subtitle'] = $produto->name;
             $viewData['product'] = $produto;
+            $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
             return view('store.show')->with('viewData', $viewData);
         }
@@ -111,7 +114,6 @@ class productsController extends Controller
         $viewData['title'] = "MotoStore" . $produto->getName();
         $viewData['product'] = $produto;
         return view('products.edit')->with('viewData', $viewData);
-        print_r($id);
     }
 
     /**
@@ -127,22 +129,24 @@ class productsController extends Controller
             "name" => "required|max:255",
             "description" => "required",
             "price" => "required|numeric|gt:0",
+            "stock" => "required|numeric|gt:0",
             'image' => 'image',
         ]);
 
         $produto = Products::findOrFail($id);
         $produto->setName($request->input('name'));
         $produto->setPrice($request->input('price'));
+        $produto->setStock($request->input('stock'));
         $produto->setDescription($request->input('description'));
 
-        if ($request->hasFile('image')) {
-            $imageName = $produto->getId() . "." . $request->file('image')->extension();
-            Storage::disk('public')->put(
-                $imageName,
-                file_get_contents($request->file('image')->getRealPath())
-            );
-            $produto->setImage($imageName);
-        }
+        // if ($request->hasFile('image')) {
+        //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
+        //     Storage::disk('public')->put(
+        //         $imageName,
+        //         file_get_contents($request->file('image')->getRealPath())
+        //     );
+        //     $produto->setImage($imageName);
+        // }
         $produto->save();
         return redirect()->route('products.index');
     }

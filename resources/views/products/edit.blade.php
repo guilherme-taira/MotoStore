@@ -29,18 +29,25 @@
                     <div class="col">
                         <div class="mb-3 row">
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço R$:</label>
-                            <div class="col-lg-10 col-md-6 col-sm-12">
+                            <div class="col-lg-3 col-md-6 col-sm-12">
                                 <input name="price" value="{{ $viewData['product']->price }}" type="number" class="form-control">
+                            </div>
+
+                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Estoque:</label>
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <input name="stock" value="{{ $viewData['product']->stock }}" type="number" class="form-control">
                             </div>
                         </div>
                     </div>
+
+
 
                     <div class="row">
                         <div class="col">
                             <div class="mb-3 row">
                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Imagem Atual:</label>
                                 <div class="col-lg-10 col-md-6 col-sm-12">
-                                    <img src="{{asset('/storage/'.$viewData['product']->image)}}" style="width: 200px">
+                                    <img src="{!!Storage::disk('s3')->url('produtos/'.$viewData['product']->getId().'/'.$viewData['product']->getImage()) !!}" alt="{{ $viewData['product']->getName() }}" style="width: 200px">
                                 </div>
                             </div>
                         </div>

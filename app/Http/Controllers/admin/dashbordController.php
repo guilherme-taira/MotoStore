@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Orders;
+use DateTime;
 use Illuminate\Http\Request;
 
-class adminController extends Controller
+class dashbordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,13 @@ class adminController extends Controller
      */
     public function index()
     {
-        //return view('admin.index');
+        $viewData = [];
+        $viewData['title'] = "MotoStore Dashboard";
+        $viewData['subtitle'] = "Dashboard";
+        $viewData['totalMonth'] = $this->getTotalMonth();
+        $viewData['totalDay'] = $this->getTotalDay();
+        $viewData['orders'] = Orders::orderBy('created_at', 'DESC')->limit(5)->get();
+        return view('admin.index')->with('viewData',$viewData);
     }
 
     /**
@@ -57,7 +65,7 @@ class adminController extends Controller
      */
     public function edit($id)
     {
-        print_r($id);
+        //
     }
 
     /**
@@ -81,5 +89,20 @@ class adminController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getTotalMonth()
+    {
+
+        $monthCurrent = new DateTime();
+        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('total');
+        return $total;
+    }
+
+    public function getTotalDay()
+    {
+        $monthCurrent = new DateTime();
+        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')->sum('total');
+        return $total;
     }
 }
