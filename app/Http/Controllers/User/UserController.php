@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+
     }
 
     /**
@@ -73,7 +73,17 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::where('id',$id)->first();
+
+        if($user){
+            print_r($user->name);
+        }
+
+        $orders = $user->orders()->get();
+        if($orders){
+            echo "<pre>";
+            print_r($orders);
+        }
     }
 
     /**

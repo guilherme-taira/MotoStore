@@ -94,6 +94,9 @@ class CartController extends Controller
                     $item->setOrderId($order->getId());
                     $item->save();
                     $total = $total + ($product->getPrice() * $quantity);
+
+                    // BAIXA SALDO
+                    $this->BaixaSaldo($product->getId(),$quantity);
                 }
 
                 $order->setTotal($total);
@@ -112,6 +115,16 @@ class CartController extends Controller
             }
         }
         return false;
+    }
+
+    public function BaixaSaldo($product_id,$quantity){
+
+        $product = Products::where('id',$product_id)->first();
+
+        if($product){
+            $stockCurrent = $product->stock - $quantity;
+            $product->update(['stock' => $stockCurrent]);
+        }
     }
 
     public function status(Request $request)

@@ -75,7 +75,7 @@ class Products extends Model
 
     public function items()
     {
-        return $this->hasMany(Item::class);
+        return $this->hasMany(Items::class,'id','product_id');
     }
     public function getItems()
     {

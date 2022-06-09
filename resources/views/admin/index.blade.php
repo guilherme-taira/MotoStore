@@ -113,7 +113,7 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">{{ $order->id }} - Valor: R$ {{ $order->total }} Data do Pedido:
-                            {{ $order->created_at }}
+                            {{ $order->created_at }} <a href="{{route('user.show',['id' => $order->user_id])}}">Cliente</a>
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <button class="btn btn-success me-md-2 btn-sm" type="button"><i class="bi bi-eye-fill"></i>
                                     Ver Pedido</button>

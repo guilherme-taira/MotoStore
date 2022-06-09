@@ -11,7 +11,7 @@
                     <p class="card-text">{{ $viewData['product']->getDescription() }}</p>
                     <div class="input-group col-auto">
                         <div class="input-group-text">Quantity</div>
-                        <input type="number" min="1" max="10" class="form-control quantity-input" name="quantity"
+                        <input type="number" min="1" max="10" class="form-control quantity-input" id="quantity" name="quantity"
                             value="1">
                     </div>
                     <div class="col-auto mt-2">

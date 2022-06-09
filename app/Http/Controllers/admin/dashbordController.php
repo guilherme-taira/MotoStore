@@ -4,7 +4,6 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Orders;
-use App\Models\User;
 use DateTime;
 use Illuminate\Http\Request;
 
@@ -17,17 +16,12 @@ class dashbordController extends Controller
      */
     public function index()
     {
-        $orders = Orders::all();
-        $client = $orders->User()->get();
-
         $viewData = [];
         $viewData['title'] = "MotoStore Dashboard";
         $viewData['subtitle'] = "Dashboard";
         $viewData['totalMonth'] = $this->getTotalMonth();
         $viewData['totalDay'] = $this->getTotalDay();
-        $viewData['orders'] = $orders;
-        $viewData['client'] = $client;
-
+        $viewData['orders'] = Orders::orderBy('created_at', 'DESC')->limit(5)->get();
         return view('admin.index')->with('viewData',$viewData);
     }
 

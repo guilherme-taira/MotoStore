@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\User;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Orders extends Model
 {
+
+    use HasApiTokens, HasFactory, Notifiable;
+
     protected $table = 'orders';
 
     public function getId()
@@ -28,7 +32,7 @@ class Orders extends Model
     }
     public function getUserId()
     {
-        return $this->attributes['user_id'];
+        return $this->user_id;
     }
     public function setUserId($userId)
     {
@@ -74,7 +78,7 @@ class Orders extends Model
 
     public function User()
     {
-        return $this->belongsTo(User::class,'user_id','id');
+        return $this->hasMany(User::class,'id','user_id');
     }
 
     public static function validate($request)
