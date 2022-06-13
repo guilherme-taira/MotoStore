@@ -26,7 +26,7 @@
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 valueMounth">R$: {{$viewData['totalMonth']}} </h2>
+                                <h2 class="h1 mb-0 valueMounth">R$: {{ $viewData['totalMonth'] }} </h2>
                             </div>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 ">R$: {{$viewData['totalDay']}}</h2>
+                                <h2 class="h1 mb-0 ">R$: {{ $viewData['totalDay'] }}</h2>
                             </div>
                         </div>
                     </div>
@@ -106,7 +106,8 @@
         </div>
         <div class="card-body">
             {{-- ULTIMAS 5 VENDAS --}}
-            @foreach ($viewData['orders'] as $order)
+
+            {{-- @foreach ($viewData['orders'] as $order)
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Vendas Aprovadas</h5>
@@ -121,7 +122,7 @@
                         </li>
                     </ul>
                 </div>
-            @endforeach
+            @endforeach --}}
         </div>
     </div>
 

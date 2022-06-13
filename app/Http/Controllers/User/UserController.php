@@ -80,10 +80,11 @@ class UserController extends Controller
         }
 
         $orders = $user->orders()->get();
-        if($orders){
-            echo "<pre>";
-            print_r($orders);
+
+        foreach ($orders as $order) {
+            echo "<hr>ID : ".$order->id . "TOTAL R$: ". $order->total. "NOME: " . $user->name. "<hr>";
         }
+
     }
 
     /**

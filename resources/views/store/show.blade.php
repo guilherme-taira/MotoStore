@@ -71,12 +71,16 @@
 
             var quantity = $("#quantity").val();
             var stock = $("#stock").val();
-
-            if(parseInt(stock) === 0){
+            console.log(quantity);
+            console.log(stock);
+            if(parseInt(quantity) > parseInt(stock)){
                 $('#btn-submit').prop("disabled", true);
+                $('#modalbutton').trigger('click');
             }
 
             $('input[id=quantity]').change(function() {
+
+                var quantity = $("#quantity").val();
 
                 if (parseInt(quantity) > parseInt(stock) || parseInt(stock) == '0') {
                     $('#btn-submit').prop("disabled", true);

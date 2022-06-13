@@ -17,6 +17,9 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->integer('total');
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('payment_id');
+
+            $table->foreign('payment_id')->references('id')->on('payment');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

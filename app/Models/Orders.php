@@ -81,6 +81,11 @@ class Orders extends Model
         return $this->hasMany(User::class,'id','user_id');
     }
 
+    public function users(){
+        return $this->belongsToMany(User::class, 'order_user','order','user');
+    }
+
+
     public static function validate($request)
     {
         $request->validate([

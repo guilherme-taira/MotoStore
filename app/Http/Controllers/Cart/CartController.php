@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cart;
 
 use App\Http\Controllers\Controller;
 use App\Models\Items;
+use App\Models\order_user;
 use App\Models\Orders;
 use App\Models\Products;
 use Illuminate\Contracts\Session\Session;
@@ -101,6 +102,12 @@ class CartController extends Controller
 
                 $order->setTotal($total);
                 $order->save();
+
+                // GRAVA RELACIONAMENTO DA VENDA
+                $order_user = new order_user();
+                $order_user->order = $order->getId();
+                $order_user->user = $userId;
+                $order_user->save();
 
                 $request->session()->forget('products');
                 $request->session()->forget('user');
