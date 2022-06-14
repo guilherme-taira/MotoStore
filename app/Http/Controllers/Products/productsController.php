@@ -171,8 +171,9 @@ class productsController extends Controller
             $viewData['title'] = "MotoStore : " . $product->name;
             $viewData['subtitle'] = $product->name;
             $viewData['product'] = $product;
+            $viewData['stock'] = $product->stock;
             $viewData['image'] = $product->image;
-            return view('store.show')->with('viewData', $viewData);
+            return view('store.singleProductShow')->with('viewData', $viewData);
         }
 
         return redirect()->route('store.index');

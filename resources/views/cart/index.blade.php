@@ -5,18 +5,25 @@
         {{-- MESSAGE SUCCESS REMOVE ADD CART --}}
         @if (session()->get('message'))
             <div class="alert alert-success" role="alert">
-                 {{ session()->get('message') }}
+                {{ session()->get('message') }}
             </div>
         @else
             <div class="card-header">
                 Products in Cart
-                <div class="col-6">
-                    <input type="text" class="form-control" id="search" placeholder="Pesquisar..">
-                    <select class="form-select d-none" multiple id="result">
-                    </select>
-                </div>
-                <p id="final"></p>
-                <div class="container" id="ShowQuantiti">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="search" placeholder="Pesquisar..">
+                                <select class="form-select d-none" multiple id="result">
+                                </select>
+                                <p id="final"></p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="container" id="ShowQuantiti"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endif
@@ -49,13 +56,13 @@
             <div class="row">
                 <div class="text-end">
                     <a class="btn btn-outline-secondary mb-2"><b>Total:</b> ${{ $viewData['total'] }}</a>
-                    @if(count($viewData['products']) > 0)
-                    <a href="{{route('cart.status')}}" class="btn bg-primary text-white mb-2">Finalizar</a>
-                    <a href="{{ route('cart.delete') }}">
-                        <button class="btn btn-danger mb-2">
-                           Limpar Carrinho
-                        </button>
-                    </a>
+                    @if (count($viewData['products']) > 0)
+                        <a href="{{ route('cart.status') }}" class="btn bg-primary text-white mb-2">Finalizar</a>
+                        <a href="{{ route('cart.delete') }}">
+                            <button class="btn btn-danger mb-2">
+                                Limpar Carrinho
+                            </button>
+                        </a>
                     @endif
                 </div>
             </div>
@@ -92,17 +99,19 @@
                             // SHOW ALL RESULT QUERY
                             var index = [];
                             $.each(json, function(i, item) {
-                                index[i] = '<option value='+item.id+'>'+item.name+'</option>';
+                                index[i] = '<option value=' + item.id + '>' + item
+                                    .name + '</option>';
                             });
 
                             var arr = jQuery.makeArray(index);
                             arr.reverse();
                             $("#result").html(arr);
 
-                            $( "select" ).change(function() {
-                                $('#final').text($(this).children("option:selected").val());
+                            $("select").change(function() {
+                                $('#final').text($(this).children("option:selected")
+                                    .val());
                                 var number = $('#final').text();
-                                var url = '{{route("product.cartshow",':id')}}';
+                                var url = '{{ route('product.cartshow', ':id') }}';
                                 url = url.replace(':id', number);
                                 $("#ShowQuantiti").load(url);
 
