@@ -93,6 +93,7 @@ class StoreController extends Controller
     public function setUser(Request $request){
 
         $request->session()->put('user', $request->user);
+        $request->session()->put('payment', $request->PaymentId);
         return redirect()->route('cart.purchase');
     }
 

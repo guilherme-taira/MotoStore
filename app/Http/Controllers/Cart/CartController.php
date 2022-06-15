@@ -78,9 +78,12 @@ class CartController extends Controller
 
         if ($productInSection) {
             $userId = $request->session()->get('user');
+            $payment = $request->session()->get('payment');
+
             if ($userId) {
                 $order = new Orders();
                 $order->setUser($userId);
+                $order->setPaymentId($payment);
                 $order->setTotal(0);
                 $order->save();
 
@@ -111,6 +114,7 @@ class CartController extends Controller
 
                 $request->session()->forget('products');
                 $request->session()->forget('user');
+                $request->session()->forget('payment');
 
                 $viewData = [];
                 $viewData["title"] = "Purchase - Online Store";

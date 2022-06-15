@@ -38,6 +38,11 @@ class Orders extends Model
     {
         $this->attributes['user_id'] = $userId;
     }
+
+    public function setPaymentId($payment){
+        $this->attributes['payment_id'] = $payment;
+    }
+
     public function getCreatedAt()
     {
         return $this->attributes['created_at'];
