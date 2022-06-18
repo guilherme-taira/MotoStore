@@ -131,12 +131,14 @@ class productsController extends Controller
             "price" => "required|numeric|gt:0",
             "stock" => "required|numeric|gt:0",
             'image' => 'image',
+            'pricePromotion' => 'numeric',
         ]);
 
         $produto = Products::findOrFail($id);
         $produto->setName($request->input('name'));
         $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
+        $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
 
         // if ($request->hasFile('image')) {

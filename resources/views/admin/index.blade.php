@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @section('title', $viewData['title'])
 @section('conteudo')
+
     <div class="card-body">
         {{-- DASHBOARD --}}
         <div class="row">
@@ -20,13 +21,13 @@
                                         style="font-size: 2rem; color: rgb(2, 196, 76);"></i>
                                 </div>
                                 <div>
-                                    <h4><a href="#">Total
+                                    <h4><a href="{{route('orders.index')}}">Total
                                             Vendas</a></h4>
                                     <p class="mb-0">Mês atual</p>
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 valueMounth">R$: {{ $viewData['totalMonth'] }} </h2>
+                                <h2 class="h1 mb-0 valueMounth">R$: {{ number_format($viewData['totalMonth'], 2, ',', '.') }} </h2>
                             </div>
                         </div>
                     </div>
@@ -47,7 +48,7 @@
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 ">R$: {{ $viewData['totalDay'] }}</h2>
+                                <h2 class="h1 mb-0 ">R$: {{ number_format($viewData['totalDay'], 2, ',', '.')  }}</h2>
                             </div>
                         </div>
                     </div>
@@ -81,7 +82,7 @@
                         <div class="d-flex justify-content-between p-md-1">
                             <div class="d-flex flex-row">
                                 <div class="align-self-center">
-                                    <h2 class="h1 mb-0 me-4">R$: 8000,00</h2>
+                                    <h2 class="h1 mb-0 me-4">R$:0,00</h2>
                                 </div>
                                 <div>
                                     <h4>Total Líquido</h4>
@@ -106,25 +107,24 @@
         </div>
         <div class="card-body">
             {{-- ULTIMAS 5 VENDAS --}}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Vendas Aprovadas</h5>
+                </div>
 
-            {{-- @foreach ($viewData['orders'] as $order)
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Vendas Aprovadas</h5>
-                    </div>
+                @foreach ($viewData['orders'] as $order)
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">{{ $order->id }} - Valor: R$ {{ $order->total }} Data do Pedido:
-                            {{ $order->created_at }} <a href="{{route('user.show',['id' => $order->user_id])}}">Cliente</a>
+                        <li class="list-group-item">  <strong>  Cliente: </strong>  {{$order->name}} <strong> Número do Pedido: </strong> {{ $order->id }}  - <strong>Valor: R$ {{ number_format($order->total, 2, ',', '.') }} </strong> Data do Pedido:
+                            {{ $order->created_at }}
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <button class="btn btn-success me-md-2 btn-sm" type="button"><i class="bi bi-eye-fill"></i>
                                     Ver Pedido</button>
                             </div>
                         </li>
                     </ul>
-                </div>
-            @endforeach --}}
+                @endforeach
+            </div>
         </div>
     </div>
-
     </div>
 @endsection

@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\dashbordController;
 use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Store\StoreController;
@@ -32,6 +33,7 @@ Route::resource('admin','App\Http\Controllers\admin\adminController')->names('ad
 Route::resource('user','App\Http\Controllers\User\UserController')->names('user')->parameters(['user'=>'id']);
 Route::resource('dashboard','App\Http\Controllers\admin\dashbordController')->names('panel')->parameters(['dashboard' => 'id']);
 Route::resource('payments','App\Http\Controllers\Payment\PaymentController')->names('payment')->parameters(['payments' => 'id']);
+Route::resource('orders','App\Http\Controllers\Orders\orderscontroller')->names('orders')->parameters(['orders'=>'id']);
 
 Route::get('cart',[CartController::class,'indexCart'])->name('cart.index');
 Route::get('cart/delete/{id}',[CartController::class,'delete'])->name('cart.delete');

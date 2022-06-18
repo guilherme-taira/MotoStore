@@ -20,8 +20,8 @@
             </a>
             <hr />
             <ul class="nav flex-column">
-                <li><a href="{{route('admin.index')}}" class="nav-link text-dark">- Admin - Home</a></li>
-                <li><a href="{{route('products.index')}}" class="nav-link text-dark">- Admin - Products</a></li>
+                <li><a href="{{route('panel.index')}}" class="nav-link text-dark">- Admin - Vendas</a></li>
+                <li><a href="{{route('products.index')}}" class="nav-link text-dark">- Admin - Produtos</a></li>
                 <li><a href="{{route('payment.index')}}" class="nav-link text-dark">- Admin - Pagamentos</a></li>
                 <li>
                 <li>
@@ -42,7 +42,7 @@
         </div>
     </div>
   <!-- footer -->
-  <div class="copyright py-4 text-center fixed-bottom text-white">
+  <div class="copyright py-4 text-center text-white">
     <div class="container">
         <small>
             Copyright - <a class="text-reset fw-bold text-decoration-none" target="_blank"

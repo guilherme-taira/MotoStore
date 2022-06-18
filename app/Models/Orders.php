@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class Orders extends Model
@@ -39,7 +40,8 @@ class Orders extends Model
         $this->attributes['user_id'] = $userId;
     }
 
-    public function setPaymentId($payment){
+    public function setPaymentId($payment)
+    {
         $this->attributes['payment_id'] = $payment;
     }
 
@@ -83,11 +85,12 @@ class Orders extends Model
 
     public function User()
     {
-        return $this->hasMany(User::class,'id','user_id');
+        return $this->hasMany(User::class, 'id', 'user_id');
     }
 
-    public function users(){
-        return $this->belongsToMany(User::class, 'order_user','order','user');
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'order_user', 'order', 'user');
     }
 
 
@@ -97,5 +100,25 @@ class Orders extends Model
             "total" => "required|numeric",
             "user_id" => "required|exists:users,id",
         ]);
+    }
+
+    public static function Ordersjoin()
+    {
+        $data = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->orderby('orders.created_at','desc')->limit(5)->get();
+
+        return $data;
+    }
+
+    public static function getOrderjoin($id)
+    {
+        $data = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->join('items', 'orders.id', '=', 'items.order_id')
+            ->join('products', 'products.id', '=', 'items.product_id')
+            ->where('orders.id',$id)->get();
+
+        return $data;
     }
 }

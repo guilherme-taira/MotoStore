@@ -13,6 +13,7 @@ class Products extends Model
         'image',
         'price',
         'stock',
+        'pricePromotion',
     ];
 
     protected $table = "products";
@@ -25,6 +26,14 @@ class Products extends Model
     public function setStock($stock)
     {
         $this->stock = $stock;
+    }
+
+    public function getPricePromotion(){
+        return $this->pricePromotion;
+    }
+
+    public function setPricePromotion($pricePromotion){
+        $this->pricePromotion = $pricePromotion;
     }
 
     public function getName()

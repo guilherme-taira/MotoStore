@@ -29,7 +29,7 @@
                         <div class="mb-3 row">
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="price" value="{{ old('price') }}" type="number" class="form-control">
+                                <input name="price" value="{{ old('price') }}" type="text" class="form-control">
                             </div>
 
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Estoque:</label>

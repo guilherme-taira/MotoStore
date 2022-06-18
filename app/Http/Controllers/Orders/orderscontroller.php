@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
 use App\Models\Orders;
-use App\Models\User;
-use DateTime;
 use Illuminate\Http\Request;
 
-class dashbordController extends Controller
+class orderscontroller extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,17 +15,16 @@ class dashbordController extends Controller
      */
     public function index()
     {
-        $orders = Orders::Ordersjoin();
-
         $viewData = [];
-        $viewData['title'] = "MotoStore Dashboard";
-        $viewData['subtitle'] = "Dashboard";
-        $viewData['totalMonth'] = $this->getTotalMonth();
-        $viewData['totalDay'] = $this->getTotalDay();
-        $viewData['index'] = 0;
+        $viewData['title'] = "Tela de Vendas";
+        $viewData['subtitle'] = "Vendas";
+
+        $orders = Orders::Ordersjoin();
         $viewData['orders'] = $orders;
 
-        return view('admin.index')->with('viewData',$viewData);
+        return view('orders.index',[
+            'viewData' => $viewData,
+        ]);
     }
 
     /**
@@ -59,7 +56,15 @@ class dashbordController extends Controller
      */
     public function show($id)
     {
-        //
+        echo "<pre>";
+        $data = Orders::getOrderjoin($id);
+        print_r($data);
+        // $viewData = [];
+        // $viewData['title'] = "Pedido";
+        // $viewData['subtitle'] = "Pedido: ";
+        // $viewData['order'] = "";
+
+        // return view('orders.show')->with('viewData',$viewData);
     }
 
     /**
@@ -94,20 +99,5 @@ class dashbordController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function getTotalMonth()
-    {
-
-        $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('total');
-        return $total;
-    }
-
-    public function getTotalDay()
-    {
-        $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')->sum('total');
-        return $total;
     }
 }
