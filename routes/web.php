@@ -46,6 +46,7 @@ Route::get('/cart/delete',[CartController::class,'delete'])->name('cart.delete')
 // ROUTE AJAX
 Route::get('/getInfoProduct',[getProductsData::class,'infoSearch'])->name('ajax.getInfo');
 Route::get('/getInfoUser',[getUserInfoController::class,'infoSearch'])->name('ajax.getUser');
+Route::get('/getOrderUser',[getUserInfoController::class,'infoOrders'])->name('ajax.getOrders');
 // FINALIZANDO O PEDIDO
 Route::get('/cart/purchase',[CartController::class,'purcharse'])->name('cart.purchase');
 

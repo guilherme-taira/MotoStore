@@ -106,7 +106,20 @@ class Orders extends Model
     {
         $data = DB::table('orders')
             ->join('users', 'orders.user_id', '=', 'users.id')
+            ->join('payment', 'orders.payment_id', '=', 'payment.id')
+            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento')
             ->orderby('orders.created_at','desc')->limit(5)->get();
+
+        return $data;
+    }
+
+    public static function OrdersjoinAjax($user)
+    {
+        $data = DB::table('orders')
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->join('payment', 'orders.payment_id', '=', 'payment.id')
+            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento')
+            ->where('users.name','LIKE', '%'.$user.'%')->get();
 
         return $data;
     }
@@ -117,6 +130,7 @@ class Orders extends Model
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('items', 'orders.id', '=', 'items.order_id')
             ->join('products', 'products.id', '=', 'items.product_id')
+            ->select('users.name','users.email','items.product_id','products.id','products.image','products.description','items.quantity','products.price','orders.total')
             ->where('orders.id',$id)->get();
 
         return $data;

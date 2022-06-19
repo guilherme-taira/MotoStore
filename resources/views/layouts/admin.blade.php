@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous" />
     <link href="{{ asset('/css/admin.css') }}" rel="stylesheet" />
+    <link href="{{ asset('/css/features.css') }}" rel="stylesheet" />
+    <link href="{{ asset('/css/offcanvas.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
     <title>@yield('title', 'Admin - Online Store')</title>
 </head>
@@ -20,7 +22,7 @@
             </a>
             <hr />
             <ul class="nav flex-column">
-                <li><a href="{{route('panel.index')}}" class="nav-link text-dark">- Admin - Vendas</a></li>
+                <li><a href="{{route('orders.index')}}" class="nav-link text-dark">- Admin - Vendas</a></li>
                 <li><a href="{{route('products.index')}}" class="nav-link text-dark">- Admin - Produtos</a></li>
                 <li><a href="{{route('payment.index')}}" class="nav-link text-dark">- Admin - Pagamentos</a></li>
                 <li>

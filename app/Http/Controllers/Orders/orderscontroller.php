@@ -56,15 +56,14 @@ class orderscontroller extends Controller
      */
     public function show($id)
     {
-        echo "<pre>";
-        $data = Orders::getOrderjoin($id);
-        print_r($data);
-        // $viewData = [];
-        // $viewData['title'] = "Pedido";
-        // $viewData['subtitle'] = "Pedido: ";
-        // $viewData['order'] = "";
+        $order = Orders::getOrderjoin($id);
 
-        // return view('orders.show')->with('viewData',$viewData);
+        $viewData = [];
+        $viewData['title'] = "Pedido";
+        $viewData['subtitle'] = "$id";
+        $viewData['order'] = $order;
+
+        return view('orders.show')->with('viewData',$viewData);
     }
 
     /**
