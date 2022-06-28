@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Models\Items;
 use App\Models\Orders;
 use Illuminate\Http\Request;
 
@@ -98,5 +99,16 @@ class orderscontroller extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function Areceber(){
+        $viewData = [];
+        $viewData['title'] = "Contas a Receber";
+        $viewData['subtitle'] = 'Valores a Receber';
+        $viewData['orders'] = Items::contareceber();
+
+        return view('orders.areceber',[
+            'viewData' => $viewData,
+        ]);
     }
 }

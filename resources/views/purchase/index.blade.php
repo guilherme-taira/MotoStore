@@ -50,6 +50,10 @@
                             <label class="form-check-label" value="4" for="flexSwitchCheckChecked">Marcar <i
                                     class="bi bi-journal"></i></label>
                         </div>
+
+                        <div id="dataGet">
+                            <input type="date" class="form-control" name="dataPagamento" id="dataPagamento">
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -99,7 +103,7 @@
                     </div>
                     {{-- INPUT QUE CRIA O MEIO DE PAGAMENTO --}}
                     <input type="hidden" name="PaymentId" id="PaymentId">
-
+                    <input type="hidden" name="datePayment" value="2022-01-01" id="datePayment">
                     <div class="d-grid gap-2 d-none" id="btnFinalizar">
                         <button class="btn btn-success" type="submit">Finalizar <i class="bi bi-cart-check"></i></button>
                     </div>
@@ -119,6 +123,7 @@
 
     <script>
         $(document).ready(function() {
+            $("#dataGet").hide();
 
             $("#search").keyup(function() {
 
@@ -165,7 +170,6 @@
 
                             });
 
-
                         }
                     },
                     error: function(error) {
@@ -195,10 +199,22 @@
                             indice = 0;
                         } else {
                             indice += 1;
-                            $('#PaymentId').val($(i).val());
+                            if($(i).val() == '4'){
+                                $("#dataGet").show();
+                                $('#PaymentId').val($(i).val());
+                            }else{
+                                $('#PaymentId').val($(i).val());
+                            }
+
                         }
                     }
                 });
+            });
+
+             // verificar se a data de pagamento para marcar mudou
+             $("#dataGet").change(function() {
+                $data = $("#dataPagamento").val();
+                $("#datePayment").val($data);
             });
         });
     </script>

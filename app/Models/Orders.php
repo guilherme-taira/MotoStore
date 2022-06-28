@@ -93,6 +93,22 @@ class Orders extends Model
         return $this->belongsToMany(User::class, 'order_user', 'order', 'user');
     }
 
+    public function setDatePayment($dataPayment){
+        $this->attributes['dataPayment'] = $dataPayment;
+    }
+
+    public function getColor(){
+        return $this->attributes['color'];
+    }
+
+    public function setColor($color){
+        $this->attributes['color'] = $color;
+    }
+
+    public function getDatePayment(){
+        return $this->attributes['dataPayment'];
+    }
+
 
     public static function validate($request)
     {
@@ -107,21 +123,52 @@ class Orders extends Model
         $data = DB::table('orders')
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('payment', 'orders.payment_id', '=', 'payment.id')
-            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento')
+            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento','orders.color')
             ->orderby('orders.created_at','desc')->limit(5)->get();
 
         return $data;
     }
 
-    public static function OrdersjoinAjax($user)
+    public static function OrdersjoinAjax($user,$formPayment)
     {
-        $data = DB::table('orders')
-            ->join('users', 'orders.user_id', '=', 'users.id')
-            ->join('payment', 'orders.payment_id', '=', 'payment.id')
-            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento')
-            ->where('users.name','LIKE', '%'.$user.'%')->get();
 
-        return $data;
+        $data = orders::join('users', 'orders.user_id', '=', 'users.id')
+            ->join('payment', 'orders.payment_id', '=', 'payment.id')
+            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento');
+
+            if($user){
+                $data->where('users.name','LIKE', '%'.$user.'%');
+            }
+
+            if($formPayment){
+                $data->where('orders.payment_id',$formPayment);
+            }
+
+           $dados = $data->get();
+
+        return $dados;
+    }
+
+    public static function OrderJoinGenerateReport($user,$formPayment,$datainicial,$datafinal){
+
+        $data = orders::join('users', 'orders.user_id', '=', 'users.id')
+        ->join('payment', 'orders.payment_id', '=', 'payment.id')
+        ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento');
+
+        if($user){
+            $data->where('users.name','LIKE', '%'.$user.'%');
+        }
+
+        if($formPayment){
+            $data->where('orders.payment_id',$formPayment);
+        }
+
+        if($datainicial && $datafinal){
+            $data->whereBetween('orders.created_at',[$datainicial, $datafinal]);
+        }
+
+       $dados = $data->get();
+       return $dados;
     }
 
     public static function getOrderjoin($id)

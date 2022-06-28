@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Items extends Model
 {
@@ -99,5 +100,44 @@ class Items extends Model
         $this->product = $product;
     }
 
+    public static function OrderJoinGenerateReportProduct($product_id,$formPayment,$datainicial,$datafinal){
+
+        $data = Items::join('Products', 'items.product_id', '=', 'products.id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->join('payment', 'orders.payment_id', '=', 'payment.id')
+        ->join('users', 'orders.user_id', '=', 'users.id')
+        ->select('orders.id','orders.total as totalVenda','orders.created_at as datavenda','items.quantity as quantidade','payment.name as pagamento','products.name','users.name as cliente');
+
+        if($product_id){
+            $data->where('products.id',$product_id);
+        }
+
+        if($formPayment){
+            $data->where('orders.payment_id',$formPayment);
+        }else{
+            $data->where('orders.payment_id','<>',5);
+        }
+
+        if($datainicial && $datafinal){
+            $data->whereBetween('orders.created_at',[$datainicial, $datafinal]);
+        }
+
+       $dados = $data->get();
+       return $dados;
+    }
+
+
+    public static function contareceber(){
+        $data = Items::join('Products', 'items.product_id', '=', 'products.id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->join('payment', 'orders.payment_id', '=', 'payment.id')
+        ->join('users', 'orders.user_id', '=', 'users.id')
+        ->select('orders.id','orders.total as totalVenda','orders.created_at as datavenda','items.quantity as quantidade','payment.name as pagamento','products.name','users.name as cliente')
+        ->groupBy('orders.id')
+        ->where('orders.payment_id','=',4)
+        ->paginate(5);
+
+       return $data;
+    }
 
 }

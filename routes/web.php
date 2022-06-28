@@ -8,8 +8,10 @@ use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Products\productsController;
+use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Orders;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +39,7 @@ Route::resource('orders','App\Http\Controllers\Orders\orderscontroller')->names(
 
 Route::get('cart',[CartController::class,'indexCart'])->name('cart.index');
 Route::get('cart/delete/{id}',[CartController::class,'delete'])->name('cart.delete');
+Route::get('/contasReceber',[orderscontroller::class,'areceber'])->name('orders.areceber');
 Route::get('productcart/{id}',[productsController::class,'CartShow'])->name('product.cartshow');
 Route::post('cart/add/{id}',[CartController::class,'add'])->name('cart.add');
 Route::post('/user/order',[StoreController::class,'setUser'])->name('setUser.add');
@@ -49,4 +52,8 @@ Route::get('/getInfoUser',[getUserInfoController::class,'infoSearch'])->name('aj
 Route::get('/getOrderUser',[getUserInfoController::class,'infoOrders'])->name('ajax.getOrders');
 // FINALIZANDO O PEDIDO
 Route::get('/cart/purchase',[CartController::class,'purcharse'])->name('cart.purchase');
-
+// ROUTE PDF
+Route::get('/createPDF',[reportController::class,'generatePDF'])->name('generatepdf');
+Route::get('/relatorios',[reportController::class,'generateReporter'])->name('generate');
+Route::get('/gerador',[reportController::class,'generating'])->name('GeradorRelatorio');
+Route::get('/geradorProdutos',[reportController::class,'generatingProduct'])->name('GeradorRelatorioperProduct');

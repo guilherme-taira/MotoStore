@@ -18,7 +18,7 @@ class getUserInfoController extends Controller
     }
 
     public function infoOrders(Request $request){
-        $data = json_encode(Orders::OrdersjoinAjax($request->name));
+        $data = json_encode(Orders::OrdersjoinAjax($request->name,$request->payment));
         if($data){
             return response()->json(['dados' => $data],200);
         }

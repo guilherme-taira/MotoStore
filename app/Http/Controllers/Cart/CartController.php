@@ -79,11 +79,14 @@ class CartController extends Controller
         if ($productInSection) {
             $userId = $request->session()->get('user');
             $payment = $request->session()->get('payment');
+            $dataPayment = $request->session()->get('datePayment');
 
             if ($userId) {
                 $order = new Orders();
                 $order->setUser($userId);
                 $order->setPaymentId($payment);
+                $order->setDatePayment($dataPayment);
+                $order->setColor($this->SelectPaymentColor($payment));
                 $order->setTotal(0);
                 $order->save();
 
@@ -115,6 +118,7 @@ class CartController extends Controller
                 $request->session()->forget('products');
                 $request->session()->forget('user');
                 $request->session()->forget('payment');
+                $request->session()->forget('datePayment');
 
                 $viewData = [];
                 $viewData["title"] = "Purchase - Online Store";
@@ -144,5 +148,29 @@ class CartController extends Controller
         $viewData['title'] = 'MotoStore Status da Venda';
         $viewData['subtitle'] = 'Status da Venda';
         return view('purchase.index')->with('viewData', $viewData);
+    }
+
+    public function SelectPaymentColor($paymentId){
+
+        switch($paymentId){
+            case 1:
+                return '#007bff';
+                break;
+            case 2:
+                return '#ac15e8';
+                break;
+            case 3:
+                return '#15dde8';
+                break;
+            case 4:
+                return '#d3e815';
+                break;
+            case 5:
+                return '#ff0000';
+                break;
+            default:
+                return '#007bff';
+                break;
+        }
     }
 }
