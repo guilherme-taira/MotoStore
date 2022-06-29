@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,11 @@ class Orders extends Model
 {
 
     use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'payment_id',
+        'dataBaixa'
+    ];
 
     protected $table = 'orders';
 
@@ -181,5 +187,13 @@ class Orders extends Model
             ->where('orders.id',$id)->get();
 
         return $data;
+    }
+
+    public static function BaixarVenda($id){
+        $data = new DateTime();
+
+        $dados =  Orders::find($id);
+        // ATUALIZA NA DATA ATUAL
+        $dados->update(['dataBaixa' => $data->format('Y-m-d H:i:s'), 'payment_id' => '1']);
     }
 }

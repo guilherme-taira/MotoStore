@@ -1,26 +1,50 @@
 @extends('layouts.layout')
 @section('conteudo')
     <div class="row">
-        @foreach ($viewData['products'] as $product)
+        <main>
+            <div class="container-fluid bg-trasparent my-4 p-3" style="position: relative;">
+                <div class="row row-cols-1 row-cols-xs-2 row-cols-sm-2 row-cols-lg-4 g-3">
 
-            <div class="col-md-4 col-lg-3 mb-2">
-                <div class="card" style="width: 16rem;">
-                    <img src="{{Storage::disk('s3')->url('produtos/'.$product->getId().'/'.$product->getImage())}}" class="card-img-top img-card mt-2 p-4">
-                    <div class="card-body text-center">
-                        @if($product->getStock() == 0 && $product->getPricePromotion() == 0)
-                        <h4 class="badge bg-danger">SEM ESTOQUE</h4>
-                        @elseif($product->getPricePromotion() > 0 )
-                            <s> R$: {{$product->getPrice()}}</s> <h4 class="text-success">R$: {{$product->getPricePromotion()}}</h4>
-                            <a href="{{ route('products.show', ['id' => $product->getId()]) }}"
-                                class="btn bg-primary text-white">{{ $product->getName() }}</a>
-                        @else
-                            <h4 class="text-success">R$: {{$product->getPrice()}}</h4>
-                            <a href="{{ route('products.show', ['id' => $product->getId()]) }}"
-                                class="btn bg-primary text-white">{{ $product->getName() }}</a>
-                        @endif
-                    </div>
+                    @foreach ($viewData['products'] as $product)
+                        <div class="col">
+                            <div class="card h-100 shadow-sm"> <img
+                                    src="{{ Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) }}"
+                                    class="card-img-top" alt="...">
+                                <div class="card-body">
+
+                                    @if ($product->getStock() == 0 && $product->getPricePromotion() == 0)
+                                        {{-- PREÇO --}}
+                                        <div class="clearfix mb-3"> <span
+                                                class="float-start badge rounded-pill bg-primary">ASUS
+                                                Rog</span> <span class="float-end price-hp">SEM ESTOQUE</span> </div>
+                                    @elseif($product->getPricePromotion() > 0)
+                                        {{-- PREÇO --}}
+                                        <div class="clearfix mb-3"> <span class="badge rounded-pill bg-warning"><s> R$:
+                                                    {{ $product->getPrice() }}</s></span> <span
+                                                class="float-end price-hp">
+
+                                                <h4 class="text-success">R$: {{ $product->getPricePromotion() }}</h4>
+                                                <a href="{{ route('products.show', ['id' => $product->getId()]) }}"
+                                                    class="btn bg-primary text-white">{{ $product->getName() }}</a>
+                                            </span> </div>
+                                    @else
+                                        <h4 class="text-success">R$: {{ $product->getPrice() }}</h4>
+                                        <a href="{{ route('products.show', ['id' => $product->getId()]) }}"
+                                            class="btn bg-primary text-white">{{ $product->getName() }}</a>
+                                    @endif
+                                    <h5 class="card-title mt-2">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                                        Veniam
+                                        quidem eaque ut eveniet aut quis rerum.</h5>
+                                    <div class="text-center my-4"> <a
+                                            href="{{ route('products.show', ['id' => $product->getId()]) }}"
+                                            class="btn btn-warning">Comprar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
-        @endforeach
+        </main>
     </div>
 @endsection

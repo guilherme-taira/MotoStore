@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Orders;
 use App\Http\Controllers\Controller;
 use App\Models\Items;
 use App\Models\Orders;
+use DateTime;
 use Illuminate\Http\Request;
 
 class orderscontroller extends Controller
@@ -106,9 +107,30 @@ class orderscontroller extends Controller
         $viewData['title'] = "Contas a Receber";
         $viewData['subtitle'] = 'Valores a Receber';
         $viewData['orders'] = Items::contareceber();
+        $viewData['countData'] = Items::contareceberCount();
 
+        $viewData['contasDia'] = 0;
+        $viewData['contasAtrasada'] = 0;
+
+        // DATA ATUAL
+        $dataNow = new DateTime();
+
+        // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
+        foreach ($viewData['countData'] as $order) {
+            if($order->datapagamento < $dataNow->format('Y-m-d')){
+                $viewData['contasDia'] += 1;
+            }else{
+                $viewData['contasAtrasada'] += 1;
+            }
+        }
         return view('orders.areceber',[
             'viewData' => $viewData,
         ]);
+    }
+
+    public function baixarvenda(Request $request){
+        // BAIXA O PEDIDO
+        Orders::BaixarVenda($request->id);
+        return redirect()->route('orders.areceber')->with('msg','Pedido Baixado Com Sucesso!');
     }
 }

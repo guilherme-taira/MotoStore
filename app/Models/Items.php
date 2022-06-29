@@ -132,10 +132,23 @@ class Items extends Model
         ->join('orders', 'items.order_id', '=', 'orders.id')
         ->join('payment', 'orders.payment_id', '=', 'payment.id')
         ->join('users', 'orders.user_id', '=', 'users.id')
-        ->select('orders.id','orders.total as totalVenda','orders.created_at as datavenda','items.quantity as quantidade','payment.name as pagamento','products.name','users.name as cliente')
+        ->select('orders.id','orders.total as totalVenda','orders.created_at as datavenda','items.quantity as quantidade','payment.name as pagamento','products.name','users.name as cliente','orders.dataPayment as datapagamento')
         ->groupBy('orders.id')
         ->where('orders.payment_id','=',4)
         ->paginate(5);
+
+       return $data;
+    }
+
+    public static function contareceberCount(){
+        $data = Items::join('Products', 'items.product_id', '=', 'products.id')
+        ->join('orders', 'items.order_id', '=', 'orders.id')
+        ->join('payment', 'orders.payment_id', '=', 'payment.id')
+        ->join('users', 'orders.user_id', '=', 'users.id')
+        ->select('orders.id','orders.total as totalVenda','orders.created_at as datavenda','items.quantity as quantidade','payment.name as pagamento','products.name','users.name as cliente','orders.dataPayment as datapagamento')
+        ->groupBy('orders.id')
+        ->where('orders.payment_id','=',4)
+        ->get();
 
        return $data;
     }

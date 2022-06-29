@@ -41,6 +41,7 @@ Route::get('cart',[CartController::class,'indexCart'])->name('cart.index');
 Route::get('cart/delete/{id}',[CartController::class,'delete'])->name('cart.delete');
 Route::get('/contasReceber',[orderscontroller::class,'areceber'])->name('orders.areceber');
 Route::get('productcart/{id}',[productsController::class,'CartShow'])->name('product.cartshow');
+Route::get('/baixarVenda/{id}',[orderscontroller::class,'baixarvenda'])->name('orders.baixarVenda');
 Route::post('cart/add/{id}',[CartController::class,'add'])->name('cart.add');
 Route::post('/user/order',[StoreController::class,'setUser'])->name('setUser.add');
 

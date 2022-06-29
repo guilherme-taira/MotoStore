@@ -20,7 +20,6 @@
 </head>
 
 <body>
-
     <div class="row g-0">
         <div class="col content-grey">
             {{-- nav bar start --}}
@@ -65,7 +64,7 @@
                                         <hr class="dropdown-divider" />
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                        <a class="dropdown-item" href="#">Relatórios</a>
                                     </li>
                                 </ul>
                             </li>
