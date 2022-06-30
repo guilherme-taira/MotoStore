@@ -66,6 +66,12 @@
                                     <li>
                                         <a class="dropdown-item" href="#">Relatórios</a>
                                     </li>
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('payment.index')}}">Meio de Pagamento</a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>

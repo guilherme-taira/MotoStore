@@ -21,7 +21,7 @@
 
 <body>
     <!-- header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary py-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-warning py-2">
         <div class="container">
             <a class="navbar-brand" href="{{ route('stores.index') }}"><i class="bi bi-gear"></i> MotoStore</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
@@ -39,7 +39,7 @@
     </nav>
     <header class="masthead bg-primary text-white text-center py-4">
         <div class="container d-flex align-items-center flex-column">
-            <h2>@yield('subtitle', 'A Laravel Online Store')</h2>
+            <h2>@yield('subtitle', $viewData['subtitle'])</h2>
         </div>
     </header>
     <!-- header -->

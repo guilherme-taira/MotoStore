@@ -30,32 +30,40 @@
         <form method="POST" id="formulario" action="{{ route('cart.add', ['id' => $viewData['product']->getId()]) }}">
             <div class="row">
                 @csrf
-                <div class="card" style="width: 18rem;">
-                    <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}" class="card-img-top img-card mt-2"
-                        alt="{{ $viewData['product']->getName() }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $viewData['product']->getName() }}
-                            (${{ $viewData['product']->getPrice() }})</h5>
-                        <p class="card-text">{{ $viewData['product']->getDescription() }}</p>
-                        <div class="input-group col-auto">
-                            <div class="input-group-text">Quantity</div>
-                            <input type="number" min="1" max="10" class="form-control quantity-input" id="quantity"
-                                name="quantity" value="1">
+                <div class="row p-2 bg-white border rounded">
+                    <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image"
+                            src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"></div>
+                    <div class="col-md-6 mt-1">
+                        <h5>{{ $viewData['product']->getName() }}</h5>
+
+                        <p class="text-justify text-truncate para mb-0"> {{ $viewData['product']->getDescription() }}<br><br></p>
+
+                        <div class="col-md-6">
+                            <div>Quantidade</div>
+                            <input type="number" min="1"class="form-control quantity-input"
+                                id="quantity" name="quantity" value="1">
                         </div>
-                        <div class="input-group col-auto mt-2">
-                            <div class="input-group-text">Estoque</div>
+                        <div class="col-md-6">
+                            <div>Estoque</div>
                             <input type="text" min="1" id="stock" class="form-control quantity-input" disabled
                                 value="{{ $viewData['stock'] }}">
                         </div>
 
-                        <div class="col-auto mt-2">
-                            <button class="btn bg-primary text-white" id="btn-submit" type="submit">Add to cart</button>
+                    </div>
+                    <div class="align-items-center align-content-center col-md-3 border-left mt-1">
+                        <div class="d-flex flex-row align-items-center">
+                            <h4 class="mr-1">{{ $viewData['product']->getPrice() }} </h4><span class="strike-text">R$:
+                                {{ $viewData['product']->getPrice() }}</span>
                         </div>
+                        <h6 class="text-success">Free shipping</h6>
+                        <div class="d-flex flex-column mt-4"><button class="btn bg-primary text-white btn-sm"
+                                id="btn-submit"  type="button">Details</button><button
+                                class="btn btn-outline-primary btn-sm mt-2" type="submit">Adicionar ao Carrinho</button></div>
                     </div>
                 </div>
-            </div>
         </form>
-        </p>
+    </div>
+</div>
     @endsection
 
     {{-- AJAX JQUERY SEARCH --}}
@@ -73,7 +81,7 @@
             var stock = $("#stock").val();
             console.log(quantity);
             console.log(stock);
-            if(parseInt(quantity) > parseInt(stock)){
+            if (parseInt(quantity) > parseInt(stock)) {
                 $('#btn-submit').prop("disabled", true);
                 $('#modalbutton').trigger('click');
             }

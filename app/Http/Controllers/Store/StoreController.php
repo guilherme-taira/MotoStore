@@ -18,7 +18,8 @@ class StoreController extends Controller
     public function index()
     {
         $viewData = [];
-        $viewData['title'] = 'MotoStore';
+        $viewData['title'] = "Embaleme";
+        $viewData['subtitle'] = 'Embaleme';
         $viewData['products'] = Products::all();
 
         return view('store.index')->with('viewData',$viewData);
