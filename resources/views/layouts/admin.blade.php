@@ -74,6 +74,22 @@
                                     </li>
                                 </ul>
                             </li>
+                            {{-- Marketing --}}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-mdb-toggle="dropdown" aria-expanded="false">
+                                    Marketing
+                                </a>
+                                <!-- Dropdown menu -->
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('banner.index')}}">Banners</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('logos.index')}}">Logo</a>
+                                    </li>
+                                </ul>
+                            </li>
                         </ul>
                         <!-- Left links -->
                     </div>

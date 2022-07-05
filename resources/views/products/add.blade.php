@@ -53,10 +53,29 @@
                         <label class="form-label">Description</label>
                         <textarea class="form-control" name="description" rows="3">{{ old('description') }}</textarea>
                     </div>
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">Cadastrar <i class="bi bi-sd-card-fill"></i></button>
+                    <div class="mb-3" id="submitado">
+
+                        <div class="spinner-border text-success d-none" id="carregando">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="BtnCadastrar">Cadastrar <i class="bi bi-sd-card-fill"></i></button>
                     </div>
             </form>
         </div>
     </div>
 @endsection
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script>
+    $(document).ready(function() {
+        $("form").submit(function (event) {
+            // event.preventDefault();
+            $("#BtnCadastrar").addClass('d-none');
+            $('#carregando').removeClass('d-none');
+        });
+    });
+</script>

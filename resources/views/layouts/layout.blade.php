@@ -15,29 +15,46 @@
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <link href="{{ asset('/css/app.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css')}}" >
+    <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css')}}">
     <title>@yield('title', 'Online Store')</title>
 </head>
 
 <body>
     <!-- header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-warning py-2">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('stores.index') }}"><i class="bi bi-gear"></i> MotoStore</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link active" href="{{ route('stores.index') }}">Home</a>
-                    <a class="nav-link active" href="{{ route('panel.index') }}">Painel</a>
-                    <a class="nav-link active" href="#">About</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <header class="masthead bg-primary text-white text-center py-4">
+                   <!-- Navigation -->
+                   <nav class="navbar navbar-expand-lg navbar-light bg-warning fixed-top">
+                    <div class="container">
+                        <a class="navbar-brand" href="{{ route('stores.index') }}"><img src="{{ Storage::disk('s3')->url('LogoEmbaleme/' . $viewData['logo']->getId() . '/' . $viewData['logo']->getImage()) }}" width="150" alt=""></a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+                            aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarResponsive">
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="{{ route('stores.index') }}">Home</a>
+
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('panel.index') }}">Painel</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Services</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+    <header class="masthead bg-warning text-white text-center py-4">
         <div class="container d-flex align-items-center flex-column">
             <h2>@yield('subtitle', $viewData['subtitle'])</h2>
         </div>

@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Store;
+namespace App\Http\Controllers\Logo;
 
 use App\Http\Controllers\Controller;
-use App\Models\banner;
 use App\Models\logo;
-use App\Models\Products;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
-class StoreController extends Controller
+class logoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,14 +17,13 @@ class StoreController extends Controller
     public function index()
     {
         $viewData = [];
-        $viewData['title'] = "Embaleme";
-        $viewData['subtitle'] = 'Embaleme';
-        $viewData['products'] = Products::all();
-        $viewData['bannersFix'] = banner::first();
-        $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
-        $viewData['logo'] = logo::first();
+        $viewData['title'] = "Logo Edit";
+        $viewData['subtitle'] = "Logo da Sua Marca";
+        $viewData['logos'] = logo::all();
 
-        return view('store.index')->with('viewData',$viewData);
+        return view('marketing.logo.index', [
+            'viewData' => $viewData,
+        ]);
     }
 
     /**
@@ -37,7 +33,13 @@ class StoreController extends Controller
      */
     public function create()
     {
-        //
+        $viewData = [];
+        $viewData['title'] = "Logo Edit";
+        $viewData['subtitle'] = "Logo da Sua Marca";
+
+        return view('marketing.logo.create', [
+            'viewData' => $viewData,
+        ]);
     }
 
     /**
@@ -48,7 +50,31 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5',
+            'image' => 'required|file',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $logo = new logo();
+        $logo->name = $request->name;
+        $logo->image = 'image.png';
+        $logo->save();
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('LogoEmbaleme/' . $logo->getId(), $filename, 's3');
+            $logo->setImage($filename);
+            $logo->save();
+        }
+
+        return redirect()->route('logos.index');
     }
 
     /**
@@ -95,13 +121,4 @@ class StoreController extends Controller
     {
         //
     }
-
-    public function setUser(Request $request){
-
-        $request->session()->put('user', $request->user);
-        $request->session()->put('payment', $request->PaymentId);
-        $request->session()->put('datePayment',$request->datePayment);
-        return redirect()->route('cart.purchase');
-    }
-
 }

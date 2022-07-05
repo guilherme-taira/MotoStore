@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Store;
+namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\banner;
-use App\Models\logo;
-use App\Models\Products;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
-class StoreController extends Controller
+class BannerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,14 +17,13 @@ class StoreController extends Controller
     public function index()
     {
         $viewData = [];
-        $viewData['title'] = "Embaleme";
-        $viewData['subtitle'] = 'Embaleme';
-        $viewData['products'] = Products::all();
-        $viewData['bannersFix'] = banner::first();
-        $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
-        $viewData['logo'] = logo::first();
+        $viewData['title'] = "Marketing - Banner";
+        $viewData['subtitle'] = "Banners";
+        $viewData['banners'] = banner::all();
 
-        return view('store.index')->with('viewData',$viewData);
+        return view('marketing.banners.index',[
+            'viewData' => $viewData
+        ]);
     }
 
     /**
@@ -37,7 +33,11 @@ class StoreController extends Controller
      */
     public function create()
     {
-        //
+        $viewData = [];
+        $viewData['title'] = "Banners";
+        $viewData['subtitle'] = "Criador de Banner";
+        return view('marketing.banners.create',
+        ['viewData' => $viewData,]);
     }
 
     /**
@@ -48,7 +48,32 @@ class StoreController extends Controller
      */
     public function store(Request $request)
     {
-        //
+           $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5',
+            'image' => 'required|file',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $banner = new banner();
+        $banner->name = $request->name;
+        $banner->image = 'image.png';
+        $banner->save();
+
+        if ($request->hasFile('image')) {
+            //$imageName = $produto->getId() . "." . $request->file('image')->extension();
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('bannersEmbaleme/'.$banner->getId(),$filename,'s3');
+            $banner->setImage($filename);
+            $banner->save();
+        }
+
+        return redirect()->route('banner.index');
     }
 
     /**
@@ -95,13 +120,4 @@ class StoreController extends Controller
     {
         //
     }
-
-    public function setUser(Request $request){
-
-        $request->session()->put('user', $request->user);
-        $request->session()->put('payment', $request->PaymentId);
-        $request->session()->put('datePayment',$request->datePayment);
-        return redirect()->route('cart.purchase');
-    }
-
 }
