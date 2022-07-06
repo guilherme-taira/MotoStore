@@ -28,7 +28,7 @@
                    <!-- Navigation -->
                    <nav class="navbar navbar-expand-lg navbar-light bg-warning fixed-top">
                     <div class="container">
-                        <a class="navbar-brand" href="{{ route('stores.index') }}"><img src="{{ Storage::disk('s3')->url('LogoEmbaleme/' . $viewData['logo']->getId() . '/' . $viewData['logo']->getImage()) }}" width="150" alt=""></a>
+                        <a class="navbar-brand" href="{{ route('stores.index') }}"><img src="{{ Storage::disk('s3')->url('LogoEmbaleme/' . app(App\Models\logo::class)->getLogo()->getId() . '/' . app(App\Models\logo::class)->getLogo()->getImage()) }}" width="100" alt=""></a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
                             aria-label="Toggle navigation">

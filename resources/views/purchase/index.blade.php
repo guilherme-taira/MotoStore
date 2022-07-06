@@ -64,7 +64,7 @@
     </div>
 
 
-    <div class="card">
+    <div class="card mt-4">
         <div class="card-body">
             <div class="card-header">
                 <h5 class="card-title">Selecione o Cliente para finalizar o Pedido</h5>

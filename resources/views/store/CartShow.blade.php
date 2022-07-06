@@ -1,4 +1,4 @@
-<div class="card-body" id="displayCart">
+<div class="card-body " id="displayCart">
     <form method="POST" action="{{ route('cart.add', ['id' => $viewData['product']->getId()]) }}">
         <div class="row">
             @csrf

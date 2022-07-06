@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 @section('conteudo')
-    <div class="card">
+    <div class="card py-4">
 
         {{-- MESSAGE SUCCESS REMOVE ADD CART --}}
         @if (session()->get('message'))
@@ -8,7 +8,7 @@
                 {{ session()->get('message') }}
             </div>
         @else
-            <div class="card-header">
+            <div class="card-header mt-4">
                 Products in Cart
                 <div class="container">
                     <div class="row">

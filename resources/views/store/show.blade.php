@@ -28,7 +28,7 @@
         </div>
 
         <form method="POST" id="formulario" action="{{ route('cart.add', ['id' => $viewData['product']->getId()]) }}">
-            <div class="row">
+            <div class="row mt-4">
                 @csrf
                 <div class="row p-2 bg-white border rounded">
                     <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image"

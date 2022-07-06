@@ -32,3 +32,8 @@ nav {
     -o-background-size: cover;
     background-size: cover;
   }
+
+
+  .conteudo-principal{
+    padding: 50px;
+  }

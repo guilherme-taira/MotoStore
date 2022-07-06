@@ -20,4 +20,10 @@ class logo extends Model
        public function setImage($image){
           $this->attributes['image'] = $image;
        }
+
+       public function getLogo(){
+
+            $logo = logo::first();
+            return $logo;
+       }
 }
