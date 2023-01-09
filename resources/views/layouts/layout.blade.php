@@ -26,9 +26,9 @@
 <body>
     <!-- header -->
                    <!-- Navigation -->
-                   <nav class="navbar navbar-expand-lg navbar-light bg-warning fixed-top">
+                   <nav class="navbar navbar-expand-lg navbar-light bg-primary fixed-top">
                     <div class="container">
-                        <a class="navbar-brand" href="{{ route('stores.index') }}"><img src="{{ Storage::disk('s3')->url('LogoEmbaleme/' . app(App\Models\logo::class)->getLogo()->getId() . '/' . app(App\Models\logo::class)->getLogo()->getImage()) }}" width="100" alt=""></a>
+                        <a class="navbar-brand" href="{{ route('stores.index') }}"><img class="logo-width" src="{{ Storage::disk('s3')->url('LogoEmbaleme/' . app(App\Models\logo::class)->getLogo()->getId() . '/' . app(App\Models\logo::class)->getLogo()->getImage()) }}"></a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
                             aria-label="Toggle navigation">
@@ -54,7 +54,7 @@
                     </div>
                 </nav>
 
-    <header class="masthead bg-warning text-white text-center py-4">
+    <header class="masthead bg-primary text-white text-center py-4">
         <div class="container d-flex align-items-center flex-column">
             <h2>@yield('subtitle', $viewData['subtitle'])</h2>
         </div>
@@ -64,13 +64,15 @@
         @yield('conteudo')
     </div>
     <!-- footer -->
-    <div class="copyright py-4 text-center text-white">
+    <div class="copyright py-2 text-center fixed-bottom text-white">
         <div class="container">
             <small>
                 Copyright - <a class="text-reset fw-bold text-decoration-none" target="_blank"
                     href="https://twitter.com/danielgarax">
-                    Guilherme Taira
-                </a> - <b>Taira Solution</b>
+                    Máximo Company
+                </a> - CNPJ: 48.930.389-0001-09</b>
+                <br>
+                <small>Todos os Direitos Reservados</small>
             </small>
         </div>
     </div>

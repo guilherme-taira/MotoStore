@@ -69,7 +69,7 @@ class productsController extends Controller
             //$imageName = $produto->getId() . "." . $request->file('image')->extension();
             $file = $request->file('image');
             $filename = $file->getClientOriginalName();
-            $file->storeAs('produtos/'.$produto->getId(),$filename,'s3');
+            $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
             $produto->setImage($filename);
             $produto->save();
         }
@@ -130,7 +130,11 @@ class productsController extends Controller
             "description" => "required",
             "price" => "required|numeric|gt:0",
             "stock" => "required|numeric|gt:0",
+            "categoria_mercadolivre" => "required|max:20",
+            "brand" => "max:100",
             'image' => 'image',
+            "ean" => "required|numeric",
+            "tipo_anuncio" => "required|max:50",
             'pricePromotion' => 'numeric',
         ]);
 
@@ -138,6 +142,10 @@ class productsController extends Controller
         $produto->setName($request->input('name'));
         $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
+        $produto->SetCategory_id($request->input('categoria_mercadolivre'));
+        $produto->SetListing_type_id($request->input('tipo_anuncio'));
+        $produto->SetBrand($request->input('brand'));
+        $produto->SetGtin($request->input('ean'));
         $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
 
@@ -179,5 +187,13 @@ class productsController extends Controller
         }
 
         return redirect()->route('store.index');
+    }
+
+    public function getAllProduct()
+    {
+        $products = Products::all();
+        if ($products) {
+            return response()->json(["products" => $products]);
+        }
     }
 }

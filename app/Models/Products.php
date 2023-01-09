@@ -14,9 +14,46 @@ class Products extends Model
         'price',
         'stock',
         'pricePromotion',
+        'category_id',
+        'listing_type_id',
+        'brand',
+        'gtin'
     ];
 
     protected $table = "products";
+
+    public function getCategory_id(){
+        return $this->category_id;
+    }
+
+    public function SetCategory_id($categoria){
+        $this->category_id = $categoria;
+    }
+
+    public function getListing_type_id(){
+        return $this->listing_type_id;
+    }
+
+    public function SetListing_type_id($listing_type_id){
+        $this->listing_type_id = $listing_type_id;
+    }
+
+    public function getBrand(){
+        return $this->brand;
+    }
+
+    public function SetBrand($brand){
+        $this->brand = $brand;
+    }
+
+    public function getGtin(){
+        return $this->gtin;
+    }
+
+    public function SetGtin($gtin){
+        $this->gtin = $gtin;
+    }
+
 
     public function getStock()
     {

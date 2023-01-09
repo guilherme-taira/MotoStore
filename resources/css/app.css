@@ -21,4 +21,6 @@ nav {
     object-fit: cover;
 }
 
-
+.navbar-brand{
+    width: 250px;
+}

@@ -67,12 +67,11 @@
                                         <a href="#" class="text-muted" data-abc="true">Confeitaria e Doces</a>
                                     </div>
 
-                                    <div class="text-muted"><s>R$: 15.99</s></div>
+                                    <div>Comissão R$: 15.99</div>
                                     <h3 class="mb-3 font-weight-semibold precoColor">R$:{{ $product->price }}</h3>
 
                                     <a href="{{ route('products.show', ['id' => $product->getId()]) }}"><button
-                                            type="button" class="btn bg-warning"><i class="fa fa-cart-plus mr-2"></i> Add
-                                            to cart</button></a>
+                                            type="button" class="btn text-white botao-afiliarse"><span class="texto-afiliase">Afiliar-se</span></button></a>
                                 </div>
                             </div>
 

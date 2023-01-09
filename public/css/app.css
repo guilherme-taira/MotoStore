@@ -7,8 +7,13 @@ bg-secondary {
 }
 
 .bg-primary {
-    background-color: #1abc9c !important;
+    background-color: rgb(24, 24, 8) !important;
 }
+
+.bg-warning {
+    background-color: yellow;
+}
+
 
 nav {
     font-weight: 700;
@@ -19,8 +24,8 @@ nav {
     object-fit: cover;
 }
 
-.precoColor{
-    color:#1abc9c;
+.precoColor {
+    color: #1abc9c;
 }
 
 .carousel-item {
@@ -31,9 +36,27 @@ nav {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }
+}
 
 
-  .conteudo-principal{
+.conteudo-principal {
     padding: 50px;
-  }
+}
+
+.botao-afiliarse {
+    background-color: orange;
+    color: black;
+}
+
+.texto-afiliase {
+    color: black;
+    font-size: 16px;
+}
+
+.logo-width{
+    width: 250px;
+}
+
+/* .logo-width:hover{
+    width: 250px;
+} */
