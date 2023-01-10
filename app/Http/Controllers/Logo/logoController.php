@@ -66,7 +66,7 @@ class logoController extends Controller
         $logo->image = 'image.png';
         $logo->save();
 
-        if ($request->hasFile('image')) {
+        if ($request->hcasFile('image')) {
             $file = $request->file('image');
             $filename = $file->getClientOriginalName();
             $file->storeAs('LogoEmbaleme/' . $logo->getId(), $filename, 's3');

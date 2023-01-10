@@ -48,7 +48,7 @@ class productsController extends Controller
             'price' => 'required|numeric|min:1',
             'image' => 'required|file',
             "stock" => "required|numeric",
-            'description' => 'required|max:500'
+            'description' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -194,6 +194,49 @@ class productsController extends Controller
         $products = Products::all();
         if ($products) {
             return response()->json(["products" => $products]);
+        }
+    }
+
+    public function getProduct(Request $request)
+    {
+        $product = Products::where('id', '=', $request->id)->first();
+
+        $data = [];
+
+        if ($product) {
+            $data['title'] = $product->title;
+            $data['category_id'] = $product->category_id;
+            $data['price'] = $product->price;
+            $data['currency_id'] = $product->currency_id;
+            $data['available_quantity'] = $product->available_quantity;
+            $data['buying_mode'] = $product->buying_mode;
+            $data['listing_type_id'] = $product->listing_type_id;
+            $data['condition'] = $product->condition;
+            $data['description'] = $product->description;
+            $data['tags'] = [
+                "immediate_payment",
+            ];
+
+            $data['attributes'] = [
+                [
+                    "id" => "BRAND",
+                    "name" => "Marca",
+                    "value_name" => $product->brand
+                ],
+                [
+                    "id" => "GTIN",
+                    "name" => "Marca",
+                    "value_name" => $product->gtin
+                ],
+            ];
+
+            $data['pictures'] = [
+                [
+                    "source" => $product->image,
+                ]
+            ];
+
+            return response()->json($data);
         }
     }
 }

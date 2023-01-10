@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // GET ROUTES
     Route::get('products', [productsController::class, 'getAllProduct']);
+    Route::get('product/{id}', [productsController::class,'getProduct']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
