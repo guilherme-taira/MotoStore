@@ -12,7 +12,7 @@ class Products extends Model
         'description',
         'image',
         'price',
-        'stock',
+        'available_quantity',
         'pricePromotion',
         'category_id',
         'listing_type_id',
@@ -57,12 +57,12 @@ class Products extends Model
 
     public function getStock()
     {
-        return $this->stock;
+        return $this->available_quantity;
     }
 
-    public function setStock($stock)
+    public function setStock($available_quantity)
     {
-        $this->stock = $stock;
+        $this->available_quantity = $available_quantity;
     }
 
     public function getPricePromotion(){
@@ -75,7 +75,7 @@ class Products extends Model
 
     public function getName()
     {
-        return $this->name;
+        return $this->title;
     }
 
     public function getPrice()
@@ -98,9 +98,9 @@ class Products extends Model
         $this->image = $image;
     }
 
-    public function setName($name)
+    public function setTitle($title)
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function setPrice($price)

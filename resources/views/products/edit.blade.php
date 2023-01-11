@@ -37,7 +37,7 @@
                         <div class="mb-3 row">
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
                             <div class="col-lg-10 col-md-6 col-sm-12">
-                                <input name="name" value="{{ $viewData['product']->name }}" type="text"
+                                <input name="name" value="{{ $viewData['product']->title }}" type="text"
                                     class="form-control">
                             </div>
                         </div>
@@ -52,7 +52,7 @@
 
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Estoque:</label>
                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="stock" value="{{ $viewData['product']->stock }}" type="number"
+                                <input name="stock" value="{{ $viewData['product']->available_quantity }}" type="number"
                                     class="form-control">
                             </div>
                         </div>

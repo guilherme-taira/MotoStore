@@ -90,10 +90,11 @@ class productsController extends Controller
         if ($produto) {
             $viewData = [];
             $viewData['title'] = "MotoStore : " . $produto->name;
-            $viewData['subtitle'] = $produto->name;
+            $viewData['subtitle'] = $produto->title;
             $viewData['product'] = $produto;
             $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
+
             return view('store.show')->with('viewData', $viewData);
         }
 
@@ -139,7 +140,7 @@ class productsController extends Controller
         ]);
 
         $produto = Products::findOrFail($id);
-        $produto->setName($request->input('name'));
+        $produto->setTitle($request->input('name'));
         $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
