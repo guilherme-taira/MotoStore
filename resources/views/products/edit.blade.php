@@ -108,6 +108,18 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <div class="col col-lg-4">
+                                <label for="categoria">Categorias:</label>
+                                <select class="form-select mt-2" name="categoria" id="categoria" aria-label="Default select example">
+                                    <option selected>Selecione...</option>
+                                    @foreach ($viewData['categorias'] as $categoria)
+                                        <option value="{{$categoria->id}}">{{$categoria->nome   }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="row mt-4">
                             <div class="col">
                                 <div class="mb-3 row">

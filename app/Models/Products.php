@@ -83,6 +83,14 @@ class Products extends Model
         return $this->price;
     }
 
+
+    public function RegexPrice(){
+        $string = $this->price;
+        $regex = "/,/";
+        $replecement = ".";
+        return preg_replace($regex,$replecement,$string);
+    }
+
     public function getDescription()
     {
         return $this->description;
@@ -96,6 +104,11 @@ class Products extends Model
     public function setImage($image)
     {
         $this->image = $image;
+    }
+
+    public function setCategoria($categoria)
+    {
+        $this->categoria = $categoria;
     }
 
     public function setTitle($title)

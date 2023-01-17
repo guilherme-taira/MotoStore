@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
+use App\Models\categorias;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -31,7 +32,9 @@ class productsController extends Controller
      */
     public function create()
     {
-        return view('products.add');
+        $viewData = [];
+        $viewData['categorias'] = categorias::all();
+        return view('products.add')->with('viewData',$viewData);
     }
 
     /**
@@ -58,10 +61,11 @@ class productsController extends Controller
         }
 
         $produto = new Products();
-        $produto->name = $request->name;
+        $produto->title = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
-        $produto->stock = $request->stock;
+        $produto->available_quantity = $request->stock;
+        $produto->categoria = $request->categoria;
         $produto->image = 'image.png';
         $produto->save();
 
@@ -89,11 +93,12 @@ class productsController extends Controller
 
         if ($produto) {
             $viewData = [];
-            $viewData['title'] = "MotoStore : " . $produto->name;
+            $viewData['title'] = "AfiliDrop : " . $produto->name;
             $viewData['subtitle'] = $produto->title;
             $viewData['product'] = $produto;
             $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
+            $viewData['categorias'] = categorias::all();
 
             return view('store.show')->with('viewData', $viewData);
         }
@@ -114,6 +119,7 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "MotoStore" . $produto->getName();
         $viewData['product'] = $produto;
+        $viewData['categorias'] = categorias::all();
         return view('products.edit')->with('viewData', $viewData);
     }
 
@@ -146,6 +152,7 @@ class productsController extends Controller
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
         $produto->SetBrand($request->input('brand'));
+        $produto->setCategoria($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
         $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
@@ -172,6 +179,9 @@ class productsController extends Controller
     {
         //
     }
+
+
+    // ROUTES API
 
     public function CartShow($id)
     {

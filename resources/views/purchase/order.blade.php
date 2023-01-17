@@ -4,11 +4,11 @@
 @section('conteudo')
     <div class="card">
         <div class="card-header">
-            Purchase Completed
+            Venda Finalizada
         </div>
         <div class="card-body">
             <div class="alert alert-success" role="alert">
-                Congratulations, purchase completed. Order number is <b>#{{ $viewData['order']->getId() }}</b>
+                Parabéns pela compra, o número do seu pedido é : <b>#{{ $viewData['order']->getId() }}</b>
             </div>
         </div>
     </div>

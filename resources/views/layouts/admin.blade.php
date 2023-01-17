@@ -40,8 +40,27 @@
                             <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="{{route('stores.index')}}">Home</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{route('products.index')}}">Produtos</a>
+                             <!-- Navbar dropdown -->
+                             <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-mdb-toggle="dropdown" aria-expanded="false">
+                                    Produtos
+                                </a>
+                                <!-- Dropdown menu -->
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('products.index')}}">Produtos</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Kits</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{route('categorias.index')}}">Categorias</a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{route('orders.index')}}">Vendas</a>
@@ -104,7 +123,7 @@
         </div>
     </div>
     <!-- footer -->
-    <div class="copyright py-4 text-center text-white">
+    {{-- <div class="copyright py-4 text-center text-white">
         <div class="container">
             <small>
                 Copyright - <a class="text-reset fw-bold text-decoration-none" target="_blank"
@@ -113,7 +132,7 @@
                 </a> - <b>Taira Solution</b>
             </small>
         </div>
-    </div>
+    </div> --}}
     <!-- footer -->
     <!-- MDB -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.js"></script>

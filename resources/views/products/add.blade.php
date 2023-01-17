@@ -39,6 +39,18 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col col-lg-4">
+                            <label for="categoria">Categorias:</label>
+                            <select class="form-select mt-2" name="categoria" id="categoria" aria-label="Default select example">
+                                <option selected>Selecione...</option>
+                                @foreach ($viewData['categorias'] as $categoria)
+                                    <option value="{{$categoria->id}}">{{$categoria->nome   }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col">
                             <div class="mb-3 row">
@@ -59,7 +71,8 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary" id="BtnCadastrar">Cadastrar <i class="bi bi-sd-card-fill"></i></button>
+                        <button type="submit" class="btn btn-primary" id="BtnCadastrar">Cadastrar <i
+                                class="bi bi-sd-card-fill"></i></button>
                     </div>
             </form>
         </div>
@@ -72,7 +85,7 @@
 <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <script>
     $(document).ready(function() {
-        $("form").submit(function (event) {
+        $("form").submit(function(event) {
             // event.preventDefault();
             $("#BtnCadastrar").addClass('d-none');
             $('#carregando').removeClass('d-none');

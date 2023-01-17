@@ -120,4 +120,9 @@ class BannerController extends Controller
     {
         //
     }
+
+    public function getAllBanner(){
+        $banners = banner::all();
+        return response()->json(["bannersResults" => $banners]);
+    }
 }

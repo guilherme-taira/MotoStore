@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Document</title>
+		<link href="css/jquery.circlify.css" rel="stylesheet" type="text/css"/>
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="js/jquery.circliful.min.js"></script>
+
+		<style>
+			.progress {
+				width: 200px;
+				height: 200px;
+			}
+
+		
+		</style>
+	</head>
+	<body>
+
+		<h1>MAX GAY</h1>
+		<link href="dist/main.css" rel="stylesheet" type="text/css"/>
+
+		<div id="circle" class="progress" data-percent="90" data-no-percentage-sign="true" data-animation="false" data-stroke-linecap="round"></div>
+        <span id="number"></span>
+
+		<script src="dist/circliful.js"></script>
+
+		<script>
+			circliful.newCircle({
+            percent: 100,
+            id: 'circle',
+            type: 'half',
+            text: 'KM',
+            animation: true,
+            animationStep:2,
+            noPercentageSign: true,
+            backgroundCircleWidth: 35,
+            foregroundCircleWidth: 20,
+            progressColors: [
+            {
+            percent: 1,
+            color: 'yellow'
+            }, {
+            percent: 30,
+            color: 'orange'
+            }, {
+            percent: 60,
+            color: 'green'
+            }, {
+            percent: 80,
+            color: 'red'
+            },
+            ]
+            });
+
+
+            (function($){
+    $.fn.extend({
+        numAnim: function(options) {
+            if ( ! this.length)
+                return false;
+
+            this.defaults = {
+                endAt: 2560,
+                numClass: 'autogen-num',
+                duration: 5,   // seconds
+                interval: 90  // ms
+            };
+            var settings = $.extend({}, this.defaults, options);
+
+            var $num = $('<span/>', {
+                'class': settings.numClass 
+            });
+
+            return this.each(function() {
+                var $this = $(this);
+
+                // Wrap each number in a tag.
+                var frag = document.createDocumentFragment(),
+                    numLen = settings.endAt.toString().length;
+                for (x = 0; x < numLen; x++) {
+                    var rand_num = Math.floor( Math.random() * 10 );
+                    frag.appendChild( $num.clone().text(rand_num)[0] )
+                }
+                $this.empty().append(frag);
+
+                var get_next_num = function(num) {
+                    ++num;
+                    if (num > 9) return 0;
+                    return num;
+                };
+
+                // Iterate each number.
+                $this.find('.' + settings.numClass).each(function() {
+                    var $num = $(this),
+                        num = parseInt( $num.text() );
+
+                    var interval = setInterval( function() {
+                        num = get_next_num(num);
+                        $num.text(num);
+                    }, settings.interval);
+
+                    setTimeout( function() {
+                        clearInterval(interval);
+                    }, settings.duration * 1000 - settings.interval);
+                });
+                
+                setTimeout( function() {
+                    $this.text( settings.endAt.toString() );
+                }, settings.duration * 1000);
+            });
+        }
+    });
+    $("#text-circle").numAnim({
+    endAt: 100,
+    duration: 100,
+
+});
+})(jQuery);
+
+
+
+		</script>
+	</body>
+</html>

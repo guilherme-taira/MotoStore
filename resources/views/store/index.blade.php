@@ -7,7 +7,6 @@
                 {{-- DIV BANNER --}}
 
                 <header>
-
                     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-indicators">
                             <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"
@@ -41,7 +40,6 @@
                     </div>
                 </header>
 
-
                 {{-- END DIV BANNER --}}
 
                 {{-- START PRODUTOS --}}
@@ -63,15 +61,21 @@
                                             <a href="#" class="text-default mb-2"
                                                 data-abc="true">{{ $product->name }}</a>
                                         </h6>
-
-                                        <a href="#" class="text-muted" data-abc="true">Confeitaria e Doces</a>
                                     </div>
-
-                                    <div>Comissão R$: 15.99</div>
-                                    <h3 class="mb-3 font-weight-semibold precoColor">R$:{{ $product->price }}</h3>
-
+                                    <p class="titulo-principal text-truncate">{{ $product->getName() }}</p>
+                                    <p class="categoria-up-line"><span class="titulo-categoria">Categoria: </span>Chocolate
+                                        e Coberturas</p>
+                                    <p class="categoria-up-line"><span class="titulo-categoria">Tipo: </span>Comissão aberta
+                                    </p>
+                                    @if ($product->getPricePromotion() <= 0)
+                                        <h3 class="mb-3 preco-index-produto">R$
+                                            {{ str_replace('.', ',', $product->getPrice()) }}</h3>
+                                    @else
+                                        <h4 class="mb-3 preco-index-produto"> <s class="text-danger">De {{ str_replace('.', ',', $product->getPrice()) }} </s>  R$ {{ str_replace('.', ',', $product->getPricePromotion()) }}</h4>
+                                    @endif
                                     <a href="{{ route('products.show', ['id' => $product->getId()]) }}"><button
-                                            type="button" class="btn text-white botao-afiliarse"><span class="texto-afiliase">Afiliar-se</span></button></a>
+                                            type="button" class="btn botao-afiliarse"><span class="texto-afiliase">SAIBA
+                                                MAIS</span></button></a>
                                 </div>
                             </div>
 
