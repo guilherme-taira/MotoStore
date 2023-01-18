@@ -19,6 +19,26 @@
                 @method('PUT')
                 @csrf
                 <div class="row">
+                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Local do Produto:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radio" value="1" id="flexRadioDefault1">
+                        <label class="form-check-label" for="flexRadioDefault1">
+                            Auto KM
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radio" value="2" id="flexRadioDefault2">
+                        <label class="form-check-label" for="flexRadioDefault2">
+                            Kits
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radio" value="3" id="flexRadioDefault2">
+                        <label class="form-check-label" for="flexRadioDefault2">
+                            Encapsulados
+                        </label>
+                    </div>
+
                     <div class="col">
                         <div class="mb-3 row">
                             <label class="col-lg-5 col-md-6 col-sm-12 col-form-label">Imagem Atual:</label>
@@ -111,10 +131,11 @@
                         <div class="row mb-3">
                             <div class="col col-lg-4">
                                 <label for="categoria">Categorias:</label>
-                                <select class="form-select mt-2" name="categoria" id="categoria" aria-label="Default select example">
+                                <select class="form-select mt-2" name="categoria" id="categoria"
+                                    aria-label="Default select example">
                                     <option selected>Selecione...</option>
                                     @foreach ($viewData['categorias'] as $categoria)
-                                        <option value="{{$categoria->id}}">{{$categoria->nome   }}</option>
+                                        <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
                                     @endforeach
                                 </select>
                             </div>

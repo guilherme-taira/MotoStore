@@ -156,15 +156,16 @@ class productsController extends Controller
         $produto->SetGtin($request->input('ean'));
         $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
+        $produto->SetLugarAnuncio($request->input('radio'));
 
-        // if ($request->hasFile('image')) {
-        //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
-        //     Storage::disk('public')->put(
-        //         $imageName,
-        //         file_get_contents($request->file('image')->getRealPath())
-        //     );
-        //     $produto->setImage($imageName);
-        // }
+        // // if ($request->hasFile('image')) {
+        // //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
+        // //     Storage::disk('public')->put(
+        // //         $imageName,
+        // //         file_get_contents($request->file('image')->getRealPath())
+        // //     );
+        // //     $produto->setImage($imageName);
+        // // }
         $produto->save();
         return redirect()->route('products.index');
     }
@@ -249,5 +250,11 @@ class productsController extends Controller
 
             return response()->json($data);
         }
+    }
+
+
+    public function getAllProductByTipoAnuncio(Request $request){
+        $dados = Products::where('colunasAnuncio',$request->id)->get();
+        return response()->json(["responseColuna" => $dados]);
     }
 }

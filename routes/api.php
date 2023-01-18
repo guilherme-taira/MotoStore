@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::get('categorias', [categorias::class,'getAllCategories']);
     Route::get('categoria/{id}',[categorias::class,'getAllProductByCategorieID']);
     Route::get('banners',[BannerController::class,'getAllBanner']);
+    Route::get('tipoanuncio/{id}',[productsController::class,'getAllProductByTipoAnuncio']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

@@ -30,6 +30,14 @@ class Products extends Model
         $this->category_id = $categoria;
     }
 
+    public function getLugarAnuncio(){
+        return $this->colunasAnuncio;
+    }
+
+    public function SetLugarAnuncio($id){
+        $this->colunasAnuncio = $id;
+    }
+
     public function getListing_type_id(){
         return $this->listing_type_id;
     }
