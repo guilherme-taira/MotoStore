@@ -23,7 +23,7 @@
     crossorigin="anonymous" />
 
     <!-- Template Stylesheet -->
-    <link href="{{ asset('/css/page_thanks.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
 </head>
 
 <body>
