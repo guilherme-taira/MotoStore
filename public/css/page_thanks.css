@@ -113,7 +113,7 @@
 }
 
 .hero-header {
-    background: url(file-upload-motostore.s3.sa-east-1.amazonaws.com/pagina-obrigado.jpg) top right no-repeat;
+    background: url('https://i.imgur.com/BVOvrum.jpg') top right no-repeat;
     background-size: cover;
     height: 700px;
 }

@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <title>afiliDrop</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Free HTML Templates" name="keywords">
-    <meta content="Free HTML Templates" name="description">
-
     <!-- Favicon -->
     <link href="{{ asset('/img/favicon.ico"') }} rel="icon">
 
@@ -27,7 +23,7 @@
     crossorigin="anonymous" />
 
     <!-- Template Stylesheet -->
-    <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('/css/page_thanks.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -37,7 +33,7 @@
             <div class="row justify-content-start">
                 <div class="col-lg-8 text-center text-lg-start">
 
-                    <p class="fs-2 text-white mb-lg-2">---</p>
+                    <p class="fs-2 text-white mb-lg-2"></p>
                     <div class="d-flex align-items-center justify-content-center justify-content-lg-start pt-5">
                         <a href="" class="btn btn-outline-light border-2 py-md-3 px-md-5 me-5">Voltar Site</a>
                         <button type="button" class="btn-play" data-bs-toggle="modal"
@@ -51,7 +47,6 @@
         </div>
     </div>
     <!-- Hero End -->
-
 
     <!-- Video Modal Start -->
     <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
