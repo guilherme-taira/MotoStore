@@ -3,7 +3,6 @@
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
     <div class="card-body" id="displayCart">
-
         <!-- Button trigger modal -->
         <input type="hidden" id="modalbutton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
 
@@ -33,18 +32,16 @@
                 <div class="row p-2 bg-white border rounded">
                     <!--- FOTOS ADICIONAIS  --->
                     <div class="row-md">
-                        <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"" class="tamanho-fotos" alt="...">
-                        <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"" class="tamanho-fotos" alt="...">
-                        <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"" class="tamanho-fotos" alt="...">
-                        <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"" class="tamanho-fotos" alt="...">
-                        <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"" class="tamanho-fotos" alt="...">
+                        @foreach ($viewData['images'] as $foto)
+                            <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $foto) !!}" class="tamanho-fotos fotoProduto" alt="...">
+                        @endforeach
                     </div>
                     <!--- FINAL FOTOS ADICIONAIS  --->
-                    <div class="col-md-3 mt-1"><img class="img-fluid img-responsive rounded product-image"
-                            src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}"></div>
+                    <div class="col-md-3 mt-1 receivedPhoto"><img
+                            class="img-fluid img-responsive rounded product-image tradeFoto" src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
+                    </div>
                     <div class="col-md-6 mt-1">
                         <h5>{{ $viewData['product']->getName() }}</h5>
-
 
                         <!--- Desconto e fixo  --->
                         <div class="row mt-2">
@@ -170,7 +167,6 @@
                         </div>
                     </div>
                 </div>
-
         </form>
     </div>
     </div>
@@ -189,8 +185,34 @@
 
         var quantity = $("#quantity").val();
         var stock = $("#stock").val();
-        console.log(quantity);
-        console.log(stock);
+
+        $("img.fotoProduto").mouseenter(function() {
+            $(this).fadeOut(100);
+            $(this).fadeIn(500);
+            $(this).css({
+                border: "2px solid red",
+                width: "58px",
+                height: "58px"
+            });
+
+            var images = $(this).attr('src');
+            $('.product-image').attr('src',images);
+
+        }).mouseleave(function() {
+            $(this).fadeOut(100);
+            $(this).fadeIn(500);
+            $(this).css({
+                border: "1px solid black",
+                width: "58px",
+                height: "58px"
+            });
+
+        });
+
+
+
+
+
         if (parseInt(quantity) > parseInt(stock)) {
             $('#btn-submit').prop("disabled", true);
             $('#modalbutton').trigger('click');

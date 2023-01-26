@@ -15,7 +15,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <link href="{{ asset('/css/app.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('js-plugin-circliful-master/dist/main.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
@@ -67,7 +66,7 @@
     <div class="copyright py-2 text-center fixed-bottom text-white">
         <div class="container">
             <small>
-                Copyright - <a class="text-reset fw-bold text-decoration-none" target="_blank"
+                Copyright {{date('Y')}}  - <a class="text-reset fw-bold text-decoration-none" target="_blank"
                     href="https://twitter.com/danielgarax">
                     Máximo Company
                 </a> - CNPJ: 48.930.389-0001-09</b>

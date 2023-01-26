@@ -27,7 +27,7 @@ class dashbordController extends Controller
         $viewData['index'] = 0;
         $viewData['orders'] = $orders;
 
-        return view('admin.index')->with('viewData',$viewData);
+        return view('home')->with('viewData',$viewData);
     }
 
     /**

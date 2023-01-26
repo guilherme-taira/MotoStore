@@ -173,4 +173,11 @@ class CartController extends Controller
                 break;
         }
     }
+
+      // add kit
+      public function addKit(Request $request)
+      {
+          echo "<pre>";
+          print_r($request->all());
+      }
 }

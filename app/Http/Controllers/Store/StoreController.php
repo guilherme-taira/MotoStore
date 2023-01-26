@@ -27,7 +27,7 @@ class StoreController extends Controller
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();
 
-        return view('store.index')->with('viewData',$viewData);
+        return view('store.index')->with('viewData', $viewData);
     }
 
     /**
@@ -96,12 +96,17 @@ class StoreController extends Controller
         //
     }
 
-    public function setUser(Request $request){
+    public function setUser(Request $request)
+    {
 
         $request->session()->put('user', $request->user);
         $request->session()->put('payment', $request->PaymentId);
-        $request->session()->put('datePayment',$request->datePayment);
+        $request->session()->put('datePayment', $request->datePayment);
         return redirect()->route('cart.purchase');
     }
 
+    public function thanks()
+    {
+        return view('store.thanks');
+    }
 }

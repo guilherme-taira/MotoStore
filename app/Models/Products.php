@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Products extends Model
 {
@@ -151,5 +153,16 @@ class Products extends Model
     public function setItems($items)
     {
         $this->items = $items;
+    }
+
+    public function productWithImageById(String $id) {
+
+        $dados = images::where('product_id',$id)->get();
+        $photos = [];
+        foreach ($dados as $foto) {
+            array_push($photos,$foto->url);
+        }
+
+        return response()->json(["fotos" => $photos]);
     }
 }

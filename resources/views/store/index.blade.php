@@ -3,9 +3,7 @@
     <div class="row">
         <main>
             <div class="container-fluid bg-trasparent my-4 p-3" style="position: relative;">
-
                 {{-- DIV BANNER --}}
-
                 <header>
                     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-indicators">
@@ -49,7 +47,7 @@
                         <div class="col-md-4 mt-2">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="card-img-actions">
+                                    <div class="card-img-actions img-container">
                                         <img src="{{ Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) }}"
                                             class="card-img img-fluid" width="76" height="300" alt="">
                                     </div>
@@ -71,7 +69,9 @@
                                         <h3 class="mb-3 preco-index-produto">R$
                                             {{ str_replace('.', ',', $product->getPrice()) }}</h3>
                                     @else
-                                        <h4 class="mb-3 preco-index-produto"> <s class="text-danger">De {{ str_replace('.', ',', $product->getPrice()) }} </s>  R$ {{ str_replace('.', ',', $product->getPricePromotion()) }}</h4>
+                                        <h4 class="mb-3 preco-index-produto"> <s class="text-danger">De
+                                                {{ str_replace('.', ',', $product->getPrice()) }} </s> R$
+                                            {{ str_replace('.', ',', $product->getPricePromotion()) }}</h4>
                                     @endif
                                     <a href="{{ route('products.show', ['id' => $product->getId()]) }}"><button
                                             type="button" class="btn botao-afiliarse"><span class="texto-afiliase">SAIBA
@@ -86,3 +86,27 @@
         </main>
     </div>
 @endsection
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
+<script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
+
+    var code = getUrlParameter('code');
+    console.log(code);
+</script>

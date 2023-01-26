@@ -3,6 +3,7 @@
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Products\productsController;
+use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,9 @@ Route::prefix('v1')->group(function () {
     Route::get('categoria/{id}',[categorias::class,'getAllProductByCategorieID']);
     Route::get('banners',[BannerController::class,'getAllBanner']);
     Route::get('tipoanuncio/{id}',[productsController::class,'getAllProductByTipoAnuncio']);
+    Route::get('product',[productsController::class,'getParametersByName']);
+    Route::get('imageById/{id}',[Products::class,'productWithImageById']);
+    Route::get('images/{id}',[productsController::class,'imagesByProduct']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

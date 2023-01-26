@@ -15,7 +15,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet"/>
     <title>@yield('title', 'Admin - Online Store')</title>
 </head>
 
@@ -62,6 +62,8 @@
                                     </li>
                                 </ul>
                             </li>
+                            <!--- MENU PRODUTOS FINAL --->
+
                             <li class="nav-item">
                                 <a class="nav-link" href="{{route('orders.index')}}">Vendas</a>
                             </li>

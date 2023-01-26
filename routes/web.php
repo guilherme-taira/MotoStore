@@ -5,6 +5,9 @@ use App\Http\Controllers\admin\dashbordController;
 use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Kits\kitsController as KitsKitsController;
+use App\Http\Controllers\kitsController;
 use App\Http\Controllers\Logo\logoController;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Orders\orderscontroller;
@@ -13,7 +16,9 @@ use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Middleware\AdminAccess;
 use App\Models\Orders;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,35 +36,53 @@ Route::get('/', function () {
     return redirect()->route('stores.index');
 });
 
-Route::resource('store','App\Http\Controllers\Store\StoreController')->names('stores');
-Route::resource('product','App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
-Route::resource('admin','App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
-Route::resource('user','App\Http\Controllers\User\UserController')->names('user')->parameters(['user'=>'id']);
-Route::resource('dashboard','App\Http\Controllers\admin\dashbordController')->names('panel')->parameters(['dashboard' => 'id']);
-Route::resource('payments','App\Http\Controllers\Payment\PaymentController')->names('payment')->parameters(['payments' => 'id']);
-Route::resource('orders','App\Http\Controllers\Orders\orderscontroller')->names('orders')->parameters(['orders'=>'id']);
-Route::resource('banners','App\Http\Controllers\Marketing\BannerController')->names('banner')->parameters(['banners' => 'id']);
-Route::resource('logo','App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
-Route::resource('categorias','App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
+Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
-Route::get('cart',[CartController::class,'indexCart'])->name('cart.index');
-Route::get('cart/delete/{id}',[CartController::class,'delete'])->name('cart.delete');
-Route::get('/contasReceber',[orderscontroller::class,'areceber'])->name('orders.areceber');
-Route::get('productcart/{id}',[productsController::class,'CartShow'])->name('product.cartshow');
-Route::get('/baixarVenda/{id}',[orderscontroller::class,'baixarvenda'])->name('orders.baixarVenda');
-Route::post('cart/add/{id}',[CartController::class,'add'])->name('cart.add');
-Route::post('/user/order',[StoreController::class,'setUser'])->name('setUser.add');
+Route::get('/thankspage',[StoreController::class,'thanks'])->name('thanks');
+Route::get('cart', [CartController::class, 'indexCart'])->name('cart.index');
+Route::get('cart/delete/{id}', [CartController::class, 'delete'])->name('cart.delete');
+Route::get('/contasReceber', [orderscontroller::class, 'areceber'])->name('orders.areceber');
+Route::get('productcart/{id}', [productsController::class, 'CartShow'])->name('product.cartshow');
+Route::get('/baixarVenda/{id}', [orderscontroller::class, 'baixarvenda'])->name('orders.baixarVenda');
+Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.add');
+Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
 
-Route::get('/cart/status',[CartController::class,'status'])->name('cart.status');
-Route::get('/cart/delete',[CartController::class,'delete'])->name('cart.delete');
+Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
+Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
 // ROUTE AJAX
-Route::get('/getInfoProduct',[getProductsData::class,'infoSearch'])->name('ajax.getInfo');
-Route::get('/getInfoUser',[getUserInfoController::class,'infoSearch'])->name('ajax.getUser');
-Route::get('/getOrderUser',[getUserInfoController::class,'infoOrders'])->name('ajax.getOrders');
+Route::get('/getInfoProduct', [getProductsData::class, 'infoSearch'])->name('ajax.getInfo');
+Route::get('/getInfoUser', [getUserInfoController::class, 'infoSearch'])->name('ajax.getUser');
+Route::get('/getOrderUser', [getUserInfoController::class, 'infoOrders'])->name('ajax.getOrders');
 // FINALIZANDO O PEDIDO
-Route::get('/cart/purchase',[CartController::class,'purcharse'])->name('cart.purchase');
+Route::get('/cart/purchase', [CartController::class, 'purcharse'])->name('cart.purchase');
 // ROUTE PDF
-Route::get('/createPDF',[reportController::class,'generatePDF'])->name('generatepdf');
-Route::get('/relatorios',[reportController::class,'generateReporter'])->name('generate');
-Route::get('/gerador',[reportController::class,'generating'])->name('GeradorRelatorio');
-Route::get('/geradorProdutos',[reportController::class,'generatingProduct'])->name('GeradorRelatorioperProduct');
+Route::get('/createPDF', [reportController::class, 'generatePDF'])->name('generatepdf');
+Route::get('/relatorios', [reportController::class, 'generateReporter'])->name('generate');
+Route::get('/gerador', [reportController::class, 'generating'])->name('GeradorRelatorio');
+Route::get('/geradorProdutos', [reportController::class, 'generatingProduct'])->name('GeradorRelatorioperProduct');
+//ROTAS DE SESSAO
+Route::get('/setSessionRoute',[KitsKitsController::class,'setSessionRoute'])->name('setSessionRoute');
+Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->name('getProductByName');
+Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
+Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
+
+// ROTAS AUTENTICADAS
+Route::middleware('admin')->group(function () {
+    Route::middleware('admin_msg')->group(function () {
+        Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
+        Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
+        Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
+        Route::resource('user', 'App\Http\Controllers\User\UserController')->names('user')->parameters(['user' => 'id']);
+        Route::resource('dashboard', 'App\Http\Controllers\admin\dashbordController')->names('panel')->parameters(['dashboard' => 'id']);
+        Route::resource('payments', 'App\Http\Controllers\Payment\PaymentController')->names('payment')->parameters(['payments' => 'id']);
+        Route::resource('orders', 'App\Http\Controllers\Orders\orderscontroller')->names('orders')->parameters(['orders' => 'id']);
+        Route::resource('banners', 'App\Http\Controllers\Marketing\BannerController')->names('banner')->parameters(['banners' => 'id']);
+        Route::resource('logo', 'App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
+        Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
+    });
+});
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Auth::routes();

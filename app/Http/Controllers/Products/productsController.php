@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Models\categorias;
+use App\Models\images;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -21,7 +22,7 @@ class productsController extends Controller
     {
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
-        $viewData['products'] = Products::all();
+        $viewData['products'] = Products::where('iskit','0')->get();
         return view('admin.products')->with('viewData', $viewData);
     }
 
@@ -34,7 +35,7 @@ class productsController extends Controller
     {
         $viewData = [];
         $viewData['categorias'] = categorias::all();
-        return view('products.add')->with('viewData',$viewData);
+        return view('products.add')->with('viewData', $viewData);
     }
 
     /**
@@ -46,37 +47,52 @@ class productsController extends Controller
     public function store(Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:5',
-            'price' => 'required|numeric|min:1',
-            'image' => 'required|file',
-            "stock" => "required|numeric",
-            'description' => 'required'
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'name' => 'required|min:5',
+        //     'price' => 'required|numeric|min:1',
+        //     // 'photos' => 'required|file',
+        //     "stock" => "required|numeric",
+        //     'description' => 'required'
+        // ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+        // if ($validator->fails()) {
+        //     return redirect()->back()
+        //         ->withErrors($validator)
+        //         ->withInput();
+        // }
 
         $produto = new Products();
         $produto->title = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
-        $produto->available_quantity = $request->stock;
+        $produto->available_quantity = 10;
         $produto->categoria = $request->categoria;
         $produto->image = 'image.png';
         $produto->save();
 
-        if ($request->hasFile('image')) {
-            //$imageName = $produto->getId() . "." . $request->file('image')->extension();
-            $file = $request->file('image');
+
+        $files = $request->file('photos');
+
+        $i = 0;
+        foreach ($files as $file) {
+
             $filename = $file->getClientOriginalName();
             $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
-            $produto->setImage($filename);
-            $produto->save();
+            if ($i == 0) {
+                $produto->setImage($filename);
+            }
+            $image = new images();
+            $image->url = $filename;
+            $image->product_id = $produto->getId();
+            $image->save();
+            $i++;
         }
+        $produto->save();
+        // $imageName = $produto->getId() . "." . $file->extension();
+        // $file = $request->file('image');
+        // $filename = $file->getClientOriginalName();
+        // $extension = $file->getClientOriginalExtension();
+
 
         return redirect()->route('products.store');
     }
@@ -90,7 +106,11 @@ class productsController extends Controller
     public function show($id)
     {
         $produto = Products::findOrFail($id);
-
+        $fotos = images::where('product_id',$id)->get();
+        $photos = [];
+        foreach ($fotos as $foto) {
+            array_push($photos,$foto->url);
+        }
         if ($produto) {
             $viewData = [];
             $viewData['title'] = "AfiliDrop : " . $produto->name;
@@ -98,12 +118,13 @@ class productsController extends Controller
             $viewData['product'] = $produto;
             $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
+            $viewData['images'] = $photos;
             $viewData['categorias'] = categorias::all();
 
-            return view('store.show')->with('viewData', $viewData);
+           return view('store.show')->with('viewData', $viewData);
         }
 
-        return redirect()->route('store.index');
+         return redirect()->route('store.index');
     }
 
     /**
@@ -181,7 +202,6 @@ class productsController extends Controller
         //
     }
 
-
     // ROUTES API
 
     public function CartShow($id)
@@ -197,7 +217,6 @@ class productsController extends Controller
             $viewData['image'] = $product->image;
             return view('store.singleProductShow')->with('viewData', $viewData);
         }
-
         return redirect()->route('store.index');
     }
 
@@ -212,7 +231,11 @@ class productsController extends Controller
     public function getProduct(Request $request)
     {
         $product = Products::where('id', '=', $request->id)->first();
-
+        $fotos = images::where('product_id',$request->id)->get();
+        $photos = [];
+        foreach ($fotos as $foto) {
+            array_push($photos,$foto->url);
+        }
         $data = [];
 
         if ($product) {
@@ -228,7 +251,9 @@ class productsController extends Controller
             $data['tags'] = [
                 "immediate_payment",
             ];
-
+            $data['fotos_adicionais'] = [
+               "fotos" => $photos
+            ];
             $data['attributes'] = [
                 [
                     "id" => "BRAND",
@@ -252,9 +277,22 @@ class productsController extends Controller
         }
     }
 
-
-    public function getAllProductByTipoAnuncio(Request $request){
-        $dados = Products::where('colunasAnuncio',$request->id)->get();
+    public function getAllProductByTipoAnuncio(Request $request)
+    {
+        $dados = Products::where('colunasAnuncio', $request->id)->get();
         return response()->json(["responseColuna" => $dados]);
+    }
+
+
+    public function getParametersByName(Request $request)
+    {
+        $dados = json_decode($request->where);
+        $datasDB = Products::where('title', 'like', '%' . $dados->title . '%')->get();
+
+        return response()->json(["products" => $datasDB]);
+    }
+
+    public function imagesByProduct(Request $request){
+
     }
 }
