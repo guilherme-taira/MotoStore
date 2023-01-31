@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>afiliDrop</title>
@@ -20,7 +21,7 @@
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
-    crossorigin="anonymous" />
+        crossorigin="anonymous" />
 
     <!-- Template Stylesheet -->
     <link href="{{ asset('/css/style.css') }}" rel="stylesheet">
@@ -28,6 +29,7 @@
 
 <body>
     <!-- Hero Start -->
+    <input type="hidden" name="id_user" id="id_user" value="{{Auth::user()->id}}">
     <div class="container-fluid bg-primary py-5 mb-5 hero-header">
         <div class="container py-5">
             <div class="row justify-content-start">
@@ -72,5 +74,54 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
+<script>
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    };
+
+
+    var code = getUrlParameter('code');
+    var id = $('#id_user').val();
+    $.ajax({
+        url: "/api/v1/code",
+        type: "POST",
+        data: {
+            code: code,
+            id: id,
+        },
+        success: function(response) {
+            if (response) {
+                console.log(response.dados);
+                if(response.dados.status == 400) {
+                    alert(response.dados.message);
+                }else{
+                    alert('Conta Integrada com Sucesso!');
+                }
+
+            }
+        },
+        error: function(error) {
+            $('#result').html(
+                '<option> Produto Digitado Não Existe! </option>');
+        }
+    });
+</script>
 
 </html>

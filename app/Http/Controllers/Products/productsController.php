@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
 use App\Models\categorias;
 use App\Models\images;
 use App\Models\Products;
@@ -277,6 +278,7 @@ class productsController extends Controller
         }
     }
 
+
     public function getAllProductByTipoAnuncio(Request $request)
     {
         $dados = Products::where('colunasAnuncio', $request->id)->get();
@@ -292,7 +294,10 @@ class productsController extends Controller
         return response()->json(["products" => $datasDB]);
     }
 
-    public function imagesByProduct(Request $request){
-
+    public function IntegrarProduto(Request $request){
+     echo "<pre>";
+     print_r($request->all());
+    $factory = new ProdutoImplementacao();
+    $factory->getProduto();
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Products\productsController;
+use App\Http\Controllers\Store\StoreController;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::prefix('v1')->group(function () {
     Route::get('product',[productsController::class,'getParametersByName']);
     Route::get('imageById/{id}',[Products::class,'productWithImageById']);
     Route::get('images/{id}',[productsController::class,'imagesByProduct']);
+    Route::post('code',[StoreController::class,'getCode']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

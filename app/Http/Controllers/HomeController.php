@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Orders;
+use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -26,6 +28,7 @@ class HomeController extends Controller
     public function index()
     {
         $orders = Orders::Ordersjoin();
+        $userML = token::where('user_id', Auth::user()->id)->first();
 
         $viewData = [];
         $viewData['title'] = "AfiliDrop Dashboard";
@@ -34,8 +37,10 @@ class HomeController extends Controller
         $viewData['totalDay'] = $this->getTotalDay();
         $viewData['index'] = 0;
         $viewData['orders'] = $orders;
-
-        return view('home')->with('viewData',$viewData);
+        if($userML){
+            $viewData['mercadolivre'] = $userML->created_at;
+        }
+        return view('home')->with('viewData', $viewData);
     }
 
     public function getTotalMonth()

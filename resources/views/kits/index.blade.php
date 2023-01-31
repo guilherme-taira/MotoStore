@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('conteudo')
-    {{-- {{ Auth::user()->name }} --}}
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -83,7 +82,7 @@
                                 <textarea class="form-control" name="description" rows="3"></textarea>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div>
                             <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
                         </div>
                 </form>
@@ -94,9 +93,16 @@
 
     <!--- FINAL DO MODAL ---->
 
+
     <div class="card mb-4">
         <div class="card-header">
             Lista de Kits
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ route('kits.create') }}"><button class="btn btn-success me-md-2" type="button">Novo
+                        Kit <i class="bi bi-basket2"></i></button></a>
+            </div>
+
         </div>
         <div class="card-body">
             @if (!empty($msg))
@@ -122,11 +128,16 @@
                             <tr>
                                 <td>{{ $product->getId() }}</td>
 
-                                <td><img src="{!!Storage::disk('s3')->url('produtos/'.$product->getId().'/'.$product->getImage()) !!}" style="width: 10%" alt="{{ $product->getName() }}"></td>
+                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%" alt="{{ $product->getName() }}">
+                                </td>
                                 <td>{{ $product->getName() }}</td>
                                 <td>{{ $product->getStock() }}</td>
-                                <td><a href="{{route('products.edit',['id' => $product->getId()])}}"><button class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i>Editar</button> </a></td>
-                                <td><a href="{{route('products.edit',['id' => $product->getId()])}}"><button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a></td>
+                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
+                                            class="btn btn-primary btn-sm"><i
+                                                class="bi bi-pencil-square"></i>Editar</button> </a></td>
+                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
+                                            class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

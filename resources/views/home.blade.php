@@ -4,10 +4,22 @@
     <div class="card-body width-home-page-content">
         {{-- DASHBOARD --}}
         <div class="row">
-            <div class="col-12 mt-3 mb-1">
+            <div class="col-6 mt-3 mb-1">
                 <h5 class="text-uppercase">Métricas de Vendas </h5>
                 <p>Dados de vendas e do financeiro</p>
             </div>
+
+            @if (!isset($viewData['mercadolivre']))
+                <div class="col-3 mt-3 mb-1">
+                    <a href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://afilidrop.herokuapp.com/thankspage"><button class="btn btn-warning me-md-2" type="button">Integrar Mercado
+                            Livre <i class="bi bi-basket2"></i></button></a>
+                </div>
+            @else
+            <div class="col-3 mt-3 mb-1">
+                <button class="btn btn-success me-md-2" type="button">Integrado em: {{$viewData['mercadolivre']}}<i class="bi bi-basket2"></i></button>
+            </div>
+            @endif
+
         </div>
         <div class="row">
             <div class="col-xl-6 col-md-12 mb-4">

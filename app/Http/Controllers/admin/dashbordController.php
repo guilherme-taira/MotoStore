@@ -4,9 +4,11 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Orders;
+use App\Models\token;
 use App\Models\User;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class dashbordController extends Controller
 {
@@ -17,6 +19,8 @@ class dashbordController extends Controller
      */
     public function index()
     {
+        $userML = token::where('user_id',Auth::user()->id)->first();
+        $viewData['mercadolivre'] = $userML;
         $orders = Orders::Ordersjoin();
 
         $viewData = [];
@@ -26,6 +30,7 @@ class dashbordController extends Controller
         $viewData['totalDay'] = $this->getTotalDay();
         $viewData['index'] = 0;
         $viewData['orders'] = $orders;
+        $viewData['mercadolivre'] = $userML;
 
         return view('home')->with('viewData',$viewData);
     }

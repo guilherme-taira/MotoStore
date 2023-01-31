@@ -38,6 +38,7 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
+Route::get('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProdutoML');
 Route::get('/thankspage',[StoreController::class,'thanks'])->name('thanks');
 Route::get('cart', [CartController::class, 'indexCart'])->name('cart.index');
 Route::get('cart/delete/{id}', [CartController::class, 'delete'])->name('cart.delete');
@@ -47,6 +48,7 @@ Route::get('/baixarVenda/{id}', [orderscontroller::class, 'baixarvenda'])->name(
 Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.add');
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
+Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
 
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');

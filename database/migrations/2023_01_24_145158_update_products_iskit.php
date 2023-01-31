@@ -13,7 +13,7 @@ class UpdateProductsIskit extends Migration
      */
     public function up()
     {
-        Schema::table('products',function(Blueprint $table){
+        Schema::table('products', function (Blueprint $table) {
             $table->boolean('isKit')->default(false);
         });
     }
@@ -25,6 +25,8 @@ class UpdateProductsIskit extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('isKit')->default(false);
+        });
     }
 }

@@ -390,8 +390,8 @@
                             index[i] =
                                 '<option class="option-size" value=' +
                                 item
-                                .id + '>' + item
-                                .title + '</option>';
+                                .id + '>' + 'ID: ' + item.id + ' | Nome: ' + item
+                                .title + ' | Estoque: ' + item.available_quantity + '</option>';
                         });
 
                         var arr = jQuery.makeArray(index);

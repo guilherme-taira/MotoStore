@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\GenerateCode\GetCodeController;
 use App\Models\banner;
 use App\Models\logo;
 use App\Models\Products;
@@ -108,5 +109,11 @@ class StoreController extends Controller
     public function thanks()
     {
         return view('store.thanks');
+    }
+
+    public function getCode(Request $request){
+        $getNewCode = new GetCodeController("authorization_code","3029233524869952","y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV",$request->code,"https://afilidrop.herokuapp.com/thankspage",$request->id);
+        $data = $getNewCode->resource();
+        return response()->json(["dados" => $data]);
     }
 }

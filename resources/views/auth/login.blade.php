@@ -65,16 +65,27 @@
 
                             <div class="row mb-0">
                                 <div class="col-md-8 offset-md-4">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-success">
                                         {{ __('Login') }}
                                     </button>
 
                                     @if (Route::has('password.request'))
                                         <a class="btn btn-link" href="{{ route('password.request') }}">
-                                            {{ __('Forgot Your Password?') }}
+                                            {{ __('Esqueceu a Senha?') }}
                                         </a>
                                     @endif
                                 </div>
+                            </div>
+                            <div class="row mb-0 d-flex justify-content-center mt-2">
+                                <div class="container my-3">
+                                    <div class="col-md-12 text-center">
+                                        <h5>{{ __('Não tem um cadastro?') }}</h5>
+                                        <a class="btn btn-primary" href="{{ route('register') }}">
+                                            {{ __('CADASTRA-SE') }}
+                                        </a>
+                                    </div>
+                                </div>
+
                             </div>
                         </form>
                     </div>
