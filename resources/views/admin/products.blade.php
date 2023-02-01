@@ -1,6 +1,21 @@
 @extends('layouts.app')
 @section('title', $viewData['title'])
 @section('conteudo')
+
+    @if ($errors->any())
+        <ul class="alert alert-danger list-unstyled">
+            @foreach ($errors->all() as $error)
+                <li>-> {{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+
+    @if (!empty($msg_success))
+        <ul class="alert alert-success list-unstyled">
+            <li>{{ $msg_success }}</li>
+        </ul>
+    @endif
+
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -25,110 +40,128 @@
                                     </div>
                                 </button>
                             </h2>
+
                             <div id="flush-collapseOne" class="accordion-collapse collapse"
                                 aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                 <div class="accordion-body">
-                                    <form method="POST" action="{{route('IntegrarProduto')}}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('IntegrarProduto') }}"
+                                        enctype="multipart/form-data">
                                         @csrf
-                                    <div class="col-md-12">
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
-                                                    <div class="col-lg-10 col-md-6 col-sm-12">
-                                                        <input name="name" id="name" type="text"
-                                                            class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <div class="col-md-12">
-                                            <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="acressimoP" class="form-control porcem">
-                                                    </div>
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="acressimoR" type="text" class="form-control porcem">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Desconto </p>
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="descontoP" type="text" class="form-control porcem">
-                                                    </div>
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="descontoR" type="text" class="form-control porcem">
+                                            <input type="hidden" name="id_product" id="id_product">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
+                                                        <div class="col-lg-10 col-md-6 col-sm-12">
+                                                            <input name="name" id="name" type="text"
+                                                                class="form-control">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-md-6">
-                                            <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <select name="tipo_anuncio" class="form-control"
-                                                        aria-label=".form-select-sm example" required>
-                                                        <option value="gold_special">Clássico</option>
-                                                        <option value="gold_pro">Premium</option>
-                                                    </select>
+                                            <div class="col-md-12">
+                                                <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-6">
+                                                            <input id="acressimoP" class="form-control porcem">
+                                                        </div>
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-6">
+                                                            <input id="acressimoR" type="text"
+                                                                class="form-control porcem">
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-md-12">
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-12">
-                                                        <input name="price" id="precoFinal" type="text"
-                                                            class="form-control">
+                                            <div class="col-md-12">
+                                                <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Desconto </p>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-6">
+                                                            <input id="descontoP" type="text"
+                                                                class="form-control porcem">
+                                                        </div>
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-6">
+                                                            <input id="descontoR" type="text"
+                                                                class="form-control porcem">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <select name="tipo_anuncio" class="form-control"
+                                                            aria-label=".form-select-sm example" required>
+                                                            <option value="gold_special">Clássico</option>
+                                                            <option value="gold_pro">Premium</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-12">
+                                                            <input name="price" id="precoFinal" type="text"
+                                                                class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Categorias:</label>
+                                                        <select class="form-select" id="categorias"
+                                                            aria-label="Default select example">
+                                                            <option selected>...</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <ol class="list-group list-group-numbered content_categorias">
+
+                                                        </ol>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <label
-                                                        class="col-lg-2 col-md-6 col-sm-12 col-form-label">Categorias:</label>
-                                                    <select class="form-select" id="categorias"
-                                                        aria-label="Default select example">
-                                                        <option selected>...</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <ol class="list-group list-group-numbered content_categorias">
 
-                                                    </ol>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        <input type="hidden" class="form-control" name="id_categoria"
+                                            id="id_categoria">
 
-                                    <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
-
-                                    <button type="submit" class="btn btn-success mt-4"
-                                        data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
-                                        data-bs-dismiss="modal">Finalizar Integração</button>
+                                        <button type="submit" class="btn btn-success mt-4"
+                                            data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
+                                            data-bs-dismiss="modal">Finalizar Integração</button>
                                     </form>
                                 </div>
+
+                                <!--- HISTORICO DO PRODUTO --->
+
+                                <ul class="list-group ">
+                                    <li class="list-group-item active" aria-current="true">Histórico</li>
+                                    <div class="adicionarHistorico"></div>
+                                </ul>
+
+                                <!---  FINAL DO HISTORICO  --->
                             </div>
                         </div>
                         <div class="accordion-item">
@@ -244,7 +277,8 @@
             </table>
         </div>
     </div>
-    <input type="text" name="total" id="total">
+    <input type="text" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
+    <input type="hidden" name="total" id="total">
 @endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -259,7 +293,12 @@
     $(document).ready(function() {
 
         $("tr#linhasProduct").click(function() {
+            // LIMPA O HISTORICO
+            $('.adicionarHistorico').empty();
+
             id_produto = $(this).children(".id_product").text();
+            $('#id_product').val(id_produto); // ID DO PRODUTO
+            var id_user = $('#id_user').val();
             $.ajax({
                 url: "/api/v1/product/" + id_produto,
                 type: "GET",
@@ -269,6 +308,34 @@
                         $("#total").val(response.price);
                         $("#name").val(response.title);
                         $("#precoFinal").val(response.price);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+
+            $.ajax({
+                url: "/api/v1/getHistoryById",
+                type: "GET",
+                data: {
+                    id: id_produto,
+                    id_user: id_user
+                },
+                success: function(response) {
+                    if (response) {
+                        var index = [];
+                        $.each(response.dados, function(i, item) {
+                            index[i] = '<li class="list-group-item"> Nome: ' + item
+                                .name + '  | ID: ' + item.id_ml +
+                                '   | Criado em : ' + item.created_at + '</li>';
+                        });
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $(".adicionarHistorico").append(arr);
                     }
                 },
                 error: function(error) {
@@ -288,9 +355,8 @@
                     // SHOW ALL RESULT QUERY
                     var index = [];
                     $.each(response, function(i, item) {
-                        index[i] =
-                            '<option class="option-size" value=' + item.id + '>' + item
-                            .name + '</option>';
+                        index[i] = '<option class="option-size" value=' + item.id + '>' +
+                            item.name + '</option>';
                     });
 
                     if (i == 0) {
@@ -298,18 +364,18 @@
                         $("#categorias").change(function() {
                             var ids = $(this).children("option:selected").val();
                             var name = $(this).children("option:selected").text();
-                            var content_category = '<li class="list-group-item">' + name + '</li>';
+                            var content_category = '<li class="list-group-item">' + name +
+                                '</li>';
                             $(".content_categorias").append(content_category);
-                            $("#id_categoria").val(ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                            $("#id_categoria").val(
+                                ids); // COLOCA O ID DA CATEGORIA NO CAMPO
                             getCategory(ids);
-
                         });
                     }
 
                     var arr = jQuery.makeArray(index);
                     arr.reverse();
                     $("#categorias").html(arr);
-
                 }
             },
             error: function(error) {
@@ -318,7 +384,6 @@
                 );
             }
         });
-
 
         // FUNCAO PARA CHAMAR CATEGORIAS
         function getCategory(category) {
@@ -349,7 +414,6 @@
             });
 
         }
-
 
         $("form").submit(function(event) {
             // event.preventDefault();
@@ -514,6 +578,17 @@
          * FUNCAO QUE PEGA VALOR DIGITADO NO INPUT
          */
 
+        function getFormattedDate(date) {
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
 
     });
 </script>

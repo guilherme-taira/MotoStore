@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // GET ROUTES
     Route::get('products', [productsController::class, 'getAllProduct']);
+    Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);
     Route::get('categorias', [categorias::class,'getAllCategories']);
     Route::get('categoria/{id}',[categorias::class,'getAllProductByCategorieID']);

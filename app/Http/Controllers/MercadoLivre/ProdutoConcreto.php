@@ -4,22 +4,30 @@ namespace App\Http\Controllers\MercadoLivre;
 
 use App\Http\Controllers\Controller;
 use App\Models\images;
+use App\Models\mercado_livre_history;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use PhpParser\Node\Expr\Cast\Double;
 
 class ProdutoConcreto implements Produto
 {
     private Products $produto;
+    private String $categoria;
+    private String $price;
 
-    public function __construct(Products $produto)
+    public function __construct(Products $produto, $categoria, $price)
     {
         $this->produto = $produto;
+        $this->categoria = $categoria;
+        $this->price = $price;
     }
 
 
     public function integrar()
     {
+        $error_message = [];
+        $success_data = [];
         $fotos = images::where('product_id', $this->getProduto()->id)->get();
         $photos = [];
         foreach ($fotos as $foto) {
@@ -28,8 +36,8 @@ class ProdutoConcreto implements Produto
         $data = [];
         if ($this->getProduto()) {
             $data['title'] = $this->getProduto()->title;
-            $data['category_id'] = $this->getProduto()->category_id;
-            $data['price'] = $this->getProduto()->price;
+            $data['category_id'] = $this->getCategoria();
+            $data['price'] = $this->getPrice();
             $data['currency_id'] = $this->getProduto()->currency_id;
             $data['available_quantity'] = $this->getProduto()->available_quantity;
             $data['buying_mode'] = $this->getProduto()->buying_mode;
@@ -42,20 +50,28 @@ class ProdutoConcreto implements Produto
             $data['attributes'] = [
                 [
                     "id" => "BRAND",
-                    "name" => "Marca",
-                    "value_name" => $this->getProduto()->brand
+                    "value_name" => $this->getProduto()->brand,
                 ],
                 [
                     "id" => "GTIN",
-                    "name" => "Marca",
                     "value_name" => $this->getProduto()->gtin
                 ],
             ];
 
-            if (!$photos) {
+            if ($this->getPrice() > 79.99) {
+                $data['shipping'] = [
+                    "mode" => "me2",
+                    "free_shipping" => "true",
+                ];
+            }
+
+            if ($photos) {
                 $data['pictures'] = $photos;
-            }else{
-                $data['pictures'] = ["source" => "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/".$this->getProduto()->id."/".$this->getProduto()->image];
+            } else {
+                $data['pictures'] = [[
+                    "source" =>
+                    "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $this->getProduto()->id . "/" . $this->getProduto()->image
+                ]];
             }
 
             $data_json = json_encode($data);
@@ -67,13 +83,28 @@ class ProdutoConcreto implements Produto
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer APP_USR-3029233524869952-013110-a14684b0ae3feb0327a02387ab39d5d3-141075614"]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer APP_USR-3029233524869952-020108-96efd75a70f43c5f03373457a407668f-141075614"]);
             $reponse = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-            echo "<pre>";
-            print_r($json);
+            if ($httpCode == 400) {
+                if (empty($json->cause)) {
+                    $error_message = $json->message;
+                } else {
+                    foreach ($json->cause as $erros) {
+                        array_push($error_message, $erros->message);
+                    }
+                }
+                return $error_message;
+            } else if ($httpCode == 201) {
+                $mercado_livre_history = new mercado_livre_history();
+                $mercado_livre_history->name = $json->title;
+                $mercado_livre_history->id_ml = $json->id;
+                $mercado_livre_history->id_user = Auth::user()->id;
+                $mercado_livre_history->product_id = $this->getProduto()->id;
+                $mercado_livre_history->save();
+            }
         }
     }
 
@@ -91,6 +122,43 @@ class ProdutoConcreto implements Produto
     public function setProduto(Products $produto): self
     {
         $this->produto = $produto;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of categoria
+     */
+    public function getCategoria(): String
+    {
+        return $this->categoria;
+    }
+
+    /**
+     * Set the value of categoria
+     */
+    public function setCategoria(String $categoria): self
+    {
+        $this->categoria = $categoria;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of price
+     */
+    public function getPrice(): String
+    {
+        return $this->price;
+    }
+
+    /**
+     * Set the value of price
+     */
+    public function setPrice(String $price): self
+    {
+        $this->price = $price;
 
         return $this;
     }

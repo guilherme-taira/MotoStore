@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
 use App\Models\categorias;
 use App\Models\images;
+use App\Models\mercado_livre_history;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -23,7 +24,7 @@ class productsController extends Controller
     {
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
-        $viewData['products'] = Products::where('iskit','0')->get();
+        $viewData['products'] = Products::where('iskit', '0')->get();
         return view('admin.products')->with('viewData', $viewData);
     }
 
@@ -107,10 +108,10 @@ class productsController extends Controller
     public function show($id)
     {
         $produto = Products::findOrFail($id);
-        $fotos = images::where('product_id',$id)->get();
+        $fotos = images::where('product_id', $id)->get();
         $photos = [];
         foreach ($fotos as $foto) {
-            array_push($photos,$foto->url);
+            array_push($photos, $foto->url);
         }
         if ($produto) {
             $viewData = [];
@@ -122,10 +123,10 @@ class productsController extends Controller
             $viewData['images'] = $photos;
             $viewData['categorias'] = categorias::all();
 
-           return view('store.show')->with('viewData', $viewData);
+            return view('store.show')->with('viewData', $viewData);
         }
 
-         return redirect()->route('store.index');
+        return redirect()->route('store.index');
     }
 
     /**
@@ -180,14 +181,14 @@ class productsController extends Controller
         $produto->setDescription($request->input('description'));
         $produto->SetLugarAnuncio($request->input('radio'));
 
-        // // if ($request->hasFile('image')) {
-        // //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
-        // //     Storage::disk('public')->put(
-        // //         $imageName,
-        // //         file_get_contents($request->file('image')->getRealPath())
-        // //     );
-        // //     $produto->setImage($imageName);
-        // // }
+        // if ($request->hasFile('image')) {
+        //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
+        //     Storage::disk('public')->put(
+        //         $imageName,
+        //         file_get_contents($request->file('image')->getRealPath())
+        //     );
+        //     $produto->setImage($imageName);
+        // }
         $produto->save();
         return redirect()->route('products.index');
     }
@@ -232,10 +233,10 @@ class productsController extends Controller
     public function getProduct(Request $request)
     {
         $product = Products::where('id', '=', $request->id)->first();
-        $fotos = images::where('product_id',$request->id)->get();
+        $fotos = images::where('product_id', $request->id)->get();
         $photos = [];
         foreach ($fotos as $foto) {
-            array_push($photos,$foto->url);
+            array_push($photos, $foto->url);
         }
         $data = [];
 
@@ -253,7 +254,7 @@ class productsController extends Controller
                 "immediate_payment",
             ];
             $data['fotos_adicionais'] = [
-               "fotos" => $photos
+                "fotos" => $photos
             ];
             $data['attributes'] = [
                 [
@@ -294,10 +295,41 @@ class productsController extends Controller
         return response()->json(["products" => $datasDB]);
     }
 
-    public function IntegrarProduto(Request $request){
-     echo "<pre>";
-     print_r($request->all());
-    $factory = new ProdutoImplementacao();
-    $factory->getProduto();
+    public function IntegrarProduto(Request $request)
+    {
+
+        print_r($request->all());
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5|max:60',
+            'tipo_anuncio' => 'required',
+            'price' => 'required',
+            'id_categoria' => 'required|max:10'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $name = $request->name;
+        $tipo_anuncio = $request->tipo_anuncio;
+        $price = $request->price;
+        $id_categoria = $request->id_categoria;
+        $id_product = $request->id_product;
+
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product);
+        $data = $factory->getProduto();
+        // if ($data) {
+        //     return redirect()->back()->withErrors($data);
+        // } else {
+        //     return redirect()->back()->with('msg_success', "Produto Integrado com Sucesso!");
+        // }
+    }
+
+    public function getHistoryById(Request $request)
+    {
+        $data = mercado_livre_history::where('id_user', $request->id_user)->where('product_id',$request->id)->get();
+        return response()->json(["dados" => $data]);
     }
 }
