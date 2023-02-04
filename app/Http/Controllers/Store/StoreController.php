@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GenerateCode\GetCodeController;
 use App\Models\banner;
+use App\Models\categorias;
 use App\Models\logo;
 use App\Models\Products;
+use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +29,16 @@ class StoreController extends Controller
         $viewData['bannersFix'] = banner::first();
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
 
         return view('store.index')->with('viewData', $viewData);
     }
@@ -99,7 +111,6 @@ class StoreController extends Controller
 
     public function setUser(Request $request)
     {
-
         $request->session()->put('user', $request->user);
         $request->session()->put('payment', $request->PaymentId);
         $request->session()->put('datePayment', $request->datePayment);
@@ -111,8 +122,9 @@ class StoreController extends Controller
         return view('store.thanks');
     }
 
-    public function getCode(Request $request){
-        $getNewCode = new GetCodeController("authorization_code","3029233524869952","y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV",$request->code,"https://afilidrop.herokuapp.com/thankspage",$request->id);
+    public function getCode(Request $request)
+    {
+        $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://afilidrop.herokuapp.com/thankspage", $request->id);
         $data = $getNewCode->resource();
         return response()->json(["dados" => $data]);
     }

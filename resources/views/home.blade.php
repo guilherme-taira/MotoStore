@@ -16,7 +16,7 @@
                 </div>
             @else
             <div class="col-3 mt-3 mb-1">
-                <button class="btn btn-success me-md-2" type="button">Integrado em: {{$viewData['mercadolivre']}}<i class="bi bi-basket2"></i></button>
+                <button class="btn btn-success me-md-2" type="button">Integrado em: {{$viewData['mercadolivre']->created_at}}<i class="bi bi-basket2"></i></button>
             </div>
             @endif
 

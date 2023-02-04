@@ -8,8 +8,10 @@ use App\Models\categorias;
 use App\Models\images;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
+use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -121,7 +123,15 @@ class productsController extends Controller
             $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
             $viewData['images'] = $photos;
-            $viewData['categorias'] = categorias::all();
+            $categorias = [];
+            foreach (categorias::all() as $value) {
+                $categorias[$value->id] = [
+                    "nome" => $value->nome,
+                    "subcategory" => sub_category::getAllCategory($value->id),
+                ];
+            }
+
+            $viewData['categorias'] = $categorias;
 
             return view('store.show')->with('viewData', $viewData);
         }
@@ -142,7 +152,7 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "MotoStore" . $produto->getName();
         $viewData['product'] = $produto;
-        $viewData['categorias'] = categorias::all();
+        $viewData['categorias'] = sub_category::all();
         return view('products.edit')->with('viewData', $viewData);
     }
 
@@ -279,13 +289,11 @@ class productsController extends Controller
         }
     }
 
-
     public function getAllProductByTipoAnuncio(Request $request)
     {
         $dados = Products::where('colunasAnuncio', $request->id)->get();
         return response()->json(["responseColuna" => $dados]);
     }
-
 
     public function getParametersByName(Request $request)
     {
@@ -298,7 +306,6 @@ class productsController extends Controller
     public function IntegrarProduto(Request $request)
     {
 
-        print_r($request->all());
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
@@ -318,18 +325,19 @@ class productsController extends Controller
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_product;
 
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product);
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id);
         $data = $factory->getProduto();
-        // if ($data) {
-        //     return redirect()->back()->withErrors($data);
-        // } else {
-        //     return redirect()->back()->with('msg_success', "Produto Integrado com Sucesso!");
-        // }
+        if ($data) {
+            return redirect()->back()->withErrors($data);
+        }
+
+        $request->session()->put('msg', 'Produto Cadstrado com Sucesso!');
+        return redirect()->back();
     }
 
     public function getHistoryById(Request $request)
     {
-        $data = mercado_livre_history::where('id_user', $request->id_user)->where('product_id',$request->id)->get();
+        $data = mercado_livre_history::where('id_user', $request->id_user)->where('product_id', $request->id)->get();
         return response()->json(["dados" => $data]);
     }
 }

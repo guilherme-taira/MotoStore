@@ -135,7 +135,7 @@
                                     aria-label="Default select example">
                                     <option selected>Selecione...</option>
                                     @foreach ($viewData['categorias'] as $categoria)
-                                        <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
+                                        <option value="{{ $categoria->id }}">{{ $categoria->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\images;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
+use App\Models\token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PhpParser\Node\Expr\Cast\Double;
@@ -15,14 +16,15 @@ class ProdutoConcreto implements Produto
     private Products $produto;
     private String $categoria;
     private String $price;
+    private token $userId;
 
-    public function __construct(Products $produto, $categoria, $price)
+    public function __construct(Products $produto, $categoria, $price, token $userId)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
         $this->price = $price;
+        $this->userId = $userId;
     }
-
 
     public function integrar()
     {
@@ -75,7 +77,8 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-
+            // GET TOKEN
+            $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -83,7 +86,7 @@ class ProdutoConcreto implements Produto
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer APP_USR-3029233524869952-020108-96efd75a70f43c5f03373457a407668f-141075614"]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token}"]);
             $reponse = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -96,7 +99,7 @@ class ProdutoConcreto implements Produto
                         array_push($error_message, $erros->message);
                     }
                 }
-                return $error_message;
+                //return $error_message;
             } else if ($httpCode == 201) {
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
@@ -161,5 +164,23 @@ class ProdutoConcreto implements Produto
         $this->price = $price;
 
         return $this;
+    }
+
+    /**
+     * Set the value of userId
+     */
+    public function setUserId(String $userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of userId
+     */
+    public function getUserId(): String
+    {
+        return $this->userId;
     }
 }

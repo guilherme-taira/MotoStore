@@ -24,43 +24,53 @@ class Products extends Model
 
     protected $table = "products";
 
-    public function getCategory_id(){
+    public function getCategory_id()
+    {
         return $this->category_id;
     }
 
-    public function SetCategory_id($categoria){
+    public function SetCategory_id($categoria)
+    {
         $this->category_id = $categoria;
     }
 
-    public function getLugarAnuncio(){
+    public function getLugarAnuncio()
+    {
         return $this->colunasAnuncio;
     }
 
-    public function SetLugarAnuncio($id){
+    public function SetLugarAnuncio($id)
+    {
         $this->colunasAnuncio = $id;
     }
 
-    public function getListing_type_id(){
+    public function getListing_type_id()
+    {
         return $this->listing_type_id;
     }
 
-    public function SetListing_type_id($listing_type_id){
+    public function SetListing_type_id($listing_type_id)
+    {
         $this->listing_type_id = $listing_type_id;
     }
 
-    public function getBrand(){
+    public function getBrand()
+    {
         return $this->brand;
     }
 
-    public function SetBrand($brand){
+    public function SetBrand($brand)
+    {
         $this->brand = $brand;
     }
 
-    public function getGtin(){
+    public function getGtin()
+    {
         return $this->gtin;
     }
 
-    public function SetGtin($gtin){
+    public function SetGtin($gtin)
+    {
         $this->gtin = $gtin;
     }
 
@@ -75,11 +85,13 @@ class Products extends Model
         $this->available_quantity = $available_quantity;
     }
 
-    public function getPricePromotion(){
+    public function getPricePromotion()
+    {
         return $this->pricePromotion;
     }
 
-    public function setPricePromotion($pricePromotion){
+    public function setPricePromotion($pricePromotion)
+    {
         $this->pricePromotion = $pricePromotion;
     }
 
@@ -94,11 +106,12 @@ class Products extends Model
     }
 
 
-    public function RegexPrice(){
+    public function RegexPrice()
+    {
         $string = $this->price;
         $regex = "/,/";
         $replecement = ".";
-        return preg_replace($regex,$replecement,$string);
+        return preg_replace($regex, $replecement, $string);
     }
 
     public function getDescription()
@@ -144,7 +157,7 @@ class Products extends Model
 
     public function items()
     {
-        return $this->hasMany(Items::class,'id','product_id');
+        return $this->hasMany(Items::class, 'id', 'product_id');
     }
     public function getItems()
     {
@@ -155,14 +168,21 @@ class Products extends Model
         $this->items = $items;
     }
 
-    public function productWithImageById(String $id) {
-
-        $dados = images::where('product_id',$id)->get();
+    public function productWithImageById(String $id)
+    {
+        $dados = images::where('product_id', $id)->get();
         $photos = [];
         foreach ($dados as $foto) {
-            array_push($photos,$foto->url);
+            array_push($photos, $foto->url);
         }
-
         return response()->json(["fotos" => $photos]);
+    }
+
+    public function productBySubCategory(String $id) {
+        $data = DB::table('products')
+        ->join('sub_category', 'products.id', '=', 'sub_category.id_categoria')
+        ->where('id_categoria',$id)
+        ->select('products.*')->get();
+        return $data;
     }
 }

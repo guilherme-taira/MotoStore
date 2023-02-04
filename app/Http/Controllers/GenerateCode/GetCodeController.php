@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GetCodeController extends RequestCodeMercadoLivre
 {
@@ -45,7 +46,6 @@ class GetCodeController extends RequestCodeMercadoLivre
         $response = curl_exec($ch);
         curl_close($ch);
         $dados = json_decode($response);
-
         if (!isset($dados->status)) {
             $this->saveCode($dados);
         }
@@ -67,7 +67,7 @@ class GetCodeController extends RequestCodeMercadoLivre
                 $token->type = "MercadoLivre";
                 $token->refresh_token = $codeReturn->refresh_token;
                 $token->user_id_mercadolivre = $codeReturn->user_id;
-                $token->user_id = 1;
+                $token->user_id = Auth::user()->id;
                 $token->datamodify = $DataSistema;
                 $token->save();
             } catch (\Exception $e) {

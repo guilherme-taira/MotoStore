@@ -15,6 +15,7 @@ use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Store\StoreController;
+use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AdminAccess;
 use App\Models\Orders;
@@ -38,6 +39,7 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
+Route::get('/produtos/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProdutoML');
 Route::get('/thankspage',[StoreController::class,'thanks'])->name('thanks');
 Route::get('cart', [CartController::class, 'indexCart'])->name('cart.index');
@@ -72,6 +74,7 @@ Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuan
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
+        Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
         Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
         Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);

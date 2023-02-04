@@ -14,17 +14,19 @@
                             <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
                                 aria-label="Slide 3"></button>
                         </div>
-                        <div class="carousel-inner">
-                            <div class="carousel-item active"
-                                style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $viewData['bannersFix']->getId() . '/' . $viewData['bannersFix']->getImage()) }}')">
-                            </div>
-
-                            @foreach ($viewData['banners'] as $banner)
-                                <div class="carousel-item"
-                                    style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $banner->getId() . '/' . $banner->getImage()) }}')">
+                        @if (isset($viewData['bannersFix']))
+                            <div class="carousel-inner">
+                                <div class="carousel-item active"
+                                    style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $viewData['bannersFix']->getId() . '/' . $viewData['bannersFix']->getImage()) }}')">
                                 </div>
-                            @endforeach
-                        </div>
+
+                                @foreach ($viewData['banners'] as $banner)
+                                    <div class="carousel-item"
+                                        style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $banner->getId() . '/' . $banner->getImage()) }}')">
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
                             data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -37,7 +39,6 @@
                         </button>
                     </div>
                 </header>
-
                 {{-- END DIV BANNER --}}
 
                 {{-- START PRODUTOS --}}
@@ -48,33 +49,27 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="card-img-actions img-container">
-                                        <img src="{{ Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) }}"
+                                        <img src="{{ Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) }}"
                                             class="card-img img-fluid" width="76" height="300" alt="">
                                     </div>
                                 </div>
 
                                 <div class="card-body bg-light text-center">
-                                    <div class="mb-2">
-                                        <h6 class="font-weight-semibold mb-2">
-                                            <a href="#" class="text-default mb-2"
-                                                data-abc="true">{{ $product->name }}</a>
-                                        </h6>
-                                    </div>
-                                    <p class="titulo-principal text-truncate">{{ $product->getName() }}</p>
+                                    <p class="titulo-principal text-truncate">{{ $product->title }}</p>
                                     <p class="categoria-up-line"><span class="titulo-categoria">Categoria: </span>Chocolate
                                         e Coberturas</p>
                                     <p class="categoria-up-line"><span class="titulo-categoria">Tipo: </span>Comissão aberta
                                     </p>
-                                    @if ($product->getPricePromotion() <= 0)
+                                    @if ($product->pricePromotion <= 0)
                                         <h3 class="mb-3 preco-index-produto">R$
-                                            {{ str_replace('.', ',', $product->getPrice()) }}</h3>
+                                            {{ str_replace('.', ',', $product->price) }}</h3>
                                     @else
                                         <h4 class="mb-3 preco-index-produto"> <s class="text-danger">De
-                                                {{ str_replace('.', ',', $product->getPrice()) }} </s> R$
-                                            {{ str_replace('.', ',', $product->getPricePromotion()) }}</h4>
+                                                {{ str_replace('.', ',', $product->price) }} </s> R$
+                                            {{ str_replace('.', ',', $product->pricePromotion) }}</h4>
                                     @endif
-                                    <a href="{{ route('products.show', ['id' => $product->getId()]) }}"><button
-                                            type="button" class="btn botao-afiliarse"><span class="texto-afiliase">SAIBA
+                                    <a href="{{ route('products.show', ['id' => $product->id]) }}"><button type="button"
+                                            class="btn botao-afiliarse"><span class="texto-afiliase">SAIBA
                                                 MAIS</span></button></a>
                                 </div>
                             </div>
@@ -86,4 +81,3 @@
         </main>
     </div>
 @endsection
-

@@ -13,13 +13,75 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
     <link href="{{ asset('/css/app.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('js-plugin-circliful-master/dist/main.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
     <title>@yield('title', 'Online Store')</title>
+
+
+    <script type="text/javascript">
+        //	window.addEventListener("resize", function() {
+        //		"use strict"; window.location.reload();
+        //	});
+
+        document.addEventListener("DOMContentLoaded", function() {
+            /////// Prevent closing from click inside dropdown
+            document.querySelectorAll('.dropdown-menu').forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            })
+
+
+
+            // make it as accordion for smaller screens
+            if (window.innerWidth < 992) {
+
+                // close all inner dropdowns when parent is closed
+                document.querySelectorAll('.navbar .dropdown').forEach(function(everydropdown) {
+                    everydropdown.addEventListener('hidden.bs.dropdown', function() {
+                        // after dropdown is hidden, then find all submenus
+                        this.querySelectorAll('.submenu').forEach(function(everysubmenu) {
+                            // hide every submenu as well
+                            everysubmenu.style.display = 'none';
+                        });
+                    })
+                });
+
+                document.querySelectorAll('.dropdown-menu a').forEach(function(element) {
+                    element.addEventListener('click', function(e) {
+
+                        let nextEl = this.nextElementSibling;
+                        if (nextEl && nextEl.classList.contains('submenu')) {
+                            // prevent opening link if link needs to open dropdown
+                            e.preventDefault();
+                            console.log(nextEl);
+                            if (nextEl.style.display == 'block') {
+                                nextEl.style.display = 'none';
+                            } else {
+                                nextEl.style.display = 'block';
+                            }
+
+                        }
+                    });
+                })
+            }
+            // end if innerWidth
+
+        });
+        // DOMContentLoaded  end
+    </script>
 </head>
 
 <body>
@@ -34,20 +96,58 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link text-white" href="{{ route('stores.index') }}">Home</a>
+                <ul class="navbar-nav">
+                    <!-- Navbar dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
+                            Outras Categorias </a>
+                        <ul class="dropdown-menu bg-secondary dropdown-menu-right">
+                            <hr>
+                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>
+                            @foreach ($viewData['categorias'] as $categoria)
+                                @if (count($categoria['subcategory']) > 0)
+                                    <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                        <ul class="submenu submenu-right dropdown-menu">
+                                            <div class="div-sub-menu">
+                                                <h5>{{ $categoria['nome'] }}</h5>
+                                                <hr>
+                                                @foreach ($categoria['subcategory'] as $sub)
+                                                    <li><a class="dropdown-item" href="{{route('categoryById',['categoryId' => $sub->id]) }}">{{ $sub->name }}</a></li>
+                                                @endforeach
+                                            </div>
+                                        </ul>
+                                    </li>
+                                @else
+                                    <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+                    </li>
+                </ul>
+                </li>
 
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Vendas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Categorias</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('panel.index') }}">Central do Vendedor</a>
-                    </li>
+                <!--- MENU PRODUTOS FINAL --->
+                <li class="nav-item active">
+                    <a class="nav-link text-white" href="{{ route('stores.index') }}">Lançamentos</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link text-white" href="{{ route('stores.index') }}">Promoções</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#">Alto KM</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#">Kits</a>
+                </li>
+                <li class="nav-item bg-danger" style="border-radius: 10px;">
+                    <a class="nav-link text-white" href="#">Categoria Premium</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('panel.index') }}">Central do Vendedor</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
+                </li>
                 </ul>
             </div>
         </div>
@@ -66,7 +166,7 @@
     <div class="copyright py-2 text-center fixed-bottom text-white">
         <div class="container">
             <small>
-                Copyright {{date('Y')}}  - <a class="text-reset fw-bold text-decoration-none" target="_blank"
+                Copyright {{ date('Y') }} - <a class="text-reset fw-bold text-decoration-none" target="_blank"
                     href="https://twitter.com/danielgarax">
                     Máximo Company
                 </a> - CNPJ: 48.930.389-0001-09</b>

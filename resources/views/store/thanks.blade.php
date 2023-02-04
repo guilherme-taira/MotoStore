@@ -96,7 +96,6 @@
         return false;
     };
 
-
     var code = getUrlParameter('code');
     var id = $('#id_user').val();
     $.ajax({

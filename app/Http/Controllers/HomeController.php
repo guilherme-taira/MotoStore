@@ -38,7 +38,7 @@ class HomeController extends Controller
         $viewData['index'] = 0;
         $viewData['orders'] = $orders;
         if($userML){
-            $viewData['mercadolivre'] = $userML->created_at;
+            $viewData['mercadolivre'] = $userML;
         }
         return view('home')->with('viewData', $viewData);
     }

@@ -17,14 +17,13 @@ abstract class criadorDeProduto
     private array $erros;
     private String $id;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$erros = [],$id)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
         $this->price = $price;
         $this->id_categoria = $id_categoria;
         $this->id_product = $id_product;
-        $this->erros = $erros;
         $this->id = $id;
     }
 
@@ -158,6 +157,24 @@ abstract class criadorDeProduto
     public function setProdutoInstance(criadorDeProduto $produtoInstance): self
     {
         $this->produtoInstance = $produtoInstance;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of id
+     */
+    public function getId(): String
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the value of id
+     */
+    public function setId(String $id): self
+    {
+        $this->id = $id;
 
         return $this;
     }

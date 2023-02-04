@@ -10,10 +10,11 @@
         </ul>
     @endif
 
-    @if (!empty($msg_success))
-        <ul class="alert alert-success list-unstyled">
-            <li>{{ $msg_success }}</li>
-        </ul>
+    @if (session('msg'))
+        <div class="alert alert-success" role="alert">
+            {{ session('msg')}}
+            {{session()->forget('msg') }}
+        </div>
     @endif
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
@@ -277,7 +278,7 @@
             </table>
         </div>
     </div>
-    <input type="text" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
+    <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
     <input type="hidden" name="total" id="total">
 @endsection
 
