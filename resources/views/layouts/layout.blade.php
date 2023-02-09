@@ -17,7 +17,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
@@ -42,8 +41,6 @@
                     e.stopPropagation();
                 });
             })
-
-
 
             // make it as accordion for smaller screens
             if (window.innerWidth < 992) {
@@ -99,8 +96,7 @@
                 <ul class="navbar-nav">
                     <!-- Navbar dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">
-                            Outras Categorias </a>
+                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras Categorias </a>
                         <ul class="dropdown-menu bg-secondary dropdown-menu-right">
                             <hr>
                             <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>

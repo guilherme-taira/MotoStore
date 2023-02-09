@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
+use App\Http\Controllers\Services\ServicesController;
 use App\Models\categorias;
 use App\Models\images;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
 use App\Models\sub_category;
+use App\Models\token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +40,15 @@ class productsController extends Controller
     public function create()
     {
         $viewData = [];
-        $viewData['categorias'] = categorias::all();
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
         return view('products.add')->with('viewData', $viewData);
     }
 
@@ -50,36 +60,43 @@ class productsController extends Controller
      */
     public function store(Request $request)
     {
+        // SERVICE TRATA PREÇO
+        $TrataPreco = new ServicesController();
 
-        // $validator = Validator::make($request->all(), [
-        //     'name' => 'required|min:5',
-        //     'price' => 'required|numeric|min:1',
-        //     // 'photos' => 'required|file',
-        //     "stock" => "required|numeric",
-        //     'description' => 'required'
-        // ]);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5',
+            'price' => 'required|min:1',
+            "stock" => "required|numeric",
+            'description' => 'required',
+            'brand' => 'required|min:3',
+            'id_categoria' => 'required',
+            'ean' => 'required',
+        ]);
 
-        // if ($validator->fails()) {
-        //     return redirect()->back()
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $produto = new Products();
         $produto->title = $request->name;
-        $produto->price = $request->price;
+        $produto->price = $TrataPreco->RegexPrice($request->price);
         $produto->description = $request->description;
         $produto->available_quantity = 10;
-        $produto->categoria = $request->categoria;
+        $produto->categoria = $produto::getIdPrincipal($request->categoria);
+        $produto->category_id = $request->id_categoria;
+        $produto->subcategoria = $request->categoria;
+        $produto->pricePromotion = $TrataPreco->RegexPrice($request->pricePromotion);
+        $produto->brand = $request->brand;
+        $produto->gtin = $request->ean;
         $produto->image = 'image.png';
         $produto->save();
-
 
         $files = $request->file('photos');
 
         $i = 0;
         foreach ($files as $file) {
-
             $filename = $file->getClientOriginalName();
             $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
             if ($i == 0) {
@@ -109,8 +126,10 @@ class productsController extends Controller
      */
     public function show($id)
     {
+
         $produto = Products::findOrFail($id);
         $fotos = images::where('product_id', $id)->get();
+        $token = token::where('user_id', Auth::user()->id)->first();
         $photos = [];
         foreach ($fotos as $foto) {
             array_push($photos, $foto->url);
@@ -118,6 +137,7 @@ class productsController extends Controller
         if ($produto) {
             $viewData = [];
             $viewData['title'] = "AfiliDrop : " . $produto->name;
+            $viewData['categoria_num'] = $produto->categoria;
             $viewData['subtitle'] = $produto->title;
             $viewData['product'] = $produto;
             $viewData['stock'] = $produto->stock;
@@ -131,6 +151,7 @@ class productsController extends Controller
                 ];
             }
 
+            $viewData['token'] = $token;
             $viewData['categorias'] = $categorias;
 
             return view('store.show')->with('viewData', $viewData);
@@ -152,7 +173,16 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "MotoStore" . $produto->getName();
         $viewData['product'] = $produto;
-        $viewData['categorias'] = sub_category::all();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
         return view('products.edit')->with('viewData', $viewData);
     }
 
@@ -185,20 +215,21 @@ class productsController extends Controller
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
         $produto->SetBrand($request->input('brand'));
-        $produto->setCategoria($request->input('categoria'));
+        $produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
+        $produto->SetSubCategory_id($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
         $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
         $produto->SetLugarAnuncio($request->input('radio'));
 
-        // if ($request->hasFile('image')) {
-        //     $imageName = $produto->getId() . "." . $request->file('image')->extension();
-        //     Storage::disk('public')->put(
-        //         $imageName,
-        //         file_get_contents($request->file('image')->getRealPath())
-        //     );
-        //     $produto->setImage($imageName);
-        // }
+        if ($request->hasFile('image')) {
+            $imageName = $produto->getId() . "." . $request->file('image')->extension();
+            Storage::disk('public')->put(
+                $imageName,
+                file_get_contents($request->file('image')->getRealPath())
+            );
+            $produto->setImage($imageName);
+        }
         $produto->save();
         return redirect()->route('products.index');
     }
@@ -305,12 +336,11 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
             'price' => 'required',
-            'id_categoria' => 'required|max:10'
+            //'id_categoria' => 'required|max:10'
         ]);
 
         if ($validator->fails()) {
@@ -322,7 +352,7 @@ class productsController extends Controller
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
-        $id_categoria = $request->id_categoria;
+        $id_categoria = Products::getMercadoLivreId($request->id_product);
         $id_product = $request->id_product;
 
         $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id);

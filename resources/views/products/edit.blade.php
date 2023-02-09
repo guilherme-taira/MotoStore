@@ -77,7 +77,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="mb-3 row">
 
@@ -94,7 +93,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="mb-3 row">
                             <div class="col-lg-3">
@@ -131,16 +129,21 @@
                         <div class="row mb-3">
                             <div class="col col-lg-4">
                                 <label for="categoria">Categorias:</label>
-                                <select class="form-select mt-2" name="categoria" id="categoria"
+                                <select class="form-select mt-2" name="categoria" id="categoria" required
                                     aria-label="Default select example">
-                                    <option selected>Selecione...</option>
+                                    <option value="" selected>Selecione...</option>
+
                                     @foreach ($viewData['categorias'] as $categoria)
-                                        <option value="{{ $categoria->id }}">{{ $categoria->name }}</option>
+                                        <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
+                                        @foreach ($categoria['subcategory'] as $subcategoria)
+                                            <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}
+                                            </option>
+                                        @endforeach
                                     @endforeach
+
                                 </select>
                             </div>
                         </div>
-
                         <div class="row mt-4">
                             <div class="col">
                                 <div class="mb-3 row">
@@ -151,6 +154,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea class="form-control" name="description" rows="3">{{ $viewData['product']->description }}</textarea>

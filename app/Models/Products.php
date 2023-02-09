@@ -34,6 +34,12 @@ class Products extends Model
         $this->category_id = $categoria;
     }
 
+    public function SetSubCategory_id($subcategoria)
+    {
+        $this->subcategoria = $subcategoria;
+    }
+
+
     public function getLugarAnuncio()
     {
         return $this->colunasAnuncio;
@@ -184,5 +190,15 @@ class Products extends Model
         ->where('id_categoria',$id)
         ->select('products.*')->get();
         return $data;
+    }
+
+    public static function getIdPrincipal($id){
+        $data = sub_category::where('id',$id)->first();
+        return $data->id_categoria;
+    }
+
+    public static function getMercadoLivreId($id){
+        $data = Products::where('id',$id)->first();
+        return $data->category_id;
     }
 }

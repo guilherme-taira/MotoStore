@@ -17,13 +17,15 @@ class ProdutoConcreto implements Produto
     private String $categoria;
     private String $price;
     private token $userId;
+    private String $name;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
         $this->price = $price;
         $this->userId = $userId;
+        $this->name = $name;
     }
 
     public function integrar()
@@ -37,7 +39,7 @@ class ProdutoConcreto implements Produto
         }
         $data = [];
         if ($this->getProduto()) {
-            $data['title'] = $this->getProduto()->title;
+            $data['title'] = $this->getName();
             $data['category_id'] = $this->getCategoria();
             $data['price'] = $this->getPrice();
             $data['currency_id'] = $this->getProduto()->currency_id;
@@ -99,7 +101,7 @@ class ProdutoConcreto implements Produto
                         array_push($error_message, $erros->message);
                     }
                 }
-                //return $error_message;
+                return $error_message;
             } else if ($httpCode == 201) {
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
@@ -128,7 +130,6 @@ class ProdutoConcreto implements Produto
 
         return $this;
     }
-
 
     /**
      * Get the value of categoria
@@ -182,5 +183,23 @@ class ProdutoConcreto implements Produto
     public function getUserId(): String
     {
         return $this->userId;
+    }
+
+    /**
+     * Get the value of name
+     */
+    public function getName(): String
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the value of name
+     */
+    public function setName(String $name): self
+    {
+        $this->name = $name;
+
+        return $this;
     }
 }

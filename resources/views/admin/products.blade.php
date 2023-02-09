@@ -49,14 +49,13 @@
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="col-md-12">
-                                            <input type="hidden" name="id_product" id="id_product">
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="mb-3 row">
                                                         <label
                                                             class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
                                                         <div class="col-lg-10 col-md-6 col-sm-12">
-                                                            <input name="name" id="name" type="text"
+                                                            <input name="name" id="name" type="hidden"
                                                                 class="form-control">
                                                         </div>
                                                     </div>
@@ -135,6 +134,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <div class="col-md-4">
                                                 <div class="col">
                                                     <div class="mb-3 row">
@@ -235,6 +235,7 @@
                     class="bi bi-patch-plus"></i></button></a>
     </div>
 
+
     <div class="card mt-2">
         <div class="card-header">
             Manage Products
@@ -280,6 +281,7 @@
     </div>
     <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
     <input type="hidden" name="total" id="total">
+
 @endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -297,7 +299,7 @@
             // LIMPA O HISTORICO
             $('.adicionarHistorico').empty();
 
-            id_produto = $(this).children(".id_product").text();
+            id_produto = $("#id_product").val();
             $('#id_product').val(id_produto); // ID DO PRODUTO
             var id_user = $('#id_user').val();
             $.ajax({
@@ -422,15 +424,8 @@
             $('#carregando').removeClass('d-none');
         });
 
-        // MASCARA DE PORCENTAGEM
-        $('.porcem').mask('Z9999.999', {
-            translation: {
-                'Z': {
-                    pattern: /[\-\+]/,
-                    optional: true
-                }
-            }
-        });
+
+
 
         $('#descontoP').keyup(function() {
             // VALOR TOTAL

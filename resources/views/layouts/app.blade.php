@@ -19,13 +19,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
     <!-- Styles -->
-     <!-- Font Awesome -->
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-     <!-- Google Fonts -->
-     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-     <!-- MDB -->
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet"/>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
     <link href="{{ asset('/css/bootstrap_css.css') }}" rel="stylesheet">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <script src="{{ asset('mascara/src/jquery.maskMoney.js') }}" type="text/javascript"></script>
 </head>
 
 <body>
@@ -121,10 +123,10 @@
                             <!-- Dropdown menu -->
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{{route('banner.index')}}">Banners</a>
+                                    <a class="dropdown-item" href="{{ route('banner.index') }}">Banners</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{route('logos.index')}}">Logo</a>
+                                    <a class="dropdown-item" href="{{ route('logos.index') }}">Logo</a>
                                 </li>
                             </ul>
                         </li>
@@ -141,7 +143,8 @@
                             <!-- Dropdown menu -->
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Receber</a>
+                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a
+                                        Receber</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Pagar</a>

@@ -13,9 +13,10 @@ class AlterTableProductsCategory extends Migration
      */
     public function up()
     {
-        // Schema::create('products', function (Blueprint $table) {
-
-        // });
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedBigInteger('subcategoria')->nullable();
+            $table->foreign('subcategoria')->references('id')->on('sub_category');
+        });
     }
 
     /**
@@ -25,6 +26,8 @@ class AlterTableProductsCategory extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('products',function(Blueprint $table){
+            $table->dropColumn('subcategoria');
+        });
     }
 }

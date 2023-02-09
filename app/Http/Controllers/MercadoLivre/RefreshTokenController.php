@@ -36,7 +36,7 @@ class RefreshTokenController implements refreshToken
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
         $acesso = token::where('user_id', $this->getUserId())->first();
         $DataSistema = $this->getDataAtual()->format('Y-m-d H:i:s');
-        if ($DataSistema > $acesso->DataModify) {
+        if ($DataSistema > $acesso->datamodify) {
             // ENDPOINT PARA REQUISAO;
             $endpoint = URL_BASE_REFRESH_TOKEN_MERCADOLIVRE . $resource;
             echo $endpoint;

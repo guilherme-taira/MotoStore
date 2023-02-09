@@ -26,6 +26,219 @@
             </div>
         </div>
 
+
+        <!--- MODAL QUE SELECIONA O MOTORISTA --->
+        <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+            tabindex="-1">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalToggleLabel">Integrações MarketPlace</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="accordion accordion-flush" id="accordionFlushExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="flush-headingOne">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#flush-collapseOne" aria-expanded="false"
+                                        aria-controls="flush-collapseOne">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value=""
+                                                id="flexCheckChecked" checked>
+                                            <label class="form-check-label" for="flexCheckChecked">
+                                                Mercado Livre
+                                            </label>
+                                        </div>
+                                    </button>
+                                </h2>
+
+                                <div id="flush-collapseOne" class="accordion-collapse collapse"
+                                    aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                    <div class="accordion-body">
+                                        <form method="POST" action="{{ route('IntegrarProduto') }}"
+                                            enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="col-md-12">
+                                                      <!---  ID DO PRODUTO --->
+                                                <input type="hidden" name="id_product" id="id_product"  value="{{ $viewData['product']->id }}">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
+                                                            <div class="col-lg-10 col-md-6 col-sm-12">
+                                                                <input name="name" id="name"
+                                                                    value="{{ $viewData['product']->title }}" type="text"
+                                                                    class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                                                <input id="acressimoP" class="form-control porcem">
+                                                            </div>
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                                                <input id="acressimoR" type="text"
+                                                                    class="form-control porcem">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Desconto </p>
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                                                <input id="descontoP" type="text"
+                                                                    class="form-control porcem">
+                                                            </div>
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-6">
+                                                                <input id="descontoR" type="text"
+                                                                    class="form-control porcem">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio
+                                                    </p>
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <select name="tipo_anuncio" class="form-control"
+                                                                aria-label=".form-select-sm example" required>
+                                                                <option value="gold_special">Clássico</option>
+                                                                <option value="gold_pro">Premium</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <label
+                                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                                                <input name="price" id="precoFinal"
+                                                                    value="{{ $viewData['product']->price }}"
+                                                                    type="text" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="col">
+                                                        <div class="mb-3 row">
+                                                            <ol class="list-group list-group-numbered content_categorias">
+
+                                                            </ol>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <input type="hidden" class="form-control" name="id_categoria"
+                                                id="id_categoria">
+
+                                            <button type="submit" class="btn btn-success mt-4">Finalizar
+                                                Integração</button>
+                                        </form>
+                                    </div>
+
+                                    <!--- HISTORICO DO PRODUTO --->
+
+                                    <ul class="list-group ">
+                                        <li class="list-group-item active" aria-current="true">Histórico</li>
+                                        <div class="adicionarHistorico"></div>
+                                    </ul>
+
+                                    <!---  FINAL DO HISTORICO  --->
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="flush-headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#flush-collapseTwo" aria-expanded="false"
+                                        aria-controls="flush-collapseTwo">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value=""
+                                                id="flexCheckChecked" checked>
+                                            <label class="form-check-label" for="flexCheckChecked">
+                                                Shopee
+                                            </label>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                                    aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                                    <div class="accordion-body">Placeholder content for this accordion, which is intended
+                                        to
+                                        demonstrate the <code>.accordion-flush</code> class. This is the second item's
+                                        accordion
+                                        body. Let's imagine this being filled with some actual content.</div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="flush-headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#flush-collapseThree" aria-expanded="false"
+                                        aria-controls="flush-collapseThree">
+                                        B2W
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseThree" class="accordion-collapse collapse"
+                                    aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+                                    <div class="accordion-body">Placeholder content for this accordion, which is intended
+                                        to
+                                        demonstrate the <code>.accordion-flush</code> class. This is the third item's
+                                        accordion
+                                        body. Nothing more exciting happening here in terms of content, but just filling up
+                                        the
+                                        space to make it look, at least at first glance, a bit more representative of how
+                                        this
+                                        would look in a real-world application.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--- FINAL DO MODAL ---->
+
+
+        @if ($errors->any())
+            <ul class="alert alert-danger list-unstyled">
+                @foreach ($errors->all() as $error)
+                    <li>-> {{ $error }}</li>
+                @endforeach
+            </ul>
+        @endif
+
+        @if (session('msg'))
+            <div class="alert alert-success" role="alert">
+                {{ session('msg') }}
+                {{ session()->forget('msg') }}
+            </div>
+        @endif
+
         <form method="POST" id="formulario" action="{{ route('cart.add', ['id' => $viewData['product']->getId()]) }}">
             <div class="row mt-4">
                 @csrf
@@ -38,7 +251,8 @@
                     </div>
                     <!--- FINAL FOTOS ADICIONAIS  --->
                     <div class="col-md-3 mt-1 receivedPhoto"><img
-                            class="img-fluid img-responsive rounded product-image tradeFoto" src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
+                            class="img-fluid img-responsive rounded product-image tradeFoto"
+                            src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
                     </div>
                     <div class="col-md-6 mt-1">
                         <h5>{{ $viewData['product']->getName() }}</h5>
@@ -48,8 +262,9 @@
                             <div class="col-md-6">
                                 <label class="mt-2">KM</label>
                                 <div class="progress">
-                                    <div class="progress-bar py-2" role="progressbar" style="width: 40%;" aria-valuenow="40"
-                                        aria-valuemin="0" aria-valuemax="100" ${6| ,progress-bar-animated}></div>
+                                    <div class="progress-bar py-2" role="progressbar" style="width: 40%;"
+                                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" ${6|
+                                        ,progress-bar-animated}></div>
                                 </div>
                             </div>
                         </div>
@@ -77,37 +292,6 @@
                                 value="{{ $viewData['product']->getName() }}">
                         </div>
 
-                        <!--- comissao e fixo  --->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div>acréscimo % </div>
-                                <input type="text" min="1"class="form-control quantity-input" id="quantity"
-                                    name="quantity" value="0.00">
-                            </div>
-                            <div class="col-md-6">
-                                <div>Fixo R$:</div>
-                                <input type="text" min="1"class="form-control quantity-input" id="quantity"
-                                    name="quantity" value="0">
-                            </div>
-                        </div>
-
-                        <!--- final comissao e fixo --->
-
-                        <!--- Desconto e fixo  --->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div>Desconto % </div>
-                                <input type="text" min="1"class="form-control quantity-input" id="quantity"
-                                    name="quantity" value="0.00">
-                            </div>
-                            <div class="col-md-6">
-                                <div>Fixo R$:</div>
-                                <input type="text" min="1"class="form-control quantity-input" id="quantity"
-                                    name="quantity" value="0">
-                            </div>
-                        </div>
-                        <!--- Final Desconto e fixo  --->
-
                         <!--- Desconto e fixo  --->
                         <div class="row mt-2">
                             <div class="col-md-6">
@@ -120,9 +304,18 @@
 
                         <!--- Botões dos marketplaces  --->
                         <div class="row">
+                            <input type="hidden" id="total" value="{{ $viewData['product']->price }}">
+                            <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
+                            <input type="hidden" name="id_produto" id="id_produto"
+                                value="{{ $viewData['product']->id }}">
                             <div class="col-md-12">
                                 <div class="div mt-4">
-                                    <button class="btn btn-warning">Mercado Livre</button>
+                                    @if ($viewData['token'])
+                                        <input type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                            href="#exampleModalToggle" value="Mercado Livre">
+                                    @else
+                                        <button class="btn btn-secondy" disabled>Mercado Livre</button>
+                                    @endif
                                     <button class="btn btn-secondy" disabled>Shopee</button>
                                     <button class="btn btn-sucess" disabled>B2W</button>
                                 </div>
@@ -170,19 +363,22 @@
         </form>
     </div>
     </div>
+
 @endsection
 
-{{-- AJAX JQUERY SEARCH --}}
 
+{{-- AJAX JQUERY SEARCH --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 
 
 <script>
     $(document).ready(function() {
-
+        var valorProduto = 0;
+        var i = 0;
         var quantity = $("#quantity").val();
         var stock = $("#stock").val();
 
@@ -196,7 +392,7 @@
             });
 
             var images = $(this).attr('src');
-            $('.product-image').attr('src',images);
+            $('.product-image').attr('src', images);
 
         }).mouseleave(function() {
             $(this).fadeOut(100);
@@ -210,25 +406,174 @@
         });
 
 
+        $("tr#linhasProduct").click(function() {
+            // LIMPA O HISTORICO
+            $('.adicionarHistorico').empty();
 
+            id_produto = $(this).children(".id_product").text();
+            var id_user = $('#id_user').val();
+            $.ajax({
+                url: "/api/v1/product/" + id_produto,
+                type: "GET",
+                success: function(response) {
+                    if (response) {
+                        valorProduto = response.price;
+                        $("#total").val(response.price);
+                        $("#name").val(response.title);
+                        $("#precoFinal").val(response.price);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
 
+        });
 
-        if (parseInt(quantity) > parseInt(stock)) {
-            $('#btn-submit').prop("disabled", true);
-            $('#modalbutton').trigger('click');
-        }
+        $('#descontoP').keyup(function() {
+            // VALOR TOTAL
+            var total = $('#total').val();
+            var totalCalculado = total;
 
-        $('input[id=quantity]').change(function() {
+            if ($('#descontoP').val().length >= 1) {
+                var porcem = $('#descontoP').val();
+                totalCalculado = parseFloat(total) - parseFloat(calculaPorcemtagem(total,
+                    porcem));
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
 
-            var quantity = $("#quantity").val();
-
-            if (parseInt(quantity) > parseInt(stock) || parseInt(stock) == '0') {
-                $('#btn-submit').prop("disabled", true);
-                $('#modalbutton').trigger('click');
-                return false;
+                $('#acressimoP').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
+                $('#acressimoR').prop("disabled", true).css({
+                    'background-color': 'red'
+                });;
+                $('#descontoR').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
             } else {
-                $('button').prop("disabled", false);
+                totalCalculado = parseFloat(total);
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+                $('#acressimoP').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
+                $('#acressimoR').prop("disabled", false).css({
+                    'background-color': 'white'
+                });;
+                $('#descontoR').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
             }
         });
+
+        $('#descontoR').keyup(function() {
+
+            // VALOR TOTAL
+            var total = $('#total').val();
+            var totalCalculado = total;
+            console.log(total);
+            $('#descontoR').keyup(function() {
+                var reais = $('#descontoR').val();
+                totalCalculado = parseFloat(total) - parseFloat(reais);
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+                if ($('#descontoR').val().length >= 1) {
+                    $('#acressimoR').prop("disabled", true).css({
+                        'background-color': 'red'
+                    });
+                    $('#acressimoP').prop("disabled", true).css({
+                        'background-color': 'red'
+                    });;
+                    $('#descontoP').prop("disabled", true).css({
+                        'background-color': 'red'
+                    });
+                } else {
+                    $('#precoFinal').val(parseFloat(total).toFixed(2));
+                    $('#acressimoR').prop("disabled", false).css({
+                        'background-color': 'white'
+                    });
+                    $('#acressimoP').prop("disabled", false).css({
+                        'background-color': 'white'
+                    });;
+                    $('#descontoP').prop("disabled", false).css({
+                        'background-color': 'white'
+                    });
+                }
+            });
+        });
+
+        $('#acressimoP').keyup(function() {
+            // VALOR TOTAL
+            var total = $('#total').val();
+            var totalCalculado = total;
+            if ($('#acressimoP').val().length >= 1) {
+                var porcem = $('#acressimoP').val();
+                totalCalculado = parseFloat(total) + parseFloat(calculaPorcemtagem(total,
+                    porcem));
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+                $('#acressimoR').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
+                $('#descontoP').prop("disabled", true).css({
+                    'background-color': 'red'
+                });;
+                $('#descontoR').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
+            } else {
+                totalCalculado = parseFloat(total);
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+                $('#acressimoR').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
+                $('#descontoR').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
+                $('#descontoP').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
+            }
+        });
+
+        $('#acressimoR').keyup(function() {
+            // VALOR TOTAL
+            var total = $('#total').val();
+            var totalCalculado = total;
+            if ($('#acressimoR').val().length >= 1) {
+                var reais = $('#acressimoR').val();
+                totalCalculado = parseFloat(total) + parseFloat(reais);
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+
+                $('#acressimoP').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
+                $('#descontoP').prop("disabled", true).css({
+                    'background-color': 'red'
+                });;
+                $('#descontoR').prop("disabled", true).css({
+                    'background-color': 'red'
+                });
+            } else {
+                totalCalculado = parseFloat(total) + 0;
+                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
+                $('#acressimoP').prop("disabled", false).css({
+                    'background-color': 'white'
+                });
+                $('#descontoP').prop("disabled", false).css({
+                    'background-color': 'white'
+                });;
+                $('#descontoR').prop("disabled", false).css({
+                    'background-color': 'white'
+
+                });
+            }
+        });
+
+        function calculaPorcemtagem(valor, porcem) {
+            //60 x 25% = 160 (25/100) = 160 x 0,25 = 40.
+            return valor * (porcem / 100);
+        }
+
+        //$('#total').val($('#valorTotalInput').val());
     });
 </script>

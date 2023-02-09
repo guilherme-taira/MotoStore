@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\Orders\MercadoLivre\MercadolivreOrderController;
 use App\Models\Orders;
 use App\Models\token;
 use App\Models\User;
@@ -19,20 +21,31 @@ class dashbordController extends Controller
      */
     public function index()
     {
+
+        // GET TOKEN
         $userML = token::where('user_id',Auth::user()->id)->first();
+
+        $dataAtual = new DateTime();
+        // GET NEW TOKEN
+        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", Auth::user()->id);
+        $newToken->resource();
         $viewData['mercadolivre'] = $userML;
         $orders = Orders::Ordersjoin();
 
-        $viewData = [];
-        $viewData['title'] = "MotoStore Dashboard";
-        $viewData['subtitle'] = "Dashboard";
-        $viewData['totalMonth'] = $this->getTotalMonth();
-        $viewData['totalDay'] = $this->getTotalDay();
-        $viewData['index'] = 0;
-        $viewData['orders'] = $orders;
-        $viewData['mercadolivre'] = $userML;
+        // TOKEN DO MERCADO LIVRE
+        $MercadolivreOrderController = new MercadolivreOrderController($userML->user_id_mercadolivre,$userML->access_token);
+        $dados = $MercadolivreOrderController->resource();
+        print_r($dados);
+        // $viewData = [];
+        // $viewData['title'] = "MotoStore Dashboard";
+        // $viewData['subtitle'] = "Dashboard";
+        // $viewData['totalMonth'] = $this->getTotalMonth();
+        // $viewData['totalDay'] = $this->getTotalDay();
+        // $viewData['index'] = 0;
+        // $viewData['orders'] = $orders;
+        // $viewData['mercadolivre'] = $userML;
 
-        return view('home')->with('viewData',$viewData);
+        // return view('home')->with('viewData',$viewData);
     }
 
     /**
