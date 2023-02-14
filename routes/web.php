@@ -39,7 +39,9 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
-Route::get('/produtos/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
+Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
+Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
+Route::get('/lancamentos',[productsController::class,'GetProductsLancamentos'])->name('GetProductsLancamentos');
 Route::get('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProdutoML');
 Route::get('/thankspage',[StoreController::class,'thanks'])->name('thanks');
 Route::get('cart', [CartController::class, 'indexCart'])->name('cart.index');

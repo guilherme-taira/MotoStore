@@ -41,9 +41,12 @@
                 </header>
                 {{-- END DIV BANNER --}}
 
+                @if (isset($viewData['subtitle']))
+                    <h2>{{ $viewData['subtitle'] }}</h2>
+                @endif
+
                 {{-- START PRODUTOS --}}
                 <div class="row row-cols-1 row-cols-xs-2 row-cols-sm-2 row-cols-lg-4 g-3 mt-4">
-
                     @foreach ($viewData['products'] as $product)
                         <div class="col-md-4 mt-2">
                             <div class="card">
@@ -54,6 +57,9 @@
                                     </div>
                                 </div>
 
+                                @if (!empty($viewData['lancamentos']))
+                                    <marquee class="bg-info text-white">NOVO LANÇAMENTO</marquee>
+                                @endif
                                 <div class="card-body bg-light text-center">
                                     <p class="titulo-principal text-truncate">{{ $product->title }}</p>
                                     <p class="categoria-up-line"><span class="titulo-categoria">Categoria: </span>Chocolate

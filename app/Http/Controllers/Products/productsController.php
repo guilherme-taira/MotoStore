@@ -7,10 +7,12 @@ use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
 use App\Http\Controllers\Services\ServicesController;
 use App\Models\categorias;
 use App\Models\images;
+use App\Models\logo;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
 use App\Models\sub_category;
 use App\Models\token;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -165,7 +167,7 @@ class productsController extends Controller
         $produto = Products::where('id', $id)->first();
 
         $viewData = [];
-        $viewData['title'] = "MotoStore" . $produto->getName();
+        $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
 
         $categorias = [];
@@ -363,5 +365,60 @@ class productsController extends Controller
     {
         $data = mercado_livre_history::where('id_user', $request->id_user)->where('product_id', $request->id)->get();
         return response()->json(["dados" => $data]);
+    }
+
+    public function GetPromotionProducts()
+    {
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::where('pricePromotion', '>', '0')->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'Promoções';
+        $viewData['products'] = $data;
+        $viewData['logo'] = logo::first();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        return view('store.index')->with('viewData', $viewData);
+    }
+
+    public function GetProductsLancamentos()
+    {
+        // DATA INCIIAL
+        $datainicial = new DateTime();
+        $datainicial->modify('-30 days');
+
+        // DATA FINAL
+        $datafinal = new DateTime();
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::whereBetween('created_at',[$datainicial, $datafinal])->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'Lançamentos';
+        $viewData['lancamentos'] = 1;
+        $viewData['products'] = $data;
+        $viewData['logo'] = logo::first();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        return view('store.index')->with('viewData', $viewData);
     }
 }

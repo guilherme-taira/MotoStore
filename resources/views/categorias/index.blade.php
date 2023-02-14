@@ -12,7 +12,7 @@
     @endif
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a href="{{ route('categorias.create') }}"><button class="btn btn-success me-md-2" type="button">Novo Produto <i
+        <a href="{{ route('categorias.create') }}"><button class="btn btn-success me-md-2" type="button">Nova Categoria <i
                     class="bi bi-patch-plus"></i></button></a>
     </div>
 

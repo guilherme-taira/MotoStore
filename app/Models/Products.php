@@ -187,9 +187,8 @@ class Products extends Model
     public function productBySubCategory(String $id)
     {
         $data = DB::table('products')
-            ->join('sub_category', 'products.id', '=', 'sub_category.id_categoria')
-            ->where('id_categoria', $id)
-            ->select('products.*')->get();
+            ->join('sub_category', 'products.subcategoria', '=', 'sub_category.id_categoria')
+            ->where('subcategoria', $id)->select('products.*')->get();
         return $data;
     }
 

@@ -124,10 +124,10 @@
 
                 <!--- MENU PRODUTOS FINAL --->
                 <li class="nav-item active">
-                    <a class="nav-link text-white" href="{{ route('stores.index') }}">Lançamentos</a>
+                    <a class="nav-link text-white" href="{{ route('GetProductsLancamentos') }}">Lançamentos</a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link text-white" href="{{ route('stores.index') }}">Promoções</a>
+                    <a class="nav-link text-white" href="{{ route('GetPromotionProducts') }}">Promoções</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-white" href="#">Alto KM</a>
@@ -139,11 +139,13 @@
                     <a class="nav-link text-white" href="#">Categoria Premium</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('panel.index') }}">Central do Vendedor</a>
+                    <a class="nav-link text-white" href="{{ route('login') }}">Central do Vendedor</a>
                 </li>
+                @if(!Auth::user())
                 <li class="nav-item">
                     <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
                 </li>
+                @endif
                 </ul>
             </div>
         </div>

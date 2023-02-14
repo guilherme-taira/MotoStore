@@ -6,6 +6,14 @@ bg-secondary {
     background-color: #1a252f;
 }
 
+marquee {
+    font-weight: 900;
+}
+
+marquee:hover{
+    font-weight: 300;
+    color:red
+}
 
 .bg-primary {
     background-color: rgb(24, 24, 8) !important;
