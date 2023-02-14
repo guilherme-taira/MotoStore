@@ -124,14 +124,14 @@ class Orders extends Model
         ]);
     }
 
-    public static function Ordersjoin()
+    public static function Ordersjoin($user_id)
     {
         $data = DB::table('orders')
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('payment', 'orders.payment_id', '=', 'payment.id')
             ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento','orders.color')
+            ->where('user_id',$user_id)
             ->orderby('orders.created_at','desc')->limit(5)->get();
-
         return $data;
     }
 

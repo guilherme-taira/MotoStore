@@ -18,14 +18,16 @@ class ProdutoConcreto implements Produto
     private String $price;
     private token $userId;
     private String $name;
+    private String $tipo_anuncio;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
         $this->price = $price;
         $this->userId = $userId;
         $this->name = $name;
+        $this->tipo_anuncio = $tipo_anuncio;
     }
 
     public function integrar()
@@ -43,11 +45,11 @@ class ProdutoConcreto implements Produto
             $data['category_id'] = $this->getCategoria();
             $data['price'] = $this->getPrice();
             $data['currency_id'] = $this->getProduto()->currency_id;
-            $data['available_quantity'] = $this->getProduto()->available_quantity;
+            $data['available_quantity'] = $this->produto->available_quantity;
             $data['buying_mode'] = $this->getProduto()->buying_mode;
-            $data['listing_type_id'] = $this->getProduto()->listing_type_id;
+            $data['listing_type_id'] = $this->getTipoAnuncio();
             $data['condition'] = $this->getProduto()->condition;
-            $data['description'] = $this->getProduto()->description;
+            $data['description'] = $this->produto->description;
             $data['tags'] = [
                 "immediate_payment",
             ];
@@ -199,6 +201,24 @@ class ProdutoConcreto implements Produto
     public function setName(String $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tipo_anuncio
+     */
+    public function getTipoAnuncio(): String
+    {
+        return $this->tipo_anuncio;
+    }
+
+    /**
+     * Set the value of tipo_anuncio
+     */
+    public function setTipoAnuncio(String $tipo_anuncio): self
+    {
+        $this->tipo_anuncio = $tipo_anuncio;
 
         return $this;
     }

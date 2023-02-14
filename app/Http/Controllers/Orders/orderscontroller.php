@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
 use App\Models\Items;
+use App\Models\order_site;
 use App\Models\Orders;
 use DateTime;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class orderscontroller extends Controller
         $viewData['title'] = "Tela de Vendas";
         $viewData['subtitle'] = "Vendas";
 
-        $orders = Orders::Ordersjoin();
+        $orders = order_site::Ordersjoin();
         $viewData['orders'] = $orders;
 
         return view('orders.index',[
@@ -58,7 +59,7 @@ class orderscontroller extends Controller
      */
     public function show($id)
     {
-        $order = Orders::getOrderjoin($id);
+        $order = order_site::getOrderjoin($id);
 
         $viewData = [];
         $viewData['title'] = "Pedido";

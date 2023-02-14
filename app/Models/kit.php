@@ -13,9 +13,9 @@ class kit extends Model
     protected $table = 'kit';
 
 
-    public static function getAllKits()
+    public static function getAllKits($user)
     {
-        $data = Products::where('iskit',1)->get();
+        $data = Products::getKitByUser($user);
         return $data;
     }
 }

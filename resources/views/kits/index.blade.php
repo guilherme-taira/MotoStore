@@ -77,6 +77,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
                                 <textarea class="form-control" name="description" rows="3"></textarea>
@@ -126,16 +127,16 @@
                     <tbody>
                         @foreach ($viewData['kits'] as $product)
                             <tr>
-                                <td>{{ $product->getId() }}</td>
+                                <td>{{ $product->id }}</td>
 
-                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%" alt="{{ $product->getName() }}">
+                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" style="width: 10%" alt="{{ $product->title }}">
                                 </td>
-                                <td>{{ $product->getName() }}</td>
-                                <td>{{ $product->getStock() }}</td>
-                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
+                                <td>{{ $product->title }}</td>
+                                <td>{{ $product->available_quantity }}</td>
+                                <td><a href="{{ route('products.edit', ['id' => $product->id]) }}"><button
                                             class="btn btn-primary btn-sm"><i
                                                 class="bi bi-pencil-square"></i>Editar</button> </a></td>
-                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
+                                <td><a href="{{ route('products.edit', ['id' => $product->id ]) }}"><button
                                             class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
                                 </td>
                             </tr>
@@ -163,6 +164,7 @@
             $("#BtnCadastrar").addClass('d-none');
             $('#carregando').removeClass('d-none');
         });
+
 
         // VALOR TOTAL
         var total = $('#total').val();

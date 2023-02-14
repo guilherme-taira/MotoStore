@@ -92,43 +92,22 @@
             <h2 class="pb-2 border-bottom">Dados do Pedido : {{ $viewData['subtitle'] }}</h2>
             <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
                 <div class="feature col">
-                    <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3 p-2">
+                    <div class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 p-2">
                         <i class="bi bi-person-circle"></i>
                     </div>
                     <h2>Usuário: </h2>
-                    <p>Nome : {{ $viewData['order'][0]->name }}</p>
+                    <p>Nome : {{ $viewData['order'][0]->cliente }}</p>
                     <p>Email : {{ $viewData['order'][0]->email }}</p>
-                    <a href="#" class="icon-link d-inline-flex align-items-center">
-                        <svg class="bi" width="1em" height="1em">
-                            <use xlink:href="#chevron-right"/>
-                        </svg>
-                    </a>
                 </div>
                 <div class="feature col">
                     <div
-                        class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3">
+                        class="feature-icon d-inline-flex align-items-center justify-content-center text-dark fs-2 mb-3">
                         <i class="bi bi-cart-check"></i>
                     </div>
                     <h2>Pedido: </h2>
-                    <p>Total R$: {{number_format($viewData['order'][0]->total, 2, ',', '.')}}</p>
+                    <p>Total R$: {{number_format($viewData['order'][0]->valor, 2, ',', '.')}}</p>
                 </div>
-                <div class="feature col">
-                    <div
-                        class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3">
-                        <svg class="bi" width="1em" height="1em">
-                            <use xlink:href="#toggles2" />
-                        </svg>
-                    </div>
-                    <h2>Featured title</h2>
-                    <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence
-                        and probably just keep going until we run out of words.</p>
-                    <a href="#" class="icon-link d-inline-flex align-items-center">
-                        Call to action
-                        <svg class="bi" width="1em" height="1em">
-                            <use xlink:href="#chevron-right" />
-                        </svg>
-                    </a>
-                </div>
+
             </div>
         </div>
 
@@ -154,11 +133,11 @@
                             <tr>
                                 <td>{{ $order->id }}</td>
 
-                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $order->product_id . '/' . $order->image) !!}" style="width: 100px"
-                                        alt="{{ $order->description }}"> </td>
-                                <td>{{ $order->description }}</td>
-                                <td>{{ $order->quantity }}</td>
-                                <td>{{ $order->price * $order->quantity }}</td>
+                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $order->id . '/' . $order->image) !!}" style="width: 100px"
+                                        alt="{{ $order->title }}"> </td>
+                                <td>{{ $order->title }}</td>
+                                <td>{{ $order->quantidade }}</td>
+                                <td>{{ $order->valor * $order->quantidade }}</td>
                                 <td><a href="{{ route('products.show', ['id' => $order->product_id]) }}"><button
                                             class="btn btn-success btn-sm"><i class="bi bi-binoculars"></i> Ver na
                                             Loja</button> </a>

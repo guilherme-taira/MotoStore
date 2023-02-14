@@ -127,9 +127,9 @@
 
                 @foreach ($viewData['orders'] as $order)
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"> <strong> Cliente: </strong> {{ $order->name }} <strong> Número
+                        <li class="list-group-item"> <strong> Cliente: </strong> {{ $order->cliente }} <strong> Número
                                 do Pedido: </strong> {{ $order->id }} - <strong>Valor: R$
-                                {{ number_format($order->total, 2, ',', '.') }} </strong> Data do Pedido:
+                                {{ number_format($order->valorVenda, 2, ',', '.') }} </strong> Data do Pedido:
                             {{ $order->created_at }}
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <button class="btn btn-success me-md-2 btn-sm" type="button"><i class="bi bi-eye-fill"></i>

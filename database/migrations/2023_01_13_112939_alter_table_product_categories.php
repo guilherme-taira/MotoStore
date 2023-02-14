@@ -14,8 +14,8 @@ class AlterTableProductCategories extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->unsignedBigInteger('categoria');
-            $table->foreign('categoria')->references('id')->on('categorias');
+            // $table->unsignedBigInteger('categoria');
+            // $table->foreign('categoria')->references('id')->on('categorias');
         });
     }
 
@@ -27,7 +27,7 @@ class AlterTableProductCategories extends Migration
     public function down()
     {
         Schema::table('products',function(Blueprint $table){
-            $table->dropColumn('categoria');
+           // $table->dropColumn('categoria');
         });
     }
 }

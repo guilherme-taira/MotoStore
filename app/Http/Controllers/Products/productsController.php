@@ -84,7 +84,8 @@ class productsController extends Controller
         $produto->price = $TrataPreco->RegexPrice($request->price);
         $produto->description = $request->description;
         $produto->available_quantity = 10;
-        $produto->categoria = $produto::getIdPrincipal($request->categoria);
+        // Categoria Principal Removido da inserção
+        //$produto->categoria = $produto::getIdPrincipal($request->categoria);
         $produto->category_id = $request->id_categoria;
         $produto->subcategoria = $request->categoria;
         $produto->pricePromotion = $TrataPreco->RegexPrice($request->pricePromotion);
@@ -109,12 +110,6 @@ class productsController extends Controller
             $i++;
         }
         $produto->save();
-        // $imageName = $produto->getId() . "." . $file->extension();
-        // $file = $request->file('image');
-        // $filename = $file->getClientOriginalName();
-        // $extension = $file->getClientOriginalExtension();
-
-
         return redirect()->route('products.store');
     }
 
@@ -126,7 +121,6 @@ class productsController extends Controller
      */
     public function show($id)
     {
-
         $produto = Products::findOrFail($id);
         $fotos = images::where('product_id', $id)->get();
         $token = token::where('user_id', Auth::user()->id)->first();
@@ -215,7 +209,7 @@ class productsController extends Controller
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
         $produto->SetBrand($request->input('brand'));
-        $produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
+        //$produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
         $produto->SetSubCategory_id($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
         $produto->setPricePromotion($request->input('pricePromotion'));

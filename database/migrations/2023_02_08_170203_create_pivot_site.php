@@ -19,7 +19,9 @@ class CreatePivotSite extends Migration
             $table->foreign('order_id')->references('id')->on('order_site');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('product_site');
+            $table->unsignedBigInteger('id_user');
             $table->timestamps();
+            $table->foreign('id_user')->references('id')->on('users');
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\Orders\MercadoLivre\MercadolivreOrderController;
+use App\Models\order_site;
 use App\Models\Orders;
 use App\Models\token;
 use App\Models\User;
@@ -21,7 +22,6 @@ class dashbordController extends Controller
      */
     public function index()
     {
-
         // GET TOKEN
         $userML = token::where('user_id',Auth::user()->id)->first();
 
@@ -30,22 +30,21 @@ class dashbordController extends Controller
         $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", Auth::user()->id);
         $newToken->resource();
         $viewData['mercadolivre'] = $userML;
-        $orders = Orders::Ordersjoin();
+        //$orders = Orders::Ordersjoin();
 
         // TOKEN DO MERCADO LIVRE
         $MercadolivreOrderController = new MercadolivreOrderController($userML->user_id_mercadolivre,$userML->access_token);
         $dados = $MercadolivreOrderController->resource();
-        print_r($dados);
-        // $viewData = [];
-        // $viewData['title'] = "MotoStore Dashboard";
-        // $viewData['subtitle'] = "Dashboard";
-        // $viewData['totalMonth'] = $this->getTotalMonth();
-        // $viewData['totalDay'] = $this->getTotalDay();
-        // $viewData['index'] = 0;
-        // $viewData['orders'] = $orders;
-        // $viewData['mercadolivre'] = $userML;
+        $viewData = [];
+        $viewData['title'] = "Afilidrop Dashboard";
+        $viewData['subtitle'] = "Dashboard";
+        $viewData['totalMonth'] = $this->getTotalMonth();
+        $viewData['totalDay'] = $this->getTotalDay();
+        $viewData['index'] = 0;
+        //$viewData['orders'] = $orders;
+        $viewData['mercadolivre'] = $userML;
 
-        // return view('home')->with('viewData',$viewData);
+        return view('home')->with('viewData',$viewData);
     }
 
     /**
@@ -68,7 +67,6 @@ class dashbordController extends Controller
     {
         //
     }
-
     /**
      * Display the specified resource.
      *
@@ -118,14 +116,18 @@ class dashbordController extends Controller
     {
 
         $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('total');
+        $total = order_site::where('created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')
+        ->where('user_id',Auth::user()->id)
+        ->sum('valorVenda');
         return $total;
     }
 
     public function getTotalDay()
     {
         $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')->sum('total');
+        $total = order_site::where('created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')
+        ->where('user_id',Auth::user()->id)
+        ->sum('valorVenda');
         return $total;
     }
 }

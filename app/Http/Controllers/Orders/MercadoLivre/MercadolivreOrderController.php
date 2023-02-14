@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Orders\MercadoLivre;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Models\order_site;
+use App\Models\pivot_site;
 use App\Models\product_site;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
 {
@@ -17,7 +19,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
     private String $sellerId;
     private String $token;
 
-    public function __construct($sellerId,$token)
+    public function __construct($sellerId, $token)
     {
         $this->sellerId = $sellerId;
         $this->token = $token;
@@ -25,21 +27,21 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
     public function getVenda($sellerId)
     {
-
     }
 
-    public function saveOrder(){
-
+    public function saveOrder()
+    {
     }
 
-    public function get($resource){
-         // ENDPOINT PARA REQUISICAO
-         $endpoint = self::URL_BASE_ML.$resource;
-         /**
+    public function get($resource)
+    {
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = self::URL_BASE_ML . $resource;
+        /**
          * CURL REQUISICAO -X GET
          * **/
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,"https://api.mercadolibre.com/orders/search/recent?seller=141075614&sort=date_desc");
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -49,32 +51,46 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-        echo "<pre>";
-        foreach ($json->results as $result) {
-            foreach ($result->payments as $pedido) {
-                print_r($pedido);
-                // PEDIDO NOVO
-                $pedidos = new order_site();
-                $pedidos->numeropedido = $pedido->order_id;
-                $pedidos->local = 'Mercado Livre';
-                $pedidos->valorVenda = $pedido->total_paid_amount;
-                $pedidos->valorProdutos = 1;
-                $pedidos->dataVenda = $pedido->date_approved;
-                $pedidos->save();
+        if ($httpCode == 200) {
+            foreach ($json->results as $result) {
+                if (order_site::VerificarVenda($result->id) == false) {
+                    
+                    $pedidos = new order_site();
+                    $pedidos->numeropedido = $result->id;
+                    $pedidos->local = 'Mercado Livre';
+                    $pedidos->valorVenda = $result->paid_amount;
+                    $pedidos->valorProdutos = $result->total_amount;
+                    $pedidos->dataVenda = $result->date_closed;
+                    $pedidos->cliente = $result->buyer->nickname;
+                    $pedidos->save();
 
-                $produto = new product_site();
-                $produto->nome = $pedido->reason;
-                $produto->codigo = 10;
-                $produto->valor = 0;
-                $produto->quantidade = 1;
+                    foreach ($result->order_items as $pedido) {
+                        if (product_site::getVerifyProduct($pedido->item->seller_sku) == false) {
+                            // PEDIDO NOVO
+                            $produto = new product_site();
+                            $produto->nome = $pedido->item->title;
+                            $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                            $produto->valor = $pedido->unit_price;
+                            $produto->quantidade = $pedido->quantity;
+                            $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                            $produto->save();
+                            // PIVOT
+                            $venda_pivot = new pivot_site();
+                            $venda_pivot->order_id = $pedidos->id;
+                            $venda_pivot->product_id = $produto->id;
+                            $venda_pivot->id_user = Auth::user()->id;
+                            $venda_pivot->save();
+                        }
+                    }
+                }
             }
         }
     }
 
-    public function resource(){
-       return $this->get("https://api.mercadolibre.com/orders/search?seller=".$this->getSellerId()."&order.status=paid");
+    public function resource()
+    {
+        return $this->get("orders/search?seller=" . $this->getSellerId() . "&order.status=paid&sort=date_desc");
     }
-
 
     /**
      * Get the value of sellerId
@@ -111,5 +127,4 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
         return $this;
     }
-
 }

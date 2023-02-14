@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\Orders\MercadoLivre\MercadolivreOrderController;
+use App\Models\order_site;
 use App\Models\Orders;
 use App\Models\token;
 use DateTime;
@@ -27,33 +30,44 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $orders = Orders::Ordersjoin();
+        // GET TOKEN
         $userML = token::where('user_id', Auth::user()->id)->first();
 
+        if (isset($userML->refresh_token)) {
+            $dataAtual = new DateTime();
+            // GET NEW TOKEN
+            $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", Auth::user()->id);
+            $newToken->resource();
+            $viewData['mercadolivre'] = $userML;
+            // TOKEN DO MERCADO LIVRE
+            $MercadolivreOrderController = new MercadolivreOrderController($userML->user_id_mercadolivre, $userML->access_token);
+            $MercadolivreOrderController->resource();
+        }
+
+        // PEGA AS VENDAS DO SISTEMA
+        $orders = Orders::Ordersjoin(Auth::user()->id);
         $viewData = [];
-        $viewData['title'] = "AfiliDrop Dashboard";
+        $viewData['title'] = "Afilidrop Dashboard";
         $viewData['subtitle'] = "Dashboard";
-        $viewData['totalMonth'] = $this->getTotalMonth();
-        $viewData['totalDay'] = $this->getTotalDay();
+        $viewData['totalMonth'] = $this->getTotalMonth(Auth::user()->id);
+        $viewData['totalDay'] = $this->getTotalDay(Auth::user()->id);
         $viewData['index'] = 0;
         $viewData['orders'] = $orders;
-        if($userML){
-            $viewData['mercadolivre'] = $userML;
-        }
+        $viewData['mercadolivre'] = $userML;
         return view('home')->with('viewData', $viewData);
     }
 
-    public function getTotalMonth()
+    public function getTotalMonth($user)
     {
         $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('total');
+        $total = order_site::OrdersMercadoLivreMounth($user,$monthCurrent);
         return $total;
     }
 
-    public function getTotalDay()
+    public function getTotalDay($user)
     {
-        $monthCurrent = new DateTime();
-        $total = Orders::where('created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')->sum('total');
+        $dayCurrent = new DateTime();
+        $total = order_site::OrdersMercadoLivreDay($user,$dayCurrent);
         return $total;
     }
 }

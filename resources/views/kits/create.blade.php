@@ -85,15 +85,41 @@
                         </div>
 
                         <div class="col-md-12">
-                            <!-- SELECT DO MOTORISTA -->
-                            <label class="form-label" for="form8Example1">Categoria</label>
-                            <select class="form-select" name="categoria" required class="form-control" required>
-                                <option selected value="">Selecione...</option>
+                            <label for="categoria">Categorias:</label>
+                            <select class="form-select" name="categoria" id="categoria" aria-label="Default select example">
+                                <option selected>Selecione...</option>
                                 @foreach ($viewData['categorias'] as $categoria)
-                                    <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
+                                    <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
+                                    @foreach ($categoria['subcategory'] as $subcategoria)
+                                        <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}</option>
+                                    @endforeach
                                 @endforeach
                             </select>
-                            <!--- FIM --->
+                        </div>
+
+                        <div class="row p-4">
+                            <div class="col-md-6">
+                                <div class="col">
+                                    <div class="mb-6 row">
+                                        <label class="col-lg-2 col-md-3 col-sm-6 col-form-label">Categorias:</label>
+                                        <select class="form-select" name="categoriaMl" id="categorias"
+                                            aria-label="Default select example">
+                                            <option selected>...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
+                            <input type="text" class="form-control"  name="stock" id="stock">
+                            <div class="col-md-4 p-4">
+                                <div class="col">
+                                    <div class="mb-3 row">
+                                        <ol class="list-group list-group-numbered content_categorias">
+
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="modal-footer">
@@ -120,7 +146,7 @@
                 </ul>
             @endif
             @if (!empty($msg))
-                <div class="alert alert-success" role="alert">
+                <div class="alert alert-primary" role="alert">
                     {{ $msg }}
                 </div>
             @endif
@@ -213,6 +239,132 @@
 <script>
     $(document).ready(function() {
 
+        var valorProduto = 0;
+        var i = 0;
+
+        $("tr#linhasProduct").click(function() {
+            // LIMPA O HISTORICO
+            $('.adicionarHistorico').empty();
+
+            id_produto = $(this).children(".id_product").text();
+            $('#id_product').val(id_produto); // ID DO PRODUTO
+            var id_user = $('#id_user').val();
+            $.ajax({
+                url: "/api/v1/product/" + id_produto,
+                type: "GET",
+                success: function(response) {
+                    if (response) {
+                        valorProduto = response.price;
+                        $("#total").val(response.price);
+                        $("#name").val(response.title);
+                        $("#precoFinal").val(response.price);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+
+            $.ajax({
+                url: "/api/v1/getHistoryById",
+                type: "GET",
+                data: {
+                    id: id_produto,
+                    id_user: id_user
+                },
+                success: function(response) {
+                    if (response) {
+                        var index = [];
+                        $.each(response.dados, function(i, item) {
+                            index[i] = '<li class="list-group-item"> Nome: ' + item
+                                .name + '  | ID: ' + item.id_ml +
+                                ' | Criado em : ' + item.created_at + '</li>';
+                        });
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $(".adicionarHistorico").append(arr);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+        });
+
+        //
+        $.ajax({
+            url: "https://api.mercadolibre.com/sites/MLB/categories",
+            type: "GET",
+            success: function(response) {
+                if (response) {
+                    // SHOW ALL RESULT QUERY
+                    var index = [];
+                    $.each(response, function(i, item) {
+                        index[i] = '<option class="option-size" value=' + item.id + '>' +
+                            item.name + '</option>';
+                    });
+
+                    if (i == 0) {
+                        // PEGA A ALTERACAO DAS CATEGORIAS
+                        $("#categorias").change(function() {
+                            var ids = $(this).children("option:selected").val();
+                            var name = $(this).children("option:selected").text();
+                            var content_category = '<li class="list-group-item">' + name +
+                                '</li>';
+                            $(".content_categorias").append(content_category);
+                            $("#id_categoria").val(
+                                ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                            getCategory(ids);
+                        });
+                    }
+
+                    var arr = jQuery.makeArray(index);
+                    arr.reverse();
+                    $("#categorias").html(arr);
+                }
+            },
+            error: function(error) {
+                $('#result').html(
+                    '<option> Produto Digitado Não Existe! </option>'
+                );
+            }
+        });
+
+        // FUNCAO PARA CHAMAR CATEGORIAS
+        function getCategory(category) {
+            $.ajax({
+                url: " https://api.mercadolibre.com/categories/" + category,
+                type: "GET",
+                success: function(response) {
+                    if (response) {
+                        // SHOW ALL RESULT QUERY
+                        var index = [];
+                        $.each(response.children_categories, function(i, item) {
+                            index[i] =
+                                '<option class="option-size" value=' + item.id + '>' + item
+                                .name + '</option>';
+                        });
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $("#categorias").html(arr);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+
+        }
+
+
         $("form").submit(function(event) {
             // event.preventDefault();
             $("#BtnCadastrar").addClass('d-none');
@@ -225,15 +377,15 @@
 
         $('#precoFinal').val(parseFloat(total).toFixed(2));
 
-        // MASCARA DE PORCENTAGEM
-        $('.porcem').mask('Z9999.999', {
-            translation: {
-                'Z': {
-                    pattern: /[\-\+]/,
-                    optional: true
-                }
-            }
-        });
+        // // MASCARA DE PORCENTAGEM
+        // $('.porcem').mask('Z9999.999', {
+        //     translation: {
+        //         'Z': {
+        //             pattern: /[\-\+]/,
+        //             optional: true
+        //         }
+        //     }
+        // });
 
         $('#descontoP').keyup(function() {
             if ($('#descontoP').val().length >= 1) {
@@ -391,7 +543,8 @@
                                 '<option class="option-size" value=' +
                                 item
                                 .id + '>' + 'ID: ' + item.id + ' | Nome: ' + item
-                                .title + ' | Estoque: ' + item.available_quantity + '</option>';
+                                .title + ' | Estoque: ' + item.available_quantity +
+                                '</option>';
                         });
 
                         var arr = jQuery.makeArray(index);

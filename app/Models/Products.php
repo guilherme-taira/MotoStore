@@ -184,21 +184,32 @@ class Products extends Model
         return response()->json(["fotos" => $photos]);
     }
 
-    public function productBySubCategory(String $id) {
+    public function productBySubCategory(String $id)
+    {
         $data = DB::table('products')
-        ->join('sub_category', 'products.id', '=', 'sub_category.id_categoria')
-        ->where('id_categoria',$id)
-        ->select('products.*')->get();
+            ->join('sub_category', 'products.id', '=', 'sub_category.id_categoria')
+            ->where('id_categoria', $id)
+            ->select('products.*')->get();
         return $data;
     }
 
-    public static function getIdPrincipal($id){
-        $data = sub_category::where('id',$id)->first();
+    public static function getIdPrincipal($id)
+    {
+        $data = sub_category::where('id', $id)->first();
         return $data->id_categoria;
     }
 
-    public static function getMercadoLivreId($id){
-        $data = Products::where('id',$id)->first();
+    public static function getMercadoLivreId($id)
+    {
+        $data = Products::where('id', $id)->first();
         return $data->category_id;
+    }
+
+    public static function getKitByUser(String $user)
+    {
+        $data = DB::table('kit')
+            ->join('products', 'kit.product_id', '=', 'products.id')
+            ->where('user_id',$user)->groupBy('product_id')->paginate(10);
+        return $data;
     }
 }

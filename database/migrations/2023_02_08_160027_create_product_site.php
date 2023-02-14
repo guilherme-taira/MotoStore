@@ -19,6 +19,7 @@ class CreateProductSite extends Migration
             $table->string('codigo')->nullable();
             $table->float('valor');
             $table->float('quantidade');
+            $table->string('seller_sku')->nullable();
             $table->timestamps();
         });
     }

@@ -39,7 +39,6 @@ class RefreshTokenController implements refreshToken
         if ($DataSistema > $acesso->datamodify) {
             // ENDPOINT PARA REQUISAO;
             $endpoint = URL_BASE_REFRESH_TOKEN_MERCADOLIVRE . $resource;
-            echo $endpoint;
             // CURL POST EXEC
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);

@@ -7,6 +7,7 @@ use App\Models\categorias;
 use App\Models\images;
 use App\Models\kit;
 use App\Models\Products;
+use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +27,7 @@ class kitsController extends Controller
      */
     public function index(Request $request)
     {
-        $kits = kit::getAllKits();
+        $kits = Products::getKitByUser(Auth::user()->id);
         $viewData = [];
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
@@ -50,7 +51,16 @@ class kitsController extends Controller
         $viewData = [];
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
-        $viewData['categorias'] = categorias::all();
+
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
         return view('kits.create')->with([
             'viewData' =>  $viewData,
             'produtos' => $produtos,
@@ -145,7 +155,15 @@ class kitsController extends Controller
         $viewData = [];
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
-        $viewData['categorias'] = categorias::all();
+
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
 
         return view('kits.create', [
             'viewData' => $viewData,
@@ -159,6 +177,15 @@ class kitsController extends Controller
         $data = Products::where('id', $id)->first();
         return $data['image'];
     }
+
+
+    public function getStock(int $id)
+    {
+        $data = Products::where('id', $id)->first();
+        return $data['available_quantity'];
+    }
+
+
 
     public function getPrice(int $id)
     {
@@ -224,19 +251,33 @@ class kitsController extends Controller
                             }
                         }
                     }
-                    $request->session()->put($request->id + 1, ['id' => $request->id, 'nome' => "", 'imagem' => $this->getImageByUrl($request->id), 'price' => ($this->getPrice($request->id) * $request->stock), 'quantidade' => $request->stock]);
+
+                    if ($this->getStock($request->id) < $request->stock) {
+                        $msg = "Quantidade não adicionada por falta de estoque!";
+                        $request->session()->put($request->id + 1, ['id' => $request->id, 'nome' => "", 'imagem' => $this->getImageByUrl($request->id), 'price' => ($this->getPrice($request->id) * $request->stock), 'quantidade' => $this->getStock($request->id)]);
+                    } else {
+                        $request->session()->put($request->id + 1, ['id' => $request->id, 'nome' => "", 'imagem' => $this->getImageByUrl($request->id), 'price' => ($this->getPrice($request->id) * $request->stock), 'quantidade' => $request->stock]);
+                    }
                 }
             } catch (\Exception $e) {
                 //e->getMessage();
             }
 
-
             $sessao = $request->session()->all();
 
             $viewData = [];
+            $categorias = [];
             $viewData['title'] = "Kits de Produtos";
             $viewData['subtitle'] = "Kits";
-            $viewData['categorias'] = categorias::all();
+
+            foreach (categorias::all() as $value) {
+                $categorias[$value->id] = [
+                    "nome" => $value->nome,
+                    "subcategory" => sub_category::getAllCategory($value->id),
+                ];
+            }
+
+            $viewData['categorias'] = $categorias;
 
             return view('kits.create', [
                 'viewData' => $viewData,
@@ -286,7 +327,15 @@ class kitsController extends Controller
             $viewData = [];
             $viewData['title'] = "Kits de Produtos";
             $viewData['subtitle'] = "Kits";
-            $viewData['categorias'] = categorias::all();
+
+            foreach (categorias::all() as $value) {
+                $categorias[$value->id] = [
+                    "nome" => $value->nome,
+                    "subcategory" => sub_category::getAllCategory($value->id),
+                ];
+            }
+
+            $viewData['categorias'] = $categorias;
 
             return view('kits.create', [
                 'viewData' => $viewData,
@@ -334,8 +383,9 @@ class kitsController extends Controller
         $produto->title = $request->name;
         $produto->price = $request->price;
         $produto->description = $request->description;
-        $produto->available_quantity = 10;
-        $produto->categoria = $request->categoria;
+        // CATEGORIA REMOVIDA
+        $produto->category_id = $request->id_categoria;
+        $produto->subcategoria = $request->categoria;
         $produto->iskit = 1;
         $produto->image = "image.png";
         $produto->save();
@@ -378,7 +428,7 @@ class kitsController extends Controller
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
         $viewData['categorias'] = categorias::all();
-        $viewData['kits'] = kit::getAllKits();
+        $viewData['kits'] = kit::getAllKits(Auth::user()->id);
 
         return redirect()->route(
             'kits.index',
@@ -387,5 +437,9 @@ class kitsController extends Controller
                 'total' => 0,
             ]
         );
+    }
+
+    public function VerificaQuantidade($id){
+
     }
 }
