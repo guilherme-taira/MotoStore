@@ -122,7 +122,7 @@ class SubCategoriaController extends Controller
 
         $viewData = [];
         $viewData['title'] = "Embaleme";
-        $viewData['subtitle'] = 'Embaleme';
+        $viewData['subtitle'] = sub_category::getName($request->categoryId);
         $viewData['products'] = Products::productBySubCategory($request->categoryId);
         $viewData['logo'] = logo::first();
 

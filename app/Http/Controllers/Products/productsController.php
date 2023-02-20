@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
 use App\Http\Controllers\Services\ServicesController;
+use App\Models\banner_autokm;
+use App\Models\banner_premium;
 use App\Models\categorias;
 use App\Models\images;
 use App\Models\logo;
@@ -217,6 +219,7 @@ class productsController extends Controller
         $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
         $produto->SetLugarAnuncio($request->input('radio'));
+        $produto->setIsPublic($request->input('isPublic'));
 
         if ($request->hasFile('image')) {
             $imageName = $produto->getId() . "." . $request->file('image')->extension();
@@ -261,7 +264,7 @@ class productsController extends Controller
 
     public function getAllProduct()
     {
-        $products = Products::all();
+        $products = Products::where('isPublic', true)->paginate(10);
         if ($products) {
             return response()->json(["products" => $products]);
         }
@@ -370,7 +373,7 @@ class productsController extends Controller
     public function GetPromotionProducts()
     {
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('pricePromotion', '>', '0')->paginate(10);
+        $data = Products::where('pricePromotion', '>', '0')->where('isPublic', true)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -387,7 +390,6 @@ class productsController extends Controller
         }
 
         $viewData['categorias'] = $categorias;
-
         return view('store.index')->with('viewData', $viewData);
     }
 
@@ -400,7 +402,7 @@ class productsController extends Controller
         // DATA FINAL
         $datafinal = new DateTime();
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::whereBetween('created_at',[$datainicial, $datafinal])->paginate(10);
+        $data = Products::whereBetween('created_at', [$datainicial, $datafinal])->where('isPublic', true)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -421,4 +423,82 @@ class productsController extends Controller
 
         return view('store.index')->with('viewData', $viewData);
     }
+
+    public function GetProductsKits()
+    {
+
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::where('isPublic', true)->where('isKit',true)->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'Kits';
+        $viewData['products'] = $data;
+        $viewData['logo'] = logo::first();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        return view('store.index')->with('viewData', $viewData);
+    }
+
+    public function GetAutoKM()
+    {
+
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::where('isPublic', true)->where('colunasAnuncio',1)->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'AutoKM';
+        $viewData['products'] = $data;
+        $viewData['logo'] = logo::first();
+        $viewData['banners'] = banner_autokm::all();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        return view('autokm.index')->with('viewData', $viewData);
+    }
+
+    public function GetPremiumProducts()
+    {
+
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::where('isPublic', true)->where('colunasAnuncio',1)->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'Produtos Premium';
+        $viewData['products'] = $data;
+        $viewData['logo'] = logo::first();
+        $viewData['banners'] = banner_premium::all();
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        return view('premium.index')->with('viewData', $viewData);
+    }
 }
+

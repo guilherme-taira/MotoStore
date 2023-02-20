@@ -120,6 +120,7 @@
                             <th scope="col">Imagem</th>
                             <th scope="col">Name</th>
                             <th scope="col">Estoque</th>
+                            <th scope="col">Publico</th>
                             <th scope="col">Edit</th>
                             <th scope="col">Delete</th>
                         </tr>
@@ -133,10 +134,15 @@
                                 </td>
                                 <td>{{ $product->title }}</td>
                                 <td>{{ $product->available_quantity }}</td>
+                                @if ($product->isPublic == 1)
+                                    <td><i class="bi bi-check2-square text-success"></i></td>
+                                @else
+                                    <td><i class="bi bi-slash-circle text-danger"></i></td>
+                                @endif
                                 <td><a href="{{ route('products.edit', ['id' => $product->id]) }}"><button
                                             class="btn btn-primary btn-sm"><i
                                                 class="bi bi-pencil-square"></i>Editar</button> </a></td>
-                                <td><a href="{{ route('products.edit', ['id' => $product->id ]) }}"><button
+                                <td><a href="{{ route('products.edit', ['id' => $product->id]) }}"><button
                                             class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
                                 </td>
                             </tr>

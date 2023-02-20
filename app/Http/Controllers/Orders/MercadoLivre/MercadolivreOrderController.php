@@ -51,10 +51,21 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
+        echo "<pre>";
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
+                /***
+                 * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
+                 * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
+                 */
+
+                print_r($result->buyer->id . "<br>");
+                // $newPix = new Pix("e1cb0277fbfd2fd","B","13616-450","Siqueira Campos","70","A","São Manoel","Leme","SP","Guilherme Taira","46857167877","gui_ssx@hotmail.com",[new ProdutoMercadoLivre("cotonete",2,7.99),new ProdutoMercadoLivre("cotonete",2,7.99)],27,1);
+                // $data = $newPix->CriarPagamento();
+                // echo "<pre>";
+                // print_r($data);
                 if (order_site::VerificarVenda($result->id) == false) {
-                    
+
                     $pedidos = new order_site();
                     $pedidos->numeropedido = $result->id;
                     $pedidos->local = 'Mercado Livre';

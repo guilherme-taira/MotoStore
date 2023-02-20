@@ -60,8 +60,9 @@
                                             enctype="multipart/form-data">
                                             @csrf
                                             <div class="col-md-12">
-                                                      <!---  ID DO PRODUTO --->
-                                                <input type="hidden" name="id_product" id="id_product"  value="{{ $viewData['product']->id }}">
+                                                <!---  ID DO PRODUTO --->
+                                                <input type="hidden" name="id_product" id="id_product"
+                                                    value="{{ $viewData['product']->id }}">
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="mb-3 row">
@@ -273,23 +274,10 @@
                         <!--- comissao e fixo  --->
                         <div class="row">
                             <div class="col-md-3">
-                                <div>Estoque Unid.</div>
-                                <input type="text" min="1" id="stock" class="form-control quantity-input"
-                                    disabled value="{{ $viewData['product']->getStock() }}">
-                            </div>
-
-                            <div class="col-md-3">
                                 <div>SKU:</div>
                                 <input type="text" min="1" id="sku" class="form-control quantity-input"
                                     disabled value="{{ $viewData['product']->getId() }}">
                             </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div>Título Para Integração</div>
-                            <input type="text" min="1" maxlength="60" class="form-control quantity-input"
-                                id="titulo_integracao" name="titulo_integracao"
-                                value="{{ $viewData['product']->getName() }}">
                         </div>
 
                         <!--- Desconto e fixo  --->
@@ -311,17 +299,14 @@
                             <div class="col-md-12">
                                 <div class="div mt-4">
                                     @if ($viewData['token'])
-                                        <input type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                            href="#exampleModalToggle" value="Mercado Livre">
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                            href="#exampleModalToggle"><i class='bi bi-arrow-left-right'></i> &nbsp; INTEGRAR</button>
                                     @else
-                                        <button class="btn btn-secondy" disabled>Mercado Livre</button>
+                                        <button class="btn btn-secondy" disabled></button>
                                     @endif
-                                    <button class="btn btn-secondy" disabled>Shopee</button>
-                                    <button class="btn btn-sucess" disabled>B2W</button>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                         <div class="d-flex flex-row align-items-center">

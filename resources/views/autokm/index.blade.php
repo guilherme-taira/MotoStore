@@ -1,4 +1,4 @@
-@extends('layouts.layout')
+@extends('layouts.layout_autokm')
 @section('conteudo')
     <div class="row">
         <main>
@@ -14,15 +14,16 @@
                             <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
                                 aria-label="Slide 3"></button>
                         </div>
-                        @if (isset($viewData['bannersFix']))
+                        @if (isset($viewData['banners']))
                             <div class="carousel-inner">
-                                <div class="carousel-item active"
-                                    style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $viewData['bannersFix']->getId() . '/' . $viewData['bannersFix']->getImage()) }}')">
-                                </div>
-
                                 @foreach ($viewData['banners'] as $banner)
-                                    <div class="carousel-item"
-                                        style="background-image: url('{{ Storage::disk('s3')->url('bannersEmbaleme/' . $banner->getId() . '/' . $banner->getImage()) }}')">
+                                    <div class="carousel-item active">
+                                        <img src="{{ Storage::disk('s3')->url('bannersAutokm/' . $banner->getId() . '/' . $banner->getImage()) }}"
+                                            class="img-fluid rounded-start" alt="...">
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img src="{{ Storage::disk('s3')->url('bannersAutokm/' . $banner->getId() . '/' . $banner->getImage()) }}"
+                                            class="img-fluid rounded-start" alt="...">
                                     </div>
                                 @endforeach
                             </div>
@@ -42,7 +43,7 @@
                 {{-- END DIV BANNER --}}
 
                 @if (isset($viewData['subtitle']))
-                    <h2>{{ $viewData['subtitle'] }}</h2>
+                    <h2 class="text-white">{{ $viewData['subtitle'] }}</h2>
                 @endif
 
                 {{-- START PRODUTOS --}}

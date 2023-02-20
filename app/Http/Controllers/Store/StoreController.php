@@ -25,7 +25,7 @@ class StoreController extends Controller
         $viewData = [];
         $viewData['title'] = "Embaleme";
         $viewData['subtitle'] = '';
-        $viewData['products'] = Products::all();
+        $viewData['products'] = Products::where('isPublic',true)->paginate(10);
         $viewData['bannersFix'] = banner::first();
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();

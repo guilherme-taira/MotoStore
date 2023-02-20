@@ -12,8 +12,8 @@
 
     @if (session('msg'))
         <div class="alert alert-success" role="alert">
-            {{ session('msg')}}
-            {{session()->forget('msg') }}
+            {{ session('msg') }}
+            {{ session()->forget('msg') }}
         </div>
     @endif
 
@@ -250,6 +250,7 @@
                         <th scope="col">Integrações</th>
                         <th scope="col">Preço</th>
                         <th scope="col">Estoque</th>
+                        <th scope="col">Ativo</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
                     </tr>
@@ -266,6 +267,12 @@
                                     data-bs-toggle="modal" href="#exampleModalToggle" role="button"></i>
                             </td>
                             <td>{{ $product->getPrice() }}</td>
+                            <td>{{ $product->getStock() }}</td>
+                            @if ($product->isPublic == 1)
+                                <td><i class="bi bi-check2-square text-success"></i></td>
+                            @else
+                                <td><i class="bi bi-slash-circle text-danger"></i></td>
+                            @endif
                             <td>{{ $product->getStock() }}</td>
                             <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
                                         class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i>Editar</button>

@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Logo;
+namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Yapay\Pix;
-use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
-use App\Models\logo;
+use App\Models\banner;
+use App\Models\banner_autokm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class logoController extends Controller
+class BannerAutoKmController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,17 +18,13 @@ class logoController extends Controller
     public function index()
     {
         $viewData = [];
-        $viewData['title'] = "Logo Edit";
-        $viewData['subtitle'] = "Logo da Sua Marca";
-        $viewData['logos'] = logo::all();
+        $viewData['title'] = "Marketing - Banner";
+        $viewData['subtitle'] = "Banner AutoKM";
+        $viewData['banners'] = banner_autokm::all();
 
-        return view('marketing.logo.index', [
-            'viewData' => $viewData,
+        return view('marketing.autokm.index',[
+            'viewData' => $viewData
         ]);
-        // $newPix = new Pix("e1cb0277fbfd2fd","B","13616-450","Siqueira Campos","70","A","São Manoel","Leme","SP","Guilherme Taira","46857167877","gui_ssx@hotmail.com",[new ProdutoMercadoLivre("cotonete",2,7.99),new ProdutoMercadoLivre("cotonete",2,7.99)],27,1);
-        // $data = $newPix->CriarPagamento();
-        // echo "<pre>";
-        // print_r($data);
     }
 
     /**
@@ -40,12 +35,10 @@ class logoController extends Controller
     public function create()
     {
         $viewData = [];
-        $viewData['title'] = "Logo Edit";
-        $viewData['subtitle'] = "Logo da Sua Marca";
-
-        return view('marketing.logo.create', [
-            'viewData' => $viewData,
-        ]);
+        $viewData['title'] = "Banners";
+        $viewData['subtitle'] = "Criador de Banner";
+        return view('marketing.banners.create_autokm',
+        ['viewData' => $viewData,]);
     }
 
     /**
@@ -67,20 +60,21 @@ class logoController extends Controller
                 ->withInput();
         }
 
-        $logo = new logo();
-        $logo->name = $request->name;
-        $logo->image = 'image.png';
-        $logo->save();
+        $banner = new banner_autokm();
+        $banner->name = $request->name;
+        $banner->image = 'image.png';
+        $banner->save();
 
         if ($request->hasFile('image')) {
+            //$imageName = $produto->getId() . "." . $request->file('image')->extension();
             $file = $request->file('image');
             $filename = $file->getClientOriginalName();
-            $file->storeAs('LogoEmbaleme/' . $logo->getId(), $filename, 's3');
-            $logo->setImage($filename);
-            $logo->save();
+            $file->storeAs('bannersAutokm/'.$banner->getId(),$filename,'s3');
+            $banner->setImage($filename);
+            $banner->save();
         }
 
-        return redirect()->route('logos.index');
+        return redirect()->route('banner.index');
     }
 
     /**

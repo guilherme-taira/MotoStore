@@ -20,4 +20,9 @@ class sub_category extends Model
         ->select('*',)->get();
         return $data;
     }
+
+    public static function getName($id){
+        $data = sub_category::where('id',$id)->first();
+        return $data->name;
+    }
 }

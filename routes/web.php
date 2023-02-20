@@ -9,7 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
 use App\Http\Controllers\kitsController;
 use App\Http\Controllers\Logo\logoController;
+use App\Http\Controllers\Marketing\BannerAutoKmController;
 use App\Http\Controllers\Marketing\BannerController;
+use App\Http\Controllers\Marketing\BannerPremiumController;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Products\productsController;
@@ -41,6 +43,12 @@ Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('s
 
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
+Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('GetProductsKits');
+// ROTA PREMIUM
+Route::get('/produtosPremium',[productsController::class,'GetPremiumProducts'])->name('GetPremiumProducts');
+// ROTA AUTOKM
+Route::get('/autokm',[productsController::class,'GetAutoKM'])->name('GetAutoKM');
+Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('GetProductsKits');
 Route::get('/lancamentos',[productsController::class,'GetProductsLancamentos'])->name('GetProductsLancamentos');
 Route::get('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProdutoML');
 Route::get('/thankspage',[StoreController::class,'thanks'])->name('thanks');
@@ -85,6 +93,8 @@ Route::middleware('admin')->group(function () {
         Route::resource('payments', 'App\Http\Controllers\Payment\PaymentController')->names('payment')->parameters(['payments' => 'id']);
         Route::resource('orders', 'App\Http\Controllers\Orders\orderscontroller')->names('orders')->parameters(['orders' => 'id']);
         Route::resource('banners', 'App\Http\Controllers\Marketing\BannerController')->names('banner')->parameters(['banners' => 'id']);
+        Route::resource('bannersAutokm','App\Http\Controllers\Marketing\BannerAutoKmController')->names('bannersAutokm')->parameters(['banners' => 'id']);
+        Route::resource('bannersPremium','App\Http\Controllers\Marketing\BannerPremiumController')->names('bannersPremium')->parameters(['banners' => 'id']);
         Route::resource('logo', 'App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
     });

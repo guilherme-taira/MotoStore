@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\banner;
+use App\Models\banner_autokm;
+use App\Models\banner_premium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,6 +22,8 @@ class BannerController extends Controller
         $viewData['title'] = "Marketing - Banner";
         $viewData['subtitle'] = "Banners";
         $viewData['banners'] = banner::all();
+        $viewData['banners_autokm'] = banner_autokm::all();
+        $viewData['banners_premium'] = banner_premium::all();
 
         return view('marketing.banners.index',[
             'viewData' => $viewData

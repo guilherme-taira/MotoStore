@@ -34,6 +34,11 @@ class Products extends Model
         $this->category_id = $categoria;
     }
 
+    public function setIsPublic($value)
+    {
+        $this->isPublic = $value;
+    }
+
     public function SetSubCategory_id($subcategoria)
     {
         $this->subcategoria = $subcategoria;
@@ -188,7 +193,9 @@ class Products extends Model
     {
         $data = DB::table('products')
             ->join('sub_category', 'products.subcategoria', '=', 'sub_category.id_categoria')
-            ->where('subcategoria', $id)->select('products.*')->get();
+            ->where('subcategoria', $id)
+            ->where('isPublic', true)
+            ->select('products.*')->paginate(10);
         return $data;
     }
 
@@ -208,7 +215,7 @@ class Products extends Model
     {
         $data = DB::table('kit')
             ->join('products', 'kit.product_id', '=', 'products.id')
-            ->where('user_id',$user)->groupBy('product_id')->paginate(10);
+            ->where('user_id', $user)->groupBy('product_id')->paginate(10);
         return $data;
     }
 }

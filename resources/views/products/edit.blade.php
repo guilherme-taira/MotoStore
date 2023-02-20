@@ -50,6 +50,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-lg-3">
+                        <label>Ativo / Público</label>
+                        <select name="isPublic" class="form-control" required>
+                            <option value="1" selected>SIM</option>
+                            <option value="0">NÂO</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -112,13 +120,12 @@
                                     required>
 
                                     @if ($viewData['product']->listing_type_id == 'gold_special')
-                                        <option value="gold_special">Clássico</option>
+                                        <option value="gold_special" selected>Clássico</option>
                                         <option value="gold_pro">Premium</option>
                                     @elseif($viewData['product']->listing_type_id == 'gold_pro')
-                                        <option value="gold_pro">Premium</option>
+                                        <option value="gold_pro" selected>Premium</option>
                                         <option value="gold_special">Clássico</option>
                                     @else
-                                        <option selected>Selecione..</option>
                                         <option value="gold_special">Clássico</option>
                                         <option value="gold_pro">Premium</option>
                                     @endif
