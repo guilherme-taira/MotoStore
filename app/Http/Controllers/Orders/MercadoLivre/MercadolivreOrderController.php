@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Orders\MercadoLivre;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
+use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
+use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\Yapay\GeradorPagamento;
+use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
+use App\Models\financeiro;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
@@ -51,46 +57,36 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-        echo "<pre>";
+        // echo "<pre>";
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
-                /***
-                 * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
-                 * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
-                 */
+                // ARRAY DE PRODUTOS
+                $produtos = [];
+                foreach ($result->payments as $payments) {
 
-                print_r($result->buyer->id . "<br>");
-                // $newPix = new Pix("e1cb0277fbfd2fd","B","13616-450","Siqueira Campos","70","A","São Manoel","Leme","SP","Guilherme Taira","46857167877","gui_ssx@hotmail.com",[new ProdutoMercadoLivre("cotonete",2,7.99),new ProdutoMercadoLivre("cotonete",2,7.99)],27,1);
-                // $data = $newPix->CriarPagamento();
-                // echo "<pre>";
-                // print_r($data);
-                if (order_site::VerificarVenda($result->id) == false) {
+                    foreach ($result->order_items as $item) {
+                        array_push($produtos, new ProdutoMercadoLivre($item->item->title, $item->quantity, $item->unit_price));
+                    }
+                    /***
+                     * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
+                     * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
+                     */
+                    if (order_site::VerificarVenda($result->id) == false) {
+                        $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken());
+                        $cliente->resource();
+                        $id_order = $cliente->saveClient($result);
 
-                    $pedidos = new order_site();
-                    $pedidos->numeropedido = $result->id;
-                    $pedidos->local = 'Mercado Livre';
-                    $pedidos->valorVenda = $result->paid_amount;
-                    $pedidos->valorProdutos = $result->total_amount;
-                    $pedidos->dataVenda = $result->date_closed;
-                    $pedidos->cliente = $result->buyer->nickname;
-                    $pedidos->save();
+                        if (!empty($result->shipping->id)) {
+                            $getShipping = new getDataShippingController($result->shipping->id, $this->getToken());
+                            $endereco = $getShipping->resource();
 
-                    foreach ($result->order_items as $pedido) {
-                        if (product_site::getVerifyProduct($pedido->item->seller_sku) == false) {
-                            // PEDIDO NOVO
-                            $produto = new product_site();
-                            $produto->nome = $pedido->item->title;
-                            $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                            $produto->valor = $pedido->unit_price;
-                            $produto->quantidade = $pedido->quantity;
-                            $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                            $produto->save();
-                            // PIVOT
-                            $venda_pivot = new pivot_site();
-                            $venda_pivot->order_id = $pedidos->id;
-                            $venda_pivot->product_id = $produto->id;
-                            $venda_pivot->id_user = Auth::user()->id;
-                            $venda_pivot->save();
+                            $CriarPix = new implementacaoCliente($result->buyer->nickname, $endereco->address_line, $endereco->zip_code, $endereco->address_line, $endereco->street_number, "A", $endereco->neighborhood, $endereco->city, $endereco->state, $result->buyer->nickname, "46857167877", "mercadolivre@mercadolivre.com", $produtos, 27, 1);
+                            $CriarPix->CriarPagamento();
+
+                            $gerarValor = new GeradorPagamento($CriarPix);
+                            $pagamento = $gerarValor->resource();
+
+                            financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction);
                         }
                     }
                 }
@@ -100,7 +96,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
     public function resource()
     {
-        return $this->get("orders/search?seller=" . $this->getSellerId() . "&order.status=paid&sort=date_desc");
+        return $this->get("orders/search?seller=" . $this->getSellerId() . "&order.status=paid&sort=date_desc&shipping");
     }
 
     /**

@@ -69,28 +69,32 @@
                                     <h5 class="card-title">Clientes / Fornecedores</h5>
                                     @foreach ($viewData['orders'] as $order)
                                         <div class="card mt-4">
-                                            @if ($order->datapagamento > date('Y-m-d'))
-                                                <div class="card-body"><strong>Cliente: {{ $order->cliente }} </strong>,
-                                                Venda
-                                                Nº:{{ $order->id }}, Data da Venda: {{ $order->datavenda }},
-                                                Data do Pagamento: {{ $order->datapagamento }}, Status: <i class="fas fa-circle text-success fa-1x px-2" title="Status: Em dia"></i> <a href="{{route('orders.baixarVenda',['id' => $order->id])}}">
-                                                    <i class="fas fa-fax text-success fa-2x float-end px-2" title="baixar Venda"></i></a> <a href="#" title="ver pedido"><i class="fas fa-eye text-info fa-2x float-end"></i></a></div>
+                                            <div class="my-3 p-3 bg-body rounded shadow-sm" id="result">
+                                                <h6 class="pb-2 mb-0">Vendas Recentes</h6>
+
+                                                <div class="card-body"><a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
+                                                        class="text-decoration-none"><strong>Cliente:
+                                                            {{ $order->cliente }}
+                                                        </strong>,
+                                                        Venda
+                                                        Nº:{{ $order->id }}, Data da Venda: {{ $order->datavenda }},
+                                                        Data da Venda: {{ $order->created_at }},
+                                                        <hr> Status: <span
+                                                            class="badge bg-primary">{{ $order->value_status }} </span>
+                                                        <span><strong> Valor: R$ {{ $order->valor }} </strong> </span>
+                                                        <embed src="{{ $order->link }}" width="200" height="100"
+                                                            class="float-end">
+                                                    </a>
+
+                                                </div>
+                                            </div>
                                         </div>
-                                    @else
-                                        <div class="card-body"><strong>Cliente: {{ $order->cliente }} </strong>,
-                                            Venda
-                                            Nº:{{ $order->id }}, Data da Venda: {{ $order->datavenda }},
-                                            Data do Pagamento: {{ $order->datapagamento }}, Status: <i
-                                                class="fas fa-circle text-danger fa-1x px-2" title="Status: Atrasado"></i>
-                                            <a href="{{route('orders.baixarVenda',['id' => $order->id])}}"><i class="fas fa-fax text-success fa-2x float-end px-2" title="baixar Venda"></i></a> <a href="" title="ver pedido"><i class="fas fa-eye text-info fa-2x float-end"></i></a></div>
+                                    @endforeach
                                 </div>
-                                @endif
-                                @endforeach
-                            </div>
-                            <div class="d-flex">
-                                {!! $viewData['orders']->links() !!}
+                                <div class="d-flex">
+                                    {!! $viewData['orders']->links() !!}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endsection
+                @endsection

@@ -93,6 +93,7 @@
             @foreach ($viewData['orders'] as $order)
                 <div class="d-flex text-muted pt-3">
                     <p class="pb-3 mb-0 small lh-sm d-block">
+                        {{$order->cliente}}
                         <strong class="d-block text-gray-dark"><a class="text-decoration-none"
                                 href={{ route('orders.show', ['id' => $order->id]) }}>{{ $order->cliente }}</a></strong>
                         {{-- content --}}

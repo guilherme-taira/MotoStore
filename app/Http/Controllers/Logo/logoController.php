@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Logo;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Yapay\Pagamentos\AtualizaPagamento;
 use App\Http\Controllers\Yapay\Pix;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
 use App\Models\logo;
@@ -26,10 +27,7 @@ class logoController extends Controller
         return view('marketing.logo.index', [
             'viewData' => $viewData,
         ]);
-        // $newPix = new Pix("e1cb0277fbfd2fd","B","13616-450","Siqueira Campos","70","A","São Manoel","Leme","SP","Guilherme Taira","46857167877","gui_ssx@hotmail.com",[new ProdutoMercadoLivre("cotonete",2,7.99),new ProdutoMercadoLivre("cotonete",2,7.99)],27,1);
-        // $data = $newPix->CriarPagamento();
-        // echo "<pre>";
-        // print_r($data);
+
     }
 
     /**

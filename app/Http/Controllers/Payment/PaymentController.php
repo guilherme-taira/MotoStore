@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
+use App\Models\financeiro;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -23,7 +24,7 @@ class PaymentController extends Controller
         $viewData['subtitle'] = "Formas de Pagamento";
         $viewData['payments'] = $payments;
 
-        return view('payment.index',[
+        return view('payment.index', [
             'viewData' => $viewData,
         ]);
     }
@@ -38,7 +39,7 @@ class PaymentController extends Controller
         $viewData = [];
         $viewData['title'] = "Cadastro de Meios de Pagamentos";
         $viewData['subtitle'] = "Cadastro dos Meios de Pagamentos";
-        return view('payment.create',[
+        return view('payment.create', [
             'viewData' => $viewData,
         ]);
     }
@@ -55,8 +56,8 @@ class PaymentController extends Controller
         $payment->name = $request->name;
         $response = $payment->save();
 
-        if($response){
-            return redirect()->route('payment.index')->with('message','Método de pagamento criado com sucesso!');
+        if ($response) {
+            return redirect()->route('payment.index')->with('message', 'Método de pagamento criado com sucesso!');
         }
 
         return back();
@@ -105,5 +106,16 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function getQueueData()
+    {
+
+        $payments = financeiro::where('status', 4)->get();
+
+        foreach ($payments as $payment) {
+            \App\Jobs\YapayPagamento::dispatch($payment->token_transaction);
+        }
     }
 }

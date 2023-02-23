@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Yapay;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use Illuminate\Http\Request;
 
 class Pix extends AbstractTipoDeCobranca
@@ -17,7 +18,6 @@ class Pix extends AbstractTipoDeCobranca
         return $this->criarData($pagamento, $cliente);
     }
 
-
     public function criarData($pagamento, $cliente)
     {
         $data = [
@@ -30,5 +30,11 @@ class Pix extends AbstractTipoDeCobranca
             ]
         ];
         return $data;
+    }
+
+    public function EnviarOrdem(implementacaoCliente $data)
+    {
+        $gerador = new GeradorPagamento($data);
+        $gerador->resource();
     }
 }

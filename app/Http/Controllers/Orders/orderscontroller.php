@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Models\financeiro;
 use App\Models\Items;
 use App\Models\order_site;
 use App\Models\Orders;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class orderscontroller extends Controller
 {
@@ -107,8 +109,8 @@ class orderscontroller extends Controller
         $viewData = [];
         $viewData['title'] = "Contas a Receber";
         $viewData['subtitle'] = 'Valores a Receber';
-        $viewData['orders'] = Items::contareceber();
-        $viewData['countData'] = Items::contareceberCount();
+        $viewData['orders'] = financeiro::contareceber(Auth::user()->id);
+        $viewData['countData'] = financeiro::contareceberCount(Auth::user()->id);
 
         $viewData['contasDia'] = 0;
         $viewData['contasAtrasada'] = 0;

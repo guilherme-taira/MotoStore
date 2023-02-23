@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Yapay;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use Illuminate\Http\Request;
 
 abstract class AbstractTipoDeCobranca extends Controller
@@ -43,6 +44,7 @@ abstract class AbstractTipoDeCobranca extends Controller
     }
 
     abstract function CriarPagamento();
+    abstract function EnviarOrdem(implementacaoCliente $data);
 
     /**
      * Get the value of token_account

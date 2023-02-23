@@ -81,6 +81,8 @@ Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->
 Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
 Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
 
+Route::get('queueYapay',[PaymentController::class,'getQueueData']);
+
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {

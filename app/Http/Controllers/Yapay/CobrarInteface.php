@@ -32,7 +32,7 @@ class CobrarInteface implements CobrancaPixController
                 array_push($produtos,$dados);
             }
         } else {
-            foreach ($data as $value) {
+            foreach ($data->produtos as $value) {
                 $dados = [
                     "description" => $value->descricao,
                     "quantity" =>  $value->quantidade,
