@@ -4,7 +4,9 @@ use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\dashbordController;
 use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
+use App\Http\Controllers\Bancario\BancarioController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
 use App\Http\Controllers\kitsController;
@@ -41,6 +43,7 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
+Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
 Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('GetProductsKits');
@@ -61,6 +64,7 @@ Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.add');
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
+Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
@@ -86,6 +90,7 @@ Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
+        Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
         Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
@@ -99,6 +104,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('bannersPremium','App\Http\Controllers\Marketing\BannerPremiumController')->names('bannersPremium')->parameters(['banners' => 'id']);
         Route::resource('logo', 'App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
+        Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id']);
     });
 });
 

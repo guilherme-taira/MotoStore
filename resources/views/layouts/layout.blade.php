@@ -145,6 +145,10 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
                 </li>
+                @else
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('login') }}">Olá {{Auth::user()->name}}</a>
+                </li>
                 @endif
                 </ul>
             </div>

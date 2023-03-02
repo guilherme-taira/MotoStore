@@ -7,11 +7,10 @@ use Illuminate\Http\Request;
 
 class AtualizaPagamento extends AbstractVerificaPagamento
 {
-    public function ColocarFila(string $token): PagamentoController
+    public function ColocarFila(string $token)
     {
         $AtualizaPedido = new PagamentoController($token);
         $Request = (new RequestApiPagamento($AtualizaPedido))->resource();
         $AtualizaPedido->setStatus($Request);
-        return $AtualizaPedido;
     }
 }

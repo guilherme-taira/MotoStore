@@ -35,6 +35,7 @@ class RequestApiPagamento extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse,true);
+        print_r($json);
         if ($httpCode == 200) {
             return $json;
         }

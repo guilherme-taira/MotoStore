@@ -3,14 +3,19 @@
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
     <div class="container">
-        <h3>Contas a Receber</h3>
+        <h3>Fornecedor {{Auth::user()->name}}</h3>
 
         @if (session()->get('msg'))
             <div class="alert alert-success" role="alert">
                 {{ session()->get('msg') }}
             </div>
         @endif
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{{ route('bancario.index') }}"><button class="btn btn-success me-md-2" type="button">Dados Bancários <i
+                        class="bi bi-patch-plus"></i></button></a>
+        </div>
         <hr>
+
         {{-- START ACCORDION DATA --}}
         <div class="accordion" id="accordionExample">
             <div class="accordion-item">
@@ -29,11 +34,11 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between px-md-1">
                                             <div class="align-self-center">
-                                                <i class="fas bi-cash-coin text-primary fa-3x"></i>
+                                                <i class="fas bi-bag-check text-primary fa-3x"></i>
                                             </div>
                                             <div class="text-end">
                                                 <h3>{{ $viewData['haPagar'] }}</h3>
-                                                <p class="mb-0">A pagar
+                                                <p class="mb-0">Vendas
                                                 </p>
                                             </div>
                                         </div>
@@ -45,11 +50,11 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between px-md-1">
                                             <div class="align-self-center">
-                                                <i class="fas fa-mug-hot text-success fa-3x"></i>
+                                                <i class="fas bi-printer text-success fa-3x"></i>
                                             </div>
                                             <div class="text-end">
                                                 <h3>{{ $viewData['contasDia'] }}</h3>
-                                                <p class="mb-0">Pago
+                                                <p class="mb-0">A Imprimir
                                                 </p>
                                             </div>
                                         </div>
@@ -61,11 +66,11 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between px-md-1">
                                             <div class="align-self-center">
-                                                <i class="far fa-clock text-danger fa-3x"></i>
+                                                <i class="far bi-archive-fill text-warning fa-3x"></i>
                                             </div>
                                             <div class="text-end">
                                                 <h3>{{ $viewData['contasAtrasada'] }}</h3>
-                                                <p class="mb-0">Contas Atrasadas</p>
+                                                <p class="mb-0">Já Impressa</p>
                                             </div>
                                         </div>
                                     </div>
@@ -103,18 +108,15 @@
                                                                 class="badge bg-success">{{ $order->value_status }} </span>
                                                             <span><strong> Valor: R$ {{ $order->valor }} </strong> </span>
 
-                                                            @if ($order->isPrinted == 0)
+                                                            @if ($order->isPrinted == 0 && $order->status == 6)
                                                             <a href="{{route('imprimir',['shipping_id' => $order->shipping_id])}}"><button class="btn btn-primary text-white float-end"><i class="bi bi-printer-fill"></i> Imprimir Etiqueta</button></a>
                                                             @else
-                                                            <button class="btn btn-primary btn-sm text-white float-end disabled"><i class="bi bi-archive"></i> Postado pelo Fornecedor</button>
+                                                            <a href="{{route('imprimir',['shipping_id' => $order->shipping_id])}}"><button class="btn btn-warning text-dark float-end"><i class="bi bi-printer-fill"></i>  Etiqueta Já Impressa</button></a>
                                                             @endif
-                                                        @elseif($order->status == 7)
-                                                            Status: <span
-                                                                class="badge bg-danger">{{ $order->value_status }} </span>
-                                                            <span><strong> Valor: R$ {{ $order->valor }} </strong> </span>
-                                                            <a href="{{route('renovarpagamento',['id' => $order->id])}}"><button class="btn btn-success text-white float-end"><i class="bi bi-arrow-repeat"></i> Renovar Pagamento</button></a>
                                                         @endif
+
                                                     </a>
+
                                                 </div>
                                             </div>
                                         </div>

@@ -7,5 +7,5 @@ use Illuminate\Http\Request;
 
 abstract class AbstractVerificaPagamento
 {
-    public abstract function ColocarFila(String $token): PagamentoController;
+    public abstract function ColocarFila(String $token);
 }

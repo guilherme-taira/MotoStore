@@ -76,6 +76,12 @@
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
+                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Página do Fornecedor</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <li>
                                         <a class="dropdown-item" href="{{route('orders.areceber')}}">Contas a Receber</a>
                                     </li>
                                     <li>

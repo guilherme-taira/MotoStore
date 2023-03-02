@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\Printer\PrinterController;
+use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
 use App\Models\financeiro;
 use App\Models\Items;
 use App\Models\order_site;
 use App\Models\Orders;
+use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 class orderscontroller extends Controller
@@ -114,15 +118,18 @@ class orderscontroller extends Controller
 
         $viewData['contasDia'] = 0;
         $viewData['contasAtrasada'] = 0;
+        $viewData['haPagar'] = 0;
 
         // DATA ATUAL
         $dataNow = new DateTime();
 
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
-            if($order->datapagamento < $dataNow->format('Y-m-d')){
+            if($order->status == 4){
+                $viewData['haPagar'] += 1;
+            }else if($order->status == 6){
                 $viewData['contasDia'] += 1;
-            }else{
+            }else if($order->status == 7){
                 $viewData['contasAtrasada'] += 1;
             }
         }
@@ -135,5 +142,48 @@ class orderscontroller extends Controller
         // BAIXA O PEDIDO
         Orders::BaixarVenda($request->id);
         return redirect()->route('orders.areceber')->with('msg','Pedido Baixado Com Sucesso!');
+    }
+
+
+    public function ImprimirEtiqueta(Request $request){
+        $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
+        // IMPRIME ETIQUETA
+        $data = new PrinterController($request->shipping_id,$token->access_token);
+        $dados = $data->resource();
+
+    }
+
+    public function UpdateNewPayment(Request $request){
+
+        $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
+        $newPayment = new RenovacaoController;
+        $data = $newPayment->UpdatePayment($request->id,$token->access_token);
+
+        $viewData = [];
+        $viewData['title'] = "Contas a Receber";
+        $viewData['subtitle'] = 'Valores a Receber';
+        $viewData['orders'] = financeiro::contareceber(Auth::user()->id);
+        $viewData['countData'] = financeiro::contareceberCount(Auth::user()->id);
+
+        $viewData['contasDia'] = 0;
+        $viewData['contasAtrasada'] = 0;
+        $viewData['haPagar'] = 0;
+
+        // DATA ATUAL
+        $dataNow = new DateTime();
+
+        // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
+        foreach ($viewData['countData'] as $order) {
+            if($order->status == 4){
+                $viewData['haPagar'] += 1;
+            }else if($order->status == 6){
+                $viewData['contasDia'] += 1;
+            }else if($order->status == 7){
+                $viewData['contasAtrasada'] += 1;
+            }
+        }
+        return view('orders.areceber',[
+            'viewData' => $viewData,
+        ]);
     }
 }

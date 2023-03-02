@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class financeiro extends Model
 {
@@ -11,7 +12,7 @@ class financeiro extends Model
 
     protected $table = 'financeiro';
 
-    public static function SavePayment($status, $valor, $order_id, $user_id, $qrcode, $link, $status_name, $token_transaction)
+    public static function SavePayment($status, $valor, $order_id, $user_id, $qrcode, $link, $status_name, $token_transaction, $shipping_id)
     {
         $newPayment = new financeiro();
         $newPayment->status = $status;
@@ -22,6 +23,7 @@ class financeiro extends Model
         $newPayment->link = $link;
         $newPayment->value_status = $status_name;
         $newPayment->token_transaction = $token_transaction;
+        $newPayment->shipping_id = $shipping_id;
         $newPayment->save();
     }
 
@@ -32,9 +34,19 @@ class financeiro extends Model
         return $data;
     }
 
+    public static function GetDataByUser($order_id)
+    {
+        $data = DB::table('pivot_site')
+        ->join('order_site', 'pivot_site.order_id', '=', 'order_site.id')
+        ->join('product_site','pivot_site.product_id','product_site.id')
+        ->join('financeiro','financeiro.order_id','order_site.id')
+        ->where('pivot_site.order_id',$order_id)->first();
+        return $data;
+    }
+
     public static function contareceberCount($user)
     {
-        $data = financeiro::where('status', '=', '4')->where('user_id', $user)->get();
+        $data = financeiro::where('user_id', $user)->get();
         return $data;
     }
 

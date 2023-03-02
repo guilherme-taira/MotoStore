@@ -57,7 +57,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-        // echo "<pre>";
+         //echo "<pre>";
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
                 // ARRAY DE PRODUTOS
@@ -85,9 +85,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             $gerarValor = new GeradorPagamento($CriarPix);
                             $pagamento = $gerarValor->resource();
-
-                            financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction);
-                        }
+                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
+                            financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction,$shipping);
+                         }
                     }
                 }
             }

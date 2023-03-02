@@ -24,6 +24,8 @@ class CreateTableFinanceiro extends Migration
             $table->text('link');
             $table->string('value_status');
             $table->string('token_transaction');
+            $table->string('shipping_id');
+            $table->boolean('isPrinted')->default(false);
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('order_id')->references('id')->on('order_site');
