@@ -58,7 +58,12 @@
                             <option value="0">NÂO</option>
                         </select>
                     </div>
+                    <div class="col-lg-2">
+                        <label>Valor Termômetro <i class="bi bi-speedometer"></i></label>
+                       <input type="number" name="termometro" value="{{$viewData['product']->termometro}}" id="termometro" min="0" max="150" class="form-control">
+                    </div>
                 </div>
+
 
                 <div class="row">
                     <div class="col">
@@ -100,6 +105,7 @@
                                     class="form-control">
                             </div>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="mb-3 row">
@@ -138,7 +144,7 @@
                                 <label for="categoria">Categorias:</label>
                                 <select class="form-select mt-2" name="categoria" id="categoria" required
                                     aria-label="Default select example">
-                                    <option value="" selected>Selecione...</option>
+                                    <option value="{{$viewData['product']->subcategoria}}" selected>{{$viewData['categoriaSelected']->name}}</option>
 
                                     @foreach ($viewData['categorias'] as $categoria)
                                         <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
@@ -148,6 +154,15 @@
                                         @endforeach
                                     @endforeach
 
+                                </select>
+                            </div>
+                            <div class="col col-lg-4">
+                                <label>Fornecedor</label>
+                                <select name="fornecedor" class="form-control mt-2" required>
+                                    @foreach ($viewData['fornecedor'] as $fornecedor)
+                                        <option class="bg-warning" value="{{ $fornecedor->id }}">{{ $fornecedor->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

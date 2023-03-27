@@ -1,113 +1,151 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', $viewData['title'])
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
     <div class="container">
-
-        {{-- Filter Start --}}
-        <div>
-            <div class="bd-example-snippet bd-code-snippet">
-                <div class="bd-example">
-                    <div class="accordion-item">
-                        <h4 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Filtros Avançados
+        <div class="card d-flex">
+            <div class="card-body">
+                <!--Table-->
+                <table class="table table-hover table-forum text-center">
+                    <!--Table head-->
+                    <thead>
+                        <tr>
+                            <th>Código do Pedido</th>
+                            <th class="text-center">Cliente</th>
+                            <th class="text-center">Total Venda</th>
+                            <th class="text-center">Informações</th>
+                            <th class="text-center">Email/Telefone</th>
+                            <th class="text-center">Frete</th>
+                            <th class="text-center">Local Venda</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <!--Table body-->
+                    <tbody>
+                        <div class="input-group mb-4">
+                            <input type="text" class="form-control" id="advanced-search-input"
+                                placeholder="Nome do Cliente, Código do Pedido" />
+                            <button class="btn btn-primary" id="advanced-search-button" type="button">
+                                <i class="fa fa-search"></i>
                             </button>
-                        </h4>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                            data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <form class="row g-3 needs-validation" novalidate>
-                                    <div class="col-md-4">
-                                        <label for="validationCustom01" class="form-label">Nome do Cliente</label>
-                                        <input type="text" class="form-control" id="search"
-                                            placeholder="digite o nome do cliente" required>
-                                        <div class="valid-feedback">
-                                            Looks good!
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="validationCustom02" class="form-label">Data Inicial</label>
-                                        <input type="date" class="form-control" id="validationCustom02" value="Otto"
-                                            required>
-                                        <div class="valid-feedback">
-                                            Looks good!
-                                        </div>
-                                    </div>
+                        </div>
+                        <div class="accordion accordion-flush" id="accordionFlushExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="flush-headingOne">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#flush-collapseOne" aria-expanded="false"
+                                        aria-controls="flush-collapseOne">
+                                        Filtros Avançado
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseOne" class="accordion-collapse collapse"
+                                    aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                    <div class="accordion-body">
+                                        {{-- FILTROS AVANCADOS  --}}
+                                        <form action="{{ route('orders.index') }}" method="get">
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">Número do
+                                                        Pedido</label>
+                                                    <input type="text" name="npedido" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="validationCustom01" class="form-label">Nome do
+                                                        Cliente</label>
+                                                    <input type="text" name="nome" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">CPF</label>
+                                                    <input type="text" name="cpf" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">CNPJ</label>
+                                                    <input type="text" name="cnpj" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">Data Incial</label>
+                                                    <input type="date" name="datainicial" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">Data Final</label>
+                                                    <input type="date" name="datafinal" class="form-control"
+                                                        id="validationCustom01">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label for="validationCustom01" class="form-label">Status do
+                                                        Pedido</label>
+                                                    <select class="form-select" aria-label="Default select example">
+                                                        <option selected>Selecione..</option>
+                                                        <option value="1">Aguardando Envio</option>
+                                                        <option value="2">Enviado</option>
+                                                        <option value="3">A Enviar</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mt-4">
+                                                <button class="btn btn-primary" type="submit">Pesquisar</button>
+                                            </div>
 
-                                    <div class="col-md-4">
-                                        <label for="validationCustom02" class="form-label">Data Final</label>
-                                        <input type="date" class="form-control" id="validationCustom02" value="Otto"
-                                            required>
-                                        <div class="valid-feedback">
-                                            Looks good!
-                                        </div>
                                     </div>
-
-                                    <div class="col-md-4">
-                                        <select class="form-select" id="formPayment"
-                                            aria-label="Floating label select example">
-                                            <option value="" selected>...</option>
-                                            <option value="1">Dinheiro</option>
-                                            <option value="2">Cartão de Crédito</option>
-                                            <option value="3">Cartão de Débito</option>
-                                            <option value="5">Pix</option>
-                                            <option value="4">Marcar</option>
-                                        </select>
-                                        <label for="floatingSelect">Selecione o Meio de Pagamento</label>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <button class="btn btn-primary" type="submit">Pesquisar</button>
-                                    </div>
-
-                                    <small class="d-block text-end mt-3">
-                                        <a href="{{route('generate')}}" class="btn btn-success">Exportar Relatórios</a>
-                                    </small>
+                                </div>
                                 </form>
                             </div>
-                        </div>
-                    </div>
-                </div>
+
+                            @foreach ($viewData['pedidos'] as $order)
+                                <tr>
+                                    <td scope="row" class="text-nowrap">
+                                        <a
+                                            href="{{ route('orders.show', ['id' => $order['pedido']->id]) }}">{{ $order['pedido']->id }}</a>
+                                    </td>
+                                    <td>{{ $order['pedido']->cliente }}</td>
+                                    <td>R$ {{ $order['pedido']->valorVenda }}</td>
+                                    <td class="text-start">
+                                        @for ($i = 0; $i < count($order['produtos']); $i++)
+                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $order['produtos'][$i]->id . '/' . $order['produtos'][$i]->image) !!}" style="width: 50px">
+                                            <span class=" badge rounded-pill bg-danger">
+                                                {{ $order['produtos'][$i]->quantidade }}
+                                            </span>
+                                        @endfor
+                                        <div class="my-2">
+                                            <a href="#" class="blue-text">
+                                                <strong>{{ $order['pedido']->name }}</strong>
+                                            </a>
+                                            <div></div>
+                                        </div>
+                                    </td>
+                                    <td>{{ $order['pedido']->email }} / {{ $order['pedido']->phone }}</td>
+                                    <td>R$: {{ $order['pedido']->valorFrete }}</td>
+                                    <td>{{ $order['pedido']->local }}</td>
+                                    <td>
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option selected>Selecione..</option>
+                                            <option value="1">Aguardando Envio</option>
+                                            <option value="2">Enviado</option>
+                                            <option value="3">A Enviar</option>
+                                        </select>
+                                    </td>
+                                </tr>
+
+                                </ul>
+                            @endforeach
+                            </nav>
+                </table>
             </div>
-        </div>
-        {{-- Filter END --}}
-
-        {{-- : START --}}
-
-        <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
-            <div
-                class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 p-2">
-                <i class="bi bi-coin py-2"></i>
+            <div class="d-flex py-2">
+                {!! $orders->links() !!}
             </div>
-
-            <div class="lh-1 p-2">
-                <h1 class="h6 mb-0 text-white lh-1">Vendas</h1>
-                <small>MotoStore {{ date('Y') }}</small>
-            </div>
+            <hr>
+            <!--Bottom Table UI-->
         </div>
-
-        <div class="my-3 p-3 bg-body rounded shadow-sm" id="result">
-            <h6 class="pb-2 mb-0">Vendas Recentes</h6>
-            @foreach ($viewData['orders'] as $order)
-                <div class="d-flex text-muted pt-3">
-                    <p class="pb-3 mb-0 small lh-sm d-block">
-                        {{$order->cliente}}
-                        <strong class="d-block text-gray-dark"><a class="text-decoration-none"
-                                href={{ route('orders.show', ['id' => $order->id]) }}>{{ $order->cliente }}</a></strong>
-                        {{-- content --}}
-                        ID do Pedido: {{ $order->numeropedido }}, Total R$: {{ $order->valorVenda }}, Data do Pedido:
-                        {{ $order->created_at }}, Cliente : {{ $order->cliente }}
-                    </p>
-                </div>
-                <hr>
-            @endforeach
-
-            <small class="d-block text-end mt-3">
-                <a href="{{route('generate')}}" class="btn btn-primary">Exportar Relatórios</a>
-            </small>
-        </div>
+    </div>
     </div>
     {{-- AJAX JQUERY SEARCH --}}
 

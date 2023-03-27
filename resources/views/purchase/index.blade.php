@@ -16,40 +16,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Selecione o Método de Pagamento
+                    Resumo do Pedido.
                     <i class="bi bi-cash-stack"></i>
-
-                    <form action="" method="get">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" value="1"
-                                id="flexSwitchCheckChecked">
-                            <label class="form-check-label" value="1" for="flexSwitchCheckChecked">Dinheiro <i
-                                    class="bi bi-coin"></i></label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" value="2"
-                                id="flexSwitchCheckChecked">
-                            <label class="form-check-label" value="2" for="flexSwitchCheckChecked">Cartão de Crédito <i
-                                    class="bi bi-credit-card"></i></label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" value="3"
-                                id="flexSwitchCheckChecked">
-                            <label class="form-check-label" value="3" for="flexSwitchCheckChecked">Cartão de Débito <i
-                                    class="bi bi-credit-card"></i></label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" value="5"
-                                id="flexSwitchCheckChecked">
-                            <label class="form-check-label" value="5" for="flexSwitchCheckChecked">Pix <i
-                                    class="bi bi-x-diamond-fill"></i></label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" value="4"
-                                id="flexSwitchCheckChecked">
-                            <label class="form-check-label" value="4" for="flexSwitchCheckChecked">Marcar <i
-                                    class="bi bi-journal"></i></label>
-                        </div>
 
                         <div id="dataGet">
                             <input type="date" class="form-control" name="dataPagamento" id="dataPagamento">
@@ -178,42 +146,42 @@
             });
 
 
-            $('form').submit(function(event) {
-                if (!$('#PaymentId').val()) {
-                    event.preventDefault();
-                    // ativa os meio de pagamentos
-                    $('#modalbutton').trigger('click');
-                }
-            });
-
-
-            // CHECA A FORMA DE PAGAMENTO
-            indice = 0;
-            $('form input:checkbox').change(function() {
-                $('input:checkbox').each(function(index, i) {
-                    if ($(this).is(":checked")) {
-                        if (indice >= 1) {
-                            alert('Existe mais de um meio de pagamento!');
-                            $(this).prop("checked", false);
-                            indice = 0;
-                        } else {
-                            indice += 1;
-                            if($(i).val() == '4'){
-                                $("#dataGet").show();
-                                $('#PaymentId').val($(i).val());
-                            }else{
-                                $('#PaymentId').val($(i).val());
-                            }
-
-                        }
+                $('form').submit(function(event) {
+                    if (!$('#PaymentId').val()) {
+                        event.preventDefault();
+                        // ativa os meio de pagamentos
+                        $('#modalbutton').trigger('click');
                     }
                 });
-            });
 
-             // verificar se a data de pagamento para marcar mudou
-             $("#dataGet").change(function() {
-                $data = $("#dataPagamento").val();
-                $("#datePayment").val($data);
-            });
+
+                // CHECA A FORMA DE PAGAMENTO
+                indice = 0;
+                $('form input:checkbox').change(function() {
+                    $('input:checkbox').each(function(index, i) {
+                        if ($(this).is(":checked")) {
+                            if (indice >= 1) {
+                                alert('Existe mais de um meio de pagamento!');
+                                $(this).prop("checked", false);
+                                indice = 0;
+                            } else {
+                                indice += 1;
+                                if($(i).val() == '4'){
+                                    $("#dataGet").show();
+                                    $('#PaymentId').val($(i).val());
+                                }else{
+                                    $('#PaymentId').val($(i).val());
+                                }
+
+                            }
+                        }
+                    });
+                });
+
+                // verificar se a data de pagamento para marcar mudou
+                $("#dataGet").change(function() {
+                    $data = $("#dataPagamento").val();
+                    $("#datePayment").val($data);
+                });
         });
     </script>

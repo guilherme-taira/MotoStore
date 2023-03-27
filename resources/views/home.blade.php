@@ -2,6 +2,13 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <div class="card-body width-home-page-content">
+
+        @if (session()->get('msg_warning'))
+            <div class="alert alert-danger text-center" role="alert">
+                {{ session()->get('msg_warning') }}
+            </div>
+        @endif
+
         {{-- DASHBOARD --}}
         <div class="row">
             <div class="col-6 mt-3 mb-1">
@@ -11,13 +18,16 @@
 
             @if (!isset($viewData['mercadolivre']))
                 <div class="col-3 mt-3 mb-1">
-                    <a href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://afilidrop.herokuapp.com/thankspage"><button class="btn btn-warning me-md-2" type="button">Integrar Mercado
+                    <a
+                        href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://afilidrop.herokuapp.com/thankspage"><button
+                            class="btn btn-warning me-md-2" type="button">Integrar Mercado
                             Livre <i class="bi bi-basket2"></i></button></a>
                 </div>
             @else
-            <div class="col-3 mt-3 mb-1">
-                <button class="btn btn-success me-md-2" type="button">Integrado em: {{$viewData['mercadolivre']->created_at}}<i class="bi bi-basket2"></i></button>
-            </div>
+                <div class="col-3 mt-3 mb-1">
+                    <button class="btn btn-success me-md-2" type="button">Integrado em:
+                        {{ $viewData['mercadolivre']->created_at }}<i class="bi bi-basket2"></i></button>
+                </div>
             @endif
 
         </div>
@@ -127,13 +137,13 @@
 
                 @foreach ($viewData['orders'] as $order)
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"> <strong> Cliente: </strong> {{ $order->cliente }} <strong> Número
+                        <li class="list-group-item"> <strong> Cliente: </strong> {{ $order->name }} <strong> Número
                                 do Pedido: </strong> {{ $order->id }} - <strong>Valor: R$
                                 {{ number_format($order->valorVenda, 2, ',', '.') }} </strong> Data do Pedido:
                             {{ $order->created_at }}
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button class="btn btn-success me-md-2 btn-sm" type="button"><i class="bi bi-eye-fill"></i>
-                                    Ver Pedido</button>
+                               <a href="{{route('orders.show',['id' => $order->id])}}"><button class="btn btn-success me-md-2 btn-sm" type="button"><i class="bi bi-eye-fill"></i>
+                                    Ver Pedido</button></a>
                             </div>
                         </li>
                     </ul>

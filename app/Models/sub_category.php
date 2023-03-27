@@ -21,6 +21,12 @@ class sub_category extends Model
         return $data;
     }
 
+    public static function getNameCategory($id){
+        $data = sub_category::where('id',$id)->first();
+        return $data;
+    }
+
+
     public static function getName($id){
         $data = sub_category::where('id',$id)->first();
         return $data->name;

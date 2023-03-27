@@ -14,6 +14,7 @@ use App\Models\mercado_livre_history;
 use App\Models\Products;
 use App\Models\sub_category;
 use App\Models\token;
+use App\Models\User;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -149,6 +150,7 @@ class productsController extends Controller
                 ];
             }
 
+            $viewData['fornecedor'] = User::where('forncecedor',1)->get();
             $viewData['token'] = $token;
             $viewData['categorias'] = $categorias;
 
@@ -171,7 +173,7 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
-
+        $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
@@ -180,6 +182,12 @@ class productsController extends Controller
             ];
         }
 
+        $subCategoria = [];
+
+        sub_category::getAllCategory($produto->subcategoria);
+
+
+        $viewData['fornecedor'] = User::where('forncecedor',1)->get();
         $viewData['categorias'] = $categorias;
         return view('products.edit')->with('viewData', $viewData);
     }
@@ -204,6 +212,7 @@ class productsController extends Controller
             "ean" => "required|numeric",
             "tipo_anuncio" => "required|max:50",
             'pricePromotion' => 'numeric',
+            'termometro' => 'numeric'
         ]);
 
         $produto = Products::findOrFail($id);
@@ -220,6 +229,8 @@ class productsController extends Controller
         $produto->setDescription($request->input('description'));
         $produto->SetLugarAnuncio($request->input('radio'));
         $produto->setIsPublic($request->input('isPublic'));
+        $produto->SetFornecedor($request->input('fornecedor'));
+        $produto->SetTermometro($request->input('termometro'));
 
         if ($request->hasFile('image')) {
             $imageName = $produto->getId() . "." . $request->file('image')->extension();
@@ -497,8 +508,21 @@ class productsController extends Controller
         }
 
         $viewData['categorias'] = $categorias;
-
         return view('premium.index')->with('viewData', $viewData);
+    }
+
+
+    public function todosProdutos(){
+
+        // PRODUTOS EM PROMOÇÂO
+        $data = Products::where('fornecedor_id',Auth::user()->id)->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'AutoKM';
+        $viewData['products'] = $data;
+
+        return view('orders.fornecedor.produtos')->with('viewData', $viewData);
     }
 }
 

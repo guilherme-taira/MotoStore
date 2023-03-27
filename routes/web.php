@@ -18,11 +18,13 @@ use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
+use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AdminAccess;
 use App\Models\Orders;
+use App\Models\Products;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -65,9 +67,12 @@ Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.a
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
+Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
+Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
+Route::get('/cart/deleteOne/{id}', [CartController::class, 'deleteOneCarrinho'])->name('cart.deleteCarrinho');
 // ROUTE AJAX
 Route::get('/getInfoProduct', [getProductsData::class, 'infoSearch'])->name('ajax.getInfo');
 Route::get('/getInfoUser', [getUserInfoController::class, 'infoSearch'])->name('ajax.getUser');
@@ -85,8 +90,8 @@ Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->
 Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
 Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
 
+// ROTAS DE FILA
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
-
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
@@ -104,7 +109,8 @@ Route::middleware('admin')->group(function () {
         Route::resource('bannersPremium','App\Http\Controllers\Marketing\BannerPremiumController')->names('bannersPremium')->parameters(['banners' => 'id']);
         Route::resource('logo', 'App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
-        Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id']);
+        Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');
+        Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
     });
 });
 

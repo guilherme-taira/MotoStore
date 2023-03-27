@@ -20,12 +20,12 @@ class StoreController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $viewData = [];
         $viewData['title'] = "Embaleme";
         $viewData['subtitle'] = '';
-        $viewData['products'] = Products::where('isPublic',true)->paginate(10);
+        $viewData['products'] = Products::where('isPublic', true)->paginate(10);
         $viewData['bannersFix'] = banner::first();
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();
@@ -39,9 +39,13 @@ class StoreController extends Controller
         }
 
         $viewData['categorias'] = $categorias;
+        // echo "<pre>";
 
+        //  print_r($request->session()->get('carrinho'));
         return view('store.index')->with('viewData', $viewData);
     }
+
+
 
     /**
      * Show the form for creating a new resource.

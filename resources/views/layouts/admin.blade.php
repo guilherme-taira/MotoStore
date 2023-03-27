@@ -15,7 +15,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
     <title>@yield('title', 'Admin - Online Store')</title>
 </head>
 
@@ -38,10 +38,11 @@
                         <!-- Left links -->
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{{route('stores.index')}}">Home</a>
+                                <a class="nav-link active" aria-current="page"
+                                    href="{{ route('stores.index') }}">Home</a>
                             </li>
-                             <!-- Navbar dropdown -->
-                             <li class="nav-item dropdown">
+                            <!-- Navbar dropdown -->
+                            <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                     data-mdb-toggle="dropdown" aria-expanded="false">
                                     Produtos
@@ -49,23 +50,22 @@
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="{{route('products.index')}}">Produtos</a>
+                                        <a class="dropdown-item" href="{{ route('products.index') }}">Produtos</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Kits</a>
+                                        <a class="dropdown-item" href="{{ route('orders.areceber') }}">Kits</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('categorias.index')}}">Categorias</a>
+                                        <a class="dropdown-item" href="{{ route('categorias.index') }}">Categorias</a>
                                     </li>
                                 </ul>
                             </li>
                             <!--- MENU PRODUTOS FINAL --->
-
                             <li class="nav-item">
-                                <a class="nav-link" href="{{route('orders.index')}}">Vendas</a>
+                                <a class="nav-link" href="{{ route('orders.index') }}">Vendas</a>
                             </li>
                             <!-- Navbar dropdown -->
                             <li class="nav-item dropdown">
@@ -75,17 +75,22 @@
                                 </a>
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Página do Fornecedor</a>
-                                    </li>
+                                    @if (Auth::user()->forncecedor == 1) {
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('orders.areceber') }}">Página do
+                                                Fornecedor</a>
+                                        </li>
+                                    @endif
                                     <li>
                                         <hr class="dropdown-divider" />
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Contas a Receber</a>
+                                        <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a
+                                            Receber</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('orders.areceber')}}">Contas a Pagar</a>
+                                        <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a
+                                            Pagar</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
@@ -97,7 +102,8 @@
                                         <hr class="dropdown-divider" />
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('payment.index')}}">Meio de Pagamento</a>
+                                        <a class="dropdown-item" href="{{ route('payment.index') }}">Meio de
+                                            Pagamento</a>
                                     </li>
                                 </ul>
                             </li>
@@ -110,10 +116,10 @@
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="{{route('banner.index')}}">Banners</a>
+                                        <a class="dropdown-item" href="{{ route('banner.index') }}">Banners</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{{route('logos.index')}}">Logo</a>
+                                        <a class="dropdown-item" href="{{ route('logos.index') }}">Logo</a>
                                     </li>
                                 </ul>
                             </li>

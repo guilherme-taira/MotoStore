@@ -32,7 +32,7 @@
 
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-md navbar-light bg-orange shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -45,9 +45,7 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-
-                    </ul>
+                    <ul class="navbar-nav me-auto"></ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
@@ -149,8 +147,7 @@
                                     <hr class="dropdown-divider" />
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a
-                                        Receber</a>
+                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Receber</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Pagar</a>
@@ -167,6 +164,9 @@
                                 <li>
                                     <a class="dropdown-item" href="{{ route('payment.index') }}">Meio de
                                         Pagamento</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('status.index') }}">Status de Pagamento</a>
                                 </li>
                             </ul>
                 </div>

@@ -24,6 +24,21 @@ class Products extends Model
 
     protected $table = "products";
 
+    public function SetTermometro($valor){
+        $this->termometro = $valor;
+    }
+
+    public function getFornecedor()
+    {
+        return $this->fornecedor_id;
+    }
+
+    public function SetFornecedor($fornecedor_id)
+    {
+        $this->fornecedor_id = $fornecedor_id;
+    }
+
+
     public function getCategory_id()
     {
         return $this->category_id;
@@ -217,5 +232,13 @@ class Products extends Model
             ->join('products', 'kit.product_id', '=', 'products.id')
             ->where('user_id', $user)->groupBy('product_id')->paginate(10);
         return $data;
+    }
+
+
+    public static function getProducts($id){
+        $data = DB::table('kit')
+        ->join('products', 'kit.id_product_kit', '=', 'products.id')
+        ->where('product_id', $id)->get();
+    return $data;
     }
 }

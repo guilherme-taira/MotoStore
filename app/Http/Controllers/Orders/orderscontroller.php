@@ -9,6 +9,7 @@ use App\Models\financeiro;
 use App\Models\Items;
 use App\Models\order_site;
 use App\Models\Orders;
+use App\Models\Products;
 use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
@@ -22,17 +23,24 @@ class orderscontroller extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
         $viewData = [];
         $viewData['title'] = "Tela de Vendas";
         $viewData['subtitle'] = "Vendas";
+        $viewData['pedidos'] = [];
 
-        $orders = order_site::Ordersjoin();
+        $orders = order_site::Ordersjoin(Auth::user()->id,$request);
         $viewData['orders'] = $orders;
 
-        return view('orders.index',[
+        foreach ($orders as $order) {
+            array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->id)]);
+        }
+
+        return view('orders.index', [
             'viewData' => $viewData,
+            'orders' => $orders
         ]);
     }
 
@@ -71,8 +79,21 @@ class orderscontroller extends Controller
         $viewData['title'] = "Pedido";
         $viewData['subtitle'] = "$id";
         $viewData['order'] = $order;
+        $viewData['pedidos'] = [];
 
-        return view('orders.show')->with('viewData',$viewData);
+        $i = 0;
+        foreach ($order as $key => $product) {
+            if ($product->isKit == 1) {
+                foreach (Products::getProducts($product->id) as $produto) {
+                    array_push($viewData['pedidos'], ['produto' => $produto, 'venda' => $order[$i]]);
+                }
+                $i++;
+            } else {
+                array_push($viewData['pedidos'], ['produto' => $product, 'venda' => $order[$i]]);
+            }
+        }
+
+        return view('orders.show')->with('viewData', $viewData);
     }
 
     /**
@@ -109,7 +130,8 @@ class orderscontroller extends Controller
         //
     }
 
-    public function Areceber(){
+    public function Areceber()
+    {
         $viewData = [];
         $viewData['title'] = "Contas a Receber";
         $viewData['subtitle'] = 'Valores a Receber';
@@ -125,39 +147,41 @@ class orderscontroller extends Controller
 
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
-            if($order->status == 4){
+            if ($order->status == 4) {
                 $viewData['haPagar'] += 1;
-            }else if($order->status == 6){
+            } else if ($order->status == 6) {
                 $viewData['contasDia'] += 1;
-            }else if($order->status == 7){
+            } else if ($order->status == 7) {
                 $viewData['contasAtrasada'] += 1;
             }
         }
-        return view('orders.areceber',[
+        return view('orders.areceber', [
             'viewData' => $viewData,
         ]);
     }
 
-    public function baixarvenda(Request $request){
+    public function baixarvenda(Request $request)
+    {
         // BAIXA O PEDIDO
         Orders::BaixarVenda($request->id);
-        return redirect()->route('orders.areceber')->with('msg','Pedido Baixado Com Sucesso!');
+        return redirect()->route('orders.areceber')->with('msg', 'Pedido Baixado Com Sucesso!');
     }
 
 
-    public function ImprimirEtiqueta(Request $request){
+    public function ImprimirEtiqueta(Request $request)
+    {
         $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
         // IMPRIME ETIQUETA
-        $data = new PrinterController($request->shipping_id,$token->access_token);
+        $data = new PrinterController($request->shipping_id, $token->access_token);
         $dados = $data->resource();
-
     }
 
-    public function UpdateNewPayment(Request $request){
+    public function UpdateNewPayment(Request $request)
+    {
 
         $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
         $newPayment = new RenovacaoController;
-        $data = $newPayment->UpdatePayment($request->id,$token->access_token);
+        $data = $newPayment->UpdatePayment($request->id, $token->access_token);
 
         $viewData = [];
         $viewData['title'] = "Contas a Receber";
@@ -174,15 +198,15 @@ class orderscontroller extends Controller
 
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
-            if($order->status == 4){
+            if ($order->status == 4) {
                 $viewData['haPagar'] += 1;
-            }else if($order->status == 6){
+            } else if ($order->status == 6) {
                 $viewData['contasDia'] += 1;
-            }else if($order->status == 7){
+            } else if ($order->status == 7) {
                 $viewData['contasAtrasada'] += 1;
             }
         }
-        return view('orders.areceber',[
+        return view('orders.areceber', [
             'viewData' => $viewData,
         ]);
     }

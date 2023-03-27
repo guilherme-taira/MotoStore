@@ -27,11 +27,11 @@
             </div> --}}
         @endif
         {{-- END MESSAGE SUCCESS REMOVE ADD CART --}}
-        <form action="{{ route('cart.checkout') }}" method="get">
+        <form action="{{ route('cart.purchase') }}" method="get" id="myForm">
             <section class="h-100 gradient-custom">
                 <div class="container">
                     <div class="row d-flex justify-content-center my-4">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header py-3">
                                     <h5 class="mb-0">Cart - {{ count($viewData['products']) }} item(s)</h5>
@@ -44,7 +44,7 @@
                                                 <!-- Image -->
                                                 <div class="bg-image hover-overlay hover-zoom ripple rounded"
                                                     data-mdb-ripple-color="light">
-                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" class="w-100"
+                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" class="w-50"
                                                         alt="{{ $product->getName() }}"></td>
                                                     <a href="#!">
                                                         <div class="mask"
@@ -58,61 +58,31 @@
                                             <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
                                                 <!-- Data -->
                                                 <p><strong>{{ $product->getName() }}</strong></p>
-                                                @if( $product->getPricePromotion() > 0)
-                                                <p>Valor Unid R$: {{ $product->getPricePromotion() }}</p>
-                                                <input type="hidden" value="{{ $product->getPricePromotion() }}" id="valorUnit">
-                                                @else
                                                 <p>Valor Unid R$: {{ $product->getPrice() }}</p>
                                                 <input type="hidden" value="{{ $product->getPrice() }}" id="valorUnit">
-                                                @endif
-
-                                                <a href="{{route('cart.deleteCarrinho',['id' => $product->getId()])}}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button></a>
                                                 <!-- Data -->
                                             </div>
 
                                             <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" id="divValores">
                                                 <!-- Quantity -->
                                                 <div class="d-flex mb-4" id="divQuantidade" style="max-width: 300px">
-                                                    <button class="btn btn-primary px-3 me-2" id="decrementar"
-                                                        onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-                                                        <i class="fas fa-minus"></i>
-                                                    </button>
 
                                                     <div class="form-outline" id="divquantity">
                                                         <input min="1" name="quantity{{ $product->id }}"
                                                             value="{{ session()->get('products')[$product->id] }}"
-                                                            id="quantity" value="1" type="number"
-                                                            class="form-control" />
-                                                        <label class="form-label" for="form1">Quantity</label>
+                                                            id="quantity" type="number" disabled class="form-control" />
+                                                        <label class="form-label" for="form1">Quantidade</label>
                                                     </div>
-
-                                                    <button class="btn btn-primary px-3 ms-2" id="avancar"
-                                                        onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
 
                                                     <input type="hidden" name="produto{{ $product->id }}"
                                                         value="{{ $product->id }}">
-
-                                                    @if($product->getPricePromotion() > 0)
-                                                     <input type="hidden" id="valorUnitario" value="{{ $product->getPricePromotion() }}">
-                                                    @else
-                                                    <input type="hidden" id="valorUnitario" value="{{ $product->getPrice() }}">
-                                                    @endif
-
+                                                    <input type="hidden" id="valorUnitario"
+                                                        value="{{ $product->getPrice() }}">
                                                 </div>
                                                 <!-- Quantity -->
-
                                                 <!-- Price -->
-                                                @if($product->getPricePromotion() > 0)
-                                                <input type="text" class="form-control" id="precofinal"
-                                                    value="{{ $product->getPricePromotion() * session()->get('products')[$product->id] }}">
-                                                @else
-                                                <input type="text" class="form-control" id="precofinal"
+                                                <input type="hidden" class="form-control" id="precofinal"
                                                     value="{{ $product->getPrice() * session()->get('products')[$product->id] }}">
-                                                @endif
                                                 <!-- Price -->
                                             </div>
                                         </div>
@@ -122,7 +92,7 @@
                                 @endforeach
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header py-3">
                                     <h5 class="mb-0">Resumo</h5>
@@ -138,6 +108,27 @@
                                             Frete
                                             <span>Selecione</span>
                                         </li>
+                                        <ul class="list-group">
+                                            @foreach ($viewData['transportadora'] as $frete)
+                                            {{-- TEMPLATE  --}}
+                                                <label for="{{ $frete['id_tranportadora'] }}">
+                                                    <li class="list-group-item"> <input type="radio" name="transportadora"
+                                                            id="{{ $frete['id_tranportadora'] }}"
+                                                            value="{{ $frete['id_tranportadora'] }}" required>
+                                                        <input type="hidden" value="{{ $frete['preco'] }}"
+                                                            id="valTransp{{ $frete['id_tranportadora'] }}">
+
+                                                        {{ $frete['nome'] }} Preço R$:
+                                                        <span id="valorTransportadora"> {{ $frete['preco'] }}
+                                                        </span><img class="float-end" src="{{ $frete['foto'] }}"
+                                                            width="128px">
+                                                        <hr><span>Tempo Estimado: De {{ $frete['dias']->min }} à
+                                                            {{ $frete['dias']->max }} Dia(s)</span>
+                                                    </li>
+                                                </label>
+                                            @endforeach
+
+                                        </ul>
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                                             <div>
@@ -272,10 +263,16 @@
                 }
             }
 
-
-            $("input#transportadora").click(function() {
+            $('#myForm input').on('change', function() {
+                $('input[name=transportadora]:checked', '#myForm').val();
                 console.log($("input#valTransp" + $(this).val()).val());
                 contaTotalFrete($("#valTransp" + $(this).val()).val());
+
             });
+
+            // $("input#transportadora").click(function() {
+            //     console.log($("input#valTransp" + $(this).val()).val());
+            //     contaTotalFrete($("#valTransp" + $(this).val()).val());
+            // });
         </script>
     @endsection

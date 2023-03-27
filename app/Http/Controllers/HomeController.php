@@ -28,7 +28,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
         // GET TOKEN
         $userML = token::where('user_id', Auth::user()->id)->first();
@@ -45,7 +45,7 @@ class HomeController extends Controller
         }
 
         // PEGA AS VENDAS DO SISTEMA
-        $orders = Orders::Ordersjoin(Auth::user()->id);
+        $orders = order_site::Ordersjoin(Auth::user()->id,$request);
         $viewData = [];
         $viewData['title'] = "Afilidrop Dashboard";
         $viewData['subtitle'] = "Dashboard";

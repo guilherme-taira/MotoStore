@@ -21,11 +21,16 @@
         crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
 
     <link href="{{ asset('/css/app.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('js-plugin-circliful-master/dist/main.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
+
     <title>@yield('title', 'Online Store')</title>
 
 
@@ -96,10 +101,12 @@
                 <ul class="navbar-nav">
                     <!-- Navbar dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras Categorias </a>
+                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras
+                            Categorias </a>
                         <ul class="dropdown-menu bg-secondary dropdown-menu-right">
                             <hr>
-                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>
+                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a>
+                            </li>
                             @foreach ($viewData['categorias'] as $categoria)
                                 @if (count($categoria['subcategory']) > 0)
                                     <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
@@ -108,7 +115,9 @@
                                                 <h5>{{ $categoria['nome'] }}</h5>
                                                 <hr>
                                                 @foreach ($categoria['subcategory'] as $sub)
-                                                    <li><a class="dropdown-item" href="{{route('categoryById',['categoryId' => $sub->id]) }}">{{ $sub->name }}</a></li>
+                                                    <li><a class="dropdown-item"
+                                                            href="{{ route('categoryById', ['categoryId' => $sub->id]) }}">{{ $sub->name }}</a>
+                                                    </li>
                                                 @endforeach
                                             </div>
                                         </ul>
@@ -130,42 +139,76 @@
                     <a class="nav-link text-white" href="{{ route('GetPromotionProducts') }}">Promoções</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="{{route('GetAutoKM')}}">Alto KM</a>
+                    <a class="nav-link text-white" href="{{ route('GetAutoKM') }}">Alto KM</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="{{route('GetProductsKits')}}">Kits</a>
+                    <a class="nav-link text-white" href="{{ route('GetProductsKits') }}">Kits</a>
                 </li>
                 <li class="nav-item bg-danger" style="border-radius: 10px;">
-                    <a class="nav-link text-white" href="{{route('GetPremiumProducts')}}">Categoria Premium</a>
+                    <a class="nav-link text-white" href="{{ route('GetPremiumProducts') }}">Categoria Premium</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('login') }}">Central do Vendedor</a>
-                </li>
-                @if(!Auth::user())
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
-                </li>
+                @if (!Auth::user())
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
+                    </li>
                 @else
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('login') }}">Olá {{Auth::user()->name}}</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('login') }}">Olá {{ Auth::user()->name }}</a>
+                    </li>
                 @endif
+                <li>
+                    <!-- Cart -->
+                    @if (session()->get('carrinho'))
+                        <div class="dropdown text-danger">
+                            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                <i class="fa fa-shopping-cart fa-2x text-danger"></i>
+                            </a>
+                            <div class="cart-dropdown">
+                                <p>Carrinho {{ Auth::user()->name }}</p>
+                                <div class="cart-list">
+                                    @foreach (session()->get('carrinho') as $carrinho)
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{{ Storage::disk('s3')->url('produtos/' . $carrinho['produto'] . '/' . $carrinho['image']) }}"
+                                                    alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="{{ route('products.show', ['id' => $carrinho['produto']])}}">{{ $carrinho['name'] }}</a>
+                                                </h3>
+                                                <h4 class="product-price"><span
+                                                        class="qty">{{ $carrinho['quantidade'] }}X </span>{{ $carrinho['price'] }}
+                                                </h4>
+                                            </div>
+                                           <a href="{{route('cart.deleteCarrinho',['id' => $carrinho['produto']])}}"><button class="delete"><i class="fa fa-close"></i></button></a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="cart-summary">
+                                    <small>{{count(session()->get('carrinho'))}} Item(s) Selecionados</small>
+                                </div>
+                                <div class=" col-12">
+                                    <a href="{{route('cart.checkout')}}">Checkout <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    <!-- /Cart -->
+                </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <header class="masthead bg-primary text-white text-center py-4">
-        <div class="container d-flex align-items-center flex-column">
-            <h2>@yield('subtitle', $viewData['subtitle'])</h2>
+    <header class="masthead bg-danger text-white text-center py-2 mt-4">
+        <div class="container d-flex align-items-center flex-column mt-4">
         </div>
     </header>
     <!-- header -->
-    <div class="container my-4">
+    <div class="container my-4" id="conteudo">
         @yield('conteudo')
     </div>
     <!-- footer -->
-    <div class="copyright py-2 text-center fixed-bottom text-white">
+    <div class="copyright py-2 text-center fixed-bottom text-white mt-4" id="rodape">
         <div class="container">
             <small>
                 Copyright {{ date('Y') }} - <a class="text-reset fw-bold text-decoration-none" target="_blank"

@@ -129,9 +129,11 @@ class Orders extends Model
         $data = DB::table('orders')
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('payment', 'orders.payment_id', '=', 'payment.id')
-            ->select('orders.id','orders.total','users.name','orders.created_at','payment.name as pagamento','orders.color')
+            ->select('*','orders.created_at','payment.name as pagamento','orders.color')
             ->where('user_id',$user_id)
             ->orderby('orders.created_at','desc')->limit(5)->get();
+            echo "<pre>";
+            print_r($data);
         return $data;
     }
 
