@@ -82,6 +82,7 @@
                                             @csrf
                                         </form>
                                     </li>
+                                    <li><a class="dropdown-item" href="{{route('settings')}}"> Configurações </a></li>
                                 </ul>
                             </li>
                         @endguest

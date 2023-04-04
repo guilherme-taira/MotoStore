@@ -87,14 +87,14 @@
                                             </div>
                                         </div>
                                         <!-- Single item -->
-                                        <hr class="my-4" />
+                                        <hr />
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header py-3">
+                            <div class="card">
+                                <div class="card-header">
                                     <h5 class="mb-0">Resumo</h5>
                                 </div>
                                 <div class="card-body">
@@ -110,20 +110,24 @@
                                         </li>
                                         <ul class="list-group">
                                             @foreach ($viewData['transportadora'] as $frete)
-                                            {{-- TEMPLATE  --}}
+                                                {{-- TEMPLATE  --}}
                                                 <label for="{{ $frete['id_tranportadora'] }}">
-                                                    <li class="list-group-item"> <input type="radio" name="transportadora"
-                                                            id="{{ $frete['id_tranportadora'] }}"
-                                                            value="{{ $frete['id_tranportadora'] }}" required>
+                                                    <li class="list-group-item" id="card-selected">
                                                         <input type="hidden" value="{{ $frete['preco'] }}"
                                                             id="valTransp{{ $frete['id_tranportadora'] }}">
 
-                                                        {{ $frete['nome'] }} Preço R$:
-                                                        <span id="valorTransportadora"> {{ $frete['preco'] }}
-                                                        </span><img class="float-end" src="{{ $frete['foto'] }}"
-                                                            width="128px">
-                                                        <hr><span>Tempo Estimado: De {{ $frete['dias']->min }} à
-                                                            {{ $frete['dias']->max }} Dia(s)</span>
+                                                        <div class="card-body">
+                                                            <img class="float-end" src="{{ $frete['foto'] }}"
+                                                                width="128px">
+                                                            <h5 class="card-title">R$ {{ $frete['preco'] }}
+                                                                {{ $frete['nome'] }}</h5>
+                                                            <p class="card-text">Tempo Estimado: De
+                                                                {{ $frete['dias']->min }} à
+                                                                {{ $frete['dias']->max }} Dia(s) <input type="radio"
+                                                                    name="transportadora"
+                                                                    id="{{ $frete['id_tranportadora'] }}"
+                                                                    value="{{ $frete['id_tranportadora'] }}" required></p>
+                                                        </div>
                                                     </li>
                                                 </label>
                                             @endforeach
@@ -142,15 +146,36 @@
                                             <span><strong id="totalProdutosFrete"></strong></span>
                                         </li>
                                     </ul>
+                                    <div class="cho-container"></div>
                                     <input type="submit" value="Finalizar Compra" class="btn btn-primary btn-lg btn-block">
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <input type="text" name="" id="pref" value="{{$viewData['pref']}}">
+                    <input type="text" name="" id="external" value="{{$viewData['external_reference']}}">
+
                 </div>
             </section>
         </form>
         {{-- AJAX JQUERY SEARCH --}}
+
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <script>
+            const mp = new MercadoPago('APP_USR-4f55dc1d-3b2f-4f41-96bb-578b28ad37ad', {
+                locale: 'pt-BR'
+            });
+
+            mp.checkout({
+                preference: {
+                    id: $("#pref").val(),
+                },
+                render: {
+                    container: '.cho-container',
+                }
+            });
+        </script>
+
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
@@ -164,6 +189,9 @@
                 $("button").click(function(event) {
                     event.preventDefault();
                 });
+
+
+                // $(".cho-container").hide();
 
                 var totalProdutosCarrinho = 0;
                 // DECREMENTAR .EACH PARA SABER QUAL É O BOTÃO QUE VAI DECREMENTAR
@@ -265,9 +293,9 @@
 
             $('#myForm input').on('change', function() {
                 $('input[name=transportadora]:checked', '#myForm').val();
-                console.log($("input#valTransp" + $(this).val()).val());
-                contaTotalFrete($("#valTransp" + $(this).val()).val());
 
+                $(".cho-container").show();
+                contaTotalFrete($("#valTransp" + $(this).val()).val());
             });
 
             // $("input#transportadora").click(function() {

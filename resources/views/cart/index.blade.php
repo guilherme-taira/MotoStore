@@ -58,16 +58,17 @@
                                             <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
                                                 <!-- Data -->
                                                 <p><strong>{{ $product->getName() }}</strong></p>
-                                                @if( $product->getPricePromotion() > 0)
-                                                <p>Valor Unid R$: {{ $product->getPricePromotion() }}</p>
-                                                <input type="hidden" value="{{ $product->getPricePromotion() }}" id="valorUnit">
+                                                @if ($product->getPricePromotion() > 0)
+                                                    <p>Valor Unid R$: {{ $product->getPricePromotion() }}</p>
+                                                    <input type="hidden" value="{{ $product->getPricePromotion() }}"
+                                                        id="valorUnit">
                                                 @else
-                                                <p>Valor Unid R$: {{ $product->getPrice() }}</p>
-                                                <input type="hidden" value="{{ $product->getPrice() }}" id="valorUnit">
+                                                    <p>Valor Unid R$: {{ $product->getPrice() }}</p>
+                                                    <input type="hidden" value="{{ $product->getPrice() }}" id="valorUnit">
                                                 @endif
 
-                                                <a href="{{route('cart.deleteCarrinho',['id' => $product->getId()])}}">
-                                                        <i class="fas fa-trash"></i>
+                                                <a href="{{ route('cart.deleteCarrinho', ['id' => $product->getId()]) }}">
+                                                    <i class="fas fa-trash"></i>
                                                     </button></a>
                                                 <!-- Data -->
                                             </div>
@@ -96,22 +97,23 @@
                                                     <input type="hidden" name="produto{{ $product->id }}"
                                                         value="{{ $product->id }}">
 
-                                                    @if($product->getPricePromotion() > 0)
-                                                     <input type="hidden" id="valorUnitario" value="{{ $product->getPricePromotion() }}">
+                                                    @if ($product->getPricePromotion() > 0)
+                                                        <input type="hidden" id="valorUnitario"
+                                                            value="{{ $product->getPricePromotion() }}">
                                                     @else
-                                                    <input type="hidden" id="valorUnitario" value="{{ $product->getPrice() }}">
+                                                        <input type="hidden" id="valorUnitario"
+                                                            value="{{ $product->getPrice() }}">
                                                     @endif
-
                                                 </div>
                                                 <!-- Quantity -->
 
                                                 <!-- Price -->
-                                                @if($product->getPricePromotion() > 0)
-                                                <input type="text" class="form-control" id="precofinal"
-                                                    value="{{ $product->getPricePromotion() * session()->get('products')[$product->id] }}">
+                                                @if ($product->getPricePromotion() > 0)
+                                                    <input type="text" class="form-control" id="precofinal"
+                                                        value="{{ $product->getPricePromotion() * session()->get('products')[$product->id] }}">
                                                 @else
-                                                <input type="text" class="form-control" id="precofinal"
-                                                    value="{{ $product->getPrice() * session()->get('products')[$product->id] }}">
+                                                    <input type="text" class="form-control" id="precofinal"
+                                                        value="{{ $product->getPrice() * session()->get('products')[$product->id] }}">
                                                 @endif
                                                 <!-- Price -->
                                             </div>
@@ -121,7 +123,64 @@
                                     </div>
                                 @endforeach
                             </div>
+
+                            {{-- ACORDION START --}}
+                            <div class="accordion accordion-borderless" id="accordionFlushExampleX">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingOneX">
+                                        <button class="accordion-button" type="button" data-mdb-toggle="collapse"
+                                            data-mdb-target="#flush-collapseOneX" aria-expanded="true"
+                                            aria-controls="flush-collapseOneX">
+                                            Endereço de Entraga
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseOneX" class="accordion-collapse collapse show"
+                                        aria-labelledby="flush-headingOneX" data-mdb-parent="#accordionFlushExampleX">
+                                        <div class="accordion-body">
+
+                                            <div class="table-responsive mt-2">
+
+                                                <div class="row-md-12">
+                                                    <a href="{{ route('addEndereco') }}"
+                                                        class="btn btn-success btn-sm">Novo Endereço</a>
+                                                </div>
+
+                                                <table class="table table-hover mb-0 border mt-4">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Logradouro</th>
+                                                            <th>Bairro</th>
+                                                            <th>Endereço</th>
+                                                            <th>N°</th>
+                                                            <th>Cidade</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($viewData['enderecos'] as $endereco)
+                                                            <tr>
+                                                                <td><input type="radio" name="endereco"
+                                                                        value={{ "$endereco->id" }} required>
+                                                                </td>
+                                                                <td><a class="navi-link"
+                                                                        href="{{ route('editEndereco', ['id' => $endereco->id]) }}"
+                                                                        data-toggle="modal">{{ $endereco->address }}</a>
+                                                                </td>
+                                                                <td>{{ $endereco->bairro }}</td>
+                                                                <td>{{ $endereco->numero }}</td>
+                                                                <td><span>{{ $endereco->cidade }}</span></td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        {{-- ACORDION END --}}
+
                         <div class="col-md-4">
                             <div class="card mb-4">
                                 <div class="card-header py-3">
@@ -131,27 +190,12 @@
                                     <ul class="list-group list-group-flush">
                                         <li
                                             class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                                            Products
+                                            Total
                                             <span id="totalProdutos"></span>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                            Frete
-                                            <span>Selecione</span>
-                                        </li>
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                                            <div>
-                                                <strong>Valor Total</strong>
-                                                <strong>
-                                                    <p class="mb-0">(Incluso Frete)</p>
-                                                </strong>
-                                            </div>
-                                            <input type="hidden" name="pegaTotal" id="pegaTotal">
-                                            <hr>
-                                            <span><strong id="totalProdutosFrete"></strong></span>
-                                        </li>
                                     </ul>
-                                    <input type="submit" value="Finalizar Compra" class="btn btn-primary btn-lg btn-block">
+                                    <input type="submit" value="Ir para Checkout"
+                                        class="btn btn-primary btn-lg btn-block mt-4">
                                 </div>
                             </div>
                         </div>

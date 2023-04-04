@@ -6,6 +6,7 @@ use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
 use App\Http\Controllers\Bancario\BancarioController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Configuracao\configuracaoController;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
@@ -79,6 +80,7 @@ Route::get('/getInfoUser', [getUserInfoController::class, 'infoSearch'])->name('
 Route::get('/getOrderUser', [getUserInfoController::class, 'infoOrders'])->name('ajax.getOrders');
 // FINALIZANDO O PEDIDO
 Route::get('/cart/purchase', [CartController::class, 'purcharse'])->name('cart.purchase');
+Route::get('/cart/orderfinished',[CartController::class,'orderFinished'])->name('purchase.order');
 // ROUTE PDF
 Route::get('/createPDF', [reportController::class, 'generatePDF'])->name('generatepdf');
 Route::get('/relatorios', [reportController::class, 'generateReporter'])->name('generate');
@@ -95,6 +97,16 @@ Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
+
+        Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
+        Route::get('endereco',[configuracaoController::class,'address'])->name('address');
+        Route::get('addEndereco',[configuracaoController::class,'create'])->name('addEndereco');
+        Route::get('editEndereco/{id}',[configuracaoController::class,'edit'])->name('editEndereco');
+        Route::get('atualizarEndereco/{id}',[configuracaoController::class,'atualizar'])->name('atualizarEndereco');
+        Route::get('editarPerfil',[configuracaoController::class,'editarPerfil'])->name('editProfile');
+        Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
+        Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
+
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);

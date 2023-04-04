@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Products\productsController;
@@ -32,6 +33,8 @@ Route::prefix('v1')->group(function () {
     Route::get('imageById/{id}',[Products::class,'productWithImageById']);
     Route::get('images/{id}',[productsController::class,'imagesByProduct']);
     Route::post('code',[StoreController::class,'getCode']);
+    // ROTAS DE API PARA PAGAMENTOS
+    Route::get('payment',[CartController::class,'createPayment']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
