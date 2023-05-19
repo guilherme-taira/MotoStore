@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\Job\getProductDataController;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
 use App\Http\Controllers\Services\ServicesController;
 use App\Models\banner_autokm;
@@ -17,6 +18,7 @@ use App\Models\token;
 use App\Models\User;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -33,7 +35,7 @@ class productsController extends Controller
     {
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
-        $viewData['products'] = Products::where('iskit', '0')->get();
+        $viewData['products'] = Products::where('iskit', '0')->paginate(10);
         return view('admin.products')->with('viewData', $viewData);
     }
 
@@ -142,6 +144,7 @@ class productsController extends Controller
             $viewData['stock'] = $produto->stock;
             $viewData['image'] = $produto->image;
             $viewData['images'] = $photos;
+            $viewData['imageJson'] = $produto->imageJson;
             $categorias = [];
             foreach (categorias::all() as $value) {
                 $categorias[$value->id] = [
@@ -222,6 +225,7 @@ class productsController extends Controller
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
         $produto->SetBrand($request->input('brand'));
+        $produto->SetIsNft($request->input('isNft'));
         //$produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
         $produto->SetSubCategory_id($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
@@ -409,7 +413,6 @@ class productsController extends Controller
         // DATA INCIIAL
         $datainicial = new DateTime();
         $datainicial->modify('-30 days');
-
         // DATA FINAL
         $datafinal = new DateTime();
         // PRODUTOS EM PROMOÇÂO
@@ -437,7 +440,6 @@ class productsController extends Controller
 
     public function GetProductsKits()
     {
-
         // PRODUTOS EM PROMOÇÂO
         $data = Products::where('isPublic', true)->where('isKit',true)->paginate(10);
 
@@ -462,7 +464,6 @@ class productsController extends Controller
 
     public function GetAutoKM()
     {
-
         // PRODUTOS EM PROMOÇÂO
         $data = Products::where('isPublic', true)->where('colunasAnuncio',1)->paginate(10);
 
@@ -513,7 +514,6 @@ class productsController extends Controller
 
 
     public function todosProdutos(){
-
         // PRODUTOS EM PROMOÇÂO
         $data = Products::where('fornecedor_id',Auth::user()->id)->paginate(10);
 
@@ -523,6 +523,13 @@ class productsController extends Controller
         $viewData['products'] = $data;
 
         return view('orders.fornecedor.produtos')->with('viewData', $viewData);
+    }
+
+    public function updateProduct(){
+        $produtos = Products::where('isPublic','1')->where('id_mercadolivre','!=',"")->get();
+        foreach ($produtos as $value) {
+            \App\Jobs\getStockPrice::dispatch($value->id_mercadolivre);
+        }
     }
 }
 

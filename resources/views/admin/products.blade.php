@@ -139,7 +139,6 @@
                                                 <div class="col">
                                                     <div class="mb-3 row">
                                                         <ol class="list-group list-group-numbered content_categorias">
-
                                                         </ol>
                                                     </div>
                                                 </div>
@@ -260,7 +259,13 @@
                         <tr id="linhasProduct">
                             <td class="id_product">{{ $product->getId() }}</td>
                             <td>{{ $product->getName() }}</td>
-                            <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%" alt="{{ $product->getName() }}">
+                            @if ($product->imageJson)
+                                <td><img class="img-fluid img-thumbnail" alt="" style="width: 10%;"
+                                        src="{{ json_decode($product->imageJson)[0]->url }}"></td>
+                            @else
+                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%"
+                                        alt="{{ $product->getName() }}">
+                            @endif
                             </td>
                             <td><i class="bi bi-arrow-left-right integracao"
                                     style="font-size: 2rem; color: cornflowerblue;margin-left:20px;display:block;"
@@ -284,6 +289,9 @@
                     @endforeach
                 </tbody>
             </table>
+            <div class="d-flex py-2">
+                {!! $viewData['products']->links() !!}
+            </div>
         </div>
     </div>
     <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">

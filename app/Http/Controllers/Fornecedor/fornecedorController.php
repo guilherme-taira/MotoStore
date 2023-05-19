@@ -23,6 +23,8 @@ class fornecedorController extends Controller
         $viewData['subtitle'] = 'Valores a Receber';
         $viewData['orders'] = financeiro::contareceber(Auth::user()->id);
         $viewData['countData'] = financeiro::contareceberCount(Auth::user()->id);
+        $viewData['totalAguardando'] = financeiro::aguardandopagamento(Auth::user()->id);
+        $viewData['pago'] = financeiro::pago(Auth::user()->id);
 
         $viewData['contasDia'] = 0;
         $viewData['contasAtrasada'] = 0;
@@ -33,9 +35,9 @@ class fornecedorController extends Controller
 
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
-            if($order->status == 4){
+            if($order->status == 3){
                 $viewData['haPagar'] += 1;
-            }else if($order->status == 6){
+            }else if($order->status == 4){
                 $viewData['contasDia'] += 1;
             }else if($order->status == 7){
                 $viewData['contasAtrasada'] += 1;

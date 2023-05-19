@@ -19,10 +19,15 @@ class Products extends Model
         'category_id',
         'listing_type_id',
         'brand',
-        'gtin'
+        'gtin',
+        'isNft'
     ];
 
     protected $table = "products";
+
+    public function SetIsNft($valor){
+        $this->isNft = $valor;
+    }
 
     public function SetTermometro($valor){
         $this->termometro = $valor;

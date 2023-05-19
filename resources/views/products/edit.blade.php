@@ -58,6 +58,15 @@
                             <option value="0">NÂO</option>
                         </select>
                     </div>
+
+                    <div class="col-lg-3">
+                        <label>NFT</label>
+                        <select name="isNft" class="form-control" required>
+                            <option value="1">SIM</option>
+                            <option value="0"selected>NÂO</option>
+                        </select>
+                    </div>
+
                     <div class="col-lg-2">
                         <label>Valor Termômetro <i class="bi bi-speedometer"></i></label>
                        <input type="number" name="termometro" value="{{$viewData['product']->termometro}}" id="termometro" min="0" max="150" class="form-control">

@@ -11,8 +11,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Aviso! <i class="bi bi-exclamation-triangle"></i>
-                        </h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Aviso! <i class="bi bi-exclamation-triangle"></i></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -25,7 +24,6 @@
                 </div>
             </div>
         </div>
-
 
         <!--- MODAL QUE SELECIONA O MOTORISTA --->
         <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
@@ -245,14 +243,26 @@
                 <div class="row p-2 bg-white border rounded">
                     <!--- FOTOS ADICIONAIS  --->
                     <div class="row-md">
-                        @foreach ($viewData['images'] as $foto)
-                            <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $foto) !!}" class="tamanho-fotos fotoProduto" alt="...">
-                        @endforeach
+                        @if ($viewData['imageJson'])
+                            @foreach (json_decode($viewData['imageJson']) as $foto)
+                                <img src="{{ $foto->url }}" class="tamanho-fotos fotoProduto" alt="...">
+                            @endforeach
+                        @else
+                            @foreach ($viewData['images'] as $foto)
+                                <img src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $foto) !!}" class="tamanho-fotos fotoProduto" alt="...">
+                            @endforeach
+                        @endif
+
                     </div>
                     <!--- FINAL FOTOS ADICIONAIS  --->
-                    <div class="col-md-3 mt-1 receivedPhoto"><img
-                            class="img-fluid img-responsive rounded product-image tradeFoto"
-                            src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
+                    <div class="col-md-3 mt-1 receivedPhoto">
+                        @if (json_decode($viewData['imageJson']))
+                            <img class="img-fluid img-responsive rounded product-image tradeFoto"
+                                src="{{ json_decode($viewData['imageJson'])[0]->url }}">
+                        @else
+                            <img class="img-fluid img-responsive rounded product-image tradeFoto"
+                                src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
+                        @endif
                     </div>
                     <div class="col-md-6">
                         <h5>{{ $viewData['product']->getName() }}</h5>

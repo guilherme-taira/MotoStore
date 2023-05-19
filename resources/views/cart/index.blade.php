@@ -44,8 +44,14 @@
                                                 <!-- Image -->
                                                 <div class="bg-image hover-overlay hover-zoom ripple rounded"
                                                     data-mdb-ripple-color="light">
-                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" class="w-100"
-                                                        alt="{{ $product->getName() }}"></td>
+                                                    @if ($product->imageJson)
+                                                        <td><img class="img-fluid img-thumbnail" alt=""
+                                                                style="width: 100%;"
+                                                                src="{{ json_decode($product->imageJson)[0]->url }}"></td>
+                                                    @else
+                                                        <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 100%"
+                                                                alt="{{ $product->getName() }}">
+                                                    @endif
                                                     <a href="#!">
                                                         <div class="mask"
                                                             style="background-color: rgba(251, 251, 251, 0.2)">

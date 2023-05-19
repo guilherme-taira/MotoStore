@@ -29,7 +29,9 @@ class order_site extends Model
         $data = DB::table('pivot_site')
             ->join('users', 'pivot_site.id_user', '=', 'users.id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->join('status', 'order_site.status_id', '=', 'status.id')
             ->select("*")
+            ->orderBy('order_site.id', 'desc')
             ->where('users.id', $user_id);
 
         if ($request->nome) {
@@ -47,7 +49,6 @@ class order_site extends Model
         if ($request->datainicial && $request->datafinal) {
             $data->whereBetween('order_site.dataVenda', [$request->datainicial, $request->datafinal]);
         }
-
         $dados = $data->paginate(10)->appends($request->all());
         return $dados;
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Models\financeiro;
+use App\Models\order_site;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -53,13 +54,12 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $payment = new Payment();
-        $payment->name = $request->name;
+        $payment->name = $request->name;    
         $response = $payment->save();
 
         if ($response) {
             return redirect()->route('payment.index')->with('message', 'Método de pagamento criado com sucesso!');
         }
-
         return back();
     }
 
@@ -116,6 +116,14 @@ class PaymentController extends Controller
 
         foreach ($payments as $payment) {
             \App\Jobs\YapayPagamento::dispatch($payment->token_transaction);
+        }
+    }
+
+    public function getQueueDataMercadoPago(){
+
+        $payments = order_site::where('status_id',3)->where('numeropedido','='," ")->get();
+        foreach ($payments as $payment) {
+            \App\Jobs\MercadoPagoPagamentos::dispatch($payment->external_reference);
         }
     }
 }

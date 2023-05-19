@@ -16,7 +16,8 @@ class ServicoTodosPagamento implements InterfacePagamento
         ML::setAccessToken("APP_USR-3029233524869952-033008-6f7fbb3eb9e6d2626a3b7eec9ac6b5d6-1272736385");
         $preference = new MercadoPreference();
         // Cria um item na preferência
-
+        echo "<pre>";
+        print_r($item);
         $preference->items = $item;
         $preference->external_reference = uniqid('afilidrop');
 
@@ -32,13 +33,14 @@ class ServicoTodosPagamento implements InterfacePagamento
         $data = [];
         $data['id'] = $preference->id;
         $data['external_reference'] = $preference->external_reference;
+        $data['init_point'] = $preference->init_point;
         return $data;
     }
 
     public function getValor($data){
         $total = 0;
         foreach ($data as $key => $value) {
-            $total += $value->unit_price * $value->quantity;
+            $total += $value->unit_price;
         }
         return $total;
     }

@@ -15,8 +15,11 @@ use App\Http\Controllers\Logo\logoController;
 use App\Http\Controllers\Marketing\BannerAutoKmController;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Marketing\BannerPremiumController;
+use App\Http\Controllers\MercadoLivre\CategoryTest;
+use App\Http\Controllers\nft\nftcontroller;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\planos\planosController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Status\StatusController;
@@ -46,6 +49,7 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
+Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
@@ -53,6 +57,7 @@ Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('G
 // ROTA PREMIUM
 Route::get('/produtosPremium',[productsController::class,'GetPremiumProducts'])->name('GetPremiumProducts');
 // ROTA AUTOKM
+Route::get("/planos",[planosController::class,"index"])->name("planos");
 Route::get('/autokm',[productsController::class,'GetAutoKM'])->name('GetAutoKM');
 Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('GetProductsKits');
 Route::get('/lancamentos',[productsController::class,'GetProductsLancamentos'])->name('GetProductsLancamentos');
@@ -94,10 +99,10 @@ Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuan
 
 // ROTAS DE FILA
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
+Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago']);
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
-
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
         Route::get('endereco',[configuracaoController::class,'address'])->name('address');
         Route::get('addEndereco',[configuracaoController::class,'create'])->name('addEndereco');
@@ -107,6 +112,7 @@ Route::middleware('admin')->group(function () {
         Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
 
+        Route::resource('nfts','App\Http\Controllers\nft\nftcontroller')->names('nfts')->parameters(["nft" => "id"]);
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);

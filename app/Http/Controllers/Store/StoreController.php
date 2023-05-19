@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GenerateCode\GetCodeController;
+use App\Http\Controllers\image\image;
 use App\Models\banner;
 use App\Models\categorias;
 use App\Models\logo;
@@ -25,7 +26,7 @@ class StoreController extends Controller
         $viewData = [];
         $viewData['title'] = "Embaleme";
         $viewData['subtitle'] = '';
-        $viewData['products'] = Products::where('isPublic', true)->paginate(10);
+        $viewData['products'] = Products::where('isPublic', true)->where('isNft',false)->paginate(20);
         $viewData['bannersFix'] = banner::first();
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();
@@ -39,9 +40,6 @@ class StoreController extends Controller
         }
 
         $viewData['categorias'] = $categorias;
-        // echo "<pre>";
-
-        //  print_r($request->session()->get('carrinho'));
         return view('store.index')->with('viewData', $viewData);
     }
 

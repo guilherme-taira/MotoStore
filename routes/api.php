@@ -3,6 +3,7 @@
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\Marketing\BannerController;
+use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Store\StoreController;
 use App\Models\Products;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // GET ROUTES
+    Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
     Route::get('products', [productsController::class, 'getAllProduct']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);
@@ -32,6 +34,7 @@ Route::prefix('v1')->group(function () {
     Route::get('product',[productsController::class,'getParametersByName']);
     Route::get('imageById/{id}',[Products::class,'productWithImageById']);
     Route::get('images/{id}',[productsController::class,'imagesByProduct']);
+    Route::get('updateProducts',[productsController::class,'updateProduct']);
     Route::post('code',[StoreController::class,'getCode']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);

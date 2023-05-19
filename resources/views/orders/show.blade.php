@@ -23,8 +23,17 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-2">
-                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $order['produto']->id . '/' . $order['produto']->image) !!}" style="width: 100px"
-                                                        alt="{{ $order['produto']->title }}" class="img-fluid">
+
+                                                    @if ($order['produto']->imageJson)
+                                                        <img class="img-fluid img-thumbnail" alt=""
+                                                            style="width: 100px; height: 100px;"
+                                                            src="{{ json_decode($order['produto']->imageJson)[0]->url }}">
+                                                    @else
+                                                        <img class="img-fluid img-thumbnail" alt=""
+                                                            style="width: 100px; height: 100px;"
+                                                            src="{{ Storage::disk('s3')->url('produtos/' . $order['produto']->id . '/' . $order['produto']->image) }}">
+                                                    @endif
+
                                                 </div>
                                                 <div
                                                     class="col-md-2 text-center d-flex justify-content-center align-items-center">

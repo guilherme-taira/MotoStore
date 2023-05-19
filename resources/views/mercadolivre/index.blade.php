@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>{{ $viewData['title'] }}</title>
+</head>
+
+<body>
+
+    <div class="container mt-4">
+
+        <h2>Mercado Livre Alterador de Categoria:</h2>
+
+        <form id="formulario">
+
+            <div class="row p-6 mt-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="id" placeholder="Código do Produto..." />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 id="titulo-anuncio" class="mt-4"></h5>
+            <img src="" alt="foto" class="d-none" id="imagem-anuncio">
+
+            <div class="row p-4">
+                <div class="col-md-6">
+                    <div class="col">
+                        <div class="mb-6 row">
+                            <label class="col-lg-2 col-md-3 col-sm-6 col-form-label">Categorias:</label>
+                            <select class="form-select" name="categoriaMl" id="categorias"
+                                aria-label="Default select example">
+                                <option selected>...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
+                <hr class="mt-4">
+
+                <h4>Histórico</h4>
+                <div class="col-md-4 p-4">
+                    <div class="col">
+                        <div class="mb-3 row">
+                            <ol class="list-group list-group-numbered content_categorias">
+
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" name="token" id="token">
+
+            <div id="conteudo"></div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <h5>Sucesso:</h5>
+                    <textarea class="form-control" id="relatorio_sucesso" rows="4"></textarea>
+                </div>
+                <div class="col-sm-6">
+                    <h5>error:</h5>
+                    <textarea class="form-control" id="relatorio_erro" rows="4"></textarea>
+                </div>
+            </div>
+            <hr>
+
+            <div class="btn-group mt-4" role="group" aria-label="Botões">
+                <button type="button" id="trocar" class="btn btn-secondary x-2">Trocar <i
+                        class="bi bi-sunset-fill"></i></button>
+                <input type="submit" class="btn btn-primary" value="Pesquisar">
+            </div>
+        </form>
+    </div>
+
+    {{-- AJAX JQUERY SEARCH --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+
+            async function pegarToken() {
+                try {
+                    // Aguarde a conclusão da requisição assíncrona usando await
+                    var resposta = await getToken();
+                } catch (error) {
+                    // Lidar com erros
+                    console.log('Erro:', error);
+                }
+            }
+
+            pegarToken();
+
+
+            $("#inserir").click(function() {
+                getProduct($("#id").val());
+            });
+
+            $("#trocar").click(function() {
+                pushProduct($("#id").val(), $("#token").val(), $("#id_categoria").val());
+            });
+
+            $("#formulario").submit(function(e) {
+                // FUNCAO PARA PREENCHER TEXTAREA
+                let categoriaFinal = $("#id_categoria").val();
+                console.log(ConteudoCategory(categoriaFinal));
+
+                e.preventDefault();
+            });
+
+
+
+            function pushProduct(product, accessToken, category) {
+
+                var body = {
+                    "category_id": category
+                };
+
+                $.ajax({
+                    url: `https://api.mercadolibre.com/items/${product}`,
+                    type: "PUT",
+                    data: JSON.stringify(body),
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        "Content-Type": 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    success: function(response) {
+
+                        if (response) {
+                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color', 'yellow');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Lógica para lidar com o erro
+                        $("#relatorio_erro").val(xhr.responseText);
+                    }
+                });
+            }
+
+
+
+            function ConteudoCategory(category) {
+                $.ajax({
+                    url: " https://api.mercadolibre.com/categories/" + category,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+
+                            console.log(response.code);
+                            var tableHTML = '<table>' +
+                                '<tr>' +
+                                '<th>Preço</th>' +
+                                '<th>Opção de Frete</th>' +
+                                '<th>shipping profile</th>' +
+                                '<th>simple shipping</th>' +
+                                '</tr>' +
+                                '<tr>' +
+                                '<td>' + response.settings.price + '</td>' +
+                                '<td>' + response.settings.shipping_options + '</td>' +
+                                '<td>' + response.settings.shipping_profile + '</td>' +
+                                '<td>' + response.settings.simple_shipping + '</td>' +
+                                '</tr>' +
+                                '</table>';
+                            // SHOW ALL RESULT QUERY
+                            $("#conteudo").append(tableHTML);
+                            console.log(response.settings);
+                        }
+                    },
+                    complete: function(xhr, status) {
+                        // Função executada sempre que a requisição é concluída (bem-sucedida ou com erro)
+                        console.log('Código de Status:', xhr.status);
+                    }
+                });
+            }
+
+            // FUNCAO PARA CHAMAR TOKE
+            function getToken() {
+                $.ajax({
+                    url: " http://127.0.0.1:8000/api/v1/getTokenMl",
+                    type: "GET",
+                    data: {
+                        "id": 2
+                    },
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            let tokenAccess = response.token;
+                            $("#token").val(tokenAccess);
+                        }
+                    },
+                });
+            }
+
+
+            //https://api.mercadolibre.com/items/MLB3226359198
+            // FUNCAO PARA CHAMAR PRODUTO
+            function getProduct(product) {
+                $.ajax({
+                    url: " https://api.mercadolibre.com/items/" + product,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            $("#titulo-anuncio").append(response.title);
+                            $("#imagem-anuncio").attr('src', `${response.thumbnail}`).removeClass(
+                                "d-none");
+                            console.log(response);
+
+                        }
+                    },
+                });
+            }
+
+            // FUNCAO PARA CHAMAR CATEGORIAS
+            function getCategory(category) {
+                $.ajax({
+                    url: " https://api.mercadolibre.com/categories/" + category,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            var index = [];
+                            $.each(response.children_categories, function(i, item) {
+                                index[i] =
+                                    '<option class="option-size" value=' + item.id + '>' + item
+                                    .name + '</option>';
+                            });
+
+                            var arr = jQuery.makeArray(index);
+                            arr.reverse();
+                            $("#categorias").html(arr);
+
+                        }
+                    },
+                    error: function(error) {
+                        $('#result').html(
+                            '<option> Produto Digitado Não Existe! </option>'
+                        );
+                    }
+                });
+            }
+            var i = 0;
+            $.ajax({
+                url: "https://api.mercadolibre.com/sites/MLB/categories",
+                type: "GET",
+                success: function(response) {
+                    if (response) {
+                        // SHOW ALL RESULT QUERY
+                        var index = [];
+                        $.each(response, function(i, item) {
+                            index[i] = '<option class="option-size" value=' + item.id + '>' +
+                                item.name + '</option>';
+                        });
+
+                        if (i == 0) {
+                            // PEGA A ALTERACAO DAS CATEGORIAS
+                            $("#categorias").change(function() {
+                                var ids = $(this).children("option:selected").val();
+                                var name = $(this).children("option:selected").text();
+                                var content_category = '<li class="list-group-item">' + name +
+                                    '</li>';
+                                $(".content_categorias").append(content_category);
+                                $("#id_categoria").val(
+                                    ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                getCategory(ids);
+                            });
+                        }
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $("#categorias").html(arr);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+
+        });
+    </script>
+
+</body>
+
+</html>

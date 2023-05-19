@@ -35,7 +35,7 @@ class orderscontroller extends Controller
         $viewData['orders'] = $orders;
 
         foreach ($orders as $order) {
-            array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->id)]);
+            array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->order_id)]);
         }
 
         return view('orders.index', [
@@ -178,7 +178,6 @@ class orderscontroller extends Controller
 
     public function UpdateNewPayment(Request $request)
     {
-
         $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
         $newPayment = new RenovacaoController;
         $data = $newPayment->UpdatePayment($request->id, $token->access_token);

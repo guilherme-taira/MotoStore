@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cart;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Financeiro\LancarContaReceber;
 use App\Http\Controllers\MelhorEnvio\Cart\CartImplementacao;
 use App\Http\Controllers\MelhorEnvio\Cart\CartSendFreteController;
 use App\Http\Controllers\MelhorEnvio\Cart\CompraFreteImplementacao;
@@ -36,7 +37,6 @@ class CartController extends Controller
 {
     public function indexCart(Request $request)
     {
-
         $total = 0;
         $productInCart = [];
         $productInSection = $request->session()->get("products");
@@ -98,8 +98,36 @@ class CartController extends Controller
 
     public function createPayment(Request $request)
     {
-        echo "<pre>";
-        print_r($request->all());
+        $produtos = [];
+        $dimensoes = [];
+        $volumes = [];
+
+        foreach ($request->all() as $key => $value) {
+            if ($this->MatchProduct($key) == true) {
+                $medidas = Products::findMany($value)->first();
+                $dimensoes['altura'] = $medidas->height;
+                $dimensoes['largura'] = $medidas->width;
+                $dimensoes['comprimento'] = $medidas->length;
+                $dimensoes['peso'] = $medidas->weight;
+                array_push($volumes, $dimensoes);
+                array_push($produtos, ["produto" => $value, "quantidade" => $this->MatchQuantity($request->all(), $key)]);
+            }
+        };
+
+        foreach ($produtos as $key => $value) {
+            $products = $request->session()->get("products");
+            $products[$value['produto']] = $value['quantidade'];
+            $request->session()->put('products', $products);
+        }
+
+        // $servicoPix = new ServicoPix();
+        // $servicoOutrosPagamento = new ServicoTodosPagamento();
+        // $executar = new Pix($produtos);
+        // $executar->setTipoPagamento($servicoPix);
+        // $pix = $executar->gerarPagamento();
+        // $executar->setTipoPagamento($servicoOutrosPagamento);
+        // $preference = $executar->gerarPagamento();
+        return response()->json(["data" => $request->all()]);
     }
 
     public function add(Request $request, $id)
@@ -163,17 +191,7 @@ class CartController extends Controller
             ];
         }
 
-
-        $servicoPix = new ServicoPix();
-        $servicoOutrosPagamento = new ServicoTodosPagamento();
-        $executar = new Pix($produtos);
-        $executar->setTipoPagamento($servicoPix);
-        $pix = $executar->gerarPagamento();
-        $executar->setTipoPagamento($servicoOutrosPagamento);
-        $preference = $executar->gerarPagamento();
-
-        $request->session()->put('pref', $preference['id']);
-        $request->session()->put('external_reference', $preference['external_reference']);
+        $request->session()->put('produtos', $produtos);
 
         $viewData = [];
         $viewData['categorias'] = $categorias;
@@ -183,8 +201,6 @@ class CartController extends Controller
         $viewData['products'] = $productInCart;
         $viewData['transportadora'] = $transportadora;
         $viewData['produto'] = [];
-        $viewData['pref'] = $preference['id'];
-        $viewData['external_reference'] = $preference['external_reference'];
         return view('cart.checkout')->with("viewData", $viewData);
     }
 
@@ -246,10 +262,8 @@ class CartController extends Controller
                 break;
             }
         }
-
         return back()->with('message', 'Produto removido com successo!');
     }
-
 
     public function MatchProduct($value)
     {
@@ -277,6 +291,7 @@ class CartController extends Controller
         $dimensoes = [];
         $volumes = [];
 
+
         foreach ($this->CriarArrayProdutos($productInSection) as $key => $value) {
             $medidas = Products::findMany($value['produto'])->first();
             $dimensoes['altura'] = $medidas->height;
@@ -287,18 +302,26 @@ class CartController extends Controller
             array_push($produtos, ["produto" => $value['produto'], "quantidade" => $value['quantidade']]);
         };
 
-        // // // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
+        // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
         $frete->getDados();
         // ENVIA O FRETE PARA O CARRINHO DO MELHOR ENVIO
         $cartFrete = new CartSendFreteController($frete);
         $orderid = $cartFrete->resource();
-        // //IMPLEMENTAÇÃO DO CHECKOUT DO MELHOR ENVIO -> FILA
+        // IMPLEMENTAÇÃO DO CHECKOUT DO MELHOR ENVIO -> FILA
         $compraFrete = new CompraFreteImplementacao($orderid['id']);
         $enviar = new RequestCompraFrete($compraFrete);
         $enviar->resource();
 
-        //GRAVA NO BANCO
+        // CRIA PAGAMENTO
+         $produtos = $request->session()->get('produtos');
+        $servicoPix = new ServicoPix();
+        $servicoOutrosPagamento = new ServicoTodosPagamento();
+        $executar = new Pix($produtos, $orderid['price']);
+        $executar->setTipoPagamento($servicoOutrosPagamento);
+        $preference = $executar->gerarPagamento();
+
+        // GRAVA NO BANCO
         if ($productInSection) {
             $userId = Auth::user()->id;
             $payment = 1;
@@ -323,8 +346,14 @@ class CartController extends Controller
                 $order_site->cliente = Auth::user()->name;
                 $order_site->id_frete = $orderid['id'];
                 $order_site->valorFrete = $orderid['price'];
-                $order_site->status_id = 4;
+                $order_site->status_id = 3;
+                $order_site->external_reference = $preference['external_reference'];
+                $order_site->preferenceId = $preference['id'];
+                $order_site->link_pagamento = $preference['init_point'];
                 $order_site->save();
+                // LANÇAR NO CONTAS A RECEBER
+                $lancar = new LancarContaReceber($produtos);
+                $lancar->criarPagamento(3, $total, $order_site->id, 3, $preference['init_point'], $preference['init_point'], "Aguardando Pagamento", $preference['external_reference'] , $orderid['price']);
 
                 // GRAVA RELACIONAMENTO DA VENDA
                 $order_user = new order_user();
@@ -360,10 +389,10 @@ class CartController extends Controller
                 $order_site->valorVenda = $total;
                 $order_site->save();
 
-                $request->session()->forget('products');
-                $request->session()->forget('user');
-                $request->session()->forget('payment');
-                $request->session()->forget('datePayment');
+                // $request->session()->forget('products');
+                // $request->session()->forget('user');
+                // $request->session()->forget('payment');
+                // $request->session()->forget('datePayment');
 
                 $categorias = [];
                 foreach (categorias::all() as $value) {
@@ -378,16 +407,18 @@ class CartController extends Controller
                 $viewData["subtitle"] = "Venda Status";
                 $viewData["order"] = $order;
                 $viewData['categorias'] = $categorias;
-
+                // SESSAO ID
                 $request->session()->put('id_venda', $order_site);
+                $request->session()->put('external_reference', $preference['external_reference']);
+                $request->session()->put('pref', $preference['id']);
+
                 return redirect()->route('purchase.order')->with("viewData", $viewData);
             } else {
                 return redirect()->route('cart.index');
             }
+            return false;
         }
-        return false;
     }
-
 
     public function CriarArrayProdutos(array $productInSection)
     {
@@ -452,11 +483,5 @@ class CartController extends Controller
                 return '#007bff';
                 break;
         }
-    }
-
-    // add kit
-    public function addKit(Request $request)
-    {
-        print_r($request->all());
     }
 }

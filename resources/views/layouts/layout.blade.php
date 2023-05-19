@@ -104,9 +104,9 @@
                         <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras
                             Categorias </a>
                         <ul class="dropdown-menu bg-secondary dropdown-menu-right">
+                            <li class="bg-warning"><a class="dropdown-item text-dark" href="{{route('nfts.index')}}">NFT's</a></li>
                             <hr>
-                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a>
-                            </li>
+                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>
                             @foreach ($viewData['categorias'] as $categoria)
                                 @if (count($categoria['subcategory']) > 0)
                                     <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>

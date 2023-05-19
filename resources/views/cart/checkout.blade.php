@@ -44,8 +44,14 @@
                                                 <!-- Image -->
                                                 <div class="bg-image hover-overlay hover-zoom ripple rounded"
                                                     data-mdb-ripple-color="light">
-                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" class="w-50"
-                                                        alt="{{ $product->getName() }}"></td>
+                                                    @if ($product->imageJson)
+                                                        <td><img class="img-fluid img-thumbnail" alt=""
+                                                                style="width: 100%;"
+                                                                src="{{ json_decode($product->imageJson)[0]->url }}"></td>
+                                                    @else
+                                                        <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 100%"
+                                                                alt="{{ $product->getName() }}">
+                                                    @endif
                                                     <a href="#!">
                                                         <div class="mask"
                                                             style="background-color: rgba(251, 251, 251, 0.2)">
@@ -146,42 +152,18 @@
                                             <span><strong id="totalProdutosFrete"></strong></span>
                                         </li>
                                     </ul>
-                                    <div class="cho-container"></div>
                                     <input type="submit" value="Finalizar Compra" class="btn btn-primary btn-lg btn-block">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <input type="text" name="" id="pref" value="{{$viewData['pref']}}">
-                    <input type="text" name="" id="external" value="{{$viewData['external_reference']}}">
+                    {{-- <input type="text" name="" id="pref" value="{{$viewData['pref']}}"> --}}
+                    {{-- <input type="text" name="" id="external" value="{{$viewData['external_reference']}}"> --}}
 
                 </div>
             </section>
         </form>
         {{-- AJAX JQUERY SEARCH --}}
-
-        <script src="https://sdk.mercadopago.com/js/v2"></script>
-        <script>
-            const mp = new MercadoPago('APP_USR-4f55dc1d-3b2f-4f41-96bb-578b28ad37ad', {
-                locale: 'pt-BR'
-            });
-
-            mp.checkout({
-                preference: {
-                    id: $("#pref").val(),
-                },
-                render: {
-                    container: '.cho-container',
-                }
-            });
-        </script>
-
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
-
 
         <script>
             $(document).ready(function() {

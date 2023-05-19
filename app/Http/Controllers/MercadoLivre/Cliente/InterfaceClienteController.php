@@ -97,6 +97,7 @@ class InterfaceClienteController implements ClienteController
             $pedidos->valorProdutos = $result->total_amount;
             $pedidos->dataVenda = $result->date_closed;
             $pedidos->cliente = $result->buyer->nickname;
+            $pedidos->status_id = 3;
             $pedidos->save();
 
             foreach ($result->order_items as $pedido) {

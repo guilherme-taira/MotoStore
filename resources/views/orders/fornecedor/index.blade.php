@@ -36,7 +36,7 @@
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 valueMounth">R$:
+                                <h2 class="h1 mb-0 valueMounth">R$: {{$viewData['totalAguardando']}}
                                     </h2>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                                 </div>
                             </div>
                             <div class="align-self-center">
-                                <h2 class="h1 mb-0 ">R$:
+                                <h2 class="h1 mb-0 ">R$: {{$viewData['pago']}}
                                 </h2>
                             </div>
                         </div>

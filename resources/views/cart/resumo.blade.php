@@ -1,7 +1,6 @@
 @extends('layouts.layout')
 @section('conteudo')
     <div class="card py-4">
-
         {{-- MESSAGE SUCCESS REMOVE ADD CART --}}
         @if (session()->get('message'))
             <div class="alert alert-success" role="alert">

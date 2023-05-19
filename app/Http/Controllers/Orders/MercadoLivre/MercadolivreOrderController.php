@@ -76,18 +76,18 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         $cliente->resource();
                         $id_order = $cliente->saveClient($result);
 
-                        if (!empty($result->shipping->id)) {
-                            $getShipping = new getDataShippingController($result->shipping->id, $this->getToken());
-                            $endereco = $getShipping->resource();
+                        // if (!empty($result->shipping->id)) {
+                        //     $getShipping = new getDataShippingController($result->shipping->id, $this->getToken());
+                        //     $endereco = $getShipping->resource();
 
-                            $CriarPix = new implementacaoCliente($result->buyer->nickname, $endereco->address_line, $endereco->zip_code, $endereco->address_line, $endereco->street_number, "A", $endereco->neighborhood, $endereco->city, $endereco->state, $result->buyer->nickname, "46857167877", "mercadolivre@mercadolivre.com", $produtos, 27, 1);
-                            $CriarPix->CriarPagamento();
+                        //     $CriarPix = new implementacaoCliente($result->buyer->nickname, $endereco->address_line, $endereco->zip_code, $endereco->address_line, $endereco->street_number, "A", $endereco->neighborhood, $endereco->city, $endereco->state, $result->buyer->nickname, "46857167877", "mercadolivre@mercadolivre.com", $produtos, 27, 1);
+                        //     $CriarPix->CriarPagamento();
 
-                            $gerarValor = new GeradorPagamento($CriarPix);
-                            $pagamento = $gerarValor->resource();
-                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
-                            financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction,$shipping);
-                         }
+                        //     $gerarValor = new GeradorPagamento($CriarPix);
+                        //     $pagamento = $gerarValor->resource();
+                        //     $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
+                        //     financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction,$shipping);
+                        //  }
                     }
                 }
             }

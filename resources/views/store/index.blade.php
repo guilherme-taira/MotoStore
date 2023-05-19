@@ -52,8 +52,12 @@
                         <div class="products-slick" data-nav="#slick-nav-1">
                             <div class="product">
                                 <div class="product-img">
-                                    <img class="card-img img-fluid foto-produto-index" alt="" style="width: 300px"
-                                        src="{{ Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) }}">
+                                    @if($product->imageJson)
+                                        <img class="img-fluid img-thumbnail" alt="" style="width: 300px; height: 300px;" src="{{json_decode($product->imageJson)[0]->url}}">
+                                    @else
+                                        <img class="img-fluid img-thumbnail" alt="" style="width: 300px; height: 300px;" src="{{ Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) }}">
+                                    @endif
+
                                     <div class="product-label">
                                         <span class="sale">-30%</span>
                                         <span class="new">NEW</span>
@@ -91,7 +95,6 @@
                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width:{{$product->termometro - 50}}%"></div>
                                     </div>
                                     @endif
-
                                 </div>
                                 <div class="add-to-cart">
                                     <a href="{{ route('products.show', ['id' => $product->id]) }}"><button
@@ -99,40 +102,10 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="col-md-4 mt-2">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-img-actions img-container">
-                                        <img src="{{ Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) }}"
-                                            class="card-img img-fluid" width="76" height="300" alt="">
-                                    </div>
-                                </div>
-
-                                @if (!empty($viewData['lancamentos']))
-                                    <marquee class="bg-info text-white" behavior="alternate" style="border:solid">NOVO
-                                        LANÇAMENTO &nbsp; &nbsp; &nbsp; &nbsp; NOVO LANÇAMENTO &nbsp; &nbsp; &nbsp; &nbsp;
-                                        NOVO LANÇAMENTO </marquee>
-                                @endif
-                                <div class="card-body bg-light text-center">
-                                    <p class="titulo-principal text-truncate">{{ $product->title }}</p>
-                                    <p class="categoria-up-line"><span class="titulo-categoria">Categoria: </span>Chocolate
-                                        e Coberturas</p>
-                                    <p class="categoria-up-line"><span class="titulo-categoria">Tipo: </span>Comissão aberta
-                                    </p>
-                                    @if ($product->pricePromotion <= 0)
-                                        <h3 class="mb-3 preco-index-produto">R$
-                                            {{ str_replace('.', ',', $product->price) }}</h3>
-                                    @else
-                                        <h4 class="mb-3 preco-index-produto"> <s class="text-danger">De
-                                                {{ str_replace('.', ',', $product->price) }} </s> R$
-                                            {{ str_replace('.', ',', $product->pricePromotion) }}</h4>
-                                    @endif
-                                    <a href="{{ route('products.show', ['id' => $product->id]) }}"><button type="button"
-                                            class="btn botao-afiliarse"><span class="texto-afiliase">SAIBA
-                                                MAIS</span></button></a>
-                                </div>
-                            </div> --}}
                     @endforeach
+                    <div class="d-flex py-2">
+                        {!! $viewData['products']->links() !!}
+                    </div>
                 </div>
             </div>
         </main>

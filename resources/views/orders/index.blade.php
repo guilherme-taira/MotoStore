@@ -93,7 +93,6 @@
                                             <div class="col-12 mt-4">
                                                 <button class="btn btn-primary" type="submit">Pesquisar</button>
                                             </div>
-
                                     </div>
                                 </div>
                                 </form>
@@ -103,37 +102,42 @@
                                 <tr>
                                     <td scope="row" class="text-nowrap">
                                         <a
-                                            href="{{ route('orders.show', ['id' => $order['pedido']->id]) }}">{{ $order['pedido']->id }}</a>
+                                            href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}">{{ $order['pedido']->order_id }}</a>
                                     </td>
                                     <td>{{ $order['pedido']->cliente }}</td>
                                     <td>R$ {{ $order['pedido']->valorVenda }}</td>
                                     <td class="text-start">
                                         @for ($i = 0; $i < count($order['produtos']); $i++)
-                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $order['produtos'][$i]->id . '/' . $order['produtos'][$i]->image) !!}" style="width: 50px">
-                                            <span class=" badge rounded-pill bg-danger">
-                                                {{ $order['produtos'][$i]->quantidade }}
-                                            </span>
+                                            @if ($order['produtos'][$i]->imageJson)
+                                                <img class="img-fluid img-thumbnail" alt=""
+                                                    style="width: 50px; height: 50px;"
+                                                    src="{{ json_decode($order['produtos'][$i]->imageJson)[0]->url }}">
+                                            @else
+                                                <img class="img-fluid img-thumbnail" alt=""
+                                                    style="width: 50px; height: 50px;"
+                                                    src="{{ Storage::disk('s3')->url('produtos/' . $order['produtos'][$i]->id . '/' . $order['produtos'][$i]->image) }}">
+                                            @endif
                                         @endfor
-                                        <div class="my-2">
-                                            <a href="#" class="blue-text">
-                                                <strong>{{ $order['pedido']->name }}</strong>
-                                            </a>
-                                            <div></div>
-                                        </div>
                                     </td>
                                     <td>{{ $order['pedido']->email }} / {{ $order['pedido']->phone }}</td>
                                     <td>R$: {{ $order['pedido']->valorFrete }}</td>
                                     <td>{{ $order['pedido']->local }}</td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Selecione..</option>
-                                            <option value="1">Aguardando Envio</option>
-                                            <option value="2">Enviado</option>
-                                            <option value="3">A Enviar</option>
-                                        </select>
-                                    </td>
+                                    @if ($order['pedido']->status_id == 3)
+                                        <td>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option selected disabled>{{ $order['pedido']->nome }}</option>
+                                            </select>
+                                        <td><a href="{{ $order['pedido']->link_pagamento }}"
+                                                class="btn btn-success btn-sm">Pagar</a></td>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option selected disabled>{{ $order['pedido']->nome }}</option>
+                                            </select>
+                                        </td>
+                                    @endif
                                 </tr>
-
                                 </ul>
                             @endforeach
                             </nav>
