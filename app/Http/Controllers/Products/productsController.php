@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Parser\Tokens;
 
 class productsController extends Controller
 {
@@ -153,7 +154,7 @@ class productsController extends Controller
                 ];
             }
 
-            $viewData['fornecedor'] = User::where('forncecedor',1)->get();
+            $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
             $viewData['token'] = $token;
             $viewData['categorias'] = $categorias;
 
@@ -190,7 +191,7 @@ class productsController extends Controller
         sub_category::getAllCategory($produto->subcategoria);
 
 
-        $viewData['fornecedor'] = User::where('forncecedor',1)->get();
+        $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
         $viewData['categorias'] = $categorias;
         return view('products.edit')->with('viewData', $viewData);
     }
@@ -283,6 +284,145 @@ class productsController extends Controller
         if ($products) {
             return response()->json(["products" => $products]);
         }
+    }
+
+    public function getAttributes(Request $request)
+    {
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
+
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $dados = json_decode($response);
+            if ($httpcode == '200') {
+
+                $data = [
+                    "category_id" => $dados->category_id,
+                    "pictures" => $dados->pictures,
+                    "attributes" => $dados->attributes
+                ];
+                return $this->PutAttributes($request->id,$data,$request->base);
+            } else {
+                echo $httpcode;
+            }
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
+    public function PutAttributes($ids, $data,$base)
+    {
+        $token = token::where('id', 2)->first();
+        // ENDPOINT PARA REQUISICAO
+        if (count($ids) > 1) {
+            foreach ($ids as $id) {
+                $endpoint = 'https://api.mercadolibre.com/items/' . $id;
+                try {
+                    // CONVERTE O ARRAY PARA JSON
+                    $data_json = json_encode($data);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $endpoint);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+                    $reponse = curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+                    $json = json_decode($reponse);
+                    if ($httpCode == '200') {
+                        $this->postDescription($id,$this->getDescription($id));
+                        return response()->json($json);
+                    } else {
+                        echo $httpCode;
+                    }
+                } catch (\Exception $e) {
+                    return response()->json($e->getMessage());
+                }
+            }
+        } else {
+
+            $endpoint = 'https://api.mercadolibre.com/items/' . $ids[0];
+
+            try {
+                // CONVERTE O ARRAY PARA JSON
+                $data_json = json_encode($data);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $endpoint);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+                $reponse = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                $json = json_decode($reponse);
+                if ($httpCode == '200') {
+                    $this->postDescription($ids[0],$this->getDescription($base));
+                    return response()->json($json);
+                } else {
+                   return response()->json($json);
+                }
+            } catch (\Exception $e) {
+                return response()->json($e->getMessage());
+            }
+        }
+    }
+
+    public function getDescription($idproduto)
+    {
+        //ENDPOINT https://api.mercadolibre.com/items/$ITEM_ID/description
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = "https://api.mercadolibre.com/items/$idproduto/description";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $dados = json_decode($response);
+        if ($httpcode == '200') {
+            return $dados->plain_text;
+        }
+    }
+
+    public function postDescription($idproduto,$descricao)
+    {
+        $token = token::where('id', 2)->first();
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = "https://api.mercadolibre.com/items/$idproduto/description";
+
+        $data_json = [
+            "plain_text" => $descricao
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_json));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
     }
 
     public function getProduct(Request $request)
@@ -441,7 +581,7 @@ class productsController extends Controller
     public function GetProductsKits()
     {
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('isPublic', true)->where('isKit',true)->paginate(10);
+        $data = Products::where('isPublic', true)->where('isKit', true)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -465,7 +605,7 @@ class productsController extends Controller
     public function GetAutoKM()
     {
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('isPublic', true)->where('colunasAnuncio',1)->paginate(10);
+        $data = Products::where('isPublic', true)->where('colunasAnuncio', 1)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -491,7 +631,7 @@ class productsController extends Controller
     {
 
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('isPublic', true)->where('colunasAnuncio',1)->paginate(10);
+        $data = Products::where('isPublic', true)->where('colunasAnuncio', 1)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -513,9 +653,10 @@ class productsController extends Controller
     }
 
 
-    public function todosProdutos(){
+    public function todosProdutos()
+    {
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('fornecedor_id',Auth::user()->id)->paginate(10);
+        $data = Products::where('fornecedor_id', Auth::user()->id)->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -525,11 +666,11 @@ class productsController extends Controller
         return view('orders.fornecedor.produtos')->with('viewData', $viewData);
     }
 
-    public function updateProduct(){
-        $produtos = Products::where('isPublic','1')->where('id_mercadolivre','!=',"")->get();
+    public function updateProduct()
+    {
+        $produtos = Products::where('isPublic', '1')->where('id_mercadolivre', '!=', "")->get();
         foreach ($produtos as $value) {
             \App\Jobs\getStockPrice::dispatch($value->id_mercadolivre);
         }
     }
 }
-

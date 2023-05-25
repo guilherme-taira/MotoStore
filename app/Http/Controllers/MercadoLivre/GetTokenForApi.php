@@ -41,6 +41,28 @@ class GetTokenForApi extends Controller
         return response()->json(["token" => $token->access_token]);
     }
 
+    public function trataError(Request $request)
+    {
+        try {
+            $dt = json_decode(json_encode($request->data));
+            $regex = "/\[(.*?)\]/";
+            foreach ($dt->cause as $cause) {
+                if (preg_match($regex, $cause->message, $matches)) {
+                    unset($matches[0]);
+                    $string = implode(",", $matches);
+                    $array = explode(",", $string);
+                    $json_response = [];
+                    foreach ($array as  $value) {
+                        array_push($json_response, [$value => "Genêrico"]);
+                    }
+                    return response()->json($json_response);
+                }
+           }
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *

@@ -17,19 +17,55 @@
 
         <form id="formulario">
 
+
+            <div class="input-group">
+                <span class="input-group-text">Anúncio / Anúncio Base</span>
+                <input type="text" class="form-control" id="id"
+                    placeholder="Código do anúncio que sofrerá Mudança." />
+                <input type="text" class="form-control" id="base" placeholder="Código do anúncio base." />
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
+                </div>
+            </div>
+
+            <ol id="titulo-anuncio" class="mt-4"></ol>
+
             <div class="row p-6 mt-4">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="text" class="form-control" id="id" placeholder="Código do Produto..." />
+                        <input type="text" class="form-control" id="nome_produto"
+                            placeholder="Nome da categoria..." />
                         <div class="input-group-append">
-                            <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
+                            <button class="btn btn-primary" id="pesquisar" type="button">Pesquisar</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <h5 id="titulo-anuncio" class="mt-4"></h5>
-            <img src="" alt="foto" class="d-none" id="imagem-anuncio">
+            <div id="conteudo-categoria">
+                <li class="list-group-item" id="conteudo-radio">
+                    <div class="form-check">
+                        <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+
+                    </div>
+                </li>
+            </div>
 
             <div class="row p-4">
                 <div class="col-md-6">
@@ -72,6 +108,11 @@
                     <h5>error:</h5>
                     <textarea class="form-control" id="relatorio_erro" rows="4"></textarea>
                 </div>
+
+                <div class="col-sm-6">
+                    <h5>Novos Atributos</h5>
+                    <textarea class="form-control" id="new_atributos" rows="4"></textarea>
+                </div>
             </div>
             <hr>
 
@@ -92,6 +133,12 @@
     <script>
         $(document).ready(function() {
 
+            $("#conteudo-categoria").attr("class", "d-none");
+
+            $("input#radioCategoria").change(function() {
+                $("#id_categoria").val(this.value);
+                $("#categorias").attr("class", "d-none");
+            });
 
             async function pegarToken() {
                 try {
@@ -105,24 +152,44 @@
 
             pegarToken();
 
-
             $("#inserir").click(function() {
-                getProduct($("#id").val());
+                var item = getProduct($("#id").val());
+                if (item !== "") {
+                    var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
+                    $("#titulo-anuncio").append(listItem);
+                    $("#id").val("");
+                }
+            });
+
+            $("#pesquisar").click(function() {
+                getCategoryForName($("#nome_produto").val());
             });
 
             $("#trocar").click(function() {
-                pushProduct($("#id").val(), $("#token").val(), $("#id_categoria").val());
+                var ids = [];
+                var base = $("#base").val();
+                $("li#ids_li").each(function(index, element) {
+                    ids.push($(element).text());
+                });
+                if (base) {
+                    console.log("BASE PREENCHIDA");
+                    sendProductIdForServer(ids, base);
+                } else {
+                    console.log("BASE VAZIA");
+                    $("li#ids_li").each(function(index, element) {
+                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val());
+                    });
+
+                }
             });
 
             $("#formulario").submit(function(e) {
                 // FUNCAO PARA PREENCHER TEXTAREA
                 let categoriaFinal = $("#id_categoria").val();
-                console.log(ConteudoCategory(categoriaFinal));
-
+                //console.log(ConteudoCategory(categoriaFinal));
                 e.preventDefault();
+
             });
-
-
 
             function pushProduct(product, accessToken, category) {
 
@@ -140,19 +207,74 @@
                         'Accept': 'application/json'
                     },
                     success: function(response) {
-
                         if (response) {
-                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color', 'yellow');
+                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color',
+                                'yellow');
                         }
                     },
                     error: function(xhr, status, error) {
                         // Lógica para lidar com o erro
                         $("#relatorio_erro").val(xhr.responseText);
+                        trataError(xhr.responseText);
                     }
                 });
             }
 
+            function getCategoryForName(name) {
+                $.ajax({
+                    url: "https://api.mercadolibre.com/sites/MLB/domain_discovery/search?limit=5&q=" + name,
+                    type: "GET",
+                    success: function(response) {
 
+                        $("#conteudo-categoria").removeClass("d-none");
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            var idCategoria = [];
+                            var nomeCategoria = [];
+                            response.forEach(function(element) {
+                                idCategoria.push(element.category_id);
+                                nomeCategoria.push(JSON.stringify(element.category_name)
+                                    .replace(/["]/g, '') + " (" + (JSON.stringify(element
+                                        .domain_name).replace(/["]/g, '')) + ") ");
+                            });
+
+                            $("input#radioCategoria").each(function(index, element) {
+                                $(element).prop("value", idCategoria[index]);
+                                $(element).after(
+                                    `
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    ${nomeCategoria[index]}
+                                </label>
+                                `
+                                );
+
+                            });
+
+                            // var list = '<ul class="list-group mt-4">' +
+                            //     ' <li class="list-group-item active" aria-current="true">Categorias Disponíveis</li>';
+                            // response.forEach(function(element) {
+                            //     list +=
+                            //         `
+                        //         <li class="list-group-item" id="flexCheckDefault">
+                        //         <div class="form-check">
+                        //         <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
+                        //         <label class="form-check-label" for="flexCheckDefault">
+                        //             ${JSON.stringify(element.category_name).replace(/["]/g, '')} (${JSON.stringify(element.domain_name).replace(/["]/g, '') })
+                        //         </label>
+                        //         </div>
+                        //         </li>
+                        //         `
+                            // });
+                            // list += '</ul>';
+                            // $("#conteudo-categoria").append(list);
+                        }
+                    },
+                    complete: function(xhr, status) {
+                        // Função executada sempre que a requisição é concluída (bem-sucedida ou com erro)
+                        console.log('Código de Status:', xhr.status);
+                    }
+                });
+            }
 
             function ConteudoCategory(category) {
                 $.ajax({
@@ -160,8 +282,6 @@
                     type: "GET",
                     success: function(response) {
                         if (response) {
-
-                            console.log(response.code);
                             var tableHTML = '<table>' +
                                 '<tr>' +
                                 '<th>Preço</th>' +
@@ -178,7 +298,6 @@
                                 '</table>';
                             // SHOW ALL RESULT QUERY
                             $("#conteudo").append(tableHTML);
-                            console.log(response.settings);
                         }
                     },
                     complete: function(xhr, status) {
@@ -188,10 +307,43 @@
                 });
             }
 
+            function trataError(data) {
+                $.ajax({
+                    url: "http://127.0.0.1:8000/api/v1/trataErroMl",
+                    type: "POST",
+                    data: {
+                        "data": {
+                            "message": "Validation error",
+                            "error": "validation_error",
+                            "status": 400,
+                            "cause": [{
+                                "department": "items",
+                                "cause_id": 147,
+                                "type": "error",
+                                "code": "item.attributes.missing_required",
+                                "references": ["item.attributes",
+                                    "item.variations.attribute_combinations"
+                                ],
+                                "message": "The attributes [MOUNTING_TYPE, OVEN_TYPES] are required for category MLB120314 and channel marketplace. Check the attribute is present in the attributes list or in all variation's attributes_combination or attributes."
+                            }]
+                        }
+                    },
+                    success: function(response) {
+
+                        let jsonString = JSON.stringify(response);
+                        let jsonSemColchetes = jsonString.slice(1, -1);
+
+                        if (response) {
+                            $("#new_atributos").val(jsonSemColchetes);
+                        }
+                    }
+                });
+            }
+
             // FUNCAO PARA CHAMAR TOKE
             function getToken() {
                 $.ajax({
-                    url: " http://127.0.0.1:8000/api/v1/getTokenMl",
+                    url: "http://127.0.0.1:8000/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": 2
@@ -201,6 +353,25 @@
                             // SHOW ALL RESULT QUERY
                             let tokenAccess = response.token;
                             $("#token").val(tokenAccess);
+                        }
+                    },
+                });
+            }
+
+            // FUNCAO PARA CHAMAR TOKE
+            function sendProductIdForServer(data, base) {
+
+                $.ajax({
+                    url: "http://127.0.0.1:8000/api/v1/getAttributesById",
+                    type: "POST",
+                    data: {
+                        "id": data,
+                        "base": base
+                    },
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            console.log(response);
                         }
                     },
                 });
@@ -216,11 +387,10 @@
                     success: function(response) {
                         if (response) {
                             // SHOW ALL RESULT QUERY
-                            $("#titulo-anuncio").append(response.title);
+                            //$("#titulo-anuncio").append(product);
                             $("#imagem-anuncio").attr('src', `${response.thumbnail}`).removeClass(
                                 "d-none");
-                            console.log(response);
-
+                            // console.log(response);
                         }
                     },
                 });

@@ -23,7 +23,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // GET ROUTES
+    Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
+    Route::post("/getAttributesById",[productsController::class,'getAttributes']);
     Route::get('products', [productsController::class, 'getAllProduct']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);
