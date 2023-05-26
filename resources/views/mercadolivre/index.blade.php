@@ -208,8 +208,7 @@
                     },
                     success: function(response) {
                         if (response) {
-                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color',
-                                'yellow');
+                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color','yellow');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -225,7 +224,6 @@
                     url: "https://api.mercadolibre.com/sites/MLB/domain_discovery/search?limit=5&q=" + name,
                     type: "GET",
                     success: function(response) {
-
                         $("#conteudo-categoria").removeClass("d-none");
                         if (response) {
                             // SHOW ALL RESULT QUERY
@@ -249,24 +247,6 @@
                                 );
 
                             });
-
-                            // var list = '<ul class="list-group mt-4">' +
-                            //     ' <li class="list-group-item active" aria-current="true">Categorias Disponíveis</li>';
-                            // response.forEach(function(element) {
-                            //     list +=
-                            //         `
-                        //         <li class="list-group-item" id="flexCheckDefault">
-                        //         <div class="form-check">
-                        //         <input type="radio" name="categoria_mercadolivre" value="10" id="radioCategoria">
-                        //         <label class="form-check-label" for="flexCheckDefault">
-                        //             ${JSON.stringify(element.category_name).replace(/["]/g, '')} (${JSON.stringify(element.domain_name).replace(/["]/g, '') })
-                        //         </label>
-                        //         </div>
-                        //         </li>
-                        //         `
-                            // });
-                            // list += '</ul>';
-                            // $("#conteudo-categoria").append(list);
                         }
                     },
                     complete: function(xhr, status) {
@@ -371,6 +351,7 @@
                     success: function(response) {
                         if (response) {
                             // SHOW ALL RESULT QUERY
+                            $("#relatorio_sucesso").val(JSON.stringify(response));
                             console.log(response);
                         }
                     },

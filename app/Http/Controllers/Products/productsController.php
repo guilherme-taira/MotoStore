@@ -309,7 +309,7 @@ class productsController extends Controller
                     "pictures" => $dados->pictures,
                     "attributes" => $dados->attributes
                 ];
-                return $this->PutAttributes($request->id,$data,$request->base);
+                return $this->PutAttributes($request->id, $data, $request->base);
             } else {
                 echo $httpcode;
             }
@@ -318,14 +318,15 @@ class productsController extends Controller
         }
     }
 
-    public function PutAttributes($ids, $data,$base)
+    public function PutAttributes($ids, $data, $base)
     {
         $token = token::where('id', 2)->first();
         // ENDPOINT PARA REQUISICAO
         if (count($ids) > 1) {
-            foreach ($ids as $id) {
-                $endpoint = 'https://api.mercadolibre.com/items/' . $id;
-                try {
+            try {
+                $res = [];
+                foreach ($ids as $id) {
+                    $endpoint = 'https://api.mercadolibre.com/items/' . $id;
                     // CONVERTE O ARRAY PARA JSON
                     $data_json = json_encode($data);
                     $ch = curl_init();
@@ -341,14 +342,15 @@ class productsController extends Controller
                     curl_close($ch);
                     $json = json_decode($reponse);
                     if ($httpCode == '200') {
-                        $this->postDescription($id,$this->getDescription($id));
-                        return response()->json($json);
+                        $this->postDescription($id, $this->getDescription($id));
+                        array_push($res,["id" => $json->id, "title" => $json->title]);
                     } else {
-                        echo $httpCode;
+                        return response()->json($httpCode);
                     }
-                } catch (\Exception $e) {
-                    return response()->json($e->getMessage());
                 }
+                return response()->json($res);
+            } catch (\Exception $e) {
+                return response()->json($e->getMessage());
             }
         } else {
 
@@ -370,10 +372,10 @@ class productsController extends Controller
                 curl_close($ch);
                 $json = json_decode($reponse);
                 if ($httpCode == '200') {
-                    $this->postDescription($ids[0],$this->getDescription($base));
+                    $this->postDescription($ids[0], $this->getDescription($base));
                     return response()->json($json);
                 } else {
-                   return response()->json($json);
+                    return response()->json($json);
                 }
             } catch (\Exception $e) {
                 return response()->json($e->getMessage());
@@ -402,7 +404,7 @@ class productsController extends Controller
         }
     }
 
-    public function postDescription($idproduto,$descricao)
+    public function postDescription($idproduto, $descricao)
     {
         $token = token::where('id', 2)->first();
         // ENDPOINT PARA REQUISICAO
