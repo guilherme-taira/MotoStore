@@ -17,7 +17,6 @@
 
         <form id="formulario">
 
-
             <div class="input-group">
                 <span class="input-group-text">Anúncio / Anúncio Base</span>
                 <input type="text" class="form-control" id="id"
@@ -41,6 +40,37 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    Selecione os Atributos
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Atributos transferido</h5>
+                    <div class="container mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                            <label class="form-check-label" for="flexCheckChecked">
+                                Descrição
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                            <label class="form-check-label" for="flexCheckChecked">
+                                Fotos
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                            <label class="form-check-label" for="flexCheckChecked">
+                                Informações Adicionais
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div id="conteudo-categoria">
                 <li class="list-group-item" id="conteudo-radio">
@@ -208,7 +238,8 @@
                     },
                     success: function(response) {
                         if (response) {
-                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color','yellow');
+                            $("#relatorio_sucesso").val("alterado com Sucesso!").css('background-color',
+                                'yellow');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -240,12 +271,11 @@
                                 $(element).prop("value", idCategoria[index]);
                                 $(element).after(
                                     `
-                                <label class="form-check-label" for="flexCheckDefault">
-                                    ${nomeCategoria[index]}
-                                </label>
-                                `
+                                    <label class="form-check-label" for="flexCheckDefault">
+                                        ${nomeCategoria[index]}
+                                    </label>
+                                    `
                                 );
-
                             });
                         }
                     },
@@ -309,7 +339,6 @@
                         }
                     },
                     success: function(response) {
-
                         let jsonString = JSON.stringify(response);
                         let jsonSemColchetes = jsonString.slice(1, -1);
 
@@ -371,7 +400,6 @@
                             //$("#titulo-anuncio").append(product);
                             $("#imagem-anuncio").attr('src', `${response.thumbnail}`).removeClass(
                                 "d-none");
-                            // console.log(response);
                         }
                     },
                 });

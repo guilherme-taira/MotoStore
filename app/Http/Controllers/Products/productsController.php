@@ -342,7 +342,7 @@ class productsController extends Controller
                     curl_close($ch);
                     $json = json_decode($reponse);
                     if ($httpCode == '200') {
-                        $this->postDescription($id, $this->getDescription($id));
+                        $this->postDescription($id, $this->getDescription($base));
                         array_push($res,["id" => $json->id, "title" => $json->title]);
                     } else {
                         return response()->json($httpCode);
