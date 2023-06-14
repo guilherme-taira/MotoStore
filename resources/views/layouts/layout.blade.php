@@ -147,6 +147,33 @@
                 <li class="nav-item bg-danger" style="border-radius: 10px;">
                     <a class="nav-link text-white" href="{{ route('GetPremiumProducts') }}">Categoria Premium</a>
                 </li>
+                 <!-- Navbar dropdown -->
+                 <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Fornecedores </a>
+                    <ul class="dropdown-menu bg-secondary dropdown-menu-right">
+                        @foreach ($viewData['subcategorias'] as $categoria)
+                            @if (count($categoria['subcategory']) > 0)
+                                <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                    <ul class="submenu submenu-right dropdown-menu">
+                                        <div class="div-sub-menu">
+                                            <h5 class="bg-warning">{{ $categoria['nome'] }}</h5>
+                                            <hr>
+                                            @foreach ($categoria['subcategory'] as $sub)
+                                                <li><a class="dropdown-item"
+                                                        href="{{ route('getAllproductByForncedor', ['id' => $sub->id]) }}">{{ $sub->name }}</a>
+                                                </li>
+                                            @endforeach
+                                        </div>
+                                    </ul>
+                                </li>
+                            @else
+                                <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+                </li>
+            </ul>
+            </li>
                 @if (!Auth::user())
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>

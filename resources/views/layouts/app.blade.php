@@ -112,6 +112,28 @@
                                 </li>
                             </ul>
                         </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                data-mdb-toggle="dropdown" aria-expanded="false">
+                                Fornecedores
+                            </a>
+                            <!-- Dropdown menu -->
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('categoriasfornecedor.index') }}">Cadastrar Região <i class="bi bi-person-add"></i></a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('fornecedores.index') }}">Cadastrar Fornecedores <i class="bi bi-person-fill-gear"></i></a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('subcategoriafornecedor.index') }}">Cadastrar SubCategorias <i class="bi bi-person-fill-gear"></i></a>
+                                </li>
+                            </ul>
+                        </li>
                         <!--- MENU PRODUTOS FINAL --->
 
                         <li class="nav-item dropdown">

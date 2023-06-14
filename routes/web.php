@@ -6,6 +6,8 @@ use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
 use App\Http\Controllers\Bancario\BancarioController;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\categoriaFornecedor\categoriasFornecedor;
+use App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor;
 use App\Http\Controllers\Configuracao\configuracaoController;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
@@ -20,12 +22,14 @@ use App\Http\Controllers\nft\nftcontroller;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\planos\planosController;
+use App\Http\Controllers\Products\ProductByFornecedor;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Usuarios\FornecedorController as UsuariosFornecedorController;
 use App\Http\Middleware\AdminAccess;
 use App\Models\Orders;
 use App\Models\Products;
@@ -49,7 +53,6 @@ Route::get('/', function () {
 
 Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
 
-Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
@@ -103,6 +106,8 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
+        Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
+        Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
         Route::get('endereco',[configuracaoController::class,'address'])->name('address');
         Route::get('addEndereco',[configuracaoController::class,'create'])->name('addEndereco');
@@ -112,6 +117,9 @@ Route::middleware('admin')->group(function () {
         Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
 
+        Route::resource('subcategoriafornecedor','App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor')->names("subcategoriafornecedor");
+        Route::resource('categoriasfornecedor','App\Http\Controllers\categoriaFornecedor\categoriasFornecedor')->names('categoriasfornecedor');
+        Route::resource('fornecedores','App\Http\Controllers\Usuarios\FornecedorController')->names('fornecedores')->parameters(["fornecedore" => "id"]);
         Route::resource('nfts','App\Http\Controllers\nft\nftcontroller')->names('nfts')->parameters(["nft" => "id"]);
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);

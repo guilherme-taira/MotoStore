@@ -5,8 +5,10 @@ namespace App\Http\Controllers\subcategoria;
 use App\Http\Controllers\Controller;
 use App\Models\banner;
 use App\Models\categorias;
+use App\Models\categorias_forncedores;
 use App\Models\logo;
 use App\Models\Products;
+use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,6 +26,19 @@ class SubCategoriaController extends Controller
         $viewData['title'] = "Cadastrar Sub-Categoria";
         $viewData['subtitle'] = "Categoria";
         $viewData['subcategoria'] = sub_category::paginate(10);
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
         return view('subcategoria.index')->with('viewData', $viewData);
     }
 
@@ -37,7 +52,19 @@ class SubCategoriaController extends Controller
         $viewData = [];
         $viewData['title'] = "Cadastrar Sub-Categoria";
         $viewData['subtitle'] = "Categoria";
-        $viewData['categorias'] = categorias::all();
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
         return view('subcategoria.create')->with('viewData', $viewData);
     }
 
@@ -50,7 +77,6 @@ class SubCategoriaController extends Controller
     public function store(Request $request)
     {
 
-        print_r($request->all());
         $validator = Validator::make($request->all(), [
             "nome" => "required|min:3",
             "slug" => "required|min:3",
@@ -133,6 +159,18 @@ class SubCategoriaController extends Controller
                 "subcategory" => sub_category::getAllCategory($value->id),
             ];
         }
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
 
         $viewData['categorias'] = $categorias;
 

@@ -37,7 +37,7 @@ class GetTokenForApi extends Controller
      */
     public function show(Request $request)
     {
-        $token = token::where("id", $request->id)->first();
+        $token = token::where("user_id", $request->id)->first();
         return response()->json(["token" => $token->access_token]);
     }
 

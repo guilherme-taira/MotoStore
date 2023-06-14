@@ -7,9 +7,13 @@ use App\Http\Controllers\GenerateCode\GetCodeController;
 use App\Http\Controllers\image\image;
 use App\Models\banner;
 use App\Models\categorias;
+use App\Models\categorias_forncedores;
 use App\Models\logo;
+use App\Models\product_site;
 use App\Models\Products;
+use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -38,6 +42,19 @@ class StoreController extends Controller
                 "subcategory" => sub_category::getAllCategory($value->id),
             ];
         }
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
 
         $viewData['categorias'] = $categorias;
         return view('store.index')->with('viewData', $viewData);
@@ -126,7 +143,7 @@ class StoreController extends Controller
 
     public function getCode(Request $request)
     {
-        $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://afilidrop.herokuapp.com/thankspage", $request->id);
+        $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://melimaximo.com.br/thankspage", $request->id);
         $data = $getNewCode->resource();
         return response()->json(["dados" => $data]);
     }

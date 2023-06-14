@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Fornecedor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
+use App\Models\categorias_forncedores;
 use App\Models\financeiro;
+use App\Models\sub_categoria_fornecedor;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,7 +57,26 @@ class fornecedorController extends Controller
      */
     public function create()
     {
-        //
+        $viewData = [];
+        $viewData['title'] = "Lista de Fornecedores";
+        $viewData['categorias_fornecedor'] = categorias_forncedores::all();
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
+
+        return view("fornecedor.create",[
+            'viewData' => $viewData
+        ]);
     }
 
     /**
@@ -77,7 +98,7 @@ class fornecedorController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**

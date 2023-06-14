@@ -9,10 +9,12 @@ use App\Http\Controllers\Services\ServicesController;
 use App\Models\banner_autokm;
 use App\Models\banner_premium;
 use App\Models\categorias;
+use App\Models\categorias_forncedores;
 use App\Models\images;
 use App\Models\logo;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
+use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use App\Models\token;
 use App\Models\User;
@@ -146,6 +148,7 @@ class productsController extends Controller
             $viewData['image'] = $produto->image;
             $viewData['images'] = $photos;
             $viewData['imageJson'] = $produto->imageJson;
+
             $categorias = [];
             foreach (categorias::all() as $value) {
                 $categorias[$value->id] = [
@@ -153,6 +156,19 @@ class productsController extends Controller
                     "subcategory" => sub_category::getAllCategory($value->id),
                 ];
             }
+
+            $subcategorias = [];
+
+            foreach (categorias_forncedores::all() as $value) {
+
+                $subcategorias[$value->id] = [
+                    "nome" => $value->name,
+                    "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+                ];
+            }
+
+            $viewData['subcategorias'] = $subcategorias;
+            $viewData['categorias'] = $categorias;
 
             $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
             $viewData['token'] = $token;
@@ -309,7 +325,7 @@ class productsController extends Controller
                     "pictures" => $dados->pictures,
                     "attributes" => $dados->attributes
                 ];
-                return $this->PutAttributes($request->id, $data, $request->base);
+                return $this->PutAttributes($request->id, $data, $request->base,$request->auth);
             } else {
                 echo $httpcode;
             }
@@ -318,9 +334,10 @@ class productsController extends Controller
         }
     }
 
-    public function PutAttributes($ids, $data, $base)
+    public function PutAttributes($ids, $data, $base,$auth)
     {
-        $token = token::where('id', 2)->first();
+        $token = token::where('user_id', $auth)->first();
+
         // ENDPOINT PARA REQUISICAO
         if (count($ids) > 1) {
             try {
@@ -373,7 +390,7 @@ class productsController extends Controller
                 $json = json_decode($reponse);
                 if ($httpCode == '200') {
                     $this->postDescription($ids[0], $this->getDescription($base));
-                    return response()->json($json);
+                    return response()->json(["resposta" => $json->title . " Atualizado com sucesso!"]);
                 } else {
                     return response()->json($json);
                 }

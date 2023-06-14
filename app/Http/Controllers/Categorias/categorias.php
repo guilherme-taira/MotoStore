@@ -79,6 +79,7 @@ class categorias extends Controller
         $viewData['title'] = "Cadastrar Categoria";
         $viewData['subtitle'] = "Categoria";
         $viewData['product'] = ModelsCategorias::where('id', $id)->first();
+
         return view('categorias.edit', ['id' => $id])->with('viewData', $viewData);
     }
 
@@ -94,6 +95,7 @@ class categorias extends Controller
         $viewData['title'] = "Cadastrar Categoria";
         $viewData['subtitle'] = "Categoria";
         $viewData['categoria'] = ModelsCategorias::where('id', $id)->first();
+
         return view('categorias.edit')->with([
             'viewData' =>  $viewData,
             'id' => $id,

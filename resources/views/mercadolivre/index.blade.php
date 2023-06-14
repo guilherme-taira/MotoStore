@@ -355,7 +355,7 @@
                     url: "http://127.0.0.1:8000/api/v1/getTokenMl",
                     type: "GET",
                     data: {
-                        "id": 2
+                        "id": {{ Auth::user()->id }}
                     },
                     success: function(response) {
                         if (response) {
@@ -369,7 +369,6 @@
 
             // FUNCAO PARA CHAMAR TOKE
             function sendProductIdForServer(data, base) {
-
                 $.ajax({
                     url: "http://127.0.0.1:8000/api/v1/getAttributesById",
                     type: "POST",

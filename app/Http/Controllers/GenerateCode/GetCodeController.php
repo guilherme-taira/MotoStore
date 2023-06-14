@@ -46,9 +46,9 @@ class GetCodeController extends RequestCodeMercadoLivre
         $response = curl_exec($ch);
         curl_close($ch);
         $dados = json_decode($response);
-        if (!isset($dados->status)) {
+        // if (!isset($dados->status)) {
             $this->saveCode($dados);
-        }
+        //}
         return $dados;
     }
 
@@ -67,7 +67,7 @@ class GetCodeController extends RequestCodeMercadoLivre
                 $token->type = "MercadoLivre";
                 $token->refresh_token = $codeReturn->refresh_token;
                 $token->user_id_mercadolivre = $codeReturn->user_id;
-                $token->user_id = Auth::user()->id;
+                $token->user_id = $this->getUserId();
                 $token->datamodify = $DataSistema;
                 $token->save();
             } catch (\Exception $e) {
