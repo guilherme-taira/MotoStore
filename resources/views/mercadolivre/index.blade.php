@@ -367,38 +367,6 @@
                 });
             }
 
-            function trataError(data) {
-                $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/trataErroMl",
-                    type: "POST",
-                    data: {
-                        "data": {
-                            "message": "Validation error",
-                            "error": "validation_error",
-                            "status": 400,
-                            "cause": [{
-                                "department": "items",
-                                "cause_id": 147,
-                                "type": "error",
-                                "code": "item.attributes.missing_required",
-                                "references": ["item.attributes",
-                                    "item.variations.attribute_combinations"
-                                ],
-                                "message": "The attributes [MOUNTING_TYPE, OVEN_TYPES] are required for category MLB120314 and channel marketplace. Check the attribute is present in the attributes list or in all variation's attributes_combination or attributes."
-                            }]
-                        }
-                    },
-                    success: function(response) {
-                        let jsonString = JSON.stringify(response);
-                        let jsonSemColchetes = jsonString.slice(1, -1);
-
-                        if (response) {
-                            $("#new_atributos").val(jsonSemColchetes);
-                        }
-                    }
-                });
-            }
-
             // FUNCAO PARA CHAMAR TOKE
             function getToken() {
                 console.log({{ Auth::user()->id }});
