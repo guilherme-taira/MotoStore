@@ -246,4 +246,21 @@ class Products extends Model
         ->where('product_id', $id)->get();
     return $data;
     }
+
+    public static function getProductByFornecedor($id){
+        //select * from users inner join sub_categoria_fornecedor on users.user_subcategory = sub_categoria_fornecedor.id where user_subcategory = 6 and forncecedor = 1
+        $data = DB::table('products')
+        ->where('fornecedor_id', $id)
+        ->select('products.*')->paginate(20);
+    return $data;
+    }
+
+    public static function getProductByFornecedorLancamentos($id,$datainicial,$datafinal){
+        //select * from users inner join sub_categoria_fornecedor on users.user_subcategory = sub_categoria_fornecedor.id where user_subcategory = 6 and forncecedor = 1
+        $data = DB::table('products')
+        ->where('fornecedor_id', $id)
+        ->select('products.*')
+        ->whereBetween('created_at', [$datainicial, $datafinal])->where('isPublic', true)->paginate(10);
+    return $data;
+    }
 }

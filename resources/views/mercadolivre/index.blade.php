@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <title>{{ $viewData['title'] }}</title>
 </head>
 
@@ -16,7 +17,6 @@
         <h2>Mercado Livre Alterador de Categoria:</h2>
 
         <form id="formulario">
-
             <div class="input-group">
                 <span class="input-group-text">Anúncio / Anúncio Base</span>
                 <input type="text" class="form-control" id="id"
@@ -26,6 +26,10 @@
                     <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
                 </div>
             </div>
+
+            <span class="badge text-bg-info text-white mt-4">
+                <h5>{{ $viewData['auth'] }}</h5>
+            </span>
 
             <ol id="titulo-anuncio" class="mt-4"></ol>
 
@@ -50,27 +54,54 @@
                     <h5 class="card-title">Atributos transferido</h5>
                     <div class="container mt-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
-                            <label class="form-check-label" for="flexCheckChecked">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="descricao"
+                                id="checkbox_id">
+                            <label class="form-check-label" for="descricao">
                                 Descrição
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
-                            <label class="form-check-label" for="flexCheckChecked">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="fotos" id="checkbox_id">
+                            <label class="form-check-label" for="fotos">
                                 Fotos
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
-                            <label class="form-check-label" for="flexCheckChecked">
-                                Informações Adicionais
+                            <input class="form-check-input" type="checkbox" name="radioName" value="info" id="checkbox_id">
+                            <label class="form-check-label" for="info">
+                                Ficha Técnica
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="card mt-4">
+                <div class="card-header">
+                    Selecione o tipo de cadastro
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Tipo de Cadastro</h5>
+                    <div class="container mt-4">
+                            <label class="form-check-label col-md-8 d-none" id="titulo_anuncio" for="duplicar">
+                                    Título do Anúncio:
+                                    <input type="text" class="form-control" name="title_anuncio" id="title_anuncio">
+                            </label>
+                            <hr>
+                            <input class="form-check-input" type="radio" name="tp_cadastro" value="duplicar"
+                                id="duplicar">
+                            <label class="form-check-label" for="duplicar">
+                                Duplicar
+                            </label>
+
+                            <input class="form-check-input" type="radio" name="tp_cadastro" value="variacao" id="variacao">
+                            <label class="form-check-label" for="variacao">
+                                Variação
+                            </label>
+                        </div>
+                    </div>
+
+            </div>
 
             <div id="conteudo-categoria">
                 <li class="list-group-item" id="conteudo-radio">
@@ -170,6 +201,13 @@
                 $("#categorias").attr("class", "d-none");
             });
 
+            $('#formulario input[id=duplicar]').on('change', function() {
+                alert("Preencha o nome do Novo Anúncio:");
+                $("#titulo_anuncio").removeClass("d-none");
+                $("#title_anuncio").css("background-color","yellow").focus();
+            });
+
+
             async function pegarToken() {
                 try {
                     // Aguarde a conclusão da requisição assíncrona usando await
@@ -196,14 +234,26 @@
             });
 
             $("#trocar").click(function() {
+
+                var atributos = [];
+                var tp_cadastro;
                 var ids = [];
                 var base = $("#base").val();
+                var title = $("#title_anuncio").val();
+                var sList = "";
+                $('input[type=checkbox]').each(function () {
+                    atributos.push((this.checked ?  $(this).val() : "not_checked"));
+                });
+
+                tp_cadastro = $("#formulario").find("input[name=tp_cadastro]:checked").val();
+
+                var access_token = {{ Auth::user()->id }};
                 $("li#ids_li").each(function(index, element) {
                     ids.push($(element).text());
                 });
                 if (base) {
                     console.log("BASE PREENCHIDA");
-                    sendProductIdForServer(ids, base);
+                    sendProductIdForServer(ids, base, access_token,atributos,tp_cadastro,title);
                 } else {
                     console.log("BASE VAZIA");
                     $("li#ids_li").each(function(index, element) {
@@ -351,6 +401,7 @@
 
             // FUNCAO PARA CHAMAR TOKE
             function getToken() {
+                console.log({{ Auth::user()->id }});
                 $.ajax({
                     url: "https://melimaximo.com.br/api/v1/getTokenMl",
                     type: "GET",
@@ -368,13 +419,17 @@
             }
 
             // FUNCAO PARA CHAMAR TOKE
-            function sendProductIdForServer(data, base) {
+            function sendProductIdForServer(data, base, access_token,atributos,tp_cadastro = "N/D",title = "N/D") {
                 $.ajax({
                     url: "https://melimaximo.com.br/api/v1/getAttributesById",
                     type: "POST",
                     data: {
                         "id": data,
-                        "base": base
+                        "base": base,
+                        "auth": access_token,
+                        "atributos": atributos,
+                        "tp_cadastro": tp_cadastro,
+                        "title": title
                     },
                     success: function(response) {
                         if (response) {

@@ -61,7 +61,8 @@ class User extends Authenticatable
     public static function getAllUsers(){
         $data = DB::table('categorias_forncedores')
         ->join('users', 'categorias_forncedores.id', '=', 'users.user_id')
-        ->select("categorias_forncedores.name as nome","users.name as name_fornecedor","users.id as id_fornecedor","users.*","categorias_forncedores.*")->paginate(10);
+        ->select("categorias_forncedores.name as nome","users.name as name_fornecedor","users.id as id_fornecedor","users.*","categorias_forncedores.*")
+        ->where('users.forncecedor','1')->paginate(10);
         return $data;
     }
 
@@ -90,6 +91,14 @@ class User extends Authenticatable
         ->where('sub_categoria_fornecedor.id',$id)
         ->paginate(20);
         return $data;
+    }
+
+    public static function getProducts($id){
+        $data = DB::table('users')
+        ->join('sub_categoria_fornecedor', 'users.user_subcategory', '=', 'sub_categoria_fornecedor.id')
+        ->where('user_subcategory',$id)->where('forncecedor',1)
+        ->select("users.id")->first();
+        return $data->id;
     }
 
     public function getName(){

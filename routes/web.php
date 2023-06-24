@@ -9,6 +9,7 @@ use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\categoriaFornecedor\categoriasFornecedor;
 use App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor;
 use App\Http\Controllers\Configuracao\configuracaoController;
+use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
@@ -51,7 +52,7 @@ Route::get('/', function () {
     return redirect()->route('stores.index');
 });
 
-Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
+
 
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
@@ -99,13 +100,15 @@ Route::get('/setSessionRoute',[KitsKitsController::class,'setSessionRoute'])->na
 Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->name('getProductByName');
 Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
 Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
-
+// ROTA DE EMAIL
+Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 // ROTAS DE FILA
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago']);
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
+        Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');

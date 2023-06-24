@@ -50,8 +50,8 @@ class categoriasFornecedor extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'categoria' => 'required|min:5',
-            'slug' => 'required',
+            'categoria' => 'required',
+            //'slug' => 'required',
             'regiao' => 'required'
         ]);
 
@@ -63,7 +63,7 @@ class categoriasFornecedor extends Controller
 
         $newCategoria = new categorias_forncedores();
         $newCategoria->name = $request->categoria;
-        $newCategoria->slug = $request->slug;
+        $newCategoria->slug = $request->categoria;
         $newCategoria->descricao = $request->regiao;
         $newCategoria->save();
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
+use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\Products\productsController;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // GET ROUTES
+    Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
     Route::post("/getAttributesById",[productsController::class,'getAttributes']);

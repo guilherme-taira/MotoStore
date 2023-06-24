@@ -22,15 +22,15 @@
             Cadastro Fornecedores / Usuários do Site
         </div>
         <div class="card-body">
-            <form action="{{ route('subcategoriafornecedor.store') }}" method="POST">
+            <form action="{{ route('categoriasfornecedor.store') }}" method="POST">
                 <div class="row g-3 align-items-center">
 
                     <div class="col-auto">
                         <label for="exampleInputEmail1" class="form-label">Nome Categoria Ex: SP1 / SP1</label>
-                        <input type="text" class="form-control" name="name" aria-describedby="emailHelp">
+                        <input type="text" class="form-control" name="categoria" aria-describedby="emailHelp">
                     </div>
 
-                    <div class="col-md-4">
+                    {{-- <div class="col-md-4">
                         <label class="form-label" for="flexSwitchCheckDefault">Categorias: </label>
                         <select class="form-select" name="categoria" required aria-label="Default select example">
                             <option value="">Selecione..</option>
@@ -39,7 +39,7 @@
                                     {{ $fornecedor->descricao }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
 
                     <div class="col-auto">
                         <label for="exampleInputEmail1" class="form-label">Região</label>

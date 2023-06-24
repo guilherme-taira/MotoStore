@@ -56,7 +56,6 @@
                                 </form>
 
                                 <td><a href=""></a><button class="bi bi-plus-circle-fill btn btn-success"></button></td>
-
                             </tr>
                         @endforeach
                     </tbody>

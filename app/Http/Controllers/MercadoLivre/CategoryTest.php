@@ -12,7 +12,7 @@ class CategoryTest extends Controller
     public function index(){
         $viewData = [];
         $viewData["title"] = "Alterador de Categoria";
-        $viewData['auth'] = token::where('id',Auth::user()->id)->first();
+        $viewData['auth'] = Auth::user()->name;
 
         return view('mercadolivre.index',[
             "viewData" => $viewData

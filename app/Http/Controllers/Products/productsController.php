@@ -206,7 +206,6 @@ class productsController extends Controller
 
         sub_category::getAllCategory($produto->subcategoria);
 
-
         $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
         $viewData['categorias'] = $categorias;
         return view('products.edit')->with('viewData', $viewData);
@@ -319,13 +318,55 @@ class productsController extends Controller
             curl_close($ch);
             $dados = json_decode($response);
             if ($httpcode == '200') {
+                $data = [];
+                $fotos = false;
+                $info = false;
+                $descricao = false;
 
-                $data = [
-                    "category_id" => $dados->category_id,
-                    "pictures" => $dados->pictures,
-                    "attributes" => $dados->attributes
-                ];
-                return $this->PutAttributes($request->id, $data, $request->base,$request->auth);
+                foreach ($request->atributos as $atributo) {
+                    if ($atributo == "fotos") {
+                        array_push($data, [$dados->pictures, $dados->category_id]);
+                        $fotos = true;
+                    }
+                    if ($atributo == "info") {
+                        array_push($data, [$dados->attributes]);
+                        $info = true;
+                    }
+                    if ($atributo == "descricao") {
+                        $descricao = true;
+                    }
+                }
+
+                $array = [];
+                if (count($data) == 1 && $info == true) {
+                    $array = [
+                        "attributes" => $dados->attributes, "category_id" => $dados->category_id
+                    ];
+                } else if (count($data) == 1 && $fotos == true) {
+                    $array = [
+                        "pictures" => $dados->pictures, "category_id" => $dados->category_id
+                    ];
+                } else if (count($data) == 2 && $request->tp_cadastro == "variacao") {
+                    $array = ["pictures" => $dados->pictures, "category_id" => $dados->category_id, "attributes" => $dados->attributes, "variations" => $this->removeCategoryIdFromJson($dados->variations)];
+                } else if (count($data) == 2 && $request->tp_cadastro == "duplicar") {
+                    $array = [
+                        "pictures" => $dados->pictures,
+                        "category_id" => $dados->category_id,
+                        "attributes" => $dados->attributes,
+                        "price" => $dados->price,
+                        "currency_id" => "BRL",
+                        "listing_type_id" => "gold_special",
+                        "title" => $request->title,
+                        "available_quantity" => 0
+                    ];
+                    // CADASTRA UM NOVO ANUNCIO
+                    return $this->cadastrarAnuncio($request->base,$request->auth,$array);
+
+                } else if (count($data) == 2 && $request->tp_cadastro == "N/D") {
+                    $array = ["pictures" => $dados->pictures, "category_id" => $dados->category_id, "attributes" => $dados->attributes];
+                }
+                // ATUALIZA O ANUNCIO
+                return $this->PutAttributes($request->id, $array, $request->base, $request->auth, $descricao);
             } else {
                 echo $httpcode;
             }
@@ -334,7 +375,47 @@ class productsController extends Controller
         }
     }
 
-    public function PutAttributes($ids, $data, $base,$auth)
+    public function removeCategoryIdFromJson($data)
+    {
+        $removeArray = [];
+        $array = json_decode(json_encode($data));
+        foreach ($array as $value) {
+            unset($value->catalog_product_id);
+            array_push($removeArray, $value);
+        }
+        return $removeArray;
+    }
+
+    public function cadastrarAnuncio($base,$auth,$data)
+    {
+        $token = token::where('user_id', $auth)->first();
+        $endpoint = 'https://api.mercadolibre.com/items/';
+        // CONVERTE O ARRAY PARA JSON
+        if (isset($data)) {
+            $data_json = json_encode($data);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse);
+            if ($httpCode == '201') {
+                    $this->postDescription($json->id, $this->getDescription($base), $auth);
+                    return response()->json(["resposta" => $json->id . " Cadastrado com sucesso!"]);
+            } else {
+                return response()->json($json);
+            }
+        }
+    }
+
+    public function PutAttributes($ids, $data, $base, $auth, $descricao)
     {
         $token = token::where('user_id', $auth)->first();
 
@@ -345,6 +426,47 @@ class productsController extends Controller
                 foreach ($ids as $id) {
                     $endpoint = 'https://api.mercadolibre.com/items/' . $id;
                     // CONVERTE O ARRAY PARA JSON
+                    if (isset($data)) {
+                        $data_json = json_encode($data);
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $endpoint);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+                        $reponse = curl_exec($ch);
+                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+                        $json = json_decode($reponse);
+                        if ($httpCode == '200') {
+                            if ($descricao == true) {
+                                $this->postDescription($id, $this->getDescription($base), $auth);
+                            }
+                            array_push($res, ["id" => $json->id, "title" => $json->title]);
+                        } else {
+                            return response()->json($httpCode);
+                        }
+                    } else {
+                        if ($descricao == true) {
+                            $this->postDescription($id, $this->getDescription($base), $auth);
+                            return response()->json(["resposta" => $id . " Atualizado com sucesso!"]);
+                        }
+                    }
+                }
+                return response()->json($res);
+            } catch (\Exception $e) {
+                return response()->json($e->getMessage());
+            }
+        } else {
+
+            $endpoint = 'https://api.mercadolibre.com/items/' . $ids[0];
+
+            try {
+                // CONVERTE O ARRAY PARA JSON
+                if (count($data) > 0) {
                     $data_json = json_encode($data);
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -359,40 +481,18 @@ class productsController extends Controller
                     curl_close($ch);
                     $json = json_decode($reponse);
                     if ($httpCode == '200') {
-                        $this->postDescription($id, $this->getDescription($base));
-                        array_push($res,["id" => $json->id, "title" => $json->title]);
+                        if ($descricao == true) {
+                            $this->postDescription($ids[0], $this->getDescription($base), $auth);
+                        }
+                        return response()->json(["resposta" => $json->title . " Atualizado com sucesso!"]);
                     } else {
-                        return response()->json($httpCode);
+                        return response()->json($json);
                     }
-                }
-                return response()->json($res);
-            } catch (\Exception $e) {
-                return response()->json($e->getMessage());
-            }
-        } else {
-
-            $endpoint = 'https://api.mercadolibre.com/items/' . $ids[0];
-
-            try {
-                // CONVERTE O ARRAY PARA JSON
-                $data_json = json_encode($data);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $endpoint);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
-                $reponse = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                $json = json_decode($reponse);
-                if ($httpCode == '200') {
-                    $this->postDescription($ids[0], $this->getDescription($base));
-                    return response()->json(["resposta" => $json->title . " Atualizado com sucesso!"]);
                 } else {
-                    return response()->json($json);
+                    if ($descricao == true) {
+                        $this->postDescription($ids[0], $this->getDescription($base), $auth);
+                        return response()->json(["resposta" => $ids[0] . " Atualizado com sucesso!"]);
+                    }
                 }
             } catch (\Exception $e) {
                 return response()->json($e->getMessage());
@@ -421,9 +521,9 @@ class productsController extends Controller
         }
     }
 
-    public function postDescription($idproduto, $descricao)
+    public function postDescription($idproduto, $descricao, $auth)
     {
-        $token = token::where('id', 2)->first();
+        $token = token::where('user_id', $auth)->first();
         // ENDPOINT PARA REQUISICAO
         $endpoint = "https://api.mercadolibre.com/items/$idproduto/description";
 
@@ -563,6 +663,18 @@ class productsController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
         $viewData['categorias'] = $categorias;
         return view('store.index')->with('viewData', $viewData);
     }
@@ -575,7 +687,8 @@ class productsController extends Controller
         // DATA FINAL
         $datafinal = new DateTime();
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::whereBetween('created_at', [$datainicial, $datafinal])->where('isPublic', true)->paginate(10);
+        $id = User::getProducts(Auth::user()->user_subcategory);
+        $data = Products::getProductByFornecedorLancamentos($id,$datainicial,$datafinal);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
@@ -591,6 +704,19 @@ class productsController extends Controller
                 "subcategory" => sub_category::getAllCategory($value->id),
             ];
         }
+
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['subcategorias'] = $subcategorias;
+
 
         $viewData['categorias'] = $categorias;
 
