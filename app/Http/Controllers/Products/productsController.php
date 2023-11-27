@@ -133,7 +133,7 @@ class productsController extends Controller
     {
         $produto = Products::findOrFail($id);
         $fotos = images::where('product_id', $id)->get();
-        $token = token::where('user_id', Auth::user()->id)->first();
+        // $token = token::where('user_id', Auth::user()->id)->first();
         $photos = [];
         foreach ($fotos as $foto) {
             array_push($photos, $foto->url);
@@ -158,7 +158,6 @@ class productsController extends Controller
             }
 
             $subcategorias = [];
-
             foreach (categorias_forncedores::all() as $value) {
 
                 $subcategorias[$value->id] = [
@@ -171,7 +170,7 @@ class productsController extends Controller
             $viewData['categorias'] = $categorias;
 
             $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
-            $viewData['token'] = $token;
+            // $viewData['token'] = $token;
             $viewData['categorias'] = $categorias;
 
             return view('store.show')->with('viewData', $viewData);

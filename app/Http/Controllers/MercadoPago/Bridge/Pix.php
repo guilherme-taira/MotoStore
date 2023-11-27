@@ -23,7 +23,7 @@ class Pix extends AbstractPagamento
 
     public function criarProdutos()
     {
-        ML::setAccessToken("APP_USR-3029233524869952-033008-6f7fbb3eb9e6d2626a3b7eec9ac6b5d6-1272736385");
+        ML::setAccessToken("APP_USR-1040870078984189-112414-53f0b1b08d3103e224c9276ae6e21808-1562628572");
         $produto = [];
 
         foreach ($this->getItem() as $value) {
@@ -32,11 +32,11 @@ class Pix extends AbstractPagamento
             $item = new MercadoItem();
             $item->title = $data['title'];
             $item->quantity = $value['quantidade'];
-            $item->unit_price = 1;
+            $item->unit_price = floatval($data['price']);
             //$item->unit_price = $data['pricePromotion'] > 0 ? $data['pricePromotion'] : $data['price'];
             $produto[] = $item;
         }
-
+        print_r($produto);
        // array_push($produto, $this->gerarFrete($this->frete));
         return $produto;
     }

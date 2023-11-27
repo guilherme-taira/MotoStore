@@ -83,7 +83,8 @@ class orderscontroller extends Controller
 
         $i = 0;
         foreach ($order as $key => $product) {
-            if ($product->isKit == 1) {
+
+            if (isset($product->isKit)) {
                 foreach (Products::getProducts($product->id) as $produto) {
                     array_push($viewData['pedidos'], ['produto' => $produto, 'venda' => $order[$i]]);
                 }
@@ -93,7 +94,9 @@ class orderscontroller extends Controller
             }
         }
 
-        return view('orders.show')->with('viewData', $viewData);
+        echo "<pre>";
+        print_r($viewData);
+        // return view('orders.show')->with('viewData', $viewData);
     }
 
     /**
@@ -208,5 +211,12 @@ class orderscontroller extends Controller
         return view('orders.areceber', [
             'viewData' => $viewData,
         ]);
+    }
+
+    public function feedback(Request $request){
+        $data = json_decode(json_encode($request->all()));
+        echo "<pre> ";
+        print_r($data);
+        echo "<hr>merchant_order_id : $data->merchant_order_id , external_reference: $data->external_reference , payment_id : $data->payment_id ";
     }
 }

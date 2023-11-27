@@ -14,6 +14,7 @@ use App\Http\Controllers\MercadoPago\Bridge\Pix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoPix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoTodosPagamento;
 use App\Models\categorias;
+use App\Models\categorias_forncedores;
 use App\Models\endereco;
 use App\Models\Items;
 use App\Models\order_site;
@@ -22,6 +23,7 @@ use App\Models\Orders;
 use App\Models\pivot_site;
 use App\Models\product_site;
 use App\Models\Products;
+use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use DateTime;
 use Illuminate\Contracts\Session\Session;
@@ -46,6 +48,7 @@ class CartController extends Controller
             $total = $this->sumPricesByQuantities($productInCart, $productInSection);
         }
 
+
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
@@ -54,10 +57,21 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
         $viewData['categorias'] = $categorias;
         $viewData['title'] = "Cart MotoStore";
-        $viewData['enderecos'] = endereco::where('user_id', Auth::user()->id)->get();
+        // $viewData['enderecos'] = endereco::where('user_id', Auth::user()->id)->get();
         $viewData['subtitle'] = "Shopping Cart";
         $viewData['total'] = $total;
         $viewData['products'] = $productInCart;
@@ -79,8 +93,8 @@ class CartController extends Controller
 
     public function orderFinished(Request $request)
     {
-
         $categorias = [];
+
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
                 "nome" => $value->nome,
@@ -88,7 +102,19 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
+        $viewData['categorias'] = $categorias;
         $viewData["title"] = "Purchase - Online Store";
         $viewData["subtitle"] = "Venda Status";
         $viewData['categorias'] = $categorias;
@@ -169,7 +195,7 @@ class CartController extends Controller
         // CODIGO POSTAL
         $postalCode = endereco::where('id', $request->endereco)->first();
 
-        $cotacaoFrete = new MelhorEnvioGetDataController("13610296", isset($postalCode->cep) ? $postalCode->cep : Auth::user()->cep, [$produtos]);
+        $cotacaoFrete = new MelhorEnvioGetDataController("13610296", '13616450', [$produtos]);
 
         $cotar = new MelhorEnvioRequestCotacao($cotacaoFrete);
         $transportadora = $cotar->resource();
@@ -191,9 +217,20 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $request->session()->put('produtos', $produtos);
 
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
         $viewData['categorias'] = $categorias;
         $viewData['title'] = "Cart MotoStore";
         $viewData['subtitle'] = "Shopping Cart";
@@ -291,7 +328,6 @@ class CartController extends Controller
         $dimensoes = [];
         $volumes = [];
 
-
         foreach ($this->CriarArrayProdutos($productInSection) as $key => $value) {
             $medidas = Products::findMany($value['produto'])->first();
             $dimensoes['altura'] = $medidas->height;
@@ -301,6 +337,7 @@ class CartController extends Controller
             array_push($volumes, $dimensoes);
             array_push($produtos, ["produto" => $value['produto'], "quantidade" => $value['quantidade']]);
         };
+
 
         // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
@@ -314,8 +351,8 @@ class CartController extends Controller
         $enviar->resource();
 
         // CRIA PAGAMENTO
-         $produtos = $request->session()->get('produtos');
-        $servicoPix = new ServicoPix();
+        $produtos = $request->session()->get('produtos');
+        // $servicoPix = new ServicoPix();
         $servicoOutrosPagamento = new ServicoTodosPagamento();
         $executar = new Pix($produtos, $orderid['price']);
         $executar->setTipoPagamento($servicoOutrosPagamento);
@@ -323,13 +360,12 @@ class CartController extends Controller
 
         // GRAVA NO BANCO
         if ($productInSection) {
-            $userId = Auth::user()->id;
+
             $payment = 1;
             $dataPayment = new DateTime();
 
-            if ($userId) {
                 $order = new Orders();
-                $order->setUser($userId);
+                $order->setUser(2);
                 $order->setPaymentId($payment);
                 $order->setDatePayment($dataPayment->format('Y-m-d H:i:s'));
                 $order->setColor($this->SelectPaymentColor(1));
@@ -339,11 +375,15 @@ class CartController extends Controller
                 $total = 0;
                 //ORDER _SITE
                 $order_site = new order_site();
+                $order_site->numeropedido = uniqid('SITE');
+                $order_site->valorDivergencia = 0;
+                $order_site->status = 0;
+                $order_site->status_id = 3;
                 $order_site->local = "LOJA VIRTUAL";
                 $order_site->valorVenda = $total;
                 $order_site->valorProdutos = $total;
                 $order_site->dataVenda = $dataPayment->format('Y-m-d');
-                $order_site->cliente = Auth::user()->name;
+                $order_site->cliente = "Mercado Livre";
                 $order_site->id_frete = $orderid['id'];
                 $order_site->valorFrete = $orderid['price'];
                 $order_site->status_id = 3;
@@ -358,7 +398,7 @@ class CartController extends Controller
                 // GRAVA RELACIONAMENTO DA VENDA
                 $order_user = new order_user();
                 $order_user->order = $order->getId();
-                $order_user->user = $userId;
+                $order_user->user = 2;
                 $order_user->save();
 
                 $i = 0;
@@ -381,10 +421,10 @@ class CartController extends Controller
                     $pivot_site = new pivot_site();
                     $pivot_site->order_id = $order_site->id;
                     $pivot_site->product_id = $item->id;
-                    $pivot_site->id_user = $userId;
+                    $pivot_site->id_user = 2;
                     $pivot_site->save();
                     $i++;
-                }
+
 
                 $order_site->valorVenda = $total;
                 $order_site->save();
@@ -394,6 +434,7 @@ class CartController extends Controller
                 // $request->session()->forget('payment');
                 // $request->session()->forget('datePayment');
 
+
                 $categorias = [];
                 foreach (categorias::all() as $value) {
                     $categorias[$value->id] = [
@@ -402,23 +443,35 @@ class CartController extends Controller
                     ];
                 }
 
+                $subcategorias = [];
+
+                foreach (categorias_forncedores::all() as $value) {
+
+                    $subcategorias[$value->id] = [
+                        "nome" => $value->name,
+                        "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+                    ];
+                }
+
                 $viewData = [];
+
+                $viewData['subcategorias'] = $subcategorias;
+                $viewData['categorias'] = $categorias;
+
                 $viewData["title"] = "Purchase - Online Store";
                 $viewData["subtitle"] = "Venda Status";
                 $viewData["order"] = $order;
-                $viewData['categorias'] = $categorias;
                 // SESSAO ID
                 $request->session()->put('id_venda', $order_site);
                 $request->session()->put('external_reference', $preference['external_reference']);
                 $request->session()->put('pref', $preference['id']);
 
                 return redirect()->route('purchase.order')->with("viewData", $viewData);
-            } else {
-                return redirect()->route('cart.index');
             }
             return false;
         }
     }
+
 
     public function CriarArrayProdutos(array $productInSection)
     {

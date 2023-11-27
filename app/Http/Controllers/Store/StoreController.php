@@ -29,11 +29,11 @@ class StoreController extends Controller
     public function index(Request $request)
     {
 
-        $id = User::getProducts(Auth::user()->user_subcategory);
+        // $id = User::getProducts(Auth::user()->user_subcategory);
         $viewData = [];
         $viewData['title'] = "Embaleme";
         $viewData['subtitle'] = '';
-        $viewData['products'] = Products::getProductByFornecedor($id);
+        $viewData['products'] = Products::getProducts();
         $viewData['bannersFix'] = banner::first();
         $viewData['banners'] = banner::where('id', '>', $viewData['bannersFix']->getId())->get();
         $viewData['logo'] = logo::first();
@@ -58,9 +58,9 @@ class StoreController extends Controller
 
         $viewData['subcategorias'] = $subcategorias;
 
-        if (Auth::user()->user_subcategory) {
-            $viewData['bloqueado'] = 1;
-        }
+        // if (Auth::user()->user_subcategory) {
+        //     $viewData['bloqueado'] = 1;
+        // }
 
         $viewData['categorias'] = $categorias;
         return view('store.index')->with('viewData', $viewData);

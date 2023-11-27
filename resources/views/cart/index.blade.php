@@ -7,7 +7,7 @@
                 {{ session()->get('message') }}
             </div>
         @else
-            {{-- <div class="card-header mt-4">
+            <div class="card-header mt-4">
                 Products in Cart
                 <div class="container">
                     <div class="row">
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div>
         @endif
         {{-- END MESSAGE SUCCESS REMOVE ADD CART --}}
         <form action="{{ route('cart.checkout') }}" method="get">
@@ -130,59 +130,7 @@
                                 @endforeach
                             </div>
 
-                            {{-- ACORDION START --}}
-                            <div class="accordion accordion-borderless" id="accordionFlushExampleX">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="flush-headingOneX">
-                                        <button class="accordion-button" type="button" data-mdb-toggle="collapse"
-                                            data-mdb-target="#flush-collapseOneX" aria-expanded="true"
-                                            aria-controls="flush-collapseOneX">
-                                            Endereço de Entraga
-                                        </button>
-                                    </h2>
-                                    <div id="flush-collapseOneX" class="accordion-collapse collapse show"
-                                        aria-labelledby="flush-headingOneX" data-mdb-parent="#accordionFlushExampleX">
-                                        <div class="accordion-body">
 
-                                            <div class="table-responsive mt-2">
-
-                                                <div class="row-md-12">
-                                                    <a href="{{ route('addEndereco') }}"
-                                                        class="btn btn-success btn-sm">Novo Endereço</a>
-                                                </div>
-
-                                                <table class="table table-hover mb-0 border mt-4">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Logradouro</th>
-                                                            <th>Bairro</th>
-                                                            <th>Endereço</th>
-                                                            <th>N°</th>
-                                                            <th>Cidade</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($viewData['enderecos'] as $endereco)
-                                                            <tr>
-                                                                <td><input type="radio" name="endereco"
-                                                                        value={{ "$endereco->id" }} required>
-                                                                </td>
-                                                                <td><a class="navi-link"
-                                                                        href="{{ route('editEndereco', ['id' => $endereco->id]) }}"
-                                                                        data-toggle="modal">{{ $endereco->address }}</a>
-                                                                </td>
-                                                                <td>{{ $endereco->bairro }}</td>
-                                                                <td>{{ $endereco->numero }}</td>
-                                                                <td><span>{{ $endereco->cidade }}</span></td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {{-- ACORDION END --}}

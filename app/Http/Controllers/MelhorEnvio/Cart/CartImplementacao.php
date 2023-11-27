@@ -69,22 +69,18 @@ class CartImplementacao extends CartAbstract
     public function Destinatario()
     {
         $data = [];
-        $users = Auth::user();
-
-        $data['name'] = $users->name;
-        $data['phone'] = $users->phone;
-        $data['email'] = $users->email;
-        $data['company_document'] = $users->cnpj != 0 ? $users->cnpj : "48930389000109";
-        if (isset($users->cpf)) {
-            $data['cpf'] = $users->cpf;
-        }
-        $data['address'] = $users->address;
-        $data['complement'] = $users->complemento;
-        $data['number'] = $users->numero;
-        $data['district'] = $users->bairro;
-        $data['city'] = $users->cidade;
+        $data['name'] = "Lalo Landa";
+        $data['phone'] = "199999920055";
+        $data['email'] = "test_user_33467020@testuser.com";
+        $data['company_document'] = "08469365000171";
+        $data['cpf'] = "46857167877";
+        $data['address'] = "Rua Falsa";
+        $data['complement'] ="Casa";
+        $data['number'] = "70";
+        $data['district'] = "Parque São Manoel";
+        $data['city'] = "Leme";
         $data['country_id'] = "BR";
-        $data['postal_code'] = $users->cep;
+        $data['postal_code'] = "13616450";
         return $data;
     }
 

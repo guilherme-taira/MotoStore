@@ -240,10 +240,8 @@ class Products extends Model
     }
 
 
-    public static function getProducts($id){
-        $data = DB::table('kit')
-        ->join('products', 'kit.id_product_kit', '=', 'products.id')
-        ->where('product_id', $id)->get();
+    public static function getProducts(){
+        $data = Products::paginate(10);
     return $data;
     }
 
