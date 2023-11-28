@@ -20,9 +20,9 @@ class ServicoTodosPagamento implements InterfacePagamento
         $preference->external_reference = uniqid('afilidrop');
 
         $preference->back_urls = array(
-            "success" => 'http://afilidrop.herokuapp.com//feedback',
-            "failure" => 'http://afilidrop.herokuapp.com//feedback',
-            "pending" => 'http://afilidrop.herokuapp.com//feedback',
+            "success" => 'http://afilidrop.herokuapp.com/feedback',
+            "failure" => 'http://afilidrop.herokuapp.com/feedback',
+            "pending" => 'http://afilidrop.herokuapp.com/feedback',
         );
 
         $preference->payment_methods = array(
