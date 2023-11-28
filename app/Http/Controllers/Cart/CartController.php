@@ -304,10 +304,11 @@ class CartController extends Controller
 
     public function MatchProduct($value)
     {
-        $regex = "/\produto/";
-        if (preg_match_all($regex, $value)) {
-            return true;
-        }
+        print_r($value);
+        // $regex = "/\produto/";
+        // if (preg_match_all($regex, $value)) {
+        //     return true;
+        // }
     }
 
     public function MatchQuantity($array, $value)
