@@ -175,16 +175,17 @@ class CartController extends Controller
         $volumes = [];
 
         foreach ($request->all() as $key => $value) {
-            print_r($this->MatchProduct($key));
-            // if ($this->MatchProduct($key) == true) {
-            //     $medidas = Products::findMany($value)->first();
+            // print_r($this->MatchProduct($key));
+            if ($this->MatchProduct($key) == true) {
+                $medidas = Products::findMany($value)->first();
+                print_r($medidas);
             //     $dimensoes['altura'] = $medidas->height;
             //     $dimensoes['largura'] = $medidas->width;
             //     $dimensoes['comprimento'] = $medidas->length;
             //     $dimensoes['peso'] = $medidas->weight;
             //     array_push($volumes, $dimensoes);
             //     array_push($produtos, ["produto" => $value, "quantidade" => $this->MatchQuantity($request->all(), $key)]);
-            // }
+            }
         };
 
         // foreach ($produtos as $key => $value) {
