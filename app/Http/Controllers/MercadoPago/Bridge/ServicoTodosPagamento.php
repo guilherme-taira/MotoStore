@@ -34,6 +34,8 @@ class ServicoTodosPagamento implements InterfacePagamento
 
         $preference->notification_url = "https://www.hub.embaleme.com.br/webhook/webhooktest.php";
         $preference->save();
+        echo "<pre>";
+        print_r($preference);
 
         $data = [];
         $data['id'] = $preference->id;
