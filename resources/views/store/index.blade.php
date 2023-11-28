@@ -6,7 +6,6 @@
                 {{-- DIV BANNER --}}
 
                 {{-- END DIV BANNER --}}
-
                 @if (isset($viewData['subtitle']))
                     <h2>{{ $viewData['subtitle'] }}</h2>
                 @endif
