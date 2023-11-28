@@ -175,72 +175,70 @@ class CartController extends Controller
         $volumes = [];
 
         foreach ($request->all() as $key => $value) {
-            // print_r($this->MatchProduct($key));
             if ($this->MatchProduct($key) == true) {
                 $medidas = Products::findMany($value)->first();
-                print_r($medidas);
-            //     $dimensoes['altura'] = $medidas->height;
-            //     $dimensoes['largura'] = $medidas->width;
-            //     $dimensoes['comprimento'] = $medidas->length;
-            //     $dimensoes['peso'] = $medidas->weight;
-            //     array_push($volumes, $dimensoes);
-            //     array_push($produtos, ["produto" => $value, "quantidade" => $this->MatchQuantity($request->all(), $key)]);
+                $dimensoes['altura'] = $medidas->height;
+                $dimensoes['largura'] = $medidas->width;
+                $dimensoes['comprimento'] = $medidas->length;
+                $dimensoes['peso'] = $medidas->weight;
+                array_push($volumes, $dimensoes);
+                array_push($produtos, ["produto" => $value, "quantidade" => $this->MatchQuantity($request->all(), $key)]);
             }
         };
 
-        // foreach ($produtos as $key => $value) {
-        //     $products = $request->session()->get("products");
-        //     $products[$value['produto']] = $value['quantidade'];
-        //     $request->session()->put('products', $products);
-        // }
+        foreach ($produtos as $key => $value) {
+            $products = $request->session()->get("products");
+            $products[$value['produto']] = $value['quantidade'];
+            $request->session()->put('products', $products);
+        }
 
-        // // CODIGO POSTAL
-        // $postalCode = endereco::where('id', $request->endereco)->first();
+        // CODIGO POSTAL
+        $postalCode = endereco::where('id', $request->endereco)->first();
 
-        // $cotacaoFrete = new MelhorEnvioGetDataController("13610296", '13616450', [$produtos]);
+        $cotacaoFrete = new MelhorEnvioGetDataController("13610296", '13616450', [$produtos]);
 
-        // $cotar = new MelhorEnvioRequestCotacao($cotacaoFrete);
-        // $transportadora = $cotar->resource();
+        $cotar = new MelhorEnvioRequestCotacao($cotacaoFrete);
+        $transportadora = $cotar->resource();
 
-        // $total = 0;
-        // $productInCart = [];
-        // $productInSection = $request->session()->get("products");
+        $total = 0;
+        $productInCart = [];
+        $productInSection = $request->session()->get("products");
 
-        // if ($productInSection) {
-        //     $productInCart = Products::findMany(array_keys($productInSection));
-        //     $total = $this->sumPricesByQuantities($productInCart, $productInSection);
-        // }
+        if ($productInSection) {
+            $productInCart = Products::findMany(array_keys($productInSection));
+            $total = $this->sumPricesByQuantities($productInCart, $productInSection);
+        }
 
-        // $categorias = [];
-        // foreach (categorias::all() as $value) {
-        //     $categorias[$value->id] = [
-        //         "nome" => $value->nome,
-        //         "subcategory" => sub_category::getAllCategory($value->id),
-        //     ];
-        // }
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
 
-        // $subcategorias = [];
+        $subcategorias = [];
 
-        // foreach (categorias_forncedores::all() as $value) {
+        foreach (categorias_forncedores::all() as $value) {
 
-        //     $subcategorias[$value->id] = [
-        //         "nome" => $value->name,
-        //         "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
-        //     ];
-        // }
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
 
-        // $request->session()->put('produtos', $produtos);
+        $request->session()->put('produtos', $produtos);
 
-        // $viewData = [];
-        // $viewData['subcategorias'] = $subcategorias;
-        // $viewData['categorias'] = $categorias;
-        // $viewData['title'] = "Cart MotoStore";
-        // $viewData['subtitle'] = "Shopping Cart";
-        // $viewData['total'] = $total;
-        // $viewData['products'] = $productInCart;
-        // $viewData['transportadora'] = $transportadora;
-        // $viewData['produto'] = [];
-        // return view('cart.checkout')->with("viewData", $viewData);
+        $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
+        $viewData['categorias'] = $categorias;
+        $viewData['title'] = "Cart MotoStore";
+        $viewData['subtitle'] = "Shopping Cart";
+        $viewData['total'] = $total;
+        $viewData['products'] = $productInCart;
+        $viewData['transportadora'] = $transportadora;
+        $viewData['produto'] = [];
+        return view('cart.checkout')->with("viewData", $viewData);
     }
 
     public function addItemMl(MercadoItem $item, array $array)
