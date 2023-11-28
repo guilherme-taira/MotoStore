@@ -36,7 +36,7 @@ class Pix extends AbstractPagamento
             //$item->unit_price = $data['pricePromotion'] > 0 ? $data['pricePromotion'] : $data['price'];
             $produto[] = $item;
         }
-        print_r($produto);
+
        // array_push($produto, $this->gerarFrete($this->frete));
         return $produto;
     }
