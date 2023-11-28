@@ -20,7 +20,7 @@ class ServicoPix implements InterfacePagamento
         $payment->description = 'Meu produto'; //
 
         $payment->payer = array(
-            'email' => 'gui_ssx@hotmaisl.com',
+            'email' => 'gui_ssx@hotmail.com',
         );
 
         $payment->save();

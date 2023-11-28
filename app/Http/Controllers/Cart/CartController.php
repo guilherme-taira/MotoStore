@@ -339,10 +339,11 @@ class CartController extends Controller
             array_push($produtos, ["produto" => $value['produto'], "quantidade" => $value['quantidade']]);
         };
 
-
         // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
         $frete->getDados();
+
+
         // ENVIA O FRETE PARA O CARRINHO DO MELHOR ENVIO
         $cartFrete = new CartSendFreteController($frete);
         $orderid = $cartFrete->resource();
@@ -352,7 +353,6 @@ class CartController extends Controller
         $enviar->resource();
 
         // CRIA PAGAMENTO
-        $produtos = $request->session()->get('produtos');
         // $servicoPix = new ServicoPix();
         $servicoOutrosPagamento = new ServicoTodosPagamento();
         $executar = new Pix($produtos, $orderid['price']);
