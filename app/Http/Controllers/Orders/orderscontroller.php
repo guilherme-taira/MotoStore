@@ -212,4 +212,11 @@ class orderscontroller extends Controller
             'viewData' => $viewData,
         ]);
     }
+
+    public function feedback(Request $request){
+        $data = json_decode(json_encode($request->all()));
+        echo "<pre> ";
+        print_r($data);
+        echo "<hr>merchant_order_id : $data->merchant_order_id , external_reference: $data->external_reference , payment_id : $data->payment_id ";
+    }
 }

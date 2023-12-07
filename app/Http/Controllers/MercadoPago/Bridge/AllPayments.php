@@ -22,7 +22,7 @@ class AllPayments extends AbstractPagamento
     {
         foreach ($this->getItem() as $value) {
             // serealiza todo os produtos no array
-            print_r($value);
+            // print_r($value);
             //$produto[] = new produto($value['descricao'], $value['quantidade'], $value['EAN'], $value['img'], $value['cod_prod']);
         }
     }

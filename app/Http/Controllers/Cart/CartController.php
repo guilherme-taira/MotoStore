@@ -71,7 +71,7 @@ class CartController extends Controller
         $viewData['subcategorias'] = $subcategorias;
         $viewData['categorias'] = $categorias;
         $viewData['title'] = "Cart MotoStore";
-        $viewData['enderecos'] = endereco::where('user_id', Auth::user()->id)->get();
+        // $viewData['enderecos'] = endereco::where('user_id', Auth::user()->id)->get();
         $viewData['subtitle'] = "Shopping Cart";
         $viewData['total'] = $total;
         $viewData['products'] = $productInCart;
@@ -93,8 +93,11 @@ class CartController extends Controller
 
     public function orderFinished(Request $request)
     {
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         $categorias = [];
 
         foreach (categorias::all() as $value) {
@@ -197,7 +200,7 @@ class CartController extends Controller
         // CODIGO POSTAL
         $postalCode = endereco::where('id', $request->endereco)->first();
 
-        $cotacaoFrete = new MelhorEnvioGetDataController("13610296", isset($postalCode->cep) ? $postalCode->cep : Auth::user()->cep, [$produtos]);
+        $cotacaoFrete = new MelhorEnvioGetDataController("13610296", '13616450', [$produtos]);
 
         $cotar = new MelhorEnvioRequestCotacao($cotacaoFrete);
         $transportadora = $cotar->resource();
@@ -306,10 +309,11 @@ class CartController extends Controller
 
     public function MatchProduct($value)
     {
-        $regex = "/\produto/";
-        if (preg_match_all($regex, $value)) {
-            return true;
-        }
+        print_r($value);
+        // $regex = "/\produto/";
+        // if (preg_match_all($regex, $value)) {
+        //     return true;
+        // }
     }
 
     public function MatchQuantity($array, $value)
@@ -344,6 +348,8 @@ class CartController extends Controller
         // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
         $frete->getDados();
+
+
         // ENVIA O FRETE PARA O CARRINHO DO MELHOR ENVIO
         $cartFrete = new CartSendFreteController($frete);
         $orderid = $cartFrete->resource();
@@ -353,8 +359,11 @@ class CartController extends Controller
         $enviar->resource();
 
         // CRIA PAGAMENTO
+<<<<<<< HEAD
         $produtos = $request->session()->get('produtos');
 
+=======
+>>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         // $servicoPix = new ServicoPix();
         $servicoOutrosPagamento = new ServicoTodosPagamento();
         $executar = new Pix($produtos, $orderid['price']);
@@ -364,13 +373,12 @@ class CartController extends Controller
 
         // GRAVA NO BANCO
         if ($productInSection) {
-            $userId = Auth::user()->id;
+
             $payment = 1;
             $dataPayment = new DateTime();
 
-            if ($userId) {
                 $order = new Orders();
-                $order->setUser($userId);
+                $order->setUser(2);
                 $order->setPaymentId($payment);
                 $order->setDatePayment($dataPayment->format('Y-m-d H:i:s'));
                 $order->setColor($this->SelectPaymentColor(1));
@@ -388,7 +396,7 @@ class CartController extends Controller
                 $order_site->valorVenda = $total;
                 $order_site->valorProdutos = $total;
                 $order_site->dataVenda = $dataPayment->format('Y-m-d');
-                $order_site->cliente = Auth::user()->name;
+                $order_site->cliente = "Mercado Livre";
                 $order_site->id_frete = $orderid['id'];
                 $order_site->valorFrete = $orderid['price'];
                 $order_site->status_id = 3;
@@ -403,7 +411,7 @@ class CartController extends Controller
                 // GRAVA RELACIONAMENTO DA VENDA
                 $order_user = new order_user();
                 $order_user->order = $order->getId();
-                $order_user->user = $userId;
+                $order_user->user = 2;
                 $order_user->save();
 
                 $i = 0;
@@ -426,10 +434,10 @@ class CartController extends Controller
                     $pivot_site = new pivot_site();
                     $pivot_site->order_id = $order_site->id;
                     $pivot_site->product_id = $item->id;
-                    $pivot_site->id_user = $userId;
+                    $pivot_site->id_user = 2;
                     $pivot_site->save();
                     $i++;
-                }
+
 
                 $order_site->valorVenda = $total;
                 $order_site->save();
@@ -472,12 +480,11 @@ class CartController extends Controller
                 $request->session()->put('pref', $preference['id']);
 
                 return redirect()->route('purchase.order')->with("viewData", $viewData);
-            } else {
-                return redirect()->route('cart.index');
             }
             return false;
         }
     }
+
 
     public function CriarArrayProdutos(array $productInSection)
     {

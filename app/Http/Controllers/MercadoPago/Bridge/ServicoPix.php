@@ -15,13 +15,14 @@ class ServicoPix implements InterfacePagamento
 
         $payment = new MercadoPreference();
         // Cria um item na preferência
-        $payment->transaction_amount =  $this->getValor($item); // Valor do pagamento
+        $payment->transaction_amount = 200; // Valor do pagamento
         $payment->payment_method_id = "pix"; // Método de pagamento
         $payment->description = 'Meu produto'; //
 
         $payment->payer = array(
-            'email' => 'gui_ssx@hotmaisl.com',
+            'email' => 'gui_ssx@hotmail.com',
         );
+
         $payment->save();
         $data = [];
         $data['link'] = $payment->point_of_interaction->transaction_data->ticket_url;
