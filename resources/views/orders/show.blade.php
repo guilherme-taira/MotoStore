@@ -9,7 +9,7 @@
                     <div class="col-lg-12 col-xl-12">
                         <div class="card" style="border-radius: 10px;">
                             <div class="card-header px-4 py-5">
-                                <h5 class="text-muted mb-0">Cliente: <span style="color: #a8729a;">{{$viewData['order'][0]->name}},</span>  Pedido: {{$viewData['order'][0]->order_id}}
+                                <h5 class="text-muted mb-0">Cliente: <span style="color: #a8729a;">{{$viewData['order'][0]->cliente}},</span>  Pedido: {{$viewData['order'][0]->order_id}}
                                 </h5>
                             </div>
                             <div class="card-body p-4">
@@ -23,8 +23,7 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-2">
-
-                                                    @if ($order['produto']->imageJson)
+                                                    @if (isset($order['produto']->imageJson))
                                                         <img class="img-fluid img-thumbnail" alt=""
                                                             style="width: 100px; height: 100px;"
                                                             src="{{ json_decode($order['produto']->imageJson)[0]->url }}">

@@ -4,6 +4,8 @@ use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\dashbordController;
 use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
+use App\Http\Controllers\aliexpress\AlieExpressController;
+use App\Http\Controllers\aliexpress\implementadorAuthController;
 use App\Http\Controllers\Bancario\BancarioController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\categoriaFornecedor\categoriasFornecedor;
@@ -51,8 +53,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('stores.index');
 });
-
-
 
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
@@ -108,7 +108,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 // ROTAS AUTENTICADAS
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
-        Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
+
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
@@ -119,7 +119,9 @@ Route::middleware('admin')->group(function () {
         Route::get('editarPerfil',[configuracaoController::class,'editarPerfil'])->name('editProfile');
         Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
+        Route::get('/getTokenAliexpress',[AlieExpressController::class,'getToken']);
 
+        Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
         Route::resource('subcategoriafornecedor','App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor')->names("subcategoriafornecedor");
         Route::resource('categoriasfornecedor','App\Http\Controllers\categoriaFornecedor\categoriasFornecedor')->names('categoriasfornecedor');
         Route::resource('fornecedores','App\Http\Controllers\Usuarios\FornecedorController')->names('fornecedores')->parameters(["fornecedore" => "id"]);

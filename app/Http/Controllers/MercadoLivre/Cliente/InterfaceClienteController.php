@@ -95,9 +95,11 @@ class InterfaceClienteController implements ClienteController
             $pedidos->local = 'Mercado Livre';
             $pedidos->valorVenda = $result->paid_amount;
             $pedidos->valorProdutos = $result->total_amount;
-            $pedidos->dataVenda = $result->date_closed;
+            $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
             $pedidos->cliente = $result->buyer->nickname;
             $pedidos->status_id = 3;
+            $pedidos->status = 0;
+            $pedidos->external_reference = "";
             $pedidos->save();
 
             foreach ($result->order_items as $pedido) {

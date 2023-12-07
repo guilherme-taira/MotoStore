@@ -8,7 +8,8 @@
         </div>
         <div class="card-body">
             <div class="alert alert-success" role="alert">
-                <div class="cho-container" id="botao"></div>
+                <h1>Checkout de Pagamento</h1>
+                <div class="cho-container" id="wallet_container"></div>
                 <input type="hidden" name="pref" id="pref" value="{{ session()->get('pref') }}">
             </div>
         </div>
@@ -18,25 +19,17 @@
 
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script>
-        const mp = new MercadoPago('APP_USR-4f55dc1d-3b2f-4f41-96bb-578b28ad37ad', {
-            locale: 'pt-BR'
-        });
 
-        mp.checkout({
-            preference: {
-                id: $("#pref").val(),
-            },
-            render: {
-                container: '.cho-container',
-            }
-        });
+    const mp = new MercadoPago('APP_USR-4f55dc1d-3b2f-4f41-96bb-578b28ad37ad');
+    const bricksBuilder = mp.bricks();
 
-        $(document).ready(function() {
-            setInterval(() => {
-                $('button.mercadopago-button').click();
-            }, 1000);
+    mp.bricks().create("wallet", "wallet_container", {
+        initialization: {
+            preferenceId: $("#pref").val(),
+            redirectMode: "modal"
+        },
+    });
 
-        });
     </script>
 
 

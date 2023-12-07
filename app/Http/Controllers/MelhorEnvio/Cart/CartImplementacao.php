@@ -74,7 +74,7 @@ class CartImplementacao extends CartAbstract
         $data['name'] = $users->name;
         $data['phone'] = $users->phone;
         $data['email'] = $users->email;
-        $data['company_document'] = $users->cnpj != 0 ? $users->cnpj : "48930389000109";
+        $data['company_document'] = $users->cnpj != 0 ? $users->cnpj : "08469365000171";
         if (isset($users->cpf)) {
             $data['cpf'] = $users->cpf;
         }

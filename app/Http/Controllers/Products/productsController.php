@@ -317,6 +317,7 @@ class productsController extends Controller
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $dados = json_decode($response);
+
             if ($httpcode == '200') {
                 $data = [];
                 $fotos = false;
@@ -359,6 +360,7 @@ class productsController extends Controller
                         "title" => $request->title,
                         "available_quantity" => 0
                     ];
+
                     // CADASTRA UM NOVO ANUNCIO
                     return $this->cadastrarAnuncio($request->base,$request->auth,$array);
 
@@ -379,11 +381,19 @@ class productsController extends Controller
     {
         $removeArray = [];
         $array = json_decode(json_encode($data));
-        foreach ($array as $value) {
-            unset($value->catalog_product_id);
-            array_push($removeArray, $value);
+
+        try {
+            foreach ($array as $value) {
+                unset($value->catalog_product_id);
+                // OBRIGATORIO PASSAR A QUANTIDADE DISPONIVEL DA VARIACAO
+                $value->available_quantity = "100";
+                array_push($removeArray, $value);
+            }
+            return $removeArray;
+        } catch (\Exception $th) {
+            return $th->getMessage();
         }
-        return $removeArray;
+
     }
 
     public function cadastrarAnuncio($base,$auth,$data)
@@ -391,6 +401,7 @@ class productsController extends Controller
         $token = token::where('user_id', $auth)->first();
         $endpoint = 'https://api.mercadolibre.com/items/';
         // CONVERTE O ARRAY PARA JSON
+
         if (isset($data)) {
             $data_json = json_encode($data);
 
@@ -418,7 +429,6 @@ class productsController extends Controller
     public function PutAttributes($ids, $data, $base, $auth, $descricao)
     {
         $token = token::where('user_id', $auth)->first();
-
         // ENDPOINT PARA REQUISICAO
         if (count($ids) > 1) {
             try {

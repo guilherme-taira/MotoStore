@@ -83,7 +83,8 @@ class orderscontroller extends Controller
 
         $i = 0;
         foreach ($order as $key => $product) {
-            if ($product->isKit == 1) {
+
+            if (isset($product->isKit)) {
                 foreach (Products::getProducts($product->id) as $produto) {
                     array_push($viewData['pedidos'], ['produto' => $produto, 'venda' => $order[$i]]);
                 }
@@ -93,7 +94,9 @@ class orderscontroller extends Controller
             }
         }
 
-        return view('orders.show')->with('viewData', $viewData);
+        echo "<pre>";
+        print_r($viewData);
+        // return view('orders.show')->with('viewData', $viewData);
     }
 
     /**

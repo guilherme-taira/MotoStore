@@ -61,7 +61,7 @@ class UserController extends Controller
         ]);
 
         if($newUser){
-            return back()->with('message','Cadastrado com Sucesso!');
+            return redirect()->route('users.index')->with('message','Cadastrado com Sucesso!');
         }
     }
 

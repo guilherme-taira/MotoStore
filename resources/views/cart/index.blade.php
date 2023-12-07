@@ -7,7 +7,7 @@
                 {{ session()->get('message') }}
             </div>
         @else
-            {{-- <div class="card-header mt-4">
+            <div class="card-header mt-4">
                 Products in Cart
                 <div class="container">
                     <div class="row">
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div>
         @endif
         {{-- END MESSAGE SUCCESS REMOVE ADD CART --}}
         <form action="{{ route('cart.checkout') }}" method="get">

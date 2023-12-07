@@ -32,8 +32,6 @@
     <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
 
     <title>@yield('title', 'Online Store')</title>
-
-
     <script type="text/javascript">
         //	window.addEventListener("resize", function() {
         //		"use strict"; window.location.reload();

@@ -14,6 +14,7 @@ use App\Http\Controllers\MercadoPago\Bridge\Pix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoPix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoTodosPagamento;
 use App\Models\categorias;
+use App\Models\categorias_forncedores;
 use App\Models\endereco;
 use App\Models\Items;
 use App\Models\order_site;
@@ -22,6 +23,7 @@ use App\Models\Orders;
 use App\Models\pivot_site;
 use App\Models\product_site;
 use App\Models\Products;
+use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use DateTime;
 use Illuminate\Contracts\Session\Session;
@@ -46,6 +48,7 @@ class CartController extends Controller
             $total = $this->sumPricesByQuantities($productInCart, $productInSection);
         }
 
+
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
@@ -54,7 +57,18 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
         $viewData['categorias'] = $categorias;
         $viewData['title'] = "Cart MotoStore";
         $viewData['enderecos'] = endereco::where('user_id', Auth::user()->id)->get();
@@ -80,7 +94,9 @@ class CartController extends Controller
     public function orderFinished(Request $request)
     {
 
+
         $categorias = [];
+
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
                 "nome" => $value->nome,
@@ -88,7 +104,19 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
+        $viewData['categorias'] = $categorias;
         $viewData["title"] = "Purchase - Online Store";
         $viewData["subtitle"] = "Venda Status";
         $viewData['categorias'] = $categorias;
@@ -191,9 +219,20 @@ class CartController extends Controller
             ];
         }
 
+        $subcategorias = [];
+
+        foreach (categorias_forncedores::all() as $value) {
+
+            $subcategorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+            ];
+        }
+
         $request->session()->put('produtos', $produtos);
 
         $viewData = [];
+        $viewData['subcategorias'] = $subcategorias;
         $viewData['categorias'] = $categorias;
         $viewData['title'] = "Cart MotoStore";
         $viewData['subtitle'] = "Shopping Cart";
@@ -291,7 +330,6 @@ class CartController extends Controller
         $dimensoes = [];
         $volumes = [];
 
-
         foreach ($this->CriarArrayProdutos($productInSection) as $key => $value) {
             $medidas = Products::findMany($value['produto'])->first();
             $dimensoes['altura'] = $medidas->height;
@@ -301,6 +339,7 @@ class CartController extends Controller
             array_push($volumes, $dimensoes);
             array_push($produtos, ["produto" => $value['produto'], "quantidade" => $value['quantidade']]);
         };
+
 
         // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
@@ -314,12 +353,14 @@ class CartController extends Controller
         $enviar->resource();
 
         // CRIA PAGAMENTO
-         $produtos = $request->session()->get('produtos');
-        $servicoPix = new ServicoPix();
+        $produtos = $request->session()->get('produtos');
+
+        // $servicoPix = new ServicoPix();
         $servicoOutrosPagamento = new ServicoTodosPagamento();
         $executar = new Pix($produtos, $orderid['price']);
         $executar->setTipoPagamento($servicoOutrosPagamento);
         $preference = $executar->gerarPagamento();
+
 
         // GRAVA NO BANCO
         if ($productInSection) {
@@ -339,6 +380,10 @@ class CartController extends Controller
                 $total = 0;
                 //ORDER _SITE
                 $order_site = new order_site();
+                $order_site->numeropedido = uniqid('SITE');
+                $order_site->valorDivergencia = 0;
+                $order_site->status = 0;
+                $order_site->status_id = 3;
                 $order_site->local = "LOJA VIRTUAL";
                 $order_site->valorVenda = $total;
                 $order_site->valorProdutos = $total;
@@ -394,6 +439,7 @@ class CartController extends Controller
                 // $request->session()->forget('payment');
                 // $request->session()->forget('datePayment');
 
+
                 $categorias = [];
                 foreach (categorias::all() as $value) {
                     $categorias[$value->id] = [
@@ -402,11 +448,24 @@ class CartController extends Controller
                     ];
                 }
 
+                $subcategorias = [];
+
+                foreach (categorias_forncedores::all() as $value) {
+
+                    $subcategorias[$value->id] = [
+                        "nome" => $value->name,
+                        "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
+                    ];
+                }
+
                 $viewData = [];
+
+                $viewData['subcategorias'] = $subcategorias;
+                $viewData['categorias'] = $categorias;
+
                 $viewData["title"] = "Purchase - Online Store";
                 $viewData["subtitle"] = "Venda Status";
                 $viewData["order"] = $order;
-                $viewData['categorias'] = $categorias;
                 // SESSAO ID
                 $request->session()->put('id_venda', $order_site);
                 $request->session()->put('external_reference', $preference['external_reference']);

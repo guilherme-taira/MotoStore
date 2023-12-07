@@ -19,7 +19,7 @@
             @if (!isset($viewData['mercadolivre']))
                 <div class="col-3 mt-3 mb-1">
                     <a
-                        href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://afilidrop.herokuapp.com/thankspage"><button
+                        href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://melimaximo.com.br/thankspage"><button
                             class="btn btn-warning me-md-2" type="button">Integrar Mercado
                             Livre <i class="bi bi-basket2"></i></button></a>
                 </div>

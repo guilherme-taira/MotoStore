@@ -23,7 +23,7 @@ class Pix extends AbstractPagamento
 
     public function criarProdutos()
     {
-        ML::setAccessToken("APP_USR-3029233524869952-033008-6f7fbb3eb9e6d2626a3b7eec9ac6b5d6-1272736385");
+        ML::setAccessToken("APP_USR-3029233524869952-112215-0011d4d10155cda8e855a3a6a593f1cc-1272736385");
         $produto = [];
 
         foreach ($this->getItem() as $value) {
