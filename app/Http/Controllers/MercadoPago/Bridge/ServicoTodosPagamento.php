@@ -13,20 +13,33 @@ class ServicoTodosPagamento implements InterfacePagamento
 {
     public function GerarPagamentoMercadoPago($item){
 
+<<<<<<< HEAD
         ML::setAccessToken("APP_USR-3029233524869952-112215-0011d4d10155cda8e855a3a6a593f1cc-1272736385");
         $preference = new MercadoPreference();
         // Cria um item na preferência
 
+=======
+        ML::setAccessToken("APP_USR-1040870078984189-112414-53f0b1b08d3103e224c9276ae6e21808-1562628572");
+        $preference = new MercadoPreference();
+        // Cria um item na preferência
+>>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         $preference->items = $item;
         $preference->external_reference = uniqid('afilidrop');
 
         $preference->back_urls = array(
-            "success" => 'http://afilidrop.herokuapp.com/success',
-            "failure" => 'http://afilidrop.herokuapp.com/failure',
-            "pending" => 'http://afilidrop.herokuapp.com/pending',
+            "success" => 'http://afilidrop.herokuapp.com/feedback',
+            "failure" => 'http://afilidrop.herokuapp.com/feedback',
+            "pending" => 'http://afilidrop.herokuapp.com/feedback',
         );
 
-        $preference->notification_url = "http://afilidrop.herokuapp.com";
+        $preference->payment_methods = array(
+            "excluded_payment_methods" => array(
+              array("id" => "visa")
+            ),
+            "installments" => 6
+          );
+
+        $preference->notification_url = "https://www.hub.embaleme.com.br/webhook/webhooktest.php";
         $preference->save();
 
         print_r($preference);

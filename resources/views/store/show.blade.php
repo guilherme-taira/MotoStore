@@ -432,18 +432,18 @@
                             <div class="row">
                                 <input type="hidden" id="total"
                                     value="{{ number_format($viewData['product']->price, 2, ',', '.') }}">
-                                <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
+                                {{-- <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}"> --}}
                                 <input type="hidden" name="id_produto" id="id_produto"
                                     value="{{ $viewData['product']->id }}">
                                 <div class="col-md-12">
                                     <div class="div mt-2">
-                                        @if ($viewData['token'])
+                                        {{-- @if ($viewData['token'])
                                             <button type="button" class="btn btn-success" data-bs-toggle="modal"
                                                 href="#exampleModalToggle"><i class='bi bi-arrow-left-right'></i> &nbsp;
                                                 INTEGRAR</button>
-                                        @else
+                                        @else --}}
                                             <button class="btn btn-secondy" disabled></button>
-                                        @endif
+                                        {{-- @endif --}}
                                     </div>
                                 </div>
                             </div>

@@ -11,14 +11,17 @@
                 <h1>Checkout de Pagamento</h1>
                 <div class="cho-container" id="wallet_container"></div>
                 <input type="hidden" name="pref" id="pref" value="{{ session()->get('pref') }}">
+
             </div>
         </div>
     </div>
 
     {{-- AJAX JQUERY SEARCH --}}
-
+    <script src="https://www.mercadopago.com/v2/security.js" view="checkout" output="deviceId"></script>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <input type="hidden" id="deviceId">
     <script>
+<<<<<<< HEAD
 
     const mp = new MercadoPago('APP_USR-4f55dc1d-3b2f-4f41-96bb-578b28ad37ad');
     const bricksBuilder = mp.bricks();
@@ -29,6 +32,23 @@
             redirectMode: "modal"
         },
     });
+=======
+        const mp = new MercadoPago('APP_USR-2713a3c0-cb97-422f-a30e-b6bcf4799ad6');
+        const bricksBuilder = mp.bricks();
+
+        mp.bricks().create("wallet", "wallet_container", {
+            initialization: {
+                preferenceId: $("#pref").val(),
+                redirectMode: "modal",
+
+            },
+            payment_methods: {
+                excluded_payment_methods: [{
+                    id: "visa"
+                }],
+                installments: 12
+            }
+>>>>>>> 959122204398de93c1a3ae192206df9993cc8186
 
     </script>
 
