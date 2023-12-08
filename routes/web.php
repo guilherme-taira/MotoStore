@@ -106,16 +106,11 @@ Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago']);
 // ROTAS AUTENTICADAS
-<<<<<<< HEAD
+
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
-=======
-// Route::middleware('admin')->group(function () {
-    // Route::middleware('admin_msg')->group(function () {
-
         Route::get('/feedback',[orderscontroller::class,'feedback']);
->>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
@@ -149,9 +144,8 @@ Route::middleware('admin')->group(function () {
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
         Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');
         Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
-    // });
-// });
+    });
+});
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 Auth::routes();
