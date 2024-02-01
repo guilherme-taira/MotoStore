@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Job\getProductDataController;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
+use App\Http\Controllers\MercadoLivreHandler\ConcretoDomainController;
+use App\Http\Controllers\MercadoLivreHandler\getDomainController;
 use App\Http\Controllers\Services\ServicesController;
 use App\Models\banner_autokm;
 use App\Models\banner_premium;
@@ -18,14 +20,19 @@ use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use App\Models\token;
 use App\Models\User;
+use App\Models\log as historico;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PhpParser\Parser\Tokens;
+use Throwable;
+use App\Events\logAlteracao;
+use Illuminate\Support\Facades\Auth;
 
 class productsController extends Controller
 {
@@ -123,6 +130,170 @@ class productsController extends Controller
         return redirect()->route('products.store');
     }
 
+
+    public function tradeCategoria(Request $request){
+        $this->getAttributesTrade($request);
+    }
+
+
+    public function getHistory(Request $request){
+        $logs = historico::where('user_id',$request->user)->limit(10)->orderBy('created_at', 'desc')->get();
+        $history = [];
+        foreach ($logs as $log) {
+            array_push($history,['ACAO' => $log->acao, 'PRODUTO' =>json_decode($log->message)->thumbnail, 'TEMPO' => $log->created_at,'SUCESSO'=> $log->sucesso == true ? 'success' : 'danger']);
+        }
+       return response()->json($history);
+    }
+
+    public function getAttributesTrade(Request $request)
+    {
+        if($request->base){
+             // ENDPOINT PARA REQUISICAO
+        $endpoint = 'https://api.mercadolibre.com/items/'.$request->base;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $data = json_decode($response,true);
+        // unset($data['location']);
+        // CADASTRA UM NOVO ANUNCIO
+        $trying = 1;
+        foreach ($request->id as $id) {
+            $this->refazerRequest($id,$request->user,$data,$trying);
+        }
+
+        }else{
+            // ENDPOINT PARA REQUISICAO
+            $endpoint = 'https://api.mercadolibre.com/items/'.$request->id;
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $data = json_decode($response,true);
+
+            if($request->categoria){
+                // TROCAR A CATEGORIA
+                $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user);
+            }
+        }
+
+    }
+
+    public function refazerRequest($id,$user,$data,$trying) {
+
+        $endpoint = 'https://api.mercadolibre.com/items/'.$id;
+
+        $token = token::where('user_id_mercadolivre',$user)->first();
+
+            unset($data['location']);
+
+            $data_json = json_encode($data);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse);
+
+            if ($httpCode == '200') {
+
+                logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
+                echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Anúncio Finalizado com Sucesso</li>";
+            } else {
+                echo "<li class='list-group-item bg-warning text-dark' id='apagaError'><i class='bi bi-tools'></i>  $trying"."° Tentativa - Arrumando Erros de Forma Recursiva..</li>";
+                    Log::notice(json_encode($json));
+                    Log::notice($data_json);
+                try {
+                    $domain = new getDomainController('12',$data['attributes']);
+                    $concreto = new ConcretoDomainController($domain);
+                    $concreto->CallAttributes($data);
+                    $data_json = $concreto->CallErrorAttributes($json,$data);
+
+                    $trying++;
+                     $this->refazerRequest($id,$user,$data_json,$trying);
+
+                     if($trying > 10){
+                        exit(0);
+                    }
+                } catch (\Throwable $th) {
+                    echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Error no Produto..</li>";
+                    logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,false);
+                    Log::error($th->getMessage());
+                }
+
+            }
+
+    }
+
+    public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user) {
+        $ids = $id;
+        $category = $categoria;
+        // NUMERO DE TENTATIVAS
+        $endpoint = 'https://api.mercadolibre.com/items/'. $ids;
+
+        $token = token::where('user_id_mercadolivre',$user)->first();
+
+            if($try){
+                $data_json = json_encode($data);
+            }else{
+                $data_json = json_encode(['category_id' => $categoria]);
+                $try = TRUE;
+            }
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse);
+
+            if ($httpCode == '200') {
+                logAlteracao::dispatch('TROCA DE CATEGORIA',$user,$reponse,true);
+                echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
+            } else {
+                echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Arrumando Pendências..</li>";
+                // Log::notice(json_encode($json));
+                // Log::notice($data_json);
+                try {
+                    $domain = new getDomainController('12',$data['attributes']);
+                    $concreto = new ConcretoDomainController($domain);
+                    $concreto->CallAttributes($data);
+                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category);
+
+                    $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user);
+                } catch (\Throwable $th) {
+                    logAlteracao::dispatch('TROCA DE CATEGORIA',$user,$reponse,false);
+                    Log::error($th->getMessage());
+                }
+
+            }
+
+    }
     /**
      * Display the specified resource.
      *
@@ -827,5 +998,64 @@ class productsController extends Controller
         foreach ($produtos as $value) {
             \App\Jobs\getStockPrice::dispatch($value->id_mercadolivre);
         }
+    }
+
+    public function getProducts(Request $request){
+
+        Log::info(json_encode($request->all()));
+        try {
+            $token = token::where('user_id_mercadolivre', $request->user)->first();
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = "https://api.mercadolibre.com/users/{$request->user}/items/search?status={$request->status}&search_type=scan&q={$request->item}";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $res = json_decode($response);
+
+        $input = [];
+        foreach ($res->results as $key => $value) {
+            array_push($input,json_decode($this->getDataProducts($value)));
+
+        }
+        Log::info($endpoint);
+        return response()->json(['results' => $input]);
+
+        } catch (\Exception $e) {
+            Log::alert($e->getMessage());
+        }
+
+    }
+
+    public function getDataProducts($id){
+
+        try {
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = "https://api.mercadolibre.com/items/{$id}";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json']);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return $response;
+
+        } catch (\Exception $e) {
+            Log::alert($e->getMessage());
+        }
+
     }
 }

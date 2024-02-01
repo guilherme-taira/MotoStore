@@ -31,6 +31,7 @@ use App\Http\Controllers\Report\reportController;
 use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
+use App\Http\Controllers\Test\testController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Usuarios\FornecedorController as UsuariosFornecedorController;
 use App\Http\Middleware\AdminAccess;
@@ -110,6 +111,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
+        Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
