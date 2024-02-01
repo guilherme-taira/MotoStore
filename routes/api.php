@@ -27,7 +27,10 @@ Route::prefix('v1')->group(function () {
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
+    Route::get("/getUserID",[GetTokenForApi::class,'getUserID']);
     Route::post("/getAttributesById",[productsController::class,'getAttributes']);
+    Route::post("/tradeCategoria",[productsController::class,'tradeCategoria']);
+    Route::post('/getHistory',[productsController::class,'getHistory']);
     Route::get('products', [productsController::class, 'getAllProduct']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);
@@ -39,6 +42,7 @@ Route::prefix('v1')->group(function () {
     Route::get('imageById/{id}',[Products::class,'productWithImageById']);
     Route::get('images/{id}',[productsController::class,'imagesByProduct']);
     Route::get('updateProducts',[productsController::class,'updateProduct']);
+    Route::get('getProductsApi',[productsController::class,'getProducts']);
     Route::post('code',[StoreController::class,'getCode']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
