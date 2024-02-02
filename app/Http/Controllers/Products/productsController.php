@@ -236,7 +236,6 @@ class productsController extends Controller
                     }
                 } catch (\Throwable $th) {
                     echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Error no Produto..</li>";
-                    logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,false);
                     Log::error($th->getMessage());
                 }
 
@@ -287,7 +286,6 @@ class productsController extends Controller
 
                     $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user);
                 } catch (\Throwable $th) {
-                    logAlteracao::dispatch('TROCA DE CATEGORIA',$user,$reponse,false);
                     Log::error($th->getMessage());
                 }
 

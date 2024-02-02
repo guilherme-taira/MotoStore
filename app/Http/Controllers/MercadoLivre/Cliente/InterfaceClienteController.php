@@ -97,9 +97,12 @@ class InterfaceClienteController implements ClienteController
             $pedidos->valorProdutos = $result->total_amount;
             $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
             $pedidos->cliente = $result->buyer->nickname;
-            $pedidos->status_id = 3;
-            $pedidos->status = 0;
+            $pedidos->status_id = 1;
+            $pedidos->preferenceId = 1;
             $pedidos->external_reference = "";
+            $pedidos->status_mercado_livre = "0";
+            $pedidos->id_pagamento = 0;
+            $pedidos->link_pagamento = "";
             $pedidos->save();
 
             foreach ($result->order_items as $pedido) {
@@ -115,7 +118,7 @@ class InterfaceClienteController implements ClienteController
                     // PIVOT
                     $venda_pivot = new pivot_site();
                     $venda_pivot->order_id = $pedidos->id;
-                    $venda_pivot->product_id = $produto->id;
+                    // $venda_pivot->product_id = $produto->id;
                     $venda_pivot->id_user = Auth::user()->id;
                     $venda_pivot->save();
                 }

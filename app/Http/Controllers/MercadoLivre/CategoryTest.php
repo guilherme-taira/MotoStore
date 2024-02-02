@@ -18,4 +18,15 @@ class CategoryTest extends Controller
             "viewData" => $viewData
         ]);
     }
+
+
+    public function categoria(){
+        $viewData = [];
+        $viewData["title"] = "Alterador de Categoria";
+        $viewData['auth'] = Auth::user()->name;
+
+        return view('mercadolivre.categoria',[
+            "viewData" => $viewData
+        ]);
+    }
 }
