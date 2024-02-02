@@ -21,7 +21,7 @@ class CreateOrderSite extends Migration
             $table->float('valorProdutos');
             $table->date('dataVenda');
             $table->timestamp('dataDivergencia')->nullable();
-            $table->float('valorDivergencia');
+            $table->float('valorDivergencia')->default(0);
             $table->string('cliente')->nullable();
             $table->timestamps();
         });

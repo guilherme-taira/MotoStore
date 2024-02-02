@@ -115,6 +115,7 @@ Route::middleware('admin')->group(function () {
         Route::get('/feedback',[orderscontroller::class,'feedback']);
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
+        Route::get("/categorias2",[CategoryTest::class,'categoria']);
         Route::get('configuracao',[configuracaoController::class,'configuracoes'])->name('settings');
         Route::get('endereco',[configuracaoController::class,'address'])->name('address');
         Route::get('addEndereco',[configuracaoController::class,'create'])->name('addEndereco');

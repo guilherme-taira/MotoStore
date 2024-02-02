@@ -14,7 +14,7 @@ class AlterUserFornecedor extends Migration
     public function up()
     {
         Schema::table('users',function(Blueprint $table){
-            $table->integer('forncecedor');
+            $table->integer('forncecedor')->default(0);
         });
     }
 

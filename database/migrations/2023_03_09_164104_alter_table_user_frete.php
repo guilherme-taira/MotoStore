@@ -14,16 +14,16 @@ class AlterTableUserFrete extends Migration
     public function up()
     {
         Schema::table('users',function(Blueprint $table){
-            $table->string('phone');
+            $table->string('phone')->default("0");;
             $table->string('cpf')->default("0");
             $table->string('cnpj')->default("0");
-            $table->text('address');
-            $table->text('complemento');
-            $table->string('numero');
-            $table->string('bairro');
-            $table->string('cidade');
+            $table->text('address')->default("");;
+            $table->text('complemento')->default("");;
+            $table->string('numero')->default("0");;
+            $table->string('bairro')->default("0");;
+            $table->string('cidade')->default("0");;
             $table->string('id_pais')->default('BR');
-            $table->string('cep');
+            $table->string('cep')->default("0");;
         });
     }
 
