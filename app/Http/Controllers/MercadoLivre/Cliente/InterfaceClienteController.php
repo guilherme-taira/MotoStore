@@ -97,7 +97,7 @@ class InterfaceClienteController implements ClienteController
             $pedidos->valorProdutos = $result->total_amount;
             $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
             $pedidos->cliente = $result->buyer->nickname;
-            $pedidos->status_id = 1;
+            $pedidos->status_id = 4;
             $pedidos->preferenceId = 1;
             $pedidos->external_reference = "";
             $pedidos->status_mercado_livre = "0";
