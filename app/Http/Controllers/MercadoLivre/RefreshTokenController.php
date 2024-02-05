@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 define("URL_BASE_REFRESH_TOKEN_MERCADOLIVRE", "https://api.mercadolibre.com/oauth/token");
 
-class RefreshTokenController implements refreshToken
+class RefreshTokenController extends Controller
 {
     private $refreshToken;
     private $client_id;
