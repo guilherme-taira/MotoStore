@@ -118,7 +118,7 @@ class InterfaceClienteController implements ClienteController
                     // PIVOT
                     $venda_pivot = new pivot_site();
                     $venda_pivot->order_id = $pedidos->id;
-                    // $venda_pivot->product_id = $produto->id;
+                    $venda_pivot->product_id = $produto->id;
                     $venda_pivot->id_user = Auth::user()->id;
                     $venda_pivot->save();
                 }
