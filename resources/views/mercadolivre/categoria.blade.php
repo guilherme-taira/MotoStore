@@ -369,7 +369,7 @@
 
             function trataError(data) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/trataErroMl",
+                    url: "https://melimaximo.com.br/api/v1/trataErroMl",
                     type: "POST",
                     data: {
                         "data": {
@@ -403,7 +403,7 @@
             function getToken() {
                 console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getTokenMl",
+                    url: "https://melimaximo.com.br/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -421,7 +421,7 @@
             // FUNCAO PARA CHAMAR TOKE
             function sendProductIdForServer(data, base, access_token,atributos,tp_cadastro = "N/D",title = "N/D") {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getAttributesById",
+                    url: "https://melimaximo.com.br/api/v1/getAttributesById",
                     type: "POST",
                     data: {
                         "id": data,
