@@ -132,9 +132,8 @@ class productsController extends Controller
 
 
     public function tradeCategoria(Request $request){
-        $this->getAttributesTrade($request);
+        return $this->getAttributesTrade($request);
     }
-
 
     public function getHistory(Request $request){
         $logs = historico::where('user_id',$request->user)->limit(10)->orderBy('created_at', 'desc')->get();
@@ -165,7 +164,7 @@ class productsController extends Controller
         // CADASTRA UM NOVO ANUNCIO
         $trying = 1;
         foreach ($request->id as $id) {
-            $this->refazerRequest($id,$request->user,$data,$trying);
+           return $this->refazerRequest($id,$request->user,$data,$trying);
         }
 
         }else{
@@ -215,11 +214,9 @@ class productsController extends Controller
             $json = json_decode($reponse);
 
             if ($httpCode == '200') {
-
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
-                echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Anúncio Finalizado com Sucesso</li>";
+                echo 200;
             } else {
-                echo "<li class='list-group-item bg-warning text-dark' id='apagaError'><i class='bi bi-tools'></i>  $trying"."° Tentativa - Arrumando Erros de Forma Recursiva..</li>";
                     Log::notice(json_encode($json));
                     Log::notice($data_json);
                 try {
@@ -276,8 +273,8 @@ class productsController extends Controller
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
             } else {
                 echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Arrumando Pendências..</li>";
-                // Log::notice(json_encode($json));
-                // Log::notice($data_json);
+                Log::notice(json_encode($json));
+                Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
@@ -467,6 +464,36 @@ class productsController extends Controller
         $products = Products::where('isPublic', true)->paginate(10);
         if ($products) {
             return response()->json(["products" => $products]);
+        }
+    }
+
+    public function getAttributesForVariations(Request $request)
+    {
+
+        Log::alert(json_encode($request->all()));
+        // ENDPOINT PARA REQUISICAO
+        $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
+
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $dados = json_decode($response);
+
+            if ($httpcode == '200') {
+               $array = [];
+               $array = ["pictures" => $dados->pictures, "variations" =>  $this->removeCategoryIdFromJson($dados->variations)];
+                // ATUALIZA O ANUNCIO
+                return $this->PutAttributesForVariations($request->id, $array, $request->user);
+            }
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
         }
     }
 
@@ -677,6 +704,48 @@ class productsController extends Controller
                 return response()->json($e->getMessage());
             }
         }
+    }
+
+
+    public function PutAttributesForVariations($id, $data, $auth)
+    {
+        $token = token::where('user_id_mercadolivre', $auth)->first();
+        // ENDPOINT PARA REQUISICAO
+
+            try {
+                $res = [];
+
+                    $endpoint = 'https://api.mercadolibre.com/items/' . $id;
+                    // CONVERTE O ARRAY PARA JSON
+                    if (isset($data)) {
+                        $data_json = json_encode($data);
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $endpoint);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+                        $reponse = curl_exec($ch);
+                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+                        Log::critical($reponse);
+                        $json = json_decode($reponse);
+                        if ($httpCode == '200') {
+                            return "<li class='list-group-item bg-success py-2 text-white'><i class='bi bi-check-circle-fill'></i> Variações Criada com Sucesso</li>";
+                        }else{
+                            Log::error($reponse);
+                        }
+                    }
+
+                return response()->json($res);
+            } catch (\Exception $e) {
+                // return response()->json($e->getMessage());
+            }
+
+
     }
 
     public function getDescription($idproduto)
@@ -1023,7 +1092,7 @@ class productsController extends Controller
             array_push($input,json_decode($this->getDataProducts($value)));
 
         }
-        Log::info($endpoint);
+
         return response()->json(['results' => $input]);
 
         } catch (\Exception $e) {

@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
     Route::post("/tradeCategoria",[productsController::class,'tradeCategoria']);
     Route::post('/getHistory',[productsController::class,'getHistory']);
     Route::get('products', [productsController::class, 'getAllProduct']);
+    Route::post('getAttributesForVariations',[productsController::class,'getAttributesForVariations']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);
     Route::get('categorias', [categorias::class,'getAllCategories']);

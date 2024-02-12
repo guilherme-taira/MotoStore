@@ -99,7 +99,7 @@ class InterfaceClienteController implements ClienteController
             $pedidos->cliente = $result->buyer->nickname;
             $pedidos->status_id = 4;
             $pedidos->preferenceId = 1;
-            $pedidos->external_reference = "";
+            $pedidos->external_reference = "1";
             $pedidos->status_mercado_livre = "0";
             $pedidos->id_pagamento = 0;
             $pedidos->link_pagamento = "";
