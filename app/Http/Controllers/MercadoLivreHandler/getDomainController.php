@@ -139,6 +139,10 @@ class getDomainController extends Controller
         return (array) $dados;
     }
 
+    function getShortenedTitle($title) {
+        return substr($title, 0, 60);
+    }
+
     public function DeleteAttribute($data,$array){
 
         $arrayData = (array) $data;
@@ -307,6 +311,7 @@ class getDomainController extends Controller
          }
         }
 
+        $arrayData['title'] = $this->getShortenedTitle($arrayData['title']);
         return $arrayData;
     }
 
@@ -321,7 +326,7 @@ class getDomainController extends Controller
         foreach ($message->cause as $value) {
             if($value->cause_id == 147){
                 $dados = $this->extrairPalavrasMaiusculas($value->message);
-                Log::emergency(json_encode($dados));
+                // Log::emergency(json_encode($dados));
                 foreach ($this->getAttributescategoria($category_id) as $categoria) {
                     if(in_array($categoria->id,$dados)){
                         $categoria->values =[array_shift($categoria->values)];
@@ -336,7 +341,7 @@ class getDomainController extends Controller
             'attributes' => $attributes
         ];
 
-        Log::warning(json_encode($data));
+        // Log::warning(json_encode($data));
 
         return $data;
     }

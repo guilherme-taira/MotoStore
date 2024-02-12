@@ -67,28 +67,91 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" data-bs-toggle="modal" id="abrirModal" href="#abrirModal22"
-                            role="button">Criar Variações</button>
+                        <button class="btn btn-primary d-none" data-bs-toggle="modal" id="abrirModal" href="#abrirModal" role="button">Open first modal</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="modal fade modal-xl" id="exampleModalToggle" aria-hidden="true"
+            aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Pesquisar Produtos </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{-- CONTENT MODAL START --}}
 
-        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2"
-            tabindex="-1">
+                        <div id="loading">
+                            <button class="btn btn-success" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Loading...
+                            </button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="validationCustom04" class="form-label">Status dos Anúncios</label>
+                            <select class="form-select" id="statusproduto">
+                                <option value="active" selected>Ativo</option>
+                                <option value="paused">Inativo</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a valid state.
+                            </div>
+                        </div>
+
+                        <div class="input-group mt-2">
+                            <input type="text" class="form-control" id="nome_produto_by_user"
+                                placeholder="Nome da categoria..." />
+
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="pesquisar" type="button">Pesquisar</button>
+                            </div>
+
+                            <table class="table mt-4">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">FOTO</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">IMAGEM</th>
+                                        <th scope="col">PREÇO</th>
+                                        <th scope="col">SELECIONAR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataAnuncio">
+
+
+                                </tbody>
+                            </table>
+
+                            {{-- CONTENT MODAL END --}}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true"
+            aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Modal 2</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         Hide this modal and show the first with the button below.
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Finalizar</button>
+                        <button class="btn btn-primary" data-bs-target="#exampleModalToggle"
+                            data-bs-toggle="modal">Back to first</button>
                     </div>
                 </div>
             </div>
@@ -96,17 +159,28 @@
 
         <form id="formulario">
             <div class="input-group">
-                <span class="input-group-text">Anúncio / Anúncio Base</span>
-                <input type="text" class="form-control" id="id"
-                    placeholder="Código do anúncio que sofrerá Mudança." />
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" id="botao_anuncio"data-bs-toggle="modal"
+                    href="#exampleModalToggle">
+                    Pesquisar Anúncio <i class="bi bi-search"></i>
+                </button>
+
                 <input type="text" class="form-control" id="base" placeholder="Código do anúncio base." />
-                <div class="input-group-append">
-                    <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
+
+                <div class="card" id="card_produto_receive" style="width: 400px; height:100px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="" id="foto_anuncio" class="img-fluid rounded-start py-2">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title" id="title_anuncio_insert"></h5>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-
-
             <span class="badge text-bg-info text-white mt-4">
                 <h5>{{ $viewData['auth'] }}</h5>
             </span>
@@ -125,6 +199,38 @@
                 </div>
             </div>
 
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    Selecione os Atributos
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Atributos transferido</h5>
+                    <div class="container mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="descricao"
+                                id="checkbox_id">
+                            <label class="form-check-label" for="descricao">
+                                Descrição
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="fotos"
+                                id="checkbox_id">
+                            <label class="form-check-label" for="fotos">
+                                Fotos
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="info"
+                                id="checkbox_id">
+                            <label class="form-check-label" for="info">
+                                Ficha Técnica
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="card mt-4">
                 <div class="card-header">
@@ -151,6 +257,7 @@
                         </label>
                     </div>
                 </div>
+
             </div>
 
             <div id="conteudo-categoria">
@@ -220,7 +327,8 @@
         </form>
     </div>
 
-    <div class="modal fade" id="abrirModal22" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+
+    <div class="modal fade" id="abrirModal" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
         tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -249,15 +357,19 @@
                     <h1 class="modal-title fs-5" id="exampleModalToggle">Aguardando Variação</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="VerificadoVariacao">
+                <div class="modal-body">
                     <div class="spinner-border spinner-border-sm" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
+
                     Aguardando você criar a variação... <span id="temporizador">120</span>
+
+
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success d-none" id="secoundStep" data-bs-target="#exampleModalToggle3"
-                        data-bs-toggle="modal">Subir Variações</button>
+                    <button class="btn btn-primary" id="secoundStep" data-bs-target="#exampleModalToggle3"
+                        data-bs-toggle="modal">Back to
+                        first</button>
                 </div>
             </div>
         </div>
@@ -267,14 +379,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel3">Resultado</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel3">Modal 3</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="resultado_variacao">
-
+                <div class="modal-body">
+                    Hide this modal and show the first with the button below.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Fechar</button>
+                    <button class="btn btn-primary" data-bs-target="#abrirModal" data-bs-toggle="modal">Back to
+                        first</button>
                 </div>
             </div>
         </div>
@@ -303,6 +416,7 @@
                 // getProductByName(inputValue,$("#user").val(),$("#token").val());
             });
 
+
             $("#conteudo-categoria").attr("class", "d-none");
 
             $("input#radioCategoria").change(function() {
@@ -328,13 +442,23 @@
             }
 
             pegarToken();
+
             $("#inserir").click(function() {
-                var item = getProduct($("#id").val());
-                if (item !== "") {
-                    var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
+
+                // Find all checked checkboxes and append their values to the list
+                $(":checkbox:checked").each(function() {
+                    let value = $(this).val();
+                    if (value !== "") {
+                        var listItem = $(`<li id="ids_li">${value}</li>`);
+                    }
+
                     $("#titulo-anuncio").append(listItem);
-                    $("#id").val("");
-                }
+                    $("#exampleModalToggle").modal("hide");
+                    // $("#selectedItems").append(`<li>${value}</li>`);
+                });
+
+                // var item = getProduct($("#id").val());
+
             });
 
             $("#base").on("keyup", function() {
@@ -419,7 +543,7 @@
             function getAllHistoryByUser($user) {
 
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getHistory",
+                    url: "http://127.0.0.1:8000/api/v1/getHistory",
                     type: "POST",
                     data: {
                         "user": $("#user").val()
@@ -474,7 +598,7 @@
                 };
 
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/tradeCategoria`,
+                    url: `http://127.0.0.1:8000/api/v1/tradeCategoria`,
                     type: "POST",
                     data: JSON.stringify(body),
                     headers: {
@@ -536,7 +660,7 @@
 
             function ConteudoCategory(category) {
                 $.ajax({
-                    url: "https://api.mercadolibre.com/categories/" + category,
+                    url: " https://api.mercadolibre.com/categories/" + category,
                     type: "GET",
                     success: function(response) {
                         if (response) {
@@ -569,7 +693,7 @@
             function getToken() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getTokenMl",
+                    url: "http://127.0.0.1:8000/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -588,7 +712,7 @@
             function getUserID() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getUserID",
+                    url: "http://127.0.0.1:8000/api/v1/getUserID",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -603,18 +727,6 @@
                 });
             }
 
-            $("#secoundStep").click(function () {
-
-                var ids = [];
-                var base = $("#base").val();
-                var title = $("#title_anuncio").val();
-                var sList = "";
-                $("li#ids_li").each(function(index, element) {
-                    sendProductIdForVariations($(element).text(),base);
-                });
-
-
-            });
 
             $("#firstStep").click(function() {
 
@@ -630,44 +742,40 @@
                             clearInterval(intervalo);
                             setTimeout(ativerIntervalo, 3000);
                         }
-                        $("li#ids_li").each(function(index, element) {
 
-                            $.ajax({
-                                url: `https://api.mercadolibre.com/items/${$(element).text()}`,
-                                type: "GET",
-                                headers: {
-                                    "Content-Type": 'application/json',
-                                    'Accept': 'application/json'
-                                },
-                                success: function(response) {
-                                    if (response) {
-                                        if (response.variations.length > 0) {
-                                            $("#VerificadoVariacao").empty().append(`<div class="alert alert-success" role="alert">Variação Verificada com Sucesso</div>`);
-                                            $("#secoundStep").removeClass('d-none');
-                                            clearTimeout(ativerIntervalo);
-                                        }
+
+                        $.ajax({
+                            url: `https://api.mercadolibre.com/items/MLB3570430851`,
+                            type: "GET",
+                            headers: {
+                                "Content-Type": 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            success: function(response) {
+                                if (response) {
+                                    if (response.variations.length > 0) {
+                                        alert("variação criada com sucesso!");
                                     }
-                                },
-                                error: function(xhr, status, error) {
-                                    // Lógica para lidar com o erro
-                                    $("#relatorio_erro").val(xhr
-                                        .responseText);
-                                    trataError(xhr.responseText);
                                 }
-                            });
+                            },
+                            error: function(xhr, status, error) {
+                                // Lógica para lidar com o erro
+                                $("#relatorio_erro").val(xhr.responseText);
+                                trataError(xhr.responseText);
+                            }
                         });
 
-                        }, 1000);
-
+                    }, 1000);
                 };
                 ativerIntervalo();
+
 
             });
 
             // FUNCAO PARA CHAMAR TOKEN
             function sendProductIdForServer(data, base) {
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/tradeCategoria",
+                    url: "http://127.0.0.1:8000/api/v1/tradeCategoria",
                     type: "POST",
                     data: {
                         "id": data,
@@ -675,35 +783,24 @@
                         "user": $("#user").val()
                     },
                     success: function(response) {
+
                         if (response == 200 || response == "200") {
                             // REMOVE O EFEITO HIDDEN
                             $("#abrirModal").removeClass('d-none');
 
                             $("#resultadoServer").append(
                                 "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Anúncio Finalizado com Sucesso</li>"
-                            );
+                                );
                         } else {
                             $("#resultadoServer").append(
                                 "<li class='list-group-item bg-warning text-dark' id='apagaError'><i class='bi bi-tools'></i> Arrumando Erros de Forma Recursiva..</li>"
-                            );
+                                );
                         }
-                    },
-                });
-            }
 
-               // FUNCAO PARA CHAMAR TOKEN
-               function sendProductIdForVariations(data, base) {
-                $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getAttributesForVariations",
-                    type: "POST",
-                    data: {
-                        "id": data,
-                        "base": base,
-                        "user": $("#user").val()
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        $("#resultado_variacao").append(response);
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+
+                        }
                     },
                 });
             }
@@ -755,7 +852,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function getAllProducts(name = null, inputdata = "", status = "active") {
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
+                    url: `http://127.0.0.1:8000/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
                     // url: `https://api.mercadolibre.com/sites/MLB/search?status=${status}&seller_id=s${name}`,
                     type: "GET",
 
