@@ -32,7 +32,13 @@ use Illuminate\Support\Facades\Validator;
 use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
+use App\Http\Controllers\MercadoLivre\Generatecharts;
+use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
+use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
+use App\Http\Controllers\MercadoLivre\MlbTipos;
 use Illuminate\Support\Facades\Auth;
+
+// ini_set('max_execution_time', 5); //300 seconds = 5 minutes
 
 class productsController extends Controller
 {
@@ -160,11 +166,10 @@ class productsController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $data = json_decode($response,true);
-        // unset($data['location']);
+
         // CADASTRA UM NOVO ANUNCIO
-        $trying = 1;
         foreach ($request->id as $id) {
-           return $this->refazerRequest($id,$request->user,$data,$trying);
+           return $this->refazerRequest($id,$request->user,$data,$data['domain_id']);
         }
 
         }else{
@@ -190,7 +195,26 @@ class productsController extends Controller
 
     }
 
-    public function refazerRequest($id,$user,$data,$trying) {
+    public function isClother($attr,$auth):bool {
+
+        $context = stream_context_create([
+            "http" => [
+                "header" => "Authorization: Bearer $auth->access_token"
+            ]
+        ]);
+
+        $dominios = file_get_contents('https://api.mercadolibre.com/catalog/charts/MLB/configurations/active_domains',false,$context);
+
+        foreach (array_values(json_decode($dominios,true)['domains']) as $value) {
+            if($value['domain_id'] == $attr){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public function refazerRequest($id,$user,$data,$domain) {
 
         $endpoint = 'https://api.mercadolibre.com/items/'.$id;
 
@@ -217,20 +241,16 @@ class productsController extends Controller
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
                 echo 200;
             } else {
-                    Log::notice(json_encode($json));
-                    Log::notice($data_json);
+                    // Log::notice(json_encode($json));
+                    // Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
                     $data_json = $concreto->CallErrorAttributes($json,$data);
 
-                    $trying++;
-                     $this->refazerRequest($id,$user,$data_json,$trying);
+                    $this->refazerRequest($id,$user,$data_json,$domain);
 
-                     if($trying > 10){
-                        exit(0);
-                    }
                 } catch (\Throwable $th) {
                     echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Error no Produto..</li>";
                     Log::error($th->getMessage());
@@ -470,9 +490,11 @@ class productsController extends Controller
     public function getAttributesForVariations(Request $request)
     {
 
-        Log::alert(json_encode($request->all()));
+
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
+
+        $token = token::where('user_id_mercadolivre', $request->user)->first();
 
         try {
             $ch = curl_init();
@@ -486,6 +508,23 @@ class productsController extends Controller
             curl_close($ch);
             $dados = json_decode($response);
 
+            if($this->isClother($dados->domain_id,$token)){
+                $tipo = new MlbTipos($dados->domain_id);
+                $call = (new MlbCallAttributes($tipo))->resource();
+                $dadosAttr = $tipo->requiredAtrributes($call,$dados);
+                $chart = new GeneratechartsSneakers();
+                $newCharts = new Generatecharts("GRADE UNIVERSAL".uniqid('CHART'),'MLB-SNEAKERS',$dadosAttr,$chart->getMainAttribute(),$chart->getAttributesSneakers());
+                $chart = $newCharts->requestChart($request->user);
+                $variacao = $newCharts->insertDataResult($dados,$chart);
+
+                if ($httpcode == '200') {
+                    $array = [];
+                    $array = ["attributes" => [$chart['id']], "pictures" => $dados->pictures, "variations" => $variacao];
+                    // ATUALIZA O ANUNCIO
+                     return $this->PutAttributesForVariations($request->id, $array, $request->user);
+                 }
+            }
+
             if ($httpcode == '200') {
                $array = [];
                $array = ["pictures" => $dados->pictures, "variations" =>  $this->removeCategoryIdFromJson($dados->variations)];
@@ -493,6 +532,7 @@ class productsController extends Controller
                 return $this->PutAttributesForVariations($request->id, $array, $request->user);
             }
         } catch (\Exception $e) {
+            Log::emergency($e->getMessage());
             return response()->json($e->getMessage());
         }
     }
@@ -719,7 +759,7 @@ class productsController extends Controller
                     // CONVERTE O ARRAY PARA JSON
                     if (isset($data)) {
                         $data_json = json_encode($data);
-
+                        Log::critical($data_json);
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $endpoint);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -731,7 +771,7 @@ class productsController extends Controller
                         $reponse = curl_exec($ch);
                         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         curl_close($ch);
-                        Log::critical($reponse);
+
                         $json = json_decode($reponse);
                         if ($httpCode == '200') {
                             return "<li class='list-group-item bg-success py-2 text-white'><i class='bi bi-check-circle-fill'></i> Variações Criada com Sucesso</li>";
