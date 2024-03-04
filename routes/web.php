@@ -133,7 +133,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('nfts','App\Http\Controllers\nft\nftcontroller')->names('nfts')->parameters(["nft" => "id"]);
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
-        Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
+        Route::resource('categoriasweb', 'App\Http\Controllers\Categorias\categorias')->names('categoriasweb')->parameters(['categoriasweb' => 'id']);
         Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
         Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
         Route::resource('user', 'App\Http\Controllers\User\UserController')->names('user')->parameters(['user' => 'id']);

@@ -106,19 +106,7 @@
                                     </td>
                                     <td>{{ $order['pedido']->cliente }}</td>
                                     <td>R$ {{ $order['pedido']->valorVenda }}</td>
-                                    <td class="text-start">
-                                        @for ($i = 0; $i < count($order['produtos']); $i++)
-                                            @if ($order['produtos'][$i]->imageJson)
-                                                <img class="img-fluid img-thumbnail" alt=""
-                                                    style="width: 50px; height: 50px;"
-                                                    src="{{ json_decode($order['produtos'][$i]->imageJson)[0]->url }}">
-                                            @else
-                                                <img class="img-fluid img-thumbnail" alt=""
-                                                    style="width: 50px; height: 50px;"
-                                                    src="{{ Storage::disk('s3')->url('produtos/' . $order['produtos'][$i]->id . '/' . $order['produtos'][$i]->image) }}">
-                                            @endif
-                                        @endfor
-                                    </td>
+
                                     <td>{{ $order['pedido']->email }} / {{ $order['pedido']->phone }}</td>
                                     <td>R$: {{ $order['pedido']->valorFrete }}</td>
                                     <td>{{ $order['pedido']->local }}</td>

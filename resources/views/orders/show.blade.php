@@ -22,29 +22,18 @@
                                     <div class="card shadow-0 border mb-4">
                                         <div class="card-body">
                                             <div class="row">
-                                                <div class="col-md-2">
-                                                    @if (isset($order['produto']->imageJson))
-                                                        <img class="img-fluid img-thumbnail" alt=""
-                                                            style="width: 100px; height: 100px;"
-                                                            src="{{ json_decode($order['produto']->imageJson)[0]->url }}">
-                                                    @else
-                                                        <img class="img-fluid img-thumbnail" alt=""
-                                                            style="width: 100px; height: 100px;"
-                                                            src="{{ Storage::disk('s3')->url('produtos/' . $order['produto']->id . '/' . $order['produto']->image) }}">
-                                                    @endif
 
+                                                <div
+                                                    class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0">{{$order['produto']->nome}}</p>
                                                 </div>
                                                 <div
                                                     class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                                    <p class="text-muted mb-0">{{$order['produto']->title}}</p>
+                                                    <p class="text-muted mb-0 small"> {{ isset($order['produto']->quantidade) ? $order['produto']->quantidade * $order['venda']->quantidade: 1 * $order['venda']->quantidade}} Unidade(s)</p>
                                                 </div>
                                                 <div
                                                     class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                                    <p class="text-muted mb-0 small"> {{ isset($order['produto']->qtdbaixa) ? $order['produto']->qtdbaixa * $order['venda']->quantidade: 1 * $order['venda']->quantidade}} Unidade(s)</p>
-                                                </div>
-                                                <div
-                                                    class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                                    <p class="text-muted mb-0 small">Valor Unitário: {{$order['produto']->price}}</p>
+                                                    <p class="text-muted mb-0 small">Valor Unitário: {{$order['produto']->valor}}</p>
                                                 </div>
                                             </div>
                                             <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
@@ -70,33 +59,25 @@
 
                                 <div class="d-flex justify-content-between pt-2">
                                     <p class="fw-bold mb-0">Detalhes do Pedido</p>
-                                    <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> {{$viewData['order'][0]->valorVenda}}</p>
+                                    <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> {{$viewData['pedidos'][0]['venda']->valorVenda}}</p>
                                 </div>
 
                                 <div class="d-flex justify-content-between pt-2">
-                                    <p class="text-muted mb-0">Número Pedido: {{$viewData['order'][0]->order_id}}</p>
+                                    <p class="text-muted mb-0">Número Pedido: {{$viewData['pedidos'][0]['venda']->order_id}}</p>
                                     <p class="text-muted mb-0"><span class="fw-bold me-4">Desconto:</span> R$ 0.00</p>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
-                                    <p class="text-muted mb-0">Data do Pedido: {{$viewData['order'][0]->created_at}}</p>
+                                    <p class="text-muted mb-0">Data do Pedido: {{$viewData['pedidos'][0]['venda']->created_at}}</p>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-5">
                                     <p class="text-muted mb-0">Recepits Voucher : 18KU-62IIK</p>
-                                    <p class="text-muted mb-0"><span class="fw-bold me-4">Frete: </span> R$: {{$viewData['order'][0]->valorFrete}}</p>
+                                    <p class="text-muted mb-0"><span class="fw-bold me-4">Frete: </span> R$: {{$viewData['pedidos'][0]['venda']->valorFrete}}</p>
                                 </div>
                                 {{-- DADOS DO USUARIO --}}
                                 <hr>
-                                <div class="d-flex justify-content-between pt-2">
-                                    <p class="fw-bold mb-0">Dados do Cliente {{$viewData['order'][0]->name}}</p>
-                                </div>
 
-                                <div class="">
-                                    <p class="text-muted mb-0">Endereço: {{$viewData['order'][0]->address}}, Nº {{$viewData['order'][0]->numero}}</p>
-                                    <p class="text-muted mb-0">Cidade: {{$viewData['order'][0]->cidade}}, Bairro: {{$viewData['order'][0]->bairro}}, Complemento: {{$viewData['order'][0]->complemento}}, Cep: {{$viewData['order'][0]->cep}}</p>
-                                    <p class="text-muted mb-0">CPF: {{$viewData['order'][0]->cpf}}</p>
-                                </div>
                             </div>
                             <div class="card-footer border-0 px-4 py-5"
                                 style="background-color: #a8729a; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">

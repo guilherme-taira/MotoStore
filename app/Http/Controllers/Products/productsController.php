@@ -897,6 +897,7 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
+        Log::debug(json_encode($request->all()));
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
@@ -913,8 +914,8 @@ class productsController extends Controller
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
-        $id_categoria = Products::getMercadoLivreId($request->id_product);
-        $id_product = $request->id_product;
+        $id_categoria = $request->id_categoria;
+        $id_product = 156;
 
         $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id);
         $data = $factory->getProduto();
