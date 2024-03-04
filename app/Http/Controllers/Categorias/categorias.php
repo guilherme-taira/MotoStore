@@ -47,7 +47,7 @@ class categorias extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            "nome" => "required|min:3",
+            "name" => "required|min:3",
             "slug" => "required|min:3",
             "descricao" => "required|min:3",
         ]);
@@ -59,9 +59,10 @@ class categorias extends Controller
         }
 
         $categoria = new ModelsCategorias();
-        $categoria->SetNome($request->nome);
-        $categoria->SetSlug($request->slug);
-        $categoria->SetDescricao($request->descricao);
+        $categoria->SetNome($request->name);
+        $categoria->SetNumber(1);
+        // $categoria->SetSlug($request->slug);
+        // $categoria->SetDescricao($request->descricao);
         $categoria->save();
 
         return redirect()->route('categorias.index')->with('msg', 'Categoria Cadastrada com sucesso!');

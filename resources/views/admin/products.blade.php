@@ -55,7 +55,7 @@
                                                         <label
                                                             class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
                                                         <div class="col-lg-10 col-md-6 col-sm-12">
-                                                            <input name="name" id="name" type="hidden"
+                                                            <input name="name" id="name" type="text"
                                                                 class="form-control">
                                                         </div>
                                                     </div>

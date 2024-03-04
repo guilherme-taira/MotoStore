@@ -98,6 +98,57 @@
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav">
                     <!-- Navbar dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras Categorias </a>
+                        <ul class="dropdown-menu bg-secondary dropdown-menu-right">
+                            <hr>
+                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>
+                            @foreach ($viewData['categorias'] as $categoria)
+                                @if (count($categoria['subcategory']) > 0)
+                                    <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                        <ul class="submenu submenu-right dropdown-menu">
+                                            <div class="div-sub-menu">
+                                                <h5>{{ $categoria['nome'] }}</h5>
+                                                <hr>
+                                                @foreach ($categoria['subcategory'] as $sub)
+                                                    <li><a class="dropdown-item" href="{{route('categoryById',['categoryId' => $sub->id]) }}">{{ $sub->name }}</a></li>
+                                                @endforeach
+                                            </div>
+                                        </ul>
+                                    </li>
+                                @else
+                                    <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+                    </li>
+                </ul>
+                </li>
+
+                <!--- MENU PRODUTOS FINAL --->
+                <li class="nav-item active">
+                    <a class="nav-link text-white" href="{{ route('GetProductsLancamentos') }}">Lançamentos</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link text-white" href="{{ route('GetPromotionProducts') }}">Promoções</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{route('GetAutoKM')}}">Alto KM</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{route('GetProductsKits')}}">Kits</a>
+                </li>
+                <li class="nav-item bg-danger" style="border-radius: 10px;">
+                    <a class="nav-link text-white" href="{{route('GetPremiumProducts')}}">Categoria Premium</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('login') }}">Central do Vendedor</a>
+                </li>
+                @if(!Auth::user())
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('login') }}">Entrar Cadastrar</a>
+                </li>
+                @endif
                 </ul>
             </div>
         </div>

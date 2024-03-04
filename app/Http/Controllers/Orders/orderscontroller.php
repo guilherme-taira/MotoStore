@@ -38,6 +38,7 @@ class orderscontroller extends Controller
             array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->order_id)]);
         }
 
+
         return view('orders.index', [
             'viewData' => $viewData,
             'orders' => $orders
@@ -94,9 +95,8 @@ class orderscontroller extends Controller
             }
         }
 
-        echo "<pre>";
-        print_r($viewData);
-        // return view('orders.show')->with('viewData', $viewData);
+
+        return view('orders.show')->with('viewData', $viewData);
     }
 
     /**

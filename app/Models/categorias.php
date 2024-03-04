@@ -15,7 +15,7 @@ class categorias extends Model
     public static function validate($request)
     {
         $request->validate([
-            "nome" => "required|min:3",
+            "name" => "required|min:3",
             "slug" => "required|min:3",
             "descricao" => "required|min:3",
         ]);
@@ -29,8 +29,12 @@ class categorias extends Model
         return $this->nome;
     }
 
-    public function SetNome($nome){
-        $this->nome = $nome;
+    public function SetNome($name){
+        $this->name = $name;
+    }
+
+    public function SetNumber($number){
+        $this->number = $number;
     }
 
 

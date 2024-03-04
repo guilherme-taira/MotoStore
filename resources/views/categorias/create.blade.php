@@ -12,7 +12,7 @@
                     @csrf
                     <div class="col-md-4">
                         <label for="validationCustom01" class="form-label">Nome:</label>
-                        <input type="text" class="form-control" name="nome" id="validationCustom01" required>
+                        <input type="text" class="form-control" name="name" id="validationCustom01" required>
                         <div class="valid-feedback">
                             Looks good!
                         </div>
@@ -31,7 +31,6 @@
                             Digite uma descrição da categoria.
                         </div>
                     </div>
-
                     <div class="col-12">
                         <button class="btn btn-primary" type="submit">Cadastrar</button>
                     </div>
