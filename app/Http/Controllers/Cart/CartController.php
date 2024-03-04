@@ -93,11 +93,8 @@ class CartController extends Controller
 
     public function orderFinished(Request $request)
     {
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         $categorias = [];
 
         foreach (categorias::all() as $value) {
@@ -359,11 +356,8 @@ class CartController extends Controller
         $enviar->resource();
 
         // CRIA PAGAMENTO
-<<<<<<< HEAD
         $produtos = $request->session()->get('produtos');
 
-=======
->>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         // $servicoPix = new ServicoPix();
         $servicoOutrosPagamento = new ServicoTodosPagamento();
         $executar = new Pix($produtos, $orderid['price']);
