@@ -69,7 +69,7 @@ class CartImplementacao extends CartAbstract
     public function Destinatario()
     {
         $data = [];
-<<<<<<< HEAD
+
         $users = Auth::user();
 
         $data['name'] = $users->name;
@@ -84,7 +84,6 @@ class CartImplementacao extends CartAbstract
         $data['number'] = $users->numero;
         $data['district'] = $users->bairro;
         $data['city'] = $users->cidade;
-=======
         $data['name'] = "Lalo Landa";
         $data['phone'] = "199999920055";
         $data['email'] = "test_user_33467020@testuser.com";
@@ -95,7 +94,6 @@ class CartImplementacao extends CartAbstract
         $data['number'] = "70";
         $data['district'] = "Parque São Manoel";
         $data['city'] = "Leme";
->>>>>>> 959122204398de93c1a3ae192206df9993cc8186
         $data['country_id'] = "BR";
         $data['postal_code'] = "13616450";
         return $data;
