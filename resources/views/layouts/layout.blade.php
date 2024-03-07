@@ -102,16 +102,16 @@
                         <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown"> Outras Categorias </a>
                         <ul class="dropdown-menu bg-secondary dropdown-menu-right">
                             <hr>
-                            <li class="bg-warning"><a class="dropdown-item text-dark" href="#">Todos Produtos</a></li>
+                            <li class="bg-warning"><a class="dropdown-item" href="#">Todos Produtos</a></li>
                             @foreach ($viewData['categorias'] as $categoria)
                                 @if (count($categoria['subcategory']) > 0)
-                                    <li><a class="dropdown-item text-white" href="#">{{ $categoria['nome'] }}</a>
+                                    <li><a class="dropdown-item" href="#">{{ $categoria['nome'] }}</a>
                                         <ul class="submenu submenu-right dropdown-menu">
                                             <div class="div-sub-menu">
                                                 <h5>{{ $categoria['nome'] }}</h5>
                                                 <hr>
                                                 @foreach ($categoria['subcategory'] as $sub)
-                                                    <li><a class="dropdown-item" href="{{route('categoryById',['categoryId' => $sub->id]) }}">{{ $sub->name }}</a></li>
+                                                    <li><a class="dropdown-item " href="{{route('categoryById',['categoryId' => $sub->id]) }}">{{ $sub->name }}</a></li>
                                                 @endforeach
                                             </div>
                                         </ul>

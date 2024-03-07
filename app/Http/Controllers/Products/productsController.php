@@ -241,8 +241,8 @@ class productsController extends Controller
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
                 echo 200;
             } else {
-                    // Log::notice(json_encode($json));
-                    // Log::notice($data_json);
+                    Log::notice(json_encode($json));
+                    Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
@@ -489,8 +489,6 @@ class productsController extends Controller
 
     public function getAttributesForVariations(Request $request)
     {
-
-
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
 
@@ -513,7 +511,7 @@ class productsController extends Controller
                 $call = (new MlbCallAttributes($tipo))->resource();
                 $dadosAttr = $tipo->requiredAtrributes($call,$dados);
                 $chart = new GeneratechartsSneakers();
-                $newCharts = new Generatecharts("GRADE UNIVERSAL".uniqid('CHART'),'MLB-SNEAKERS',$dadosAttr,$chart->getMainAttribute(),$chart->getAttributesSneakers());
+                $newCharts = new Generatecharts("GRADE UNIVERSAL".uniqid('CHART'),$dados->domain_id,$dadosAttr,$chart->getMainAttribute(),$chart->getAttributesSneakers());
                 $chart = $newCharts->requestChart($request->user);
                 $variacao = $newCharts->insertDataResult($dados,$chart);
 
@@ -532,7 +530,7 @@ class productsController extends Controller
                 return $this->PutAttributesForVariations($request->id, $array, $request->user);
             }
         } catch (\Exception $e) {
-            Log::emergency($e->getMessage());
+            // Log::emergency($e->getMessage());
             return response()->json($e->getMessage());
         }
     }

@@ -115,7 +115,7 @@ class Generatecharts extends chartsController
                     "attribute_combinations" => [
                         $attributosWord[$key],$chave
                     ]
-                    ];
+                ];
            }
         }
 
@@ -163,19 +163,19 @@ class Generatecharts extends chartsController
                 }
             }
         }
-        
+
         $numeroParaCriar = array_values(array_unique($numeros));
+
 
         foreach ($data['rows'] as $item) {
             foreach ($item->attributes as $attribute) {
                 if ($attribute->id === 'SIZE') {
+
                 if(in_array($this->removerBR($attribute->values[0]->name),$this->removerLetrasArray($numeroParaCriar))){
                     // Se for, pega o valor do comprimento do pé  foreach ($attribute_combinations as $item) {
                         foreach ($attribute_combinations as $key => $itemV) {
-
                             if($this->removerBR($attribute->values[0]->name) == $itemV['attribute_combinations'][1]->value_name){
                                 foreach ($fotosSerealizada as $foto) {
-
                                     if($foto->cor == $itemV['attribute_combinations'][0]->value_name){
                                         $arrayData =
                                             [
@@ -200,13 +200,32 @@ class Generatecharts extends chartsController
 
         $definitivo = [];
         foreach ($attribute_combinations as $i => $val) {
-            $definitivo[$i]['attribute_combinations'] = $val['attribute_combinations'];
-            $definitivo[$i]['attributes'] = $val[0];
-            $definitivo[$i]['picture_ids'] = $val[1];
-            $definitivo[$i]['price'] = $val[2];
-            $definitivo[$i]['available_quantity'] = 100;
+         try {
+                $data1 = isset($val[1]) ? $val[1] : [];
+                $data2 = isset($val[2]) ? $val[2] : 0;
+                    if(count($data1) > 0 && $data2 > 0){
+                        $definitivo[$i]['attribute_combinations'] = $this->adicionarSufixoBR($val['attribute_combinations'], false);
+                        $definitivo[$i]['attributes'] = $val[0];
+                        $definitivo[$i]['picture_ids'] = $val[1];
+                        $definitivo[$i]['price'] = $val[2];
+                        $definitivo[$i]['available_quantity'] = 100;
+                    }
+             } catch (\Exception $th) {
+                echo $th->getMessage();
+            }
         }
         return $definitivo;
+    }
+
+    function adicionarSufixoBR($produto,$sizeAdded) {
+        foreach ($produto as $key => $atributo) {
+            if ($atributo->id === 'SIZE' && !$sizeAdded) {
+                $atributo->value_name .= ' BR';
+                $atributo->value_name = preg_replace('/\s+BR(?=.*BR)/', '', $atributo->value_name);
+                $sizeAdded = true; // Marcamos que o sufixo foi adicionado
+            }
+        }
+        return $produto;
     }
 
     function removerLetrasArray($array) {
