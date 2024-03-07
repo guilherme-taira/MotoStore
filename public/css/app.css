@@ -2434,4 +2434,6 @@ textarea.input {
     display: none;
 }
 
-
+.dropitemclass{
+    font-size: 20px;
+}

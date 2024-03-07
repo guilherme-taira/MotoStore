@@ -210,7 +210,7 @@ class Products extends Model
         return response()->json(["fotos" => $photos]);
     }
 
-    public function productBySubCategory(String $id)
+    public static function productBySubCategory(String $id)
     {
         $data = DB::table('products')
             ->join('sub_category', 'products.subcategoria', '=', 'sub_category.id_categoria')
