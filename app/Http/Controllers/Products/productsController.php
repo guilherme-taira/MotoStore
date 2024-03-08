@@ -38,7 +38,7 @@ use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
 use Illuminate\Support\Facades\Auth;
 
-// ini_set('max_execution_time', 5); //300 seconds = 5 minutes
+ini_set('max_execution_time', 20); //300 seconds = 5 minutes
 
 class productsController extends Controller
 {
@@ -252,6 +252,7 @@ class productsController extends Controller
                     $this->refazerRequest($id,$user,$data_json,$domain);
 
                 } catch (\Throwable $th) {
+
                     echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Error no Produto..</li>";
                     Log::error($th->getMessage());
                 }
