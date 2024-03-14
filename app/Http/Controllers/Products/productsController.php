@@ -38,7 +38,7 @@ use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
 use Illuminate\Support\Facades\Auth;
 
-ini_set('max_execution_time', 20); //300 seconds = 5 minutes
+ini_set('max_execution_time', 30); //300 seconds = 5 minutes
 
 class productsController extends Controller
 {
@@ -152,6 +152,8 @@ class productsController extends Controller
 
     public function getAttributesTrade(Request $request)
     {
+
+        Log::critical(json_encode($request->all()));
         if($request->base){
              // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/'.$request->base;
@@ -169,7 +171,7 @@ class productsController extends Controller
 
         // CADASTRA UM NOVO ANUNCIO
         foreach ($request->id as $id) {
-           return $this->refazerRequest($id,$request->user,$data,$data['domain_id']);
+           return $this->refazerRequest($id,$request->user,$data,$data['domain_id'],$request->newtitle);
         }
 
         }else{
@@ -189,7 +191,7 @@ class productsController extends Controller
 
             if($request->categoria){
                 // TROCAR A CATEGORIA
-                $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user);
+                $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user,$request->newtitle);
             }
         }
 
@@ -214,7 +216,7 @@ class productsController extends Controller
     }
 
 
-    public function refazerRequest($id,$user,$data,$domain) {
+    public function refazerRequest($id,$user,$data,$domain,$newtitle) {
 
         $endpoint = 'https://api.mercadolibre.com/items/'.$id;
 
@@ -241,15 +243,15 @@ class productsController extends Controller
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
                 echo 200;
             } else {
-                    Log::notice(json_encode($json));
-                    Log::notice($data_json);
+                    // Log::notice(json_encode($json));
+                    // Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
-                    $data_json = $concreto->CallErrorAttributes($json,$data);
+                    $data_json = $concreto->CallErrorAttributes($json,$data,false,null,$newtitle);
 
-                    $this->refazerRequest($id,$user,$data_json,$domain);
+                    $this->refazerRequest($id,$user,$data_json,$domain,$newtitle);
 
                 } catch (\Throwable $th) {
 
@@ -261,7 +263,7 @@ class productsController extends Controller
 
     }
 
-    public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user) {
+    public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle) {
         $ids = $id;
         $category = $categoria;
         // NUMERO DE TENTATIVAS
@@ -300,9 +302,9 @@ class productsController extends Controller
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
-                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category);
+                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle);
 
-                    $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user);
+                    $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user,$newtitle);
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
