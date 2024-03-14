@@ -243,8 +243,8 @@ class productsController extends Controller
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
                 echo 200;
             } else {
-                    // Log::notice(json_encode($json));
-                    // Log::notice($data_json);
+                    Log::notice(json_encode($json));
+                    Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
