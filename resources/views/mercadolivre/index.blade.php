@@ -113,7 +113,7 @@
 
 
 
-            <label class="form-check-label col-md-8" id="titulo_anuncio" for="titlenovo">
+            <label class="form-check-label col-md-8 d-none" id="titulo_anuncio" for="titlenovo">
                 Título do Anúncio: <div id="contador" class="text-end">0/60</div>
                 <input type="text" class="form-control" name="titlenovo" id="titlenovo">
                 <div class="progress mt-2">
@@ -295,7 +295,6 @@
         </div>
     </div>
 
-
     {{-- AJAX JQUERY SEARCH --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
@@ -308,16 +307,14 @@
             // Show loading indicator
             $("#loading").fadeIn();
 
-
             $('#titlenovo').on('keyup', function() {
-
                  // Pegue o número de caracteres digitados
-                    var caracteresDigitados = $(this).val().length;
-                    // Atualize o contador de caracteres
-                    $('#contador').text(caracteresDigitados + '/60');
-                    // Atualize a barra de progresso
-                    var progresso = (caracteresDigitados / 60) * 100;
-                    $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
+                var caracteresDigitados = $(this).val().length;
+                // Atualize o contador de caracteres
+                $('#contador').text(caracteresDigitados + '/60');
+                // Atualize a barra de progresso
+                var progresso = (caracteresDigitados / 60) * 100;
+                $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
 
                 // Verificar o comprimento do valor inserido
                 if ($(this).val().length > 60) {
@@ -384,6 +381,7 @@
             $("#base").on("keyup", function() {
                 // Get the value of the input field
                 var inputValue = $(this).val();
+                $("#titulo_anuncio").removeClass("d-none");
                 getProduct(inputValue);
             });
 
