@@ -113,7 +113,7 @@
 
 
 
-            <label class="form-check-label col-md-8 d-none" id="titulo_anuncio" for="titlenovo">
+            <label class="form-check-label col-md-8 d-none" id="titulo_anuncio_base" for="titlenovo">
                 Título do Anúncio: <div id="contador" class="text-end">0/60</div>
                 <input type="text" class="form-control" name="titlenovo" id="titlenovo">
                 <div class="progress mt-2">
@@ -370,10 +370,10 @@
 
             pegarToken();
             $("#inserir").click(function() {
-                var item = getProduct($("#id").val());
+                var item = $("#id").val();
                 if (item !== "") {
                     var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
-                    // $("#titulo-anuncio").append(listItem);
+                    $("#titulo-anuncio").append(listItem);
                     $("#id").val("");
                 }
             });
@@ -381,7 +381,7 @@
             $("#base").on("keyup", function() {
                 // Get the value of the input field
                 var inputValue = $(this).val();
-                $("#titulo_anuncio").removeClass("d-none");
+                $("#titulo_anuncio_base").removeClass('d-none');
                 getProduct(inputValue);
             });
 
