@@ -462,7 +462,7 @@
             function getAllHistoryByUser($user) {
 
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getHistory",
+                    url: "https://melimaximo.com.br/api/v1/getHistory",
                     type: "POST",
                     data: {
                         "user": $("#user").val()
@@ -517,7 +517,7 @@
                 };
 
                 $.ajax({
-                    url: `http://127.0.0.1:8000/api/v1/tradeCategoria`,
+                    url: `https://melimaximo.com.br/api/v1/tradeCategoria`,
                     type: "POST",
                     data: JSON.stringify(body),
                     headers: {
@@ -612,7 +612,7 @@
             function getToken() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getTokenMl",
+                    url: "https://melimaximo.com.br/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -631,7 +631,7 @@
             function getUserID() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getUserID",
+                    url: "https://melimaximo.com.br/api/v1/getUserID",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -715,7 +715,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function sendProductIdForServer(data, base, newtitle) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/tradeCategoria",
+                    url: "https://melimaximo.com.br/api/v1/tradeCategoria",
                     type: "POST",
                     data: {
                         "id": data,
@@ -743,7 +743,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function sendProductIdForVariations(data, base) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/getAttributesForVariations",
+                    url: "https://melimaximo.com.br/api/v1/getAttributesForVariations",
                     type: "POST",
                     data: {
                         "id": data,
@@ -804,7 +804,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function getAllProducts(name = null, inputdata = "", status = "active") {
                 $.ajax({
-                    url: `http://127.0.0.1:8000/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
+                    url: `https://melimaximo.com.br/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
                     // url: `https://api.mercadolibre.com/sites/MLB/search?status=${status}&seller_id=s${name}`,
                     type: "GET",
 
