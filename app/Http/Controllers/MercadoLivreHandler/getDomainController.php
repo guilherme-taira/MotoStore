@@ -39,7 +39,7 @@ class getDomainController extends Controller
         //  print_r($attributes);
     }
 
-    public function HandlerError($error,$data,$categoria = false,$category_id){
+    public function HandlerError($error,$data,$categoria = false,$category_id,$newtitle){
         $handerError = [];
         try {
             if(count($error->cause) > 1){
@@ -61,7 +61,7 @@ class getDomainController extends Controller
             // echo $th->getMessage();
         }
         if($categoria == false){
-            return $this->DeleteAttribute($data,$handerError);
+            return $this->DeleteAttribute($data,$handerError,$newtitle);
         }else{
             return $this->IncluirAttribute($data,$handerError,$error,$category_id);
         }
@@ -115,7 +115,8 @@ class getDomainController extends Controller
                 }
                 if($value['error'] == 2610){
                     array_push($allErros,$value['error']);
-                }else{
+                }
+                else{
 
                 foreach ($value as $chave => $each) {
                     if(is_countable($each)){
@@ -143,9 +144,10 @@ class getDomainController extends Controller
         return substr($title, 0, 60);
     }
 
-    public function DeleteAttribute($data,$array){
+    public function DeleteAttribute($data,$array,$newtitle){
 
         $arrayData = (array) $data;
+        $arrayData['title'] = $newtitle;
         // APAGA A QUANTADADE MAXIMA
         foreach ($this->searchAttributeError($array) as $key => $erro) {
         // // remove o warranty
@@ -161,8 +163,6 @@ class getDomainController extends Controller
         if(isset($arrayData['official_store_id'])){
             unset($arrayData['official_store_id']);
         }
-
-
 
         if(isset($arrayData['variations'])){
            if(count($arrayData['variations']) > 0 ){
@@ -203,6 +203,16 @@ class getDomainController extends Controller
             }
             $arrayData['pictures'] = $fotos;
         }
+
+         // Removendo o objeto com o id igual a "SIZE_GRID_ID"
+         foreach ($arrayData['attributes'] as $keyD => $attribute) {
+            if ($attribute['id'] === "SIZE_GRID_ID") {
+                unset($arrayData['attributes'][$keyD]);
+                $arrayData['attributes'] = array_values($arrayData['attributes']);
+            }
+
+        }
+
         if($erro == 2617){
 
             // Removendo o objeto com o id igual a "SIZE_GRID_ID"

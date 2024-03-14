@@ -40,11 +40,17 @@
                     {{-- IMPLEMENTAR LOG --}}
                 </div>
             </div>
+
+            <span class="badge text-bg-info text-white mt-4">
+                <h5>{{ $viewData['auth'] }}</h5>
+            </span>
         </div>
 
         <h2>Mercado Livre Alterador de Categoria:</h2>
+
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade mt-2" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -107,9 +113,18 @@
 
 
 
-            <span class="badge text-bg-info text-white mt-4">
-                <h5>{{ $viewData['auth'] }}</h5>
-            </span>
+            <label class="form-check-label col-md-8" id="titulo_anuncio" for="titlenovo">
+                Título do Anúncio: <div id="contador" class="text-end">0/60</div>
+                <input type="text" class="form-control" name="titlenovo" id="titlenovo">
+                <div class="progress mt-2">
+                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+            </label>
+
+            <div class="col-md-8 d-none" id="div-sugestoes">
+                <label for="validationCustom04" class="form-label">Sugestões de Nomes</label>
+                    <select id="selectSugestoes" class="form-select bg-warning"></select>
+            </div>
 
 
             <ol id="titulo-anuncio" class="mt-4"></ol>
@@ -293,6 +308,35 @@
             // Show loading indicator
             $("#loading").fadeIn();
 
+
+            $('#titlenovo').on('keyup', function() {
+
+                 // Pegue o número de caracteres digitados
+                    var caracteresDigitados = $(this).val().length;
+                    // Atualize o contador de caracteres
+                    $('#contador').text(caracteresDigitados + '/60');
+                    // Atualize a barra de progresso
+                    var progresso = (caracteresDigitados / 60) * 100;
+                    $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
+
+                // Verificar o comprimento do valor inserido
+                if ($(this).val().length > 60) {
+                    // Se o comprimento exceder 60 caracteres, truncar o valor para 60 caracteres
+                    $(this).val($(this).val().substr(0, 60));
+                    // Alertar o usuário
+                    alert("O valor não pode exceder 60 caracteres.");
+                }
+            });
+
+
+            var selectElement = $("#selectSugestoes");
+            selectElement.change(function() {
+                // Pegue o valor do item selecionado
+                var selectedValue = $(this).val();
+                // Defina o valor do item selecionado no campo de entrada
+                $('#titlenovo').val(selectedValue);
+            });
+
             // PEGA O VALOR DIGITADO NO INPUT
             $("#nome_produto_by_user").on("keyup", function() {
                 // Get the value of the input field
@@ -332,7 +376,7 @@
                 var item = getProduct($("#id").val());
                 if (item !== "") {
                     var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
-                    $("#titulo-anuncio").append(listItem);
+                    // $("#titulo-anuncio").append(listItem);
                     $("#id").val("");
                 }
             });
@@ -355,7 +399,8 @@
                 var tp_cadastro;
                 var ids = [];
                 var base = $("#base").val();
-                var title = $("#title_anuncio").val();
+                // var title = $("#title_anuncio").val();
+                var title = $("#titlenovo").val();
                 var sList = "";
                 $('input[type=checkbox]').each(function() {
                     atributos.push((this.checked ? $(this).val() : "not_checked"));
@@ -369,7 +414,7 @@
                 });
                 if (base) {
                     console.log("BASE PREENCHIDA");
-                    sendProductIdForServer(ids, base);
+                    sendProductIdForServer(ids, base,title);
                 } else {
                     console.log("BASE VAZIA");
                     $("li#ids_li").each(function(index, element) {
@@ -419,7 +464,7 @@
             function getAllHistoryByUser($user) {
 
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getHistory",
+                    url: "http://127.0.0.1:8000/api/v1/getHistory",
                     type: "POST",
                     data: {
                         "user": $("#user").val()
@@ -474,7 +519,7 @@
                 };
 
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/tradeCategoria`,
+                    url: `http://127.0.0.1:8000/api/v1/tradeCategoria`,
                     type: "POST",
                     data: JSON.stringify(body),
                     headers: {
@@ -569,7 +614,7 @@
             function getToken() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getTokenMl",
+                    url: "http://127.0.0.1:8000/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -588,7 +633,7 @@
             function getUserID() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getUserID",
+                    url: "http://127.0.0.1:8000/api/v1/getUserID",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -603,14 +648,14 @@
                 });
             }
 
-            $("#secoundStep").click(function () {
+            $("#secoundStep").click(function() {
 
                 var ids = [];
                 var base = $("#base").val();
                 var title = $("#title_anuncio").val();
                 var sList = "";
                 $("li#ids_li").each(function(index, element) {
-                    sendProductIdForVariations($(element).text(),base);
+                    sendProductIdForVariations($(element).text(), base);
                 });
 
 
@@ -641,9 +686,14 @@
                                 },
                                 success: function(response) {
                                     if (response) {
-                                        if (response.variations.length > 0) {
-                                            $("#VerificadoVariacao").empty().append(`<div class="alert alert-success" role="alert">Variação Verificada com Sucesso</div>`);
-                                            $("#secoundStep").removeClass('d-none');
+                                        if (response.variations.length >
+                                            0) {
+                                            $("#VerificadoVariacao").empty()
+                                                .append(
+                                                    `<div class="alert alert-success" role="alert">Variação Verificada com Sucesso</div>`
+                                                    );
+                                            $("#secoundStep").removeClass(
+                                                'd-none');
                                             clearTimeout(ativerIntervalo);
                                         }
                                     }
@@ -657,7 +707,7 @@
                             });
                         });
 
-                        }, 1000);
+                    }, 1000);
 
                 };
                 ativerIntervalo();
@@ -665,13 +715,14 @@
             });
 
             // FUNCAO PARA CHAMAR TOKEN
-            function sendProductIdForServer(data, base) {
+            function sendProductIdForServer(data, base, newtitle) {
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/tradeCategoria",
+                    url: "http://127.0.0.1:8000/api/v1/tradeCategoria",
                     type: "POST",
                     data: {
                         "id": data,
                         "base": base,
+                        'newtitle': newtitle,
                         "user": $("#user").val()
                     },
                     success: function(response) {
@@ -691,10 +742,10 @@
                 });
             }
 
-               // FUNCAO PARA CHAMAR TOKEN
-               function sendProductIdForVariations(data, base) {
+            // FUNCAO PARA CHAMAR TOKEN
+            function sendProductIdForVariations(data, base) {
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getAttributesForVariations",
+                    url: "http://127.0.0.1:8000/api/v1/getAttributesForVariations",
                     type: "POST",
                     data: {
                         "id": data,
@@ -755,7 +806,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function getAllProducts(name = null, inputdata = "", status = "active") {
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
+                    url: `http://127.0.0.1:8000/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
                     // url: `https://api.mercadolibre.com/sites/MLB/search?status=${status}&seller_id=s${name}`,
                     type: "GET",
 
@@ -785,8 +836,8 @@
             //https://api.mercadolibre.com/items/MLB3226359198
             // FUNCAO PARA CHAMAR PRODUTO
             function getProduct(product) {
-                $("#foto_anuncio").empty();
-                $("#title_anuncio_insert").empty();
+                // $("#foto_anuncio").empty();
+                $("#titlenovo").empty();
 
                 $.ajax({
                     url: " https://api.mercadolibre.com/items/" + product,
@@ -800,12 +851,47 @@
                             }
                             // SHOW ALL RESULT QUERY
                             //$("#titulo-anuncio").append(product);
-                            $("#foto_anuncio").attr('src', `${response.thumbnail}`);
-                            $("#title_anuncio_insert").append(response.title);
+                            // getSugestoes(response.title);
+                            $("#titlenovo").val(response.title).css("background-color", "yellow")
+                                .focus();;
                         }
                     },
                 });
             }
+
+            function getSugestoes(title) {
+                // $("#foto_anuncio").empty();
+                $("#titlenovo").empty();
+
+                $.ajax({
+                    url: `https://api.mercadolibre.com/products/search?status=active&site_id=MLB&q=${title}`,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+                            var sugestoesdiv = $("#div-sugestoes");
+                            var selectElement = $("#selectSugestoes");
+
+                            selectElement.append($('<option>').text(title).css("background-color", "#03fc45"));
+
+                            // Adicionar barra separadora
+                            selectElement.append($('<option disabled>').text("--------------"));
+                            // Iterar sobre cada item em response.results
+                            $.each(response.results, function(i, item) {
+                                // Criar um novo elemento <option> com o valor de item.name
+                                var optionElement = $('<option>').text(item.name);
+                                // Adicionar o elemento <option> ao elemento <select>
+                                selectElement.append(optionElement);
+                            });
+
+                            // Remover a classe d-none para mostrar o elemento select
+                            sugestoesdiv.removeClass('d-none');
+                        }
+                    },
+                });
+            }
+
+
+
 
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getCategory(category) {
