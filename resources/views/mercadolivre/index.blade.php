@@ -902,7 +902,7 @@
                             var index = [];
                             $.each(response.children_categories, function(i, item) {
                                 index[i] =
-                                    '<option class="option-size" value=' + item.id + ' disabled>  </option><option class="option-size" value=' + item.id + '>' +
+                                    '<option class="option-size" value=' + item.id + '>  - </option><option class="option-size" value=' + item.id + '>' +
                                 item.name + '</option>';
                             });
 
@@ -929,7 +929,7 @@
                         // SHOW ALL RESULT QUERY
                         var index = [];
                         $.each(response, function(i, item) {
-                            index[i] = '<option class="option-size" value=' + item.id + ' disabled>  </option><option class="option-size" value=' + item.id + '>' +
+                            index[i] = '<option class="option-size" value=' + '' + ' > - </option><option class="option-size" value=' + item.id + '>' +
                                 item.name + '</option>';
                         });
 
