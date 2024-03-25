@@ -66,6 +66,7 @@ class fornecedorController extends Controller
         foreach (categorias_forncedores::all() as $value) {
 
             $subcategorias[$value->id] = [
+                "id" => $value->id,
                 "nome" => $value->name,
                 "subcategory" => sub_categoria_fornecedor::getAllCategory($value->id),
             ];

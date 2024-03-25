@@ -370,7 +370,7 @@
 
             pegarToken();
             $("#inserir").click(function() {
-                var item = $("#id").val();
+                var item = $("#id").val()
                 if (item !== "") {
                     var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
                     $("#titulo-anuncio").append(listItem);
@@ -902,8 +902,8 @@
                             var index = [];
                             $.each(response.children_categories, function(i, item) {
                                 index[i] =
-                                    '<option class="option-size" value=' + item.id + '>' + item
-                                    .name + '</option>';
+                                    '<option class="option-size" value=' + item.id + ' disabled>  </option><option class="option-size" value=' + item.id + '>' +
+                                item.name + '</option>';
                             });
 
                             var arr = jQuery.makeArray(index);
@@ -917,6 +917,7 @@
                             '<option> Produto Digitado Não Existe! </option>'
                         );
                     }
+
                 });
             }
             var i = 0;
@@ -928,7 +929,7 @@
                         // SHOW ALL RESULT QUERY
                         var index = [];
                         $.each(response, function(i, item) {
-                            index[i] = '<option class="option-size" value=' + item.id + '>' +
+                            index[i] = '<option class="option-size" value=' + item.id + ' disabled>  </option><option class="option-size" value=' + item.id + '>' +
                                 item.name + '</option>';
                         });
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\sendProduct;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\dashbordController;
 use App\Http\Controllers\Ajax\getProductsData;
@@ -55,6 +56,10 @@ Route::get('/', function () {
     return redirect()->route('stores.index');
 });
 
+Route::get('broadcast/{msg}', function($msg){
+    broadcast(new sendProduct($msg));
+});
+
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
@@ -81,6 +86,8 @@ Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirE
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 
+
+Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
 Route::get('/cart/deleteOne/{id}', [CartController::class, 'deleteOneCarrinho'])->name('cart.deleteCarrinho');

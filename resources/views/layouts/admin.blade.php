@@ -16,10 +16,13 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.css" rel="stylesheet" />
+    <script src="{{asset('js/app.js')}}"></script>
     <title>@yield('title', 'Admin - Online Store')</title>
 </head>
 
 <body>
+
+
     <div class="row g-0">
         <div class="col content-grey">
             {{-- nav bar start --}}
@@ -51,6 +54,9 @@
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
                                         <a class="dropdown-item" href="{{ route('products.index') }}">Produtos</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('integrados') }}">Integrados</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('orders.areceber') }}">Kits</a>
@@ -131,6 +137,7 @@
                 <!-- Container wrapper -->
             </nav>
             {{-- nav bar end --}}
+
             <div class="g-0 m-5">
                 @yield('conteudo')
             </div>

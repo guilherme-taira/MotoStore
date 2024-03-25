@@ -915,8 +915,7 @@
                             var index = [];
                             $.each(response.children_categories, function(i, item) {
                                 index[i] =
-                                    '<option class="option-size" value=' + item.id + '>' + item
-                                    .name + '</option>';
+                                    '<option class="option-size">-</option> <option class="option-size" value=' + item.id + '>' + item.name + '</option>';
                             });
 
                             var arr = jQuery.makeArray(index);
@@ -941,7 +940,7 @@
                         // SHOW ALL RESULT QUERY
                         var index = [];
                         $.each(response, function(i, item) {
-                            index[i] = '<option class="option-size" value=' + item.id + '>' +
+                            index[i] = '<option class="option-size">-</option><option class="option-size" value=' + item.id + '>' +
                                 item.name + '</option>';
                         });
 

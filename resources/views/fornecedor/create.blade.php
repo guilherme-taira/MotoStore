@@ -42,7 +42,7 @@
                             @foreach ($viewData['subcategorias'] as $categoria)
                                 <option class="bg-primary text-white" disabled>{{ $categoria['nome'] }}</option>
                                 @foreach ($categoria['subcategory'] as $subcategoria)
-                                    <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}</option>
+                                    <option value="{{ $categoria['id'] }}"> - {{ $subcategoria->name }} - {{ $subcategoria->descricao }}</option>
                                 @endforeach
                             @endforeach
                         </select>

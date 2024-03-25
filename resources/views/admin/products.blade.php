@@ -17,6 +17,7 @@
         </div>
     @endif
 
+
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -48,6 +49,9 @@
                                     <form method="POST" action="{{ route('IntegrarProduto') }}"
                                         enctype="multipart/form-data">
                                         @csrf
+
+                                        <input type="hidden" class="form-control" name="id_prodEnv" id="id_prodEnv">
+
                                         <div class="col-md-12">
                                             <div class="row">
                                                 <div class="col">
@@ -60,6 +64,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div class="form-group">
+                                                    <label for="exampleFormControlTextarea1">Descrição do Anúncio</label>
+                                                    <textarea name="editor" id="editor" value="ds" rows="3" ></textarea>
+                                                  </div>
                                             </div>
 
                                             <div class="col-md-12">
@@ -129,7 +138,7 @@
                                                             class="col-lg-2 col-md-6 col-sm-12 col-form-label">Categorias:</label>
                                                         <select class="form-select" id="categorias"
                                                             aria-label="Default select example">
-                                                            <option selected>...</option>
+                                                            <option selected disabled>Selecionar</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -310,12 +319,17 @@
     var i = 0;
     $(document).ready(function() {
 
+
+
+
         $("tr#linhasProduct").click(function() {
+
+            var id_produto = $(this).find("td:eq(0)").text(); // Supondo que a segunda célula da linha contenha um texto específico
+
             // LIMPA O HISTORICO
             $('.adicionarHistorico').empty();
+            $('#id_prodEnv').val(id_produto); // ID DO PRODUTO
 
-            id_produto = $("#id_product").val();
-            $('#id_product').val(id_produto); // ID DO PRODUTO
             var id_user = $('#id_user').val();
             $.ajax({
                 url: "/api/v1/product/" + id_produto,
@@ -326,6 +340,16 @@
                         $("#total").val(response.price);
                         $("#name").val(response.title);
                         $("#precoFinal").val(response.price);
+
+                        ClassicEditor
+                            .create(document.querySelector('#editor'))
+                            .then(editor => {
+                                editor.ui.view.editable.element.style.height = '250px';
+                                editor.setData(response.description);
+                            })
+                            .catch(error => {
+                                console.error('Houve um erro ao inicializar o editor:', error);
+                            });
                     }
                 },
                 error: function(error) {
@@ -412,16 +436,16 @@
                     if (response) {
                         // SHOW ALL RESULT QUERY
                         var index = [];
+                        // Adiciona a primeira opção estática
+                        index.push('<option class="option-size" >Selecionar</option>');
+
                         $.each(response.children_categories, function(i, item) {
-                            index[i] =
-                                '<option class="option-size" value=' + item.id + '>' + item
-                                .name + '</option>';
+                            // Crie suas opções dinâmicas aqui
+                            var option = '<option class="option-size" value=' + item.id + '>' + item.name + '</option>';
+                            index.push(option);
                         });
 
-                        var arr = jQuery.makeArray(index);
-                        arr.reverse();
-                        $("#categorias").html(arr);
-
+                        $("#categorias").html(index.join(''));
                     }
                 },
                 error: function(error) {

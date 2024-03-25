@@ -417,7 +417,7 @@ class kitsController extends Controller
                 $produtoKit->available_quantity = isset($product['estoque']) ? $product['estoque'] : 0;
                 $produtoKit->acrescimo = 0;
                 $produtoKit->desconto = 0;
-                $produtoKit->user_id = 1;
+                $produtoKit->user_id = Auth::user()->id;
                 $produtoKit->save();
             }
         }

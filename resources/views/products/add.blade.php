@@ -232,8 +232,10 @@
                 if (response) {
                     // SHOW ALL RESULT QUERY
                     var index = [];
+
                     $.each(response, function(i, item) {
-                        index[i] = '<option class="option-size" value=' + item.id + '>' +
+
+                        index[i] = '<option class="option-size" disabled>Gui</option> <option class="option-size" value=' + item.id + '>' +
                             item.name + '</option>';
                     });
 
@@ -272,11 +274,16 @@
                     if (response) {
                         // SHOW ALL RESULT QUERY
                         var index = [];
+                        var n = 0;
                         $.each(response.children_categories, function(i, item) {
                             index[i] =
                                 '<option class="option-size" value=' + item.id + '>' + item
                                 .name + '</option>';
+                            n = i++;
                         });
+                        console.log(n);
+                        index[n+10] =
+                                '<option class="option-size">Mais Subcategorias</option>';
 
                         var arr = jQuery.makeArray(index);
                         arr.reverse();
