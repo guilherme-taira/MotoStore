@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\MercadoLivre;
 
+use App\Events\EventoCadastroIntegrado;
 use App\Http\Controllers\Controller;
 use App\Models\images;
 use App\Models\mercado_livre_history;
 use App\Models\Products;
+use App\Models\produtos_integrados;
 use App\Models\token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Expr\Cast\Double;
 
 class ProdutoConcreto implements Produto
@@ -30,7 +33,7 @@ class ProdutoConcreto implements Produto
         $this->tipo_anuncio = $tipo_anuncio;
     }
 
-    public function integrar()
+    public function integrar($descricao,$id_prod)
     {
         $error_message = [];
         $success_data = [];
@@ -49,7 +52,9 @@ class ProdutoConcreto implements Produto
             $data['buying_mode'] = $this->getProduto()->buying_mode;
             $data['listing_type_id'] = $this->getTipoAnuncio();
             $data['condition'] = $this->getProduto()->condition;
-            $data['description'] = $this->produto->description;
+            $data['description'] =  [
+                "plain_text" => $this->getProduto()->description
+            ];
             $data['tags'] = [
                 "immediate_payment",
             ];
@@ -62,6 +67,11 @@ class ProdutoConcreto implements Produto
                     "id" => "GTIN",
                     "value_name" => $this->getProduto()->gtin
                 ],
+                [
+                    "id" => "MODEL",
+                    "value_name" => 'GENERIC'
+                ],
+
             ];
 
             if ($this->getPrice() > 79.99) {
@@ -81,6 +91,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
+            Log::error($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -95,6 +106,7 @@ class ProdutoConcreto implements Produto
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
+
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
@@ -105,6 +117,10 @@ class ProdutoConcreto implements Produto
                 }
                 return $error_message;
             } else if ($httpCode == 201) {
+
+                $this->CreateDescription($data,$json->id);
+                // evento cadastra produto no historico
+                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id);
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;
@@ -115,6 +131,23 @@ class ProdutoConcreto implements Produto
         }
     }
 
+
+    public function CreateDescription($data,$id){
+
+        $token = json_decode($this->getUserId())->access_token;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items/$id/description");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data['description']));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token}"]);
+        $reponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        Log::critical($reponse);
+    }
     /**
      * Get the value of produto
      */

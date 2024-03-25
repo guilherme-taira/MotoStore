@@ -12,7 +12,7 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
-
+    <script src="https://cdn.ckeditor.com/ckeditor5/37.0.1/classic/ckeditor.js"></script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
@@ -99,6 +99,9 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
                                     <a class="dropdown-item" href="{{ route('products.index') }}">Produtos</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('integrados') }}">Integrados</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('kits.index') }}">Kits</a>

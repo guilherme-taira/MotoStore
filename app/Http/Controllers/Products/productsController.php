@@ -36,6 +36,7 @@ use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
+use App\Models\produtos_integrados;
 use Illuminate\Support\Facades\Auth;
 
 ini_set('max_execution_time', 30); //300 seconds = 5 minutes
@@ -898,7 +899,7 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
-        Log::debug(json_encode($request->all()));
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
@@ -916,9 +917,10 @@ class productsController extends Controller
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
         $id_categoria = $request->id_categoria;
-        $id_product = 156;
+        $id_product = $request->id_prodEnv;
+        $descricao = $request->editor;
 
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id);
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao);
         $data = $factory->getProduto();
         if ($data) {
             return redirect()->back()->withErrors($data);
@@ -1166,5 +1168,16 @@ class productsController extends Controller
             Log::alert($e->getMessage());
         }
 
+    }
+
+    public function integrados(){
+
+        $viewData = [];
+        $viewData['products'] = produtos_integrados::getProdutos(Auth::user()->id);
+        $viewData['title'] = "Produtos Integrados";
+
+        return view('integrados.index',[
+            'viewData' => $viewData
+        ]);
     }
 }
