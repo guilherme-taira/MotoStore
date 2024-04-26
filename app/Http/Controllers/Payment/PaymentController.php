@@ -7,6 +7,7 @@ use App\Models\financeiro;
 use App\Models\order_site;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -54,7 +55,7 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $payment = new Payment();
-        $payment->name = $request->name;    
+        $payment->name = $request->name;
         $response = $payment->save();
 
         if ($response) {
@@ -119,11 +120,8 @@ class PaymentController extends Controller
         }
     }
 
-    public function getQueueDataMercadoPago(){
-
-        $payments = order_site::where('status_id',3)->where('numeropedido','='," ")->get();
-        foreach ($payments as $payment) {
-            \App\Jobs\MercadoPagoPagamentos::dispatch($payment->external_reference);
-        }
+    public function getQueueDataMercadoPago(Request $request){
+        return response()->json($request->all());
+        // \App\Jobs\MercadoPagoPagamentos::dispatch($request);
     }
 }

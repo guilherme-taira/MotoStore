@@ -30,7 +30,9 @@ class financeiro extends Model
     public static function contareceber($user)
     {
         $data = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')
-            ->where('user_id', $user)->paginate(10);
+            ->select('financeiro.status as statusf','order_site.*','financeiro.*')
+            ->where('user_id', $user)
+            ->orderBy('financeiro.id','desc')->paginate(10);
         return $data;
     }
 

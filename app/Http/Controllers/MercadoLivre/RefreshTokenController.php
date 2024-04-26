@@ -5,7 +5,7 @@ namespace App\Http\Controllers\MercadoLivre;
 use App\Http\Controllers\Controller;
 use App\Models\token;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 
 define("URL_BASE_REFRESH_TOKEN_MERCADOLIVRE", "https://api.mercadolibre.com/oauth/token");
 
@@ -50,6 +50,7 @@ class RefreshTokenController extends Controller
             $response = curl_exec($ch);
             curl_close($ch);
             $dados = json_decode($response);
+            Log::debug(json_encode($dados));
             // GRAVA OS DADOS DE ACESSO!
             $this->getDataAtual()->modify('+6 hours');
             try {

@@ -10,7 +10,7 @@ use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+set_time_limit(0);
 class HomeController extends Controller
 {
     /**
@@ -40,6 +40,7 @@ class HomeController extends Controller
             $newToken->resource();
             $viewData['mercadolivre'] = $userML;
             // TOKEN DO MERCADO LIVRE
+            // \App\Jobs\getOrderMercadoLivre::dispatch($userML->user_id_mercadolivre, $userML->access_token);
             $MercadolivreOrderController = new MercadolivreOrderController($userML->user_id_mercadolivre, $userML->access_token);
             $MercadolivreOrderController->resource();
         }

@@ -7,12 +7,16 @@ use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
 use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoCesta;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoItem;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoPreference;
 use App\Http\Controllers\Yapay\GeradorPagamento;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
 use App\Models\financeiro;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
+use App\Models\Products;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,37 +61,54 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-         //echo "<pre>";
+        //  echo "<pre>";
+
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
-                // ARRAY DE PRODUTOS
+
+            // ARRAY DE PRODUTOS
                 $produtos = [];
+                // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
+                $carrinhoCesta = new MercadoPagoCesta();
                 foreach ($result->payments as $payments) {
 
-                    foreach ($result->order_items as $item) {
-                        array_push($produtos, new ProdutoMercadoLivre($item->item->title, $item->quantity, $item->unit_price));
+                    foreach ($result->order_items as $items) {
+
+
+                    // PEGA O VALOR DO PRODUTO
+                    $produto = Products::where('id',$items->item->seller_sku)->first();
+                    // COLOCA O PRODUTO EM CESTA
+                    if(isset($produto)){
+                        $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
+                        $carrinhoCesta->addProdutos($item);
                     }
+                        array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));
+                    }
+
                     /***
                      * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
                      * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
                      */
-                    if (order_site::VerificarVenda($result->id) == false) {
-                        $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken());
-                        $cliente->resource();
-                        $id_order = $cliente->saveClient($result);
+                        if (order_site::VerificarVenda($result->id) == false) {
 
-                        // if (!empty($result->shipping->id)) {
-                        //     $getShipping = new getDataShippingController($result->shipping->id, $this->getToken());
-                        //     $endereco = $getShipping->resource();
+                              // * FORMA DE PAGAMENTO NOVA *//
+                        /**
+                         * IMPLANTACAO DO SISTEMA DE PAGAMENTO SPLI MERCADO PAGO
+                         *  SAIDA DO SDK DO MERCADO PAGO PARA IMPLEMENTAR DE FORMA MANUAL
+                         *  16/04/2024 11:20
+                         */
+                        if(isset($produto)){
+                            $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
+                            $preference = $prefence->resource();
 
-                        //     $CriarPix = new implementacaoCliente($result->buyer->nickname, $endereco->address_line, $endereco->zip_code, $endereco->address_line, $endereco->street_number, "A", $endereco->neighborhood, $endereco->city, $endereco->state, $result->buyer->nickname, "46857167877", "mercadolivre@mercadolivre.com", $produtos, 27, 1);
-                        //     $CriarPix->CriarPagamento();
+                            $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id']);
+                            $cliente->resource();
+                            $id_order = $cliente->saveClient($result);
 
-                        //     $gerarValor = new GeradorPagamento($CriarPix);
-                        //     $pagamento = $gerarValor->resource();
-                        //     $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
-                        //     financeiro::SavePayment($pagamento->status_id, $payments->total_paid_amount, $id_order, Auth::user()->id, $pagamento->payment->url_payment, $pagamento->payment->qrcode_path,$pagamento->status_name,$pagamento->token_transaction,$shipping);
-                        //  }
+                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
+                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                        }
                     }
                 }
             }

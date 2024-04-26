@@ -10,6 +10,9 @@ use App\Events\logAlteracao;
 use App\Listeners\gravarlog;
 use App\Listeners\CadastroIntegrado;
 use App\Events\EventoCadastroIntegrado;
+use App\Events\notificaUserOrder;
+use App\Listeners\notificaUserCadastrado;
+use App\Notifications\notificaUser;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -27,7 +30,14 @@ class EventServiceProvider extends ServiceProvider
         ],
         EventoCadastroIntegrado::class => [
             CadastroIntegrado::class
+        ],
+        notificaUserCadastrado::class => [
+            notificaUser::class,
+        ],
+        notificaUserOrder::class => [
+            notificaUserOrder::class,
         ]
+
     ];
 
     /**

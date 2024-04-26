@@ -200,6 +200,26 @@ class Products extends Model
         $this->items = $items;
     }
 
+    public function getFee()
+    {
+        return $this->fee;
+    }
+
+    public function setFee($fee)
+    {
+       $this->fee = $fee;
+    }
+
+    public function getPriceWithFee()
+    {
+        return $this->valorProdFornecedor;
+    }
+
+    public function setPriceWithFee($PriceWithFee)
+    {
+       $this->valorProdFornecedor = $PriceWithFee;
+    }
+
     public function productWithImageById(String $id)
     {
         $dados = images::where('product_id', $id)->get();
@@ -230,6 +250,15 @@ class Products extends Model
     {
         $data = Products::where('id', $id)->first();
         return $data->category_id;
+    }
+
+    public static function getAllUserProduct(String $produto)
+    {
+        $data = DB::table('products')
+            ->join('produtos_integrados', 'products.id', '=', 'produtos_integrados.product_id')
+            ->join('token', 'produtos_integrados.user_id', '=', 'token.user_id')
+            ->where('produtos_integrados.product_id',$produto)->get();
+        return $data;
     }
 
     public static function getKitByUser(String $user)

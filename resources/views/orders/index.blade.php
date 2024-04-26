@@ -13,10 +13,10 @@
                             <th>Código do Pedido</th>
                             <th class="text-center">Cliente</th>
                             <th class="text-center">Total Venda</th>
-                            <th class="text-center">Informações</th>
-                            <th class="text-center">Email/Telefone</th>
+                            <th class="text-center">Email</th>
                             <th class="text-center">Frete</th>
-                            <th class="text-center">Local Venda</th>
+                            <th class="text-center">Local</th>
+                            <th class="text-center">Status Venda</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -99,7 +99,7 @@
                             </div>
 
                             @foreach ($viewData['pedidos'] as $order)
-                                <tr>
+                                <tr class="bg-{{ $order['pedido']->status_id == 3 ? "warning":""}}">
                                     <td scope="row" class="text-nowrap">
                                         <a
                                             href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}">{{ $order['pedido']->order_id }}</a>
@@ -107,22 +107,22 @@
                                     <td>{{ $order['pedido']->cliente }}</td>
                                     <td>R$ {{ $order['pedido']->valorVenda }}</td>
 
-                                    <td>{{ $order['pedido']->email }} / {{ $order['pedido']->phone }}</td>
+                                    <td>{{$order['pedido']->email}}</td>
+
                                     <td>R$: {{ $order['pedido']->valorFrete }}</td>
                                     <td>{{ $order['pedido']->local }}</td>
                                     @if ($order['pedido']->status_id == 3)
                                         <td>
-                                            <select class="form-select" aria-label="Default select example">
-                                                <option selected disabled>{{ $order['pedido']->nome }}</option>
-                                            </select>
+                                            <span class="badge bg-danger">Aguardando Pagamento</span>
                                         <td><a href="{{ $order['pedido']->link_pagamento }}"
-                                                class="btn btn-success btn-sm">Pagar</a></td>
+                                                class="btn btn-warning btn-sm">Pagar</a></td>
                                         </td>
                                     @else
                                         <td>
-                                            <select class="form-select" aria-label="Default select example">
-                                                <option selected disabled>{{ $order['pedido']->nome }}</option>
-                                            </select>
+                                                <span class="badge bg-success">Recebido</span>
+                                            <td>
+                                                <span class="badge bg-success">Aprovado</span>
+                                            </td>
                                         </td>
                                     @endif
                                 </tr>

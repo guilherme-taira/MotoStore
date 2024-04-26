@@ -36,6 +36,7 @@ use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
+use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Models\produtos_integrados;
 use Illuminate\Support\Facades\Auth;
 
@@ -328,6 +329,7 @@ class productsController extends Controller
         foreach ($fotos as $foto) {
             array_push($photos, $foto->url);
         }
+
         if ($produto) {
             $viewData = [];
             $viewData['title'] = "AfiliDrop : " . $produto->name;
@@ -410,6 +412,7 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $request->validate([
             "name" => "required|max:255",
             "description" => "required",
@@ -421,12 +424,21 @@ class productsController extends Controller
             "ean" => "required|numeric",
             "tipo_anuncio" => "required|max:50",
             'pricePromotion' => 'numeric',
-            'termometro' => 'numeric'
+            'termometro' => 'numeric',
+            'fee' => "required|numeric|gt:0",
+            'taxaFee' => "required|numeric|gt:0",
+            'PriceWithFee' =>  "required|numeric|gt:0"
         ]);
 
         $produto = Products::findOrFail($id);
+        $preco =  $produto->price > $request->PriceWithFee ? $produto->price : $produto->pricePromotion;
+        $newpreco =  $request->PriceWithFee;
+        if($produto){
+            (new updatePriceSiteController($preco,$newpreco,$produto))->vericaPreco();
+        }
+
         $produto->setTitle($request->input('name'));
-        $produto->setPrice($request->input('price'));
+        // $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
@@ -435,12 +447,14 @@ class productsController extends Controller
         //$produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
         $produto->SetSubCategory_id($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
-        $produto->setPricePromotion($request->input('pricePromotion'));
+        // $produto->setPricePromotion($request->input('pricePromotion'));
         $produto->setDescription($request->input('description'));
         $produto->SetLugarAnuncio($request->input('radio'));
         $produto->setIsPublic($request->input('isPublic'));
         $produto->SetFornecedor($request->input('fornecedor'));
         $produto->SetTermometro($request->input('termometro'));
+        $produto->setPriceWithFee($request->input('price'));
+        $produto->setFee($request->input('fee'));
 
         if ($request->hasFile('image')) {
             $imageName = $produto->getId() . "." . $request->file('image')->extension();
@@ -450,6 +464,7 @@ class productsController extends Controller
             );
             $produto->setImage($imageName);
         }
+
         $produto->save();
         return redirect()->route('products.index');
     }

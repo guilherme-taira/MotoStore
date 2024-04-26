@@ -9,17 +9,6 @@
             </div>
         @endif
 
-        <div id="publico">
-            <h5>Canal Publico</h5>
-        </div>
-
-        <script>
-            var publico = document.getElementById("publico");
-            Echo.channel('channel-produto').listen('channel-produto', (e) => {
-                publico.innerHTML += "<div class='alert alert-success'>"+ e.mensagem +"</div>";
-            });
-        </script>
-
         {{-- DASHBOARD --}}
         <div class="row">
             <div class="col-6 mt-3 mb-1">
