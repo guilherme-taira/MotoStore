@@ -30,6 +30,8 @@ class order_site extends Model
             ->join('users', 'pivot_site.id_user', '=', 'users.id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
             ->join('status', 'order_site.status_id', '=', 'status.id')
+            // ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+            // ->join('products', 'product_site.seller_sku', '=', 'products.id')
             ->select("*")
             ->orderBy('order_site.id', 'desc')
             ->where('users.id', $user_id);

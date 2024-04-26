@@ -23,6 +23,7 @@ use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Marketing\BannerPremiumController;
 use App\Http\Controllers\MercadoLivre\CategoryTest;
 use App\Http\Controllers\nft\nftcontroller;
+use App\Http\Controllers\notificationController;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\planos\planosController;
@@ -56,9 +57,7 @@ Route::get('/', function () {
     return redirect()->route('stores.index');
 });
 
-Route::get('broadcast/{msg}', function($msg){
-    broadcast(new sendProduct($msg));
-});
+route::view('/brod','brod');
 
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
@@ -118,6 +117,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
+        Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
         Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');

@@ -17,7 +17,6 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-
-Broadcast::channel('channel-produto',function(){
+Broadcast::channel('channel-produto', function () {
     return true;
 });

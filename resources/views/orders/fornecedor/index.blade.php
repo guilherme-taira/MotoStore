@@ -147,18 +147,12 @@
                                                     Nº:{{ $order->id }}, Data da Venda: {{ $order->datavenda }},
                                                     Data da Venda: {{ $order->created_at }},
                                                     <hr>
-                                                    @if ($order->status == 4)
-                                                        Status: <span class="badge bg-primary">{{ $order->value_status }}
-                                                        </span>
-                                                        <span><strong> Valor: R$ {{ $order->valor }} </strong> </span>
-                                                        <embed src="{{ $order->link }}" width="200" height="100"
-                                                            class="float-end">
-                                                    @elseif($order->status == 6)
-                                                        Status: <span class="badge bg-success">{{ $order->value_status }}
-                                                        </span>
-                                                        <span><strong> Valor: R$ {{ $order->valor }} </strong> </span>
-
-                                                        @if ($order->isPrinted == 0 && $order->status == 6)
+                                                    @if ($order->statusf == 3)
+                                                    <button
+                                                        class="btn btn-danger text-white float-end"><i class="bi bi-hourglass-top"></i> Aguardando Pagamento pelo Vendedor</button>
+                                                    @endif
+                                                    @if ($order->statusf == 4)
+                                                        @if ($order->isPrinted == 0 && $order->statusf == 4)
                                                             <a
                                                                 href="{{ route('imprimir', ['shipping_id' => $order->shipping_id]) }}"><button
                                                                     class="btn btn-primary text-white float-end"><i

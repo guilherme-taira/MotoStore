@@ -39,9 +39,9 @@ class fornecedorController extends Controller
         foreach ($viewData['countData'] as $order) {
             if($order->status == 3){
                 $viewData['haPagar'] += 1;
-            }else if($order->status == 4){
+            }else if($order->isPrinted == 0){
                 $viewData['contasDia'] += 1;
-            }else if($order->status == 7){
+            }else if($order->isPrinted == 1){
                 $viewData['contasAtrasada'] += 1;
             }
         }

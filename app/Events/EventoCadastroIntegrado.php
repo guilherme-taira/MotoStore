@@ -19,6 +19,7 @@ class EventoCadastroIntegrado
     public $image;
     public $id_mercadolivre;
     public $product_id;
+
     /**
      * Create a new event instance.
      *

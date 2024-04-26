@@ -13,6 +13,9 @@ use App\Http\Controllers\MelhorEnvio\MelhorEnvioRequestCotacao;
 use App\Http\Controllers\MercadoPago\Bridge\Pix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoPix;
 use App\Http\Controllers\MercadoPago\Bridge\ServicoTodosPagamento;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoCesta;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoItem;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoPreference;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
 use App\Models\endereco;
@@ -29,6 +32,7 @@ use DateTime;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Unique;
 use MercadoPago\SDK as ML;
 use MercadoPago\Payment as MercadoPreference;
@@ -327,43 +331,54 @@ class CartController extends Controller
     public function purcharse(Request $request)
     {
         $productInSection = $request->session()->get('products');
+
         $produtos = [];
         $dimensoes = [];
         $volumes = [];
 
+
+
+         // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
+         $carrinhoCesta = new MercadoPagoCesta();
+
         foreach ($this->CriarArrayProdutos($productInSection) as $key => $value) {
+
             $medidas = Products::findMany($value['produto'])->first();
-            $dimensoes['altura'] = $medidas->height;
-            $dimensoes['largura'] = $medidas->width;
-            $dimensoes['comprimento'] = $medidas->length;
-            $dimensoes['peso'] = $medidas->weight;
+            // COLOCANDO OS PRODUTOS NA CEST
+            $item = new MercadoPagoItem($medidas['id'],$medidas['title'],intVal($value['quantidade']),"BRL",$medidas->price);
+            $carrinhoCesta->addProdutos($item);
+
+            $dimensoes['altura'] = $medidas->height ? $medidas->height : 1;
+            $dimensoes['largura'] = $medidas->width ? $medidas->width : 1;
+            $dimensoes['comprimento'] = $medidas->length ? $medidas->length : 1;
+            $dimensoes['peso'] = $medidas->weight ? $medidas->weight : 1;
             array_push($volumes, $dimensoes);
             array_push($produtos, ["produto" => $value['produto'], "quantidade" => $value['quantidade']]);
         };
 
+        // CRIA PAGAMENTO
+
+        /**
+         * IMPLANTACAO DO SISTEMA DE PAGAMENTO SPLI MERCADO PAGO
+         *  SAIDA DO SDK DO MERCADO PAGO PARA IMPLEMENTAR DE FORMA MANUAL
+         *  16/04/2024 11:20
+         */
+
+        $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
+        $preference = $prefence->resource();
 
         // IMPLEMENTAÇÃO DO CARRINHO DO MELHOR ENVIO++
         $frete = new CartImplementacao($request->transportadora, "", [$produtos], $volumes);
         $frete->getDados();
 
-
         // ENVIA O FRETE PARA O CARRINHO DO MELHOR ENVIO
         $cartFrete = new CartSendFreteController($frete);
         $orderid = $cartFrete->resource();
+
         // IMPLEMENTAÇÃO DO CHECKOUT DO MELHOR ENVIO -> FILA
         $compraFrete = new CompraFreteImplementacao($orderid['id']);
         $enviar = new RequestCompraFrete($compraFrete);
         $enviar->resource();
-
-        // CRIA PAGAMENTO
-        $produtos = $request->session()->get('produtos');
-
-        // $servicoPix = new ServicoPix();
-        $servicoOutrosPagamento = new ServicoTodosPagamento();
-        $executar = new Pix($produtos, $orderid['price']);
-        $executar->setTipoPagamento($servicoOutrosPagamento);
-        $preference = $executar->gerarPagamento();
-
 
         // GRAVA NO BANCO
         if ($productInSection) {

@@ -1,10 +1,12 @@
 <?php
 
+use App\Events\sendProduct;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
+use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoNotification;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Store\StoreController;
 use App\Models\Products;
@@ -24,6 +26,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // GET ROUTES
+    route::post('updateItem/{id}',function($id){
+        broadcast(new sendProduct($id));
+    });
+
+    Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);

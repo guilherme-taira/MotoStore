@@ -10,8 +10,6 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/37.0.1/classic/ckeditor.js"></script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -28,6 +26,32 @@
     <link href="{{ asset('/css/bootstrap_css.css') }}" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
     <script src="{{ asset('mascara/src/jquery.maskMoney.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('css/notification.css') }}"></script>
+
+    <style>
+        .botao-notificacao {
+            /* width: auto; */
+            padding: 0px, 10px;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: none;
+            font-size: 1.4em;
+            font-weight: 550;
+            font-family: 'Montserrat', sans-serif;
+            border: 1px solid #4f4f4f;
+        }
+
+        .botao-notificacao:hover {
+            background: #000000;
+            color: orange;
+            font-size: 1.5em;
+
+        }
+    </style>
+
 </head>
 
 <body>
@@ -63,13 +87,57 @@
                                 </li>
                             @endif
                         @else
+                            <li class="px-2 py-2 nav-item dropdown">
+                                <button href="#" id="navbarDropdown"
+                                    class="bi bi-bell-fill position-relative botao-notificacao" data-mdb-toggle="dropdown"
+                                    aria-expanded="false">
+
+                                    @if(count(Auth::user()->unreadNotifications) > 0)
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle p-2 bg-danger rounded-circle">
+                                        <span class="visually-hidden">New alerts</span>
+                                    </span>
+                                    @endif
+                                </button>
+
+                                @if (isset(Auth::user()->unreadNotifications))
+                                    <ul class="dropdown-menu overflow-auto" aria-labelledby="navbarDropdown">
+
+                                        <li>
+                                            <section class="section-50 container">
+                                                <div class="container" style="width: 500px; height:300px; padding:10px;">
+                                                    <h3 class="m-b-50 heading-line"> Notificações </h3>
+                                                    @foreach (Auth::user()->unreadNotifications as $notification)
+                                                        <div class="notification-ui_dd-content">
+                                                            <div class="notification-list notification-list--unread">
+
+                                                                <div class="alert alert-warning alert-dismissible fade show"
+                                                                    role="alert">
+                                                                    <strong>{{ $notification->data[0]['name'] }}</strong>
+                                                                    {{ $notification->data['mensagem'] }}
+
+                                                                    <button type="button" class="btn-close marcar-lido"
+                                                                        data-bs-dismiss="alert" aria-label="Close" data-id="{{ $notification->id }}"></button>
+                                                                </div>
+                                                            </div>
+                                                    @endforeach
+                                            </section>
+
+                                        </li>
+
+                                    </ul>
+                                @endif
+
+                            </li>
                             <li class="nav-item dropdown">
+
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#"
                                     data-mdb-toggle="dropdown" aria-expanded="false">
                                     {{ Auth::user()->name }}
                                 </a>
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
                                     <li>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -81,7 +149,7 @@
                                             @csrf
                                         </form>
                                     </li>
-                                    <li><a class="dropdown-item" href="{{route('settings')}}"> Configurações </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('settings') }}"> Configurações </a></li>
                                 </ul>
                             </li>
                         @endguest
@@ -89,6 +157,7 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ route('stores.index') }}">Home</a>
                         </li>
+
                         <!-- Navbar dropdown -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -123,36 +192,25 @@
                             <!-- Dropdown menu -->
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('categoriasfornecedor.index') }}">Cadastrar Região <i class="bi bi-person-add"></i></a>
+                                    <a class="dropdown-item"
+                                        href="{{ route('categoriasfornecedor.index') }}">Cadastrar
+                                        Região <i class="bi bi-person-add"></i></a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider" />
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('fornecedores.index') }}">Cadastrar Fornecedores <i class="bi bi-person-fill-gear"></i></a>
+                                    <a class="dropdown-item" href="{{ route('fornecedores.index') }}">Cadastrar
+                                        Fornecedores <i class="bi bi-person-fill-gear"></i></a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('subcategoriafornecedor.index') }}">Cadastrar SubCategorias <i class="bi bi-person-fill-gear"></i></a>
+                                    <a class="dropdown-item"
+                                        href="{{ route('subcategoriafornecedor.index') }}">Cadastrar SubCategorias <i
+                                            class="bi bi-person-fill-gear"></i></a>
                                 </li>
                             </ul>
                         </li>
                         <!--- MENU PRODUTOS FINAL --->
-
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                data-mdb-toggle="dropdown" aria-expanded="false">
-                                Marketing
-                            </a>
-                            <!-- Dropdown menu -->
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('banner.index') }}">Banners</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('logos.index') }}">Logo</a>
-                                </li>
-                            </ul>
-                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('orders.index') }}">Vendas</a>
@@ -166,13 +224,15 @@
                             <!-- Dropdown menu -->
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{{route('fornecedor.index')}}">Página do Fornecedor</a>
+                                    <a class="dropdown-item" href="{{ route('fornecedor.index') }}">Página do
+                                        Fornecedor</a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider" />
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Receber</a>
+                                    <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a
+                                        Receber</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('orders.areceber') }}">Contas a Pagar</a>
@@ -191,20 +251,61 @@
                                         Pagamento</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('status.index') }}">Status de Pagamento</a>
+                                    <a class="dropdown-item" href="{{ route('status.index') }}">Status de
+                                        Pagamento</a>
                                 </li>
                             </ul>
+
                 </div>
             </div>
         </nav>
+
+        <div id="publico">
+
+        </div>
+
+        <script>
+            var publico = document.getElementById("publico");
+            Echo.channel('channel-produto')
+                .listen('.App\\Events\\sendProduct', (e) => {
+                    publico.innerHTML += "<div class='alert alert-success text-center'>" + e.data + "</div>";
+                });
+        </script>
+
 
         <div class="g-0 m-5">
             @yield('conteudo')
         </div>
 
         <!-- MDB -->
+        <script src="{{ asset('assets_nft/vendor/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('assets_nft/vendor/bootstrap/js/bootstrap.min.js') }}"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.2.0/mdb.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
+        </script>
+        <script>
+            function marcarLido(id){
+                return $.ajax({
+                    url: "{{ route('marcar.lido') }}",
+                    method: 'GET',
+                    data: {
+                        id: id
+                    },
+                    success: function (response) {
+
+                    }
+                });
+            }
+
+            $(function(){
+                $('.marcar-lido').click(function (e) {
+                    console.log($(this).data('id'));
+                    let request = marcarLido($(this).data('id'));
+                    request.done(() => {
+                        $(this).parents('div.alert').remove();
+                    });
+                });
+            })
         </script>
     </div>
 </body>

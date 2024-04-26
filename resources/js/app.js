@@ -1,5 +1,6 @@
 require('./bootstrap');
 
+
 // Startup Scripts
 $(document).ready(function()
 {
@@ -17,3 +18,4 @@ $(window).resize(function()
 {
 	$('.hero').css('height', ($(window).height() - $('header').outerHeight()) + 'px'); // Refresh hero height
 });
+

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\MercadoPago\Bridge;
 
 use App\Http\Controllers\Controller;
 use App\Models\Products;
+use App\Models\token;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use MercadoPago\SDK as ML;
 use MercadoPago\Payment as MercadoPreference;
 use MercadoPago\Item as MercadoItem;
@@ -23,7 +26,10 @@ class Pix extends AbstractPagamento
 
     public function criarProdutos()
     {
-        ML::setAccessToken("APP_USR-3029233524869952-112215-0011d4d10155cda8e855a3a6a593f1cc-1272736385");
+        Log::emergency(json_encode($this->getItem()));
+
+        $token = token::where('user_id',Auth::user()->id)->first();
+        ML::setAccessToken($token->access_token);
         $produto = [];
 
         foreach ($this->getItem() as $value) {

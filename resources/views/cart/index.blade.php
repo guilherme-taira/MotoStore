@@ -270,10 +270,10 @@
                 }
             }
 
-
             $("input#transportadora").click(function() {
                 console.log($("input#valTransp" + $(this).val()).val());
                 contaTotalFrete($("#valTransp" + $(this).val()).val());
             });
+
         </script>
     @endsection

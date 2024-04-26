@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Orders;
 
+use App\Events\sendProduct;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Printer\PrinterController;
 use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
@@ -15,6 +16,8 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 
 class orderscontroller extends Controller
 {
@@ -53,6 +56,10 @@ class orderscontroller extends Controller
     public function create()
     {
         //
+    }
+
+    public function brod($id){
+         Broadcast(new sendProduct($id));
     }
 
     /**
@@ -173,7 +180,8 @@ class orderscontroller extends Controller
 
     public function ImprimirEtiqueta(Request $request)
     {
-        $token = token::where('user_id', Auth::user()->id)->first(); // CHAMANDO ANTIGO
+        $user = financeiro::where('shipping_id',$request->shipping_id)->first();
+        $token = token::where('user_id', $user->user_id)->first(); // CHAMANDO ANTIGO
         // IMPRIME ETIQUETA
         $data = new PrinterController($request->shipping_id, $token->access_token);
         $dados = $data->resource();
