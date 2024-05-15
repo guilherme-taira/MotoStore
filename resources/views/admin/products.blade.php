@@ -249,50 +249,108 @@
     <div class="card mt-2">
         <div class="card-header">
             Gerenciador de Produtos
+
+            <form class="row g-3 mt-2">
+                <div class="col-md-4">
+                  <label for="validationDefault01" class="form-label">Nome</label>
+                  <input type="text" class="form-control" name="nome" id="validationDefault01" placeholder="Iphone 13">
+                </div>
+                <div class="col-md-4">
+                  <label for="validationDefault02" class="form-label">Preço R$:</label>
+                  <input type="text" class="form-control" name="preco" id="validationDefault02" placeholder="99.99">
+                </div>
+                <div class="col-md-4">
+                  <label for="validationDefaultUsername" class="form-label">Estoque</label>
+                  <div class="input-group">
+                    <span class="input-group-text" id="inputGroupPrepend2">0 ></span>
+                    <input type="text" class="form-control" id="validationDefaultUsername"  aria-describedby="inputGroupPrepend2" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label for="validationDefault04" class="form-label">Categoria</label>
+                  <select class="form-select" id="validationDefault04" required>
+                    <option selected disabled value=""> ... </option>
+                        @foreach ($viewData['categorias'] as $categoria)
+                            <option>{{$categoria->name}}</option>
+                        @endforeach
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <button class="btn btn-primary float-end" type="submit">Pesquisar</button>
+                </div>
+              </form>
         </div>
         <div class="card-body">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Imagem</th>
-                        <th scope="col">Integrações</th>
-                        <th scope="col">Preço</th>
-                        <th scope="col">Estoque</th>
-                        <th scope="col">Edit</th>
-                        <th scope="col">Delete</th>
-                    </tr>
-                </thead>
                 <tbody>
                     @foreach ($viewData['products'] as $product)
-                        <tr id="linhasProduct">
-                            <td class="id_product">{{ $product->getId() }}</td>
-                            <td>{{ $product->getName() }}</td>
-                            @if ($product->imageJson)
-                                <td><img class="img-fluid img-thumbnail" alt="" style="width: 10%;"
-                                        src="{{ json_decode($product->imageJson)[0]->url }}"></td>
-                            @else
-                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%"
-                                        alt="{{ $product->getName() }}">
-                            @endif
-                            </td>
-                            <td><i class="bi bi-arrow-left-right integracao"
-                                    style="font-size: 2rem; color: cornflowerblue;margin-left:20px;display:block;"
-                                    data-bs-toggle="modal" href="#exampleModalToggle" role="button"></i>
-                            </td>
-                            <td>{{ $product->getPrice() }}</td>
-                            <td>{{ $product->getStock() }}</td>
-                            <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
-                                        class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i>Editar</button>
-                                </a></td>
-                            <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
-                                        class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
-                            </td>
-                        </tr>
+                    <section>
+                        <div class="container py-1">
+                          <div class="row justify-content-center mb-3">
+                            <div class="col-md-12 col-xl-12">
+                              <div class="card shadow-0 border rounded-3">
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md-12 col-lg-3 col-xl-3 mb-4 mb-lg-0">
+                                      <div class="bg-image hover-zoom ripple rounded ripple-surface">
+                                        <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 70%"
+                                        alt="{{ $product->getName() }}"/>
+                                        <a href="#!">
+                                          <div class="hover-overlay">
+                                            <div class="mask" style="background-color: rgba(253, 253, 253, 0.15);"></div>
+                                          </div>
+                                        </a>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6 col-xl-6">
+                                      <h5>{{$product->getName()}}</h5>
+                                      <div class="d-flex flex-row">
+                                        <div class="text-danger mb-1 me-2">
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                          <i class="fa fa-star"></i>
+                                        </div>
+                                        <span>310</span>
+                                      </div>
+                                      <div class="mt-1 mb-0 text-muted small">
+                                        <span>100% cotton</span>
+                                        <span class="text-primary"> • </span>
+                                        <span>Light weight</span>
+                                        <span class="text-primary"> • </span>
+                                        <span>Best finish<br /></span>
+                                      </div>
+                                      <div class="mb-2 text-muted small">
+                                        <span>Unique design</span>
+                                        <span class="text-primary"> • </span>
+                                        <span>For men</span>
+                                        <span class="text-primary"> • </span>
+                                        <span>Casual<br /></span>
+                                      </div>
+                                      <p class="text-truncate mb-4 mb-md-0">
+                                        {{$product->getDescription()}}
+                                      </p>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3 col-xl-3 border-sm-start-none border-start">
+                                      <div class="d-flex flex-row align-items-center mb-1">
+                                        <h4 class="mb-1 me-1">R$: {{number_format($product->getPrice(),2)}}</h4>
+                                        <span class="text-danger"><s>$20.99</s></span>
+                                      </div>
+                                      <h6 class="text-success">Envio Imediato</h6>
+                                      <div class="d-flex flex-column mt-4">
+                                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-sm" type="button">ver mais</button>
+                                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-sm mt-2" type="button">
+                                          integrar
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      </section>
                     @endforeach
-                </tbody>
-            </table>
             <div class="d-flex py-2">
                 {!! $viewData['products']->links() !!}
             </div>

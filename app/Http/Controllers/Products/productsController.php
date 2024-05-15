@@ -54,6 +54,7 @@ class productsController extends Controller
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
         $viewData['products'] = Products::where('iskit', '0')->paginate(10);
+        $viewData['categorias'] = categorias::all();
         return view('admin.products')->with('viewData', $viewData);
     }
 
