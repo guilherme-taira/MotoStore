@@ -238,18 +238,20 @@
     </div>
     <!--- FINAL DO MODAL ---->
 
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+
+    <div class="container-fluid px-4">
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
         <a href="{{ route('products.create') }}"><button class="btn btn-success me-md-2" type="button">Novo Produto <i
                     class="bi bi-patch-plus"></i></button></a>
     </div>
 
-
     <div class="card mt-2">
         <div class="card-header">
-            Manage Products
+            Gerenciador de Produtos
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-dark table-hover">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -258,7 +260,6 @@
                         <th scope="col">Integrações</th>
                         <th scope="col">Preço</th>
                         <th scope="col">Estoque</th>
-                        <th scope="col">Ativo</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Delete</th>
                     </tr>
@@ -282,12 +283,6 @@
                             </td>
                             <td>{{ $product->getPrice() }}</td>
                             <td>{{ $product->getStock() }}</td>
-                            @if ($product->isPublic == 1)
-                                <td><i class="bi bi-check2-square text-success"></i></td>
-                            @else
-                                <td><i class="bi bi-slash-circle text-danger"></i></td>
-                            @endif
-                            <td>{{ $product->getStock() }}</td>
                             <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
                                         class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i>Editar</button>
                                 </a></td>
@@ -303,6 +298,8 @@
             </div>
         </div>
     </div>
+    </div>
+
     <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
     <input type="hidden" name="total" id="total">
 
