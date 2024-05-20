@@ -241,6 +241,8 @@
 
     <div class="container-fluid px-4">
 
+    <h2 class="mt-4">Gerenciador de Produtos</h2>
+
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
         <a href="{{ route('products.create') }}"><button class="btn btn-success me-md-2" type="button">Novo Produto <i
                     class="bi bi-patch-plus"></i></button></a>
@@ -248,7 +250,6 @@
 
     <div class="card mt-2">
         <div class="card-header">
-            Gerenciador de Produtos
 
             <form class="row g-3 mt-2">
                 <div class="col-md-4">
@@ -277,7 +278,7 @@
                 </div>
 
                 <div class="col-12">
-                  <button class="btn btn-primary float-end" type="submit">Pesquisar</button>
+                  <button class="btn btn-primary float-end" type="submit">filtrar</button>
                 </div>
               </form>
         </div>

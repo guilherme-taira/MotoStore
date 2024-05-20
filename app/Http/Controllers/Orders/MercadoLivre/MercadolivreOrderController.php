@@ -61,7 +61,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-        //  echo "<pre>";
+        // echo "<pre>";
 
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
@@ -73,7 +73,6 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                 foreach ($result->payments as $payments) {
 
                     foreach ($result->order_items as $items) {
-
 
                     // PEGA O VALOR DO PRODUTO
                     $produto = Products::where('id',$items->item->seller_sku)->first();
@@ -108,6 +107,12 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
                             financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                        }else{
+                            $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),"N/D","N/D","1");
+                            $cliente->resource();
+                            $id_order = $cliente->saveClient($result);
+                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
+                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id,1, "S/N","aguardando pagamento","N/D",$shipping);
                         }
                     }
                 }

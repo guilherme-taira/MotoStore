@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Configuracao;
 use App\Http\Controllers\Controller;
 use App\Models\endereco;
 use App\Models\logo;
+use App\Models\token;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -160,5 +161,15 @@ class configuracaoController extends Controller
         $Endereco->save();
 
         return redirect()->route('address')->with('msg', 'Endereço Cadastrada com sucesso!');
+    }
+
+
+    public function integracaoMeli(){
+        $viewData = [];
+        $viewData['title'] = "Integração Mercado Livre";
+        $viewData['integrado'] = token::where('user_id',Auth::user()->id)->first();
+        return view('mercadolivre.integracao',[
+            'viewData' => $viewData
+        ]);
     }
 }

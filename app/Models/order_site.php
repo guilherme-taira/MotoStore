@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DateTime;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -72,6 +74,7 @@ class order_site extends Model
         $data = DB::table('pivot_site')
             ->join('users', 'pivot_site.id_user', '=', 'users.id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->join('product_site','pivot_site.product_id','=','product_site.id')
             ->where('id_user', $user)
             ->where('order_site.created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('valorVenda');
         return $data;

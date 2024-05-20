@@ -121,6 +121,7 @@ class InterfaceClienteController implements ClienteController
                     $produto->valor = $pedido->unit_price;
                     $produto->quantidade = $pedido->quantity;
                     $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                    $produto->image = $this->getPicture($pedido->item->id);
                     $produto->save();
                     // PIVOT
                     $venda_pivot = new pivot_site();
@@ -133,6 +134,20 @@ class InterfaceClienteController implements ClienteController
             // RETORNA O ID DO PEDIDO PARA GRAVAR.
             return $pedidos->id;
         }
+    }
+
+    public function getPicture($id){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items/$id");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $reponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $json = json_decode($reponse);
+        return $json->thumbnail;
     }
 
     /**
