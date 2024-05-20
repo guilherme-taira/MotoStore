@@ -154,6 +154,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
         Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');
         Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
+        Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
     });
 });
 
