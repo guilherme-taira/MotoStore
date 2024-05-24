@@ -285,7 +285,8 @@
         <div class="card-body">
                 <tbody>
                     @foreach ($viewData['products'] as $product)
-                    <section>
+                    <section id="linhasProduct">
+                        <span class="d-none id_product">{{ $product->getId() }}</span>
                         <div class="container py-1">
                           <div class="row justify-content-center mb-3">
                             <div class="col-md-12 col-xl-12">
@@ -340,9 +341,7 @@
                                       <h6 class="text-success">Envio Imediato</h6>
                                       <div class="d-flex flex-column mt-4">
                                         <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-sm" type="button">ver mais</button>
-                                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-sm mt-2" type="button">
-                                          integrar
-                                        </button>
+                                        <button data-mdb-button-init data-mdb-ripple-init class="btn btn-success btn-sm mt-2" data-bs-toggle="modal" href="#exampleModalToggle" role="button">Integrar</button>
                                       </div>
                                     </div>
                                   </div>
@@ -378,9 +377,9 @@
 
 
 
-        $("tr#linhasProduct").click(function() {
+        $("section#linhasProduct").click(function() {
 
-            var id_produto = $(this).find("td:eq(0)").text(); // Supondo que a segunda célula da linha contenha um texto específico
+            var id_produto = $(this).find("span:eq(0)").text(); // Supondo que a segunda célula da linha contenha um texto específico
 
             // LIMPA O HISTORICO
             $('.adicionarHistorico').empty();

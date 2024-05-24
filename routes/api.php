@@ -6,7 +6,7 @@ use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
-use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoNotification;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Store\StoreController;
 use App\Models\Products;
