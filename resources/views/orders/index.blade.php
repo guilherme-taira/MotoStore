@@ -117,8 +117,10 @@
                                             <p class="card-text">Nome: {{$order['produtos'][0]->nome}} -   Quantidade: <span class="border border-dark rounded-circle px-3 py-2"> {{$order['produtos'][0]->quantidade}}</span> <hr> Número do Pedido:  {{$order['pedido']->numeropedido}} - Valor : R$ {{number_format($order['pedido']->valorVenda,2)}} </p>
                                             </div>
                                             <div class="card-footer" style="background: inherit; border-color: inherit;">
-                                            <a href="#" class="btn btn-primary">Ver Mais</a>
-                                            <a href="#" class="btn btn-outline-primary">Pagar</a>
+                                            <a href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}" class="btn btn-primary">Ver Mais</a>
+                                            @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
+                                                <a href="{{$order['pedido']->link_pagamento}}" class="btn btn-outline-primary">Pagar</a>
+                                            @endif
                                             </div>
                                         </div>
                                     </div>

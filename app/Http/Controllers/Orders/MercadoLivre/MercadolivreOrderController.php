@@ -7,9 +7,9 @@ use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
 use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
-use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoCesta;
-use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoItem;
-use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoPreference;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoItem;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoPreference;
 use App\Http\Controllers\Yapay\GeradorPagamento;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
 use App\Models\financeiro;
@@ -65,7 +65,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
         if ($httpCode == 200) {
             foreach ($json->results as $result) {
-
+                // print_r($result);
             // ARRAY DE PRODUTOS
                 $produtos = [];
                 // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
@@ -108,11 +108,10 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                         }else{
-                            $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),"N/D","N/D","1");
-                            $cliente->resource();
-                            $id_order = $cliente->saveClient($result);
-                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
-                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id,1, "S/N","aguardando pagamento","N/D",$shipping);
+                            // $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),"N/D","N/D","1");
+                            // $cliente->resource();
+                            // $id_order = $cliente->saveClient($result);
+
                         }
                     }
                 }

@@ -8,6 +8,7 @@ use App\Models\pivot_site;
 use App\Models\product_site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class InterfaceClienteController implements ClienteController
 {
@@ -95,45 +96,68 @@ class InterfaceClienteController implements ClienteController
     function saveClient($result)
     {
 
-        if (order_site::VerificarVenda($result->id) == false) {
+        try {
+            if (order_site::VerificarVenda($result->id) == false) {
 
-            $pedidos = new order_site();
-            $pedidos->numeropedido = $result->id;
-            $pedidos->local = 'Mercado Livre';
-            $pedidos->valorVenda = $result->paid_amount;
-            $pedidos->valorProdutos = $result->total_amount;
-            $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
-            $pedidos->cliente = $result->buyer->nickname;
-            $pedidos->status_id = 3;
-            $pedidos->preferenceId = $this->getPreferenceId();
-            $pedidos->external_reference = $this->getExeternalReference();
-            $pedidos->status_mercado_livre = "0";
-            $pedidos->id_pagamento = 0;
-            $pedidos->link_pagamento = $this->getLinkPagamento();
-            $pedidos->save();
+                $pedidos = new order_site();
+                $pedidos->numeropedido = $result->id;
+                $pedidos->local = 'Mercado Livre';
+                $pedidos->valorVenda = $result->paid_amount;
+                $pedidos->valorProdutos = $result->total_amount;
+                $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
+                $pedidos->cliente = $result->buyer->nickname;
+                $pedidos->status_id = 3;
+                $pedidos->preferenceId = $this->getPreferenceId();
+                $pedidos->external_reference = $this->getExeternalReference();
+                $pedidos->status_mercado_livre = "0";
+                $pedidos->id_pagamento = 0;
+                $pedidos->link_pagamento = $this->getLinkPagamento();
+                $pedidos->save();
 
-            foreach ($result->order_items as $pedido) {
-                if (product_site::getVerifyProduct($pedido->item->seller_sku) == true) {
-                    // PEDIDO NOVO
-                    $produto = new product_site();
-                    $produto->nome = $pedido->item->title;
-                    $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                    $produto->valor = $pedido->unit_price;
-                    $produto->quantidade = $pedido->quantity;
-                    $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                    $produto->image = $this->getPicture($pedido->item->id);
-                    $produto->save();
-                    // PIVOT
-                    $venda_pivot = new pivot_site();
-                    $venda_pivot->order_id = $pedidos->id;
-                    $venda_pivot->product_id = $produto->id;
-                    $venda_pivot->id_user = Auth::user()->id;
-                    $venda_pivot->save();
+                foreach ($result->order_items as $pedido) {
+                    if (product_site::getVerifyProduct($pedido->item->seller_sku) == true) {
+                        // PEDIDO NOVO
+                        $produto = new product_site();
+                        $produto->nome = $pedido->item->title;
+                        $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                        $produto->valor = $pedido->unit_price;
+                        $produto->quantidade = $pedido->quantity;
+                        $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                        $produto->image = $this->getPicture($pedido->item->id);
+                        $produto->save();
+                        // PIVOT
+                        $venda_pivot = new pivot_site();
+                        $venda_pivot->order_id = $pedidos->id;
+                        $venda_pivot->product_id = $produto->id;
+                        $venda_pivot->id_user = Auth::user()->id;
+                        $venda_pivot->save();
+                    }else{
+                         // PEDIDO NOVO
+                         $produto = new product_site();
+                         $produto->nome = $pedido->item->title;
+                         $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                         $produto->valor = $pedido->unit_price;
+                         $produto->quantidade = $pedido->quantity;
+                         $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
+                         $produto->image = $this->getPicture($pedido->item->id);
+                         $produto->save();
+                         // PIVOT
+                         $venda_pivot = new pivot_site();
+                         $venda_pivot->order_id = $pedidos->id;
+                         $venda_pivot->product_id = $produto->id;
+                         $venda_pivot->id_user = Auth::user()->id;
+                         $venda_pivot->save();
+                    }
                 }
+                // RETORNA O ID DO PEDIDO PARA GRAVAR.
+                return $pedidos->id;
             }
-            // RETORNA O ID DO PEDIDO PARA GRAVAR.
-            return $pedidos->id;
+
+        } catch (\Exception $th) {
+           Log::critical($th->getMessage());
         }
+
+
     }
 
     public function getPicture($id){
