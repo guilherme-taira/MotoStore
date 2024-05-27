@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
+use App\Models\token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -93,7 +94,7 @@ class InterfaceClienteController implements ClienteController
         return $this;
     }
 
-    function saveClient($result)
+    function saveClient($result,$sellerid)
     {
 
         try {
@@ -126,10 +127,11 @@ class InterfaceClienteController implements ClienteController
                         $produto->image = $this->getPicture($pedido->item->id);
                         $produto->save();
                         // PIVOT
+                        $userid = token::getId($sellerid);
                         $venda_pivot = new pivot_site();
                         $venda_pivot->order_id = $pedidos->id;
                         $venda_pivot->product_id = $produto->id;
-                        $venda_pivot->id_user = Auth::user()->id;
+                        $venda_pivot->id_user = $userid;
                         $venda_pivot->save();
                     }else{
                          // PEDIDO NOVO
@@ -142,10 +144,11 @@ class InterfaceClienteController implements ClienteController
                          $produto->image = $this->getPicture($pedido->item->id);
                          $produto->save();
                          // PIVOT
+                         $userid = token::getId($sellerid);
                          $venda_pivot = new pivot_site();
                          $venda_pivot->order_id = $pedidos->id;
                          $venda_pivot->product_id = $produto->id;
-                         $venda_pivot->id_user = Auth::user()->id;
+                         $venda_pivot->id_user = $userid;
                          $venda_pivot->save();
                     }
                 }

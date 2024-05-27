@@ -12,7 +12,8 @@ use Illuminate\Queue\SerializesModels;
 
 class getOrderMercadoLivre implements ShouldQueue
 {
-
+    private $resource;
+    private $topic;
     private $id_mercadolivre;
     private $access_token;
 
@@ -23,8 +24,10 @@ class getOrderMercadoLivre implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($id_mercadolivre,$access_token)
+    public function __construct($resource,$topic,$id_mercadolivre,$access_token)
     {
+        $this->resource = $resource;
+        $this->topic = $topic;
         $this->id_mercadolivre = $id_mercadolivre;
         $this->access_token = $access_token;
     }
@@ -36,7 +39,7 @@ class getOrderMercadoLivre implements ShouldQueue
      */
     public function handle()
     {
-        $MercadolivreOrderController = new MercadolivreOrderController($this->getIdMercadolivre(), $this->getAccessToken());
+        $MercadolivreOrderController = new MercadolivreOrderController($this->getResource(),$this->getTopic(),$this->getIdMercadolivre(), $this->getAccessToken());
         $MercadolivreOrderController->resource();
     }
 
@@ -54,5 +57,21 @@ class getOrderMercadoLivre implements ShouldQueue
     public function getAccessToken()
     {
         return $this->access_token;
+    }
+
+    /**
+     * Get the value of topic
+     */
+    public function getTopic()
+    {
+        return $this->topic;
+    }
+
+    /**
+     * Get the value of resource
+     */
+    public function getResource()
+    {
+        return $this->resource;
     }
 }

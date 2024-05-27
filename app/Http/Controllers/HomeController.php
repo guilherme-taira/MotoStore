@@ -30,20 +30,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        // GET TOKEN
-        $userML = token::where('user_id', Auth::user()->id)->first();
 
-        if (isset($userML->refresh_token)) {
-            $dataAtual = new DateTime();
-            // GET NEW TOKEN
-            $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", Auth::user()->id);
-            $newToken->resource();
-            $viewData['mercadolivre'] = $userML;
-            // TOKEN DO MERCADO LIVRE
-            // \App\Jobs\getOrderMercadoLivre::dispatch($userML->user_id_mercadolivre, $userML->access_token);
-            $MercadolivreOrderController = new MercadolivreOrderController($userML->user_id_mercadolivre, $userML->access_token);
-            $MercadolivreOrderController->resource();
-        }
 
         // PEGA AS VENDAS DO SISTEMA
         $orders = order_site::Ordersjoin(Auth::user()->id,$request);
