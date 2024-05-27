@@ -22,17 +22,17 @@ class getPaymentController extends Controller
     private string $order_id;
     private string $seller_id;
 
-    public function __construct($order_id,$seller_id)
+    public function __construct($order_id)
     {
         $this->order_id = $order_id;
-        $this->seller_id = $seller_id;
+        // $this->seller_id = $seller_id;
     }
 
     public function get($resource)
     {
 
         $dataAtual = new DateTime();
-        $userML = token::where('user_id_mercadolivre',$this->getSellerId())->first();
+        $userML = token::where('user_id_mercadolivre','1272736385')->first();
 
 
         $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id);
@@ -52,13 +52,14 @@ class getPaymentController extends Controller
         curl_close($ch);
 
         if($httpCode == '400'){
-            order_site::where('external_reference',$this->getOrderId())->update(['status_id' => 5]);
+            order_site::where('external_reference',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
-               // INSERE A NOTIFICAÇÃO
-               $user = User::find($userML->user_id);
+                $userML = token::where('user_id_mercadolivre',$res->collector_id)->first();
+                // INSERE A NOTIFICAÇÃO
+                $user = User::find($userML->user_id);
 
-               $user->notify(new notificaUserOrder($user,$this->getOrderId()));
+                $user->notify(new notificaUserOrder($user,$this->getOrderId()));
 
                 order_site::where('external_reference',$res->external_reference)->update(['status_id' => 4]);
                 $dados = financeiro::where('token_transaction',$res->external_reference)->get();

@@ -17,20 +17,27 @@ use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
 use App\Models\Products;
+use App\Models\token;
+use AWS\CRT\Log;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log as FacadesLog;
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
 {
 
     const URL_BASE_ML = "https://api.mercadolibre.com/";
 
+    private String $resource;
+    private String $topic;
     private String $sellerId;
     private String $token;
 
-    public function __construct($sellerId, $token)
+    public function __construct($resource,$topic, $sellerId, $token)
     {
+        $this->resource = $resource;
+        $this->topic = $topic;
         $this->sellerId = $sellerId;
         $this->token = $token;
     }
@@ -63,65 +70,67 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $json = json_decode($reponse);
         // echo "<pre>";
 
-        if ($httpCode == 200) {
-            foreach ($json->results as $result) {
-                // print_r($result);
-            // ARRAY DE PRODUTOS
-                $produtos = [];
-                // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
-                $carrinhoCesta = new MercadoPagoCesta();
-                foreach ($result->payments as $payments) {
+        try {
+            if ($httpCode == 200) {
 
-                    foreach ($result->order_items as $items) {
+                // ARRAY DE PRODUTOS
+                    $produtos = [];
+                    // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
+                    $carrinhoCesta = new MercadoPagoCesta();
+                    foreach ($json->payments as $payments) {
 
-                    // PEGA O VALOR DO PRODUTO
-                    $produto = Products::where('id',$items->item->seller_sku)->first();
-                    // COLOCA O PRODUTO EM CESTA
-                    if(isset($produto)){
-                        $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
-                        $carrinhoCesta->addProdutos($item);
-                    }
-                        array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));
-                    }
+                        foreach ($json->order_items as $items) {
 
-                    /***
-                     * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
-                     * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
-                     */
-                        if (order_site::VerificarVenda($result->id) == false) {
-
-                              // * FORMA DE PAGAMENTO NOVA *//
-                        /**
-                         * IMPLANTACAO DO SISTEMA DE PAGAMENTO SPLI MERCADO PAGO
-                         *  SAIDA DO SDK DO MERCADO PAGO PARA IMPLEMENTAR DE FORMA MANUAL
-                         *  16/04/2024 11:20
-                         */
+                        // PEGA O VALOR DO PRODUTO
+                        $produto = Products::where('id',$items->item->seller_sku)->first();
+                        // COLOCA O PRODUTO EM CESTA
                         if(isset($produto)){
-                            $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
-                            $preference = $prefence->resource();
+                            $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
+                            $carrinhoCesta->addProdutos($item);
+                        }
+                            array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));
+                        }
 
-                            $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id']);
-                            $cliente->resource();
-                            $id_order = $cliente->saveClient($result);
+                        /***
+                         * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
+                         * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
+                         */
+                            if (order_site::VerificarVenda($json->id) == false) {
 
-                            $shipping = isset($result->shipping->id) ? $result->shipping->id : 0;
-                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                            financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                        }else{
-                            // $cliente = new InterfaceClienteController($result->buyer->id, $this->getToken(),"N/D","N/D","1");
-                            // $cliente->resource();
-                            // $id_order = $cliente->saveClient($result);
+                                  // * FORMA DE PAGAMENTO NOVA *//
+                            /**
+                             * IMPLANTACAO DO SISTEMA DE PAGAMENTO SPLI MERCADO PAGO
+                             *  SAIDA DO SDK DO MERCADO PAGO PARA IMPLEMENTAR DE FORMA MANUAL
+                             *  16/04/2024 11:20
+                             */
+                            if(isset($produto)){
+                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
+                                $preference = $prefence->resource();
 
+                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id']);
+                                $cliente->resource();
+                                $id_order = $cliente->saveClient($json,$this->getSellerId());
+
+                                $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
+                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                            }else{
+                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1");
+                                $cliente->resource();
+                                $id_order = $cliente->saveClient($json,$this->getSellerId());
+                            }
                         }
                     }
                 }
-            }
+        } catch (\Exception $th) {
+            FacadesLog::critical($th->getMessage());
         }
+
     }
 
     public function resource()
     {
-        return $this->get("orders/search?seller=" . $this->getSellerId() . "&order.status=paid&sort=date_desc&shipping");
+        return $this->get($this->getResource());
     }
 
     /**
@@ -158,5 +167,21 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         $this->token = $token;
 
         return $this;
+    }
+
+    /**
+     * Get the value of topic
+     */
+    public function getTopic(): String
+    {
+        return $this->topic;
+    }
+
+    /**
+     * Get the value of resource
+     */
+    public function getResource(): String
+    {
+        return $this->resource;
     }
 }
