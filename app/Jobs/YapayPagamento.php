@@ -32,8 +32,8 @@ class YapayPagamento implements ShouldQueue
      */
     public function handle()
     {
-        $order = new AtualizaPagamento();
-        $order->ColocarFila($this->token);
+        // $order = new AtualizaPagamento();
+        // $order->ColocarFila($this->token);
 
     }
 }

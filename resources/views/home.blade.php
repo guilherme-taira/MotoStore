@@ -6,50 +6,49 @@
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item badge bg-success">Bem-vindo a Afilidrop {{Auth::user()->name}}</li>
     </ol>
-    <div class="row">
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
-                <div class="card-body">Vendas Realizadas</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Ver Detalhes</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+ <div class="row">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card card-custom">
+                    <div class="card-header bg-dark text-white">Valor total de vendas</div>
+                    <div class="card-body">
+                        <h5 class="card-title">R$ 0,00</h5>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-warning text-white mb-4">
-                <div class="card-body">Aguardando Pagamento</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Ver Detalhes</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            <div class="col-md-3">
+                <div class="card card-custom">
+                    <div class="card-header bg-dark text-white">Valor médio por dia</div>
+                    <div class="card-body">
+                        <h5 class="card-title">R$ 0,00</h5>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-success text-white mb-4">
-                <div class="card-body">Vendas Finalizadas</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Ver Detalhes</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            <div class="col-md-3">
+                <div class="card card-custom">
+                    <div class="card-header bg-dark text-white">Total de vendas</div>
+                    <div class="card-body">
+                        <h5 class="card-title">0</h5>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger text-white mb-4">
-                <div class="card-body">Vendas Canceladas</div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Ver Detalhes</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            <div class="col-md-3">
+                <div class="card card-custom">
+                       <div class="card-header bg-dark text-white">Vendas por dia</div>
+                    <div class="card-body">
+                        <h5 class="card-title">0</h5>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mt-4">
         <div class="col-xl-6">
             <div class="card mb-4">
                 <div class="card-header">
                     <i class="fas fa-chart-area me-1"></i>
-                    Area Chart Example
+                    Últimos 15 dias
                 </div>
                 <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
             </div>
@@ -58,7 +57,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <i class="fas fa-chart-bar me-1"></i>
-                    Bar Chart Example
+                    Últimos 6 Meses
                 </div>
                 <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
             </div>
@@ -553,4 +552,6 @@
         </div>
     </div>
 </div>
+
+<input type="text" name="id_user" id="id_user" value="{{Auth::user()->id}}">
 @endsection

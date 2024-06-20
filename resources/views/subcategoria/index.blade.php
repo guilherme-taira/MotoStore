@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', $viewData['title'])
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
@@ -11,7 +11,7 @@
         </ul>
     @endif
 
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <div class="px-4 mt-4">
         <a href="{{ route('subcategorias.create') }}"><button class="btn btn-success me-md-2" type="button">Nova Sub-Categoria <i
                     class="bi bi-patch-plus"></i></button></a>
     </div>
@@ -24,7 +24,7 @@
     @endif
     <!--- FIM MENSAGEM DE CONFIRMAÇÂO DE SUCESSO --->
 
-    <div class="card mt-2">
+    <div class="card mt-4">
         <div class="card-header">
             Sub-Categorias do Site
         </div>

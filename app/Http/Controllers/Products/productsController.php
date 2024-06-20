@@ -21,6 +21,7 @@ use App\Models\sub_category;
 use App\Models\token;
 use App\Models\User;
 use App\Models\log as historico;
+use App\Events\EventoNavegacao;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ use Illuminate\Support\Facades\Validator;
 use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
+use App\Http\Controllers\image\image;
 use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
@@ -44,18 +46,46 @@ ini_set('max_execution_time', 30); //300 seconds = 5 minutes
 
 class productsController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
-        $viewData['products'] = Products::where('iskit', '0')->paginate(10);
+
+        $query = Products::query();
+        $query->where('isKit',0);
+
+        if ($request->has('nome')) {
+            $query->where('title', 'like', '%' . $request->nome . '%');
+        }
+
+        if ($request->has('preco') && $request->preco != "") {
+            $query->where('price', '>', $request->preco);
+        }
+
+        if ($request->has('estoque') or is_null($request->estoque)) {
+            if(is_null($request->estoque)){
+                $query->where('available_quantity', '>=', 0);
+            }else{
+                $query->where('available_quantity', '>=', $request->estoque);
+            }
+        }
+
+        if ($request->has('categoria')) {
+            $query->where('subcategoria', '=', $request->categoria);
+        }
+
+
+        $viewData['products'] = $query->paginate(10);
+
         $viewData['categorias'] = categorias::all();
-        return view('admin.products')->with('viewData', $viewData);
+        $viewData['filtro'] = $request->all();
+        return view('admin.products', compact('viewData'));
     }
 
     /**
@@ -67,6 +97,7 @@ class productsController extends Controller
     {
         $viewData = [];
         $categorias = [];
+         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
                 "nome" => $value->nome,
@@ -74,7 +105,10 @@ class productsController extends Controller
             ];
         }
 
+        $subCategoria = [];
+        $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
         $viewData['categorias'] = $categorias;
+
         return view('products.add')->with('viewData', $viewData);
     }
 
@@ -86,17 +120,28 @@ class productsController extends Controller
      */
     public function store(Request $request)
     {
+
+
+
         // SERVICE TRATA PREÇO
         $TrataPreco = new ServicesController();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5',
-            'price' => 'required|min:1',
+            'price' => 'required|numeric|min:1',
             "stock" => "required|numeric",
             'description' => 'required',
             'brand' => 'required|min:3',
-            'id_categoria' => 'required',
             'ean' => 'required',
+            'termometro' => 'numeric',
+            'fee' => "required|numeric|gt:0",
+            'taxaFee' => "required|numeric|gt:0",
+            'PriceWithFee' =>  "required|numeric|gt:0",
+            'height' =>  "required|numeric|gt:0",
+            'width' =>  "required|numeric|gt:0",
+            'length' =>  "required|numeric|gt:0",
+            'photos' => "required",
+            'id_categoria' => "required"
         ]);
 
         if ($validator->fails()) {
@@ -106,21 +151,38 @@ class productsController extends Controller
         }
 
         $produto = new Products();
+        $produto->price = $request->price;
         $produto->title = $request->name;
-        $produto->price = $TrataPreco->RegexPrice($request->price);
         $produto->description = $request->description;
         $produto->available_quantity = 10;
         // Categoria Principal Removido da inserção
         //$produto->categoria = $produto::getIdPrincipal($request->categoria);
         $produto->category_id = $request->id_categoria;
         $produto->subcategoria = $request->categoria;
-        $produto->pricePromotion = $TrataPreco->RegexPrice($request->pricePromotion);
         $produto->brand = $request->brand;
         $produto->gtin = $request->ean;
         $produto->image = 'image.png';
+        $produto->SetBrand($request->input('brand'));
+        $produto->SetIsNft($request->input('isNft'));
+        //$produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
+        $produto->SetSubCategory_id($request->input('categoria'));
+        $produto->SetGtin($request->input('ean'));
+        // $produto->setPricePromotion($request->input('pricePromotion'));
+        $produto->setDescription($request->input('description'));
+        $produto->SetLugarAnuncio($request->input('radio'));
+        $produto->setIsPublic($request->input('isPublic'));
+        $produto->SetFornecedor($request->input('fornecedor'));
+        $produto->SetTermometro($request->input('termometro'));
+        $produto->setPriceWithFee($request->input('price'));
+        $produto->setFee($request->input('fee'));
+        $produto->setHeight($request->input('height'));
+        $produto->setWidth($request->input('width'));
+        $produto->setLength($request->input('length'));
+
         $produto->save();
 
         $files = $request->file('photos');
+
 
         $i = 0;
         foreach ($files as $file) {
@@ -136,7 +198,7 @@ class productsController extends Controller
             $i++;
         }
         $produto->save();
-        return redirect()->route('products.store');
+        return redirect()->route('allProductsByFornecedor');
     }
 
 
@@ -326,6 +388,7 @@ class productsController extends Controller
         $produto = Products::findOrFail($id);
         $fotos = images::where('product_id', $id)->get();
         $token = token::where('user_id', Auth::user()->id)->first();
+
         $photos = [];
         foreach ($fotos as $foto) {
             array_push($photos, $foto->url);
@@ -381,11 +444,20 @@ class productsController extends Controller
      */
     public function edit($id)
     {
+
         $produto = Products::where('id', $id)->first();
+        EventoNavegacao::dispatch($produto);
+        $fotos = images::where('product_id', $id)->get();
+        $photos = [];
+        foreach ($fotos as $foto) {
+            array_push($photos,"https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url);
+        }
+
 
         $viewData = [];
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
+        $viewData['photos'] = $photos;
         $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);
         $categorias = [];
         foreach (categorias::all() as $value) {
@@ -417,7 +489,6 @@ class productsController extends Controller
         $request->validate([
             "name" => "required|max:255",
             "description" => "required",
-            "price" => "required|numeric|gt:0",
             "stock" => "required|numeric|gt:0",
             "categoria_mercadolivre" => "required|max:20",
             "brand" => "max:100",
@@ -428,7 +499,10 @@ class productsController extends Controller
             'termometro' => 'numeric',
             'fee' => "required|numeric|gt:0",
             'taxaFee' => "required|numeric|gt:0",
-            'PriceWithFee' =>  "required|numeric|gt:0"
+            'PriceWithFee' =>  "required|numeric|gt:0",
+            'height' =>  "required|numeric|gt:0",
+            'width' =>  "required|numeric|gt:0",
+            'length' =>  "required|numeric|gt:0"
         ]);
 
         $produto = Products::findOrFail($id);
@@ -456,18 +530,26 @@ class productsController extends Controller
         $produto->SetTermometro($request->input('termometro'));
         $produto->setPriceWithFee($request->input('price'));
         $produto->setFee($request->input('fee'));
+        $produto->setHeight($request->input('height'));
+        $produto->setWidth($request->input('width'));
+        $produto->setLength($request->input('length'));
 
-        if ($request->hasFile('image')) {
-            $imageName = $produto->getId() . "." . $request->file('image')->extension();
-            Storage::disk('public')->put(
-                $imageName,
-                file_get_contents($request->file('image')->getRealPath())
-            );
-            $produto->setImage($imageName);
+        try {
+            if ($request->hasFile('image')) {
+                 $request->image->storeAs('produtos/' . $produto->getId(), $request->image->getClientOriginalName(), 's3');
+
+                $image = new images();
+                $image->url = $request->image->getClientOriginalName();
+                $image->product_id = $produto->getId();
+                $image->save();
+            }
+        } catch (\Exception $th) {
+           echo $th->getMessage();
         }
 
+
         $produto->save();
-        return redirect()->route('products.index');
+        return redirect()->route('allProductsByFornecedor')->with('msg',"Produto {$produto->title} Editado Com Sucesso!");;
     }
 
     /**
@@ -861,7 +943,9 @@ class productsController extends Controller
         $data = [];
 
         if ($product) {
+            $data['id'] = $product->id;
             $data['title'] = $product->title;
+            $data['image'] = Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage());
             $data['category_id'] = $product->category_id;
             $data['price'] = $product->price;
             $data['currency_id'] = $product->currency_id;
@@ -870,6 +954,7 @@ class productsController extends Controller
             $data['listing_type_id'] = $product->listing_type_id;
             $data['condition'] = $product->condition;
             $data['description'] = $product->description;
+            $data['ean'] = $product->gtin;
             $data['tags'] = [
                 "immediate_payment",
             ];
@@ -915,7 +1000,6 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
@@ -933,10 +1017,20 @@ class productsController extends Controller
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
         $id_categoria = $request->id_categoria;
-        $id_product = $request->id_prodEnv;
+        $id_product = $request->id_prodenv;
         $descricao = $request->editor;
 
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao);
+        $array = [];
+        // Itera sobre os dados recebidos
+        foreach ($request->all() as $key => $value) {
+            // Verifica se a chave possui letras maiúsculas
+            if (preg_match('/[A-Z]/', $key)) {
+                // Adiciona o parâmetro ao array de parâmetros com letras maiúsculas
+                array_push($array,["id" => $key,"value" => $value,"value_id" => $value, "value_name" => $value, "values" => [["id" => $value,"struct" => "null"]]]);
+            }
+        }
+
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array);
         $data = $factory->getProduto();
         if ($data) {
             return redirect()->back()->withErrors($data);
@@ -1160,6 +1254,38 @@ class productsController extends Controller
         }
 
     }
+
+
+    public function fotoPreview(Request $request){
+        $imageUrls = [];
+
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $path = $file->store('uploads', 'public');
+                $imageUrls[] = asset('storage/' . $path);
+            }
+        }
+
+        return response()->json($imageUrls);
+    }
+
+
+    public function destroyFotoS3(Request $request){{
+        try {
+               // // Parte da URL que você deseja remover
+               $parteRemover = "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/";
+               // // Remove a parte da URL
+               $urlSemParte = str_replace($parteRemover, "", $request->imagem);
+               $apagarImagem = images::where('url',basename($urlSemParte))->delete();
+               if($apagarImagem){
+                 Storage::disk('s3')->delete($urlSemParte);
+                 return response()->json(["res" => "imagem ". basename($urlSemParte) ." apagada com sucesso"],200);
+               }
+        } catch (\Exception $th) {
+            return response()->json(["res" => $th->getMessage()],400);
+        }
+     }
+   }
 
     public function getDataProducts($id){
 

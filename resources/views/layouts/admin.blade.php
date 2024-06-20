@@ -20,8 +20,6 @@
 </head>
 
 <body>
-
-
     <div class="row g-0">
         <div class="col content-grey">
             {{-- nav bar start --}}

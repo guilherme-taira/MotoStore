@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\EventoAfiliado;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -13,6 +14,9 @@ use App\Events\EventoCadastroIntegrado;
 use App\Events\notificaUserOrder;
 use App\Listeners\notificaUserCadastrado;
 use App\Notifications\notificaUser;
+use App\Events\EventoNavegacao;
+use App\Listeners\contadorAfiliado;
+use App\Listeners\ContadorNavegacao;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -36,8 +40,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         notificaUserOrder::class => [
             notificaUserOrder::class,
+        ],
+        EventoNavegacao::class => [
+            ContadorNavegacao::class
+        ],
+        EventoAfiliado::class => [
+            contadorAfiliado::class
         ]
-
     ];
 
     /**

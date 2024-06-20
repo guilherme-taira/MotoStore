@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminAccess::class,
         'admin_msg' => \App\Http\Middleware\ifAuthMsg::class,
         'check_fornecedor' => \App\Http\Middleware\CheckFornercedor::class,
+        'checkCadastro/{id}' => \App\Http\Middleware\verificaCadastro::class,
     ];
 }

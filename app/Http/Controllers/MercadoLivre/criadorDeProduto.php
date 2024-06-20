@@ -17,8 +17,9 @@ abstract class criadorDeProduto
     private array $erros;
     private String $id;
     private ?String $descricao;
+    private array $dados;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -27,6 +28,7 @@ abstract class criadorDeProduto
         $this->id_product = $id_product;
         $this->id = $id;
         $this->descricao = $descricao;
+        $this->dados = $dados;
     }
 
 
@@ -187,5 +189,13 @@ abstract class criadorDeProduto
     public function getDescricao(): ?String
     {
         return $this->descricao;
+    }
+
+    /**
+     * Get the value of dados
+     */
+    public function getDados(): array
+    {
+        return $this->dados;
     }
 }

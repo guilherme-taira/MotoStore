@@ -31,6 +31,7 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
+    Route::post('/notificationTraking',[MercadoPagoNotification::class,'notification']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
@@ -51,7 +52,12 @@ Route::prefix('v1')->group(function () {
     Route::get('images/{id}',[productsController::class,'imagesByProduct']);
     Route::get('updateProducts',[productsController::class,'updateProduct']);
     Route::get('getProductsApi',[productsController::class,'getProducts']);
+    Route::get('getValueGraphic15days',[StoreController::class,'getValueGraphic15days']);
+    Route::get('getValueGraphic6Mounth',[StoreController::class,'getValueGraphic6Mounth']);
+    Route::post('deleteFoto',[productsController::class,'destroyFotoS3']);
     Route::post('code',[StoreController::class,'getCode']);
+    Route::post('fotoPreview',[productsController::class,'fotoPreview']);
+
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
 });
