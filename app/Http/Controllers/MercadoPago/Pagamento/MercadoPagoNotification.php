@@ -13,7 +13,7 @@ class MercadoPagoNotification extends Controller
 {
 
     public function notificationTraking(Request $request){
-        \App\Jobs\YapayPagamento::dispatch($request->all());
+        \App\Jobs\aliexpressTraking::dispatch($request->all());
     }
 
 
