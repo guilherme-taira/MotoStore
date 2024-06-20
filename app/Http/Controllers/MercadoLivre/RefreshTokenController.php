@@ -35,6 +35,10 @@ class RefreshTokenController extends Controller
     {
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
         $acesso = token::where('user_id_mercadolivre', $this->getUserId())->first();
+        if(is_null($acesso)){
+            $acesso = token::join('users','token.user_id','=','users.id')->
+            where('users.id', $this->getUserId())->first();
+        }
         $DataSistema = $this->getDataAtual()->format('Y-m-d H:i:s');
         if ($DataSistema > $acesso->datamodify) {
             // ENDPOINT PARA REQUISAO;

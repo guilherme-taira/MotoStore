@@ -2,6 +2,11 @@
 @section('title', $viewData['title'])
 @section('conteudo')
 
+
+
+<div class="container-fluid px-4">
+    <h2 class="mt-4">Produtos Integrados</h2>
+
     @if ($errors->any())
         <ul class="alert alert-danger list-unstyled">
             @foreach ($errors->all() as $error)
@@ -20,10 +25,10 @@
 
     <div class="card mt-2">
         <div class="card-header">
-            Manage Products
+            Produtos
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-dark table-hover">
+            <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -41,7 +46,7 @@
                             <td>{{ $product->name }}</td>
                             <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" style="width: 10%" alt="{{ $product->image }}">
                             </td>
-                            <td>{{ $product->id_mercadolivre }}</td>
+                            <td><span class="badge bg-success">{{ $product->id_mercadolivre }}</span></td>
                             <td>{{ $product->product_id }}</td>
                             <td>{{ $product->created_at }}</td>
                         </tr>
@@ -53,6 +58,8 @@
             </div>
         </div>
     </div>
+
+</div>
 
 @endsection
 

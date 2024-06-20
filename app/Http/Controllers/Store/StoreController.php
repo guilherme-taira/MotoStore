@@ -9,6 +9,7 @@ use App\Models\banner;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
 use App\Models\logo;
+use App\Models\order_site;
 use App\Models\product_site;
 use App\Models\Products;
 use App\Models\sub_categoria_fornecedor;
@@ -141,6 +142,17 @@ class StoreController extends Controller
         $request->session()->put('datePayment', $request->datePayment);
         return redirect()->route('cart.purchase');
     }
+
+    public function getValueGraphic15days(Request $request){
+        return response()->json(order_site::getDataValues($request->id));
+    }
+
+    public function getValueGraphic6Mounth(Request $request){
+        return response()->json(order_site::getDataLast6Mounth($request->id));
+    }
+
+
+
 
     public function thanks()
     {

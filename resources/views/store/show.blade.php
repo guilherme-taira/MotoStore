@@ -1,4 +1,4 @@
-@extends('layouts.layout')
+@extends('layouts.app')
 @section('title', $viewData['title'])
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
@@ -257,11 +257,11 @@
                     <!--- FINAL FOTOS ADICIONAIS  --->
                     <div class="col-md-3 mt-1 receivedPhoto">
                         @if (json_decode($viewData['imageJson']))
-                            <img class="img-fluid img-responsive rounded product-image tradeFoto"
+                            <img class="img-fluid img-responsive rounded product-image"
                                 src="{{ json_decode($viewData['imageJson'])[0]->url }}">
                         @else
-                            <img class="img-fluid img-responsive rounded product-image tradeFoto"
-                                src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
+                            <img class="img-fluid img-responsive rounded product-image"
+                                width="300px" src="{!! Storage::disk('s3')->url('produtos/' . $viewData['product']->getId() . '/' . $viewData['image']) !!}">
                         @endif
                     </div>
                     <div class="col-md-6">
@@ -273,122 +273,6 @@
                                 <input type="text" min="1" id="sku" class="form-control quantity-input"
                                     disabled value="{{ $viewData['product']->getId() }}">
                             </div>
-                        </div>
-
-                        <div class="col-md-8">
-                            <h6>Métricas KM</h6>
-                            <div id='myChart' class=""></div>
-                            <script>
-                                ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
-                                window.feed = function(callback) {
-                                    var tick = {};
-                                    tick.plot0 = Math.ceil(350 + (Math.random() * 500));
-                                    callback(JSON.stringify(tick));
-                                };
-
-                                var myConfig = {
-                                    type: "gauge",
-                                    globals: {
-                                        fontSize: 15
-                                    },
-                                    plotarea: {
-                                        marginTop: 60
-                                    },
-                                    plot: {
-                                        size: '100%',
-                                        valueBox: {
-                                            placement: 'center',
-                                            text: '%v', //default
-                                            fontSize: 35,
-                                            rules: [{
-                                                    rule: '%v >= 120',
-                                                    text: 'ALTO KM'
-                                                },
-                                                {
-                                                    rule: '%v > 60 && %v < 120',
-                                                    text: 'MÉDIO KM'
-                                                },
-                                                {
-                                                    rule: '%v <= 60',
-                                                    text: 'BAIXO KM'
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    tooltip: {
-                                        borderRadius: 5
-                                    },
-                                    scaleR: {
-                                        aperture: 180,
-                                        minValue: 10,
-                                        maxValue: 150,
-                                        step: 14.5,
-                                        center: {
-                                            visible: false
-                                        },
-                                        tick: {
-                                            visible: false
-                                        },
-                                        item: {
-                                            offsetR: 0,
-                                            rules: [{
-                                                rule: '%i == 10',
-                                                offsetX: 15
-                                            }]
-                                        },
-                                        labels: ['0', '', '30', '90', '60', '', '90', '640', '120', '750', '', '150'],
-                                        ring: {
-                                            size: 40,
-                                            rules: [{
-                                                    rule: '%v <= 20',
-                                                    backgroundColor: '#E53935'
-                                                },
-                                                {
-                                                    rule: '%v > 20 && %v < 55',
-                                                    backgroundColor: '#ff8e18'
-                                                },
-                                                {
-                                                    rule: '%v >= 55 && %v < 85',
-                                                    backgroundColor: '#fffa00'
-                                                },
-                                                {
-                                                    rule: '%v >= 85 && %v < 110',
-                                                    backgroundColor: '#83eb38'
-                                                },
-                                                {
-                                                    rule: '%v >= 110',
-                                                    backgroundColor: '#00B414'
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    // refresh: {
-                                    //     type: "feed",
-                                    //     transport: "js",
-                                    //     url: "feed()",
-                                    //     interval: 1500,
-                                    //     resetTimeout: 1000
-                                    // },
-                                    series: [{
-                                        values: [{{ $viewData['product']->termometro }}], // starting value
-                                        backgroundColor: 'black',
-                                        indicator: [10, 10, 10, 10, 0.75],
-                                        animation: {
-                                            effect: 2,
-                                            method: 7,
-                                            sequence: 2,
-                                            speed: 10000
-                                        },
-                                    }]
-                                };
-                                zingchart.render({
-                                    id: 'myChart',
-                                    data: myConfig,
-                                    height: 350,
-                                    width: '100%',
-                                });
-                            </script>
-
                         </div>
                     </div>
                     <div class="align-items-center align-content-center col-md-3 border-left mt-1">
@@ -411,43 +295,11 @@
                         </div>
 
                         <div class="col-md-12">
-                            <div>Quantidade:</div>
-                            <input type="number" min="1" id="quantity" name="quantity"
-                                class="form-control quantity-input" value="1">
+                            <div>Estoque:</div>
+                            <input type="text" disabled value="{{ number_format($viewData['product']->getStock(), 2, ',', '.') }}" id="quantity" name="quantity"
+                                class="form-control quantity-input">
                         </div>
 
-                        <div class="d-flex flex-column mt-4">
-                            <button class="btn btn-outline-primary bg-primary text-white btn-sm mt-2"
-                                type="submit">Comprar</button>
-                            <button class="btn btn-outline-primary btn-sm mt-2" type="submit">Adicionar ao
-                                Carrinho</button>
-                        </div>
-                        <!--- Desconto e fixo  --->
-                        <div class="d-flex flex-column mt-4"">
-
-                            <label>Material de Apoio / Dúvidas</label>
-                            <button class="btn btn-primary">Material de apoio <i class="bi bi-archive-fill"></i></button>
-
-                            <!--- Botões dos marketplaces  --->
-                            <div class="row">
-                                <input type="hidden" id="total"
-                                    value="{{ number_format($viewData['product']->price, 2, ',', '.') }}">
-                                {{-- <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}"> --}}
-                                <input type="hidden" name="id_produto" id="id_produto"
-                                    value="{{ $viewData['product']->id }}">
-                                <div class="col-md-12">
-                                    <div class="div mt-2">
-                                        {{-- @if ($viewData['token'])
-                                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                                href="#exampleModalToggle"><i class='bi bi-arrow-left-right'></i> &nbsp;
-                                                INTEGRAR</button>
-                                        @else --}}
-                                            <button class="btn btn-secondy" disabled></button>
-                                        {{-- @endif --}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <!--- Final Desconto e fixo  --->
                     </div>
                     <!--- final botões marketplaces --->
@@ -480,9 +332,14 @@
         var quantity = $("#quantity").val();
         var stock = $("#stock").val();
 
+        $("img.fotoProduto").each(function() {
+            $(this).width(58);   // Define a largura para 58 pixels
+            $(this).height(58);  // Define a altura para 58 pixels
+        });
+
         $("img.fotoProduto").mouseenter(function() {
-            $(this).fadeOut(100);
-            $(this).fadeIn(500);
+            // $(this).fadeOut(100);
+            // $(this).fadeIn(500);
             $(this).css({
                 border: "2px solid red",
                 width: "58px",
@@ -493,7 +350,7 @@
             $('.product-image').attr('src', images);
 
         }).mouseleave(function() {
-            $(this).fadeOut(100);
+            // $(this).fadeOut(100);
             $(this).fadeIn(500);
             $(this).css({
                 border: "1px solid black",

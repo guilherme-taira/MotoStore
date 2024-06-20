@@ -60,7 +60,7 @@ Route::get('/', function () {
 route::view('/brod','brod');
 
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
-Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
+// Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
 Route::get('/kitspublic',[productsController::class,'GetProductsKits'])->name('GetProductsKits');
 // ROTA PREMIUM
@@ -113,7 +113,6 @@ Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago']);
 // ROTAS AUTENTICADAS
-
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
@@ -141,7 +140,8 @@ Route::middleware('admin')->group(function () {
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
-        Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
+        // Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id'])->middleware('checkCadastro/{id}');
+                Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
         Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
         Route::resource('user', 'App\Http\Controllers\User\UserController')->names('user')->parameters(['user' => 'id']);
         Route::resource('dashboard', 'App\Http\Controllers\admin\dashbordController')->names('panel')->parameters(['dashboard' => 'id']);

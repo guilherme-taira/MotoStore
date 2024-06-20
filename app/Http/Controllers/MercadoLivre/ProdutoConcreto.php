@@ -22,8 +22,9 @@ class ProdutoConcreto implements Produto
     private token $userId;
     private String $name;
     private String $tipo_anuncio;
+    private ?array $opcionais;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
@@ -31,6 +32,7 @@ class ProdutoConcreto implements Produto
         $this->userId = $userId;
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
+        $this->opcionais = $opcionais;
     }
 
     public function integrar($descricao,$id_prod)
@@ -60,6 +62,10 @@ class ProdutoConcreto implements Produto
             ];
             $data['attributes'] = [
                 [
+                    "id" => "SELLER_SKU",
+                    "value_name" =>  $this->getProduto()->id
+                ],
+                [
                     "id" => "BRAND",
                     "value_name" => $this->getProduto()->brand,
                 ],
@@ -71,8 +77,47 @@ class ProdutoConcreto implements Produto
                     "id" => "MODEL",
                     "value_name" => 'GENERIC'
                 ],
-
+                [
+                    "id" => "HEIGHT",
+                    "name" => "Altura",
+                    "value_id" => null,
+                    "value_name" => "{$this->getProduto()->height} cm",
+                    "values" => [
+                          [
+                             "id" => null,
+                             "name" => "{$this->getProduto()->height} cm",
+                             "struct" => [
+                                "number" => $this->getProduto()->height,
+                                "unit" => "cm"
+                             ]
+                          ]
+                       ],
+                    "value_type" => "number_unit"
+                ],
+                [
+                    "id" => "LENGTH",
+                    "name" => "Comprimento",
+                    "value_id" => null,
+                    "value_name" => "{$this->getProduto()->length} cm",
+                    "values" => [
+                          [
+                             "id" => null,
+                             "name" => "{$this->getProduto()->length} cm",
+                             "struct" => [
+                                "number" => $this->getProduto()->length,
+                                "unit" => "cm"
+                             ]
+                          ]
+                       ],
+                    "value_type" => "number_unit"
+                ],
             ];
+
+            if(count($this->getOpcionais()) > 1){
+                foreach ($this->getOpcionais() as $key => $dados) {
+                    array_push($data['attributes'],$dados);
+               }
+            }
 
             if ($this->getPrice() > 79.99) {
                 $data['shipping'] = [
@@ -91,7 +136,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-            Log::error($data_json);
+            Log::critical($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -107,9 +152,11 @@ class ProdutoConcreto implements Produto
             curl_close($ch);
             $json = json_decode($reponse);
 
+            Log::emergency($reponse);
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
+
                 } else {
                     foreach ($json->cause as $erros) {
                         array_push($error_message, $erros->message);
@@ -254,5 +301,13 @@ class ProdutoConcreto implements Produto
         $this->tipo_anuncio = $tipo_anuncio;
 
         return $this;
+    }
+
+    /**
+     * Get the value of opcionais
+     */
+    public function getOpcionais(): ?array
+    {
+        return $this->opcionais;
     }
 }

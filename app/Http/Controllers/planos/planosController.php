@@ -17,13 +17,13 @@ class planosController extends Controller
         $viewData['logo'] = logo::first();
 
         $categorias = [];
-        foreach (categorias::all() as $value) {
-            $categorias[$value->id] = [
-                "nome" => $value->nome,
-                "subcategory" => sub_category::getAllCategory($value->id),
-            ];
-        }
-        $viewData['categorias'] = $categorias;
+        // // foreach (categorias::all() as $value) {
+        // //     $categorias[$value->id] = [
+        // //         "nome" => $value->nome,
+        // //         "subcategory" => sub_category::getAllCategory($value->id),
+        // //     ];
+        // // }
+        // $viewData['categorias'] = $categorias;
 
         return view("planos.index",[
             "viewData" => $viewData

@@ -18,14 +18,14 @@
                         <span class="small text-white stretched-link" >Integrado em : {{$viewData['integrado']->created_at}}</span>
                         <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                     </div>
-                    <a class="small text-white stretched-link btn btn-warning py-2" href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=$t_uri=https://melimaximo.com.br/thankspage" >Renovar token</a>
+                    <a class="small text-white stretched-link btn btn-warning py-2" href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://melimaximo.com.br/thankspage" >Renovar token</a>
                 </div>
                 @else
 
                 <div class="card bg-warning text-white mb-4">
                     <div class="card-body text-dark">Mercado Livre <img src="https://logopng.com.br/logos/mercado-livre-87.png" width="32" height="32" class="float-end"></div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=$t_uri=https://melimaximo.com.br/thankspage" >Integrar</a>
+                        <a class="small text-white stretched-link" href="https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=3029233524869952&redirect_uri=https://melimaximo.com.br/thankspage" >Integrar</a>
                         <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                     </div>
                 </div>

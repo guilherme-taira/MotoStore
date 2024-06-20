@@ -26,7 +26,7 @@ class categorias extends Model
     }
 
     public function getNome(){
-        return $this->nome;
+        return $this->name;
     }
 
     public function SetNome($name){

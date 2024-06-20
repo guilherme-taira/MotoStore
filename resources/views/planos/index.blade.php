@@ -1,4 +1,4 @@
-@extends('layouts.layout')
+@extends('layouts.app')
 @section('title', $viewData['title'])
 @section('conteudo')
 
@@ -25,11 +25,11 @@
                             <h1 class="card-title pricing-card-title">R$0 <small class="text-muted">/ Mês</small></h1>
                             <h2 class="text-danger">Limitado</h2>
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Vendas Ilimitadas</li>
-                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Produtos para se Afiliar Ilimitado</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support</li>
-                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Whatsapp support</li>
+                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Vendas Ilimitadas <i class="bi bi-bag-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Produtos para se Afiliar Ilimitado <i class="bi bi-basket2-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee <i class="bi bi-bezier2"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support <i class="bi bi-envelope-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Whatsapp support <i class="bi bi-whatsapp"></i></li>
                                 <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Comunidade Telegram <i class="bi bi-telegram"></i></li>
                                 <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Comunidade Discord <i class="bi bi-discord"></i></li>
                                 <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Bônus - </li>
@@ -51,11 +51,11 @@
                                     Trimestral</small></h1>
                             <h2 class="text-danger">Ilimitado</h2>
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i>Vendas Ilimitadas</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Produtos para se Afiliar Ilimitado</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Whatsapp support</li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i>Vendas Ilimitadas <i class="bi bi-bag-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Produtos para se Afiliar Ilimitado <i class="bi bi-basket2-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee <i class="bi bi-bezier2"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support <i class="bi bi-envelope-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Whatsapp support <i class="bi bi-whatsapp"></i></li>
                                 <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Comunidade Telegram <i class="bi bi-telegram"></i></li>
                                 <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Comunidade Discord <i class="bi bi-discord"></i></li>
                                 <li class="text-start"><i class="bi bi-x-circle-fill" style="font-size: 1rem; color: rgb(255, 0, 119);"></i> Bônus - </li>
@@ -67,21 +67,21 @@
                                 <path d="M5.205 10.787a7.632 7.632 0 0 0 1.804 1.352c-1.118 1.007-4.929 2.028-5.054 1.903-.126-.127.737-4.189 1.839-5.18.346.69.837 1.35 1.411 1.925Z"/>
                               </svg>
                             </button> </div>
-                    </div>
-                    <div class="col text-center border border-3 py-2">
-                        <div class="card-header">
-                            <h4 class="my-0 font-weight-normal">Premium</h4>
-                        </div>
-                        <div class="card-body">
+                            </div>
+                            <div class="col text-center border border-3 py-2">
+                                <div class="card-header">
+                                    <h4 class="my-0 font-weight-normal">Premium</h4>
+                                </div>
+                                <div class="card-body">
                             <h1 class="card-title pricing-card-title">R$327,00 <small class="text-muted">/
                                     Trimestral</small></h1>
                             <h2 class="text-danger">+ 2 NFT (Permanente)</h2>
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Vendas Ilimitadas</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Produtos para se Afiliar Ilimitado</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support</li>
-                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Whatsapp support</li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Vendas Ilimitadas <i class="bi bi-bag-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Produtos para se Afiliar Ilimitado <i class="bi bi-basket2-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Integração com Mercado Livre e Shopee <i class="bi bi-bezier2"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Email support <i class="bi bi-envelope-check-fill"></i></li>
+                                <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Whatsapp support <i class="bi bi-whatsapp"></i></li>
                                 <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Comunidade Telegram <i class="bi bi-telegram"></i></li>
                                 <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Comunidade Discord <i class="bi bi-discord"></i></li>
                                 <li class="text-start"><i class="bi bi-check-circle-fill" style="font-size: 1rem; color: rgb(70, 173, 5);"></i> Bônus + 2 NFTs</li>
@@ -98,46 +98,6 @@
                 </div>
             </div>
         </div>
-
-        <footer class="pt-4 my-md-5 pt-md-5 border-top">
-            <div class="row">
-                <div class="col-12 col-md">
-                    <img class="mb-2" src="../../assets/brand/bootstrap-solid.svg" alt="" width="24"
-                        height="24">
-                    <small class="d-block mb-3 text-muted">&copy; 2017-2018</small>
-                </div>
-                <div class="col-6 col-md">
-                    <h5>Features</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="#">Cool stuff</a></li>
-                        <li><a class="text-muted" href="#">Random feature</a></li>
-                        <li><a class="text-muted" href="#">Team feature</a></li>
-                        <li><a class="text-muted" href="#">Stuff for developers</a></li>
-                        <li><a class="text-muted" href="#">Another one</a></li>
-                        <li><a class="text-muted" href="#">Last time</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md">
-                    <h5>Resources</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="#">Resource</a></li>
-                        <li><a class="text-muted" href="#">Resource name</a></li>
-                        <li><a class="text-muted" href="#">Another resource</a></li>
-                        <li><a class="text-muted" href="#">Final resource</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md">
-                    <h5>About</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="#">Team</a></li>
-                        <li><a class="text-muted" href="#">Locations</a></li>
-                        <li><a class="text-muted" href="#">Privacy</a></li>
-                        <li><a class="text-muted" href="#">Terms</a></li>
-                    </ul>
-                </div>
-            </div>
-        </footer>
-
 
         <!-- Bootstrap core JavaScript
                                                   ================================================== -->

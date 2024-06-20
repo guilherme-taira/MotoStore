@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Log;
 
 class MercadoPagoNotification extends Controller
 {
+
+    public function notificationTraking(Request $request){
+        \App\Jobs\YapayPagamento::dispatch($request->all());
+    }
+
+
     public function notification(Request $request){
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();

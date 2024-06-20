@@ -12,7 +12,7 @@
     @endif
 
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a href="{{ route('categoriasweb.create') }}"><button class="btn btn-success me-md-2" type="button">Nova Categoria <i
+        <a href="{{ route('categorias.create') }}"><button class="btn btn-success me-md-2" type="button">Nova Categoria <i
                     class="bi bi-patch-plus"></i></button></a>
     </div>
 
@@ -32,7 +32,7 @@
 
         @if (count($viewData['categorias']) <= 0)
             <div class="alert alert-danger text-center">Não Há Categoria cadastrada <a
-                    href="{{ route('categoriasweb.create') }}"><strong>Crie a Primeira</strong></a></div>
+                    href="{{ route('categorias.create') }}"><strong>Crie a Primeira</strong></a></div>
         @else
             <div class="card-body">
                 <table class="table table-bordered table-striped">
@@ -41,7 +41,6 @@
                             <th scope="col">ID</th>
                             <th scope="col">Nome</th>
                             <th scope="col">Sub-Categorias</th>
-                            <th scope="col">Slug</th>
                             <th scope="col">Editar</th>
                             <th scope="col">Deletar</th>
                         </tr>
@@ -54,11 +53,10 @@
                                 <td><a href="{{ route('subcategorias.create') }}"><button
                                     class="btn btn-success btn-sm"><i
                                         class="bi bi-patch-plus"></i> Adicionar</button> </a></td>
-                                <td>{{ $categoria->getSlug() }}</td>
-                                <td><a href="{{ route('categoriasweb.edit', ['categorias' => $categoria->getId()]) }}"><button
+                                <td><a href="{{ route('categorias.edit', ['id' => $categoria->getId()]) }}"><button
                                             class="btn btn-primary btn-sm"><i
                                                 class="bi bi-pencil-square"></i>Editar</button> </a></td>
-                                <td><a href="{{ route('categoriasweb.edit', ['categorias' => $categoria->getId()]) }}"><button
+                                <td><a href="{{ route('categorias.edit', ['id' => $categoria->getId()]) }}"><button
                                             class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
                                 </td>
                             </tr>
