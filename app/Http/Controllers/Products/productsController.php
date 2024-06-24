@@ -39,6 +39,7 @@ use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
+use App\Models\order_site;
 use App\Models\produtos_integrados;
 use Illuminate\Support\Facades\Auth;
 
@@ -1251,6 +1252,35 @@ class productsController extends Controller
 
         } catch (\Exception $e) {
             Log::alert($e->getMessage());
+        }
+
+    }
+
+
+    public function dataHome(Request $request){
+
+        try {
+            $dataView = [];
+            $order = order_site::OrdersMercadoLivreDay($request->user,"");
+            $valorMedioDiario = order_site::OrdersMercadoLivreDayQtd($request->user);
+            $qtdVendasMes = order_site::totalVendasMes($request->user);
+            $qtdVendaDia = order_site::totalVendasDia($request->user);
+            $dataView['totalVendasDia'] = number_format($order,2);
+            $dataView['valorMedio'] = number_format($order / $valorMedioDiario,2);
+            $dataView['qtdVendasMes'] = number_format($qtdVendasMes,2);
+            $dataView['VendasPorDia'] = number_format($qtdVendaDia,2);
+
+        } catch (\DivisionByZeroError  $th) {
+            $dataView = [];
+            $order = order_site::OrdersMercadoLivreDay($request->user,"");
+            $valorMedioDiario = order_site::OrdersMercadoLivreDayQtd($request->user);
+            $qtdVendasMes = order_site::totalVendasMes($request->user);
+            $qtdVendaDia = order_site::totalVendasDia($request->user);
+            $dataView['totalVendasDia'] = number_format($order,2);
+            $dataView['valorMedio'] = "0.00";
+            $dataView['qtdVendasMes'] = $qtdVendasMes;
+            $dataView['VendasPorDia'] = $qtdVendaDia;
+            return response()->json($dataView);
         }
 
     }

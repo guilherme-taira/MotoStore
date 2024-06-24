@@ -57,7 +57,7 @@ Route::prefix('v1')->group(function () {
     Route::post('deleteFoto',[productsController::class,'destroyFotoS3']);
     Route::post('code',[StoreController::class,'getCode']);
     Route::post('fotoPreview',[productsController::class,'fotoPreview']);
-
+    Route::post('dataHome',[productsController::class,'dataHome']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
 });

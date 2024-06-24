@@ -12,7 +12,7 @@ $.ajax({
     url: 'api/v1/getValueGraphic6Mounth?id=' + id.value,
     method: 'GET',
     success: function (response) {
-
+        console.log(response);
         // Bar Chart Example
         var ctx = document.getElementById("myBarChart");
         var myLineChart = new Chart(ctx, {

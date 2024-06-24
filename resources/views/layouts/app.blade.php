@@ -234,6 +234,7 @@
         crossorigin="anonymous"></script>
     <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
 
+
 </body>
 
 </html>
