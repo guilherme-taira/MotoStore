@@ -10,6 +10,7 @@ $.ajax({
     url: 'api/v1/getValueGraphic15days?id='+ id.value,
     method: 'GET',
     success: function(response) {
+        console.log(response);
         // Area Chart Example
         console.table(response);
         var ctx = document.getElementById("myAreaChart");

@@ -20,8 +20,8 @@ class MercadoPagoNotification extends Controller
     public function notification(Request $request){
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
-
-        if(isset($request->_id)){
+        Log::emergency(json_encode($request->all()));
+        if(isset($request->topic)){
 
             $dataAtual = new DateTime();
             // GET NEW TOKEN

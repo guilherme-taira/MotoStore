@@ -57,24 +57,36 @@ class order_site extends Model
     }
 
 
+
+    public static function getLast15() {
+        $daysArray = [];
+        for ($i = 0; $i < 15; $i++) {
+            $day = date('Y-m-d', strtotime("-$i days"));
+            array_push($daysArray, $day);
+        }
+        return $daysArray;
+    }
+
     public static function getDataValues($id){
-        $last15Days = order_site::selectRaw('dataVenda, SUM(valorVenda) AS total_vendas')
+        $last15Days = order_site::selectRaw('created_at, SUM(valorVenda) AS total_vendas')
         ->join('pivot_site','order_site.id','=','pivot_site.order_id')
         ->where('id_user','=',$id)
-        ->whereBetween('dataVenda', [now()->subDays(15), now()])
+        ->whereBetween('created_at', [now()->subDays(5), now()])
         ->groupBy('dataVenda')
         ->get();
 
-        $dias = [];
-        $valor = [];
-        $all = [];
-        foreach ($last15Days as $key => $value) {
-            array_push($dias,$value->dataVenda);
-            array_push($valor,  str_replace(',','.',number_format($value->total_vendas, 2, ',', '')));
-        }
+        print_r($last15Days);
+        // $dias = [];
+        // $valor = [];
+        // $all = [];
 
-        array_push($all,$dias,$valor,max($valor));
-        return $all;
+        // foreach ($last15Days as $key => $value) {
+        //     array_push($dias,$value->dataVenda);
+        //     array_push($valor,  str_replace(',','.',number_format($value->total_vendas, 2, ',', '')));
+        // }
+
+        // array_push($all,$dias,$valor);
+        // return $all;
     }
 
     public static function getFormattedDate($date) {
@@ -162,17 +174,64 @@ class order_site extends Model
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
             ->join('product_site','pivot_site.product_id','=','product_site.id')
             ->where('id_user', $user)
-            ->where('order_site.created_at', 'like', '%' . $monthCurrent->format('Y-m') . '%')->sum('valorVenda');
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m') . '%')->sum('valorVenda');
         return $data;
+    }
+
+    public static function totalVendasMes($user)
+    {
+        $data = DB::table('pivot_site')
+            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            // ->join('product_site','pivot_site.product_id','=','product_site.id')
+            ->where('id_user', $user)
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m') . '%')->get();
+        return count($data);
+    }
+
+
+    public static function totalVendasDia($user)
+    {
+        $data = DB::table('pivot_site')
+            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            // ->join('product_site','pivot_site.product_id','=','product_site.id')
+            ->where('id_user', $user)
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m-d') . '%')->get();
+        return count($data);
     }
 
     public static function OrdersMercadoLivreDay($user, $monthCurrent)
     {
         $data = DB::table('pivot_site')
-            ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
             ->where('id_user', $user)
-            ->where('order_site.created_at', 'like', '%' . $monthCurrent->format('Y-m-d') . '%')->sum('valorVenda');
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m-d') . '%')->sum('valorVenda');
+        return $data;
+    }
+
+
+
+    public static function OrdersMercadoLivreDayQtd($user)
+    {
+        $data = DB::table('pivot_site')
+            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->where('id_user', $user)
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m-d') . '%')
+            ->get();
+        return count($data);
+    }
+
+    public static function OrdersMercadoLivreDayValorMedio($user)
+    {
+        $data = DB::table('pivot_site')
+            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->where('id_user', $user)
+            ->where('order_site.created_at', 'like', '%' . now()->format('Y-m-d') . '%')->sum('valorVenda');
+
         return $data;
     }
 }
