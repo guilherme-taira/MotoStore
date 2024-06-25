@@ -24,7 +24,7 @@ class InterfaceClienteController implements ClienteController
     private String $fee;
 
 
-    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id, $fee = 0)
+    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id, $fee)
     {
         $this->Userid = $Userid;
         $this->token = $token;
@@ -99,6 +99,7 @@ class InterfaceClienteController implements ClienteController
     function saveClient($result,$sellerid)
     {
 
+        Log::critical("msg");
         try {
             if (order_site::VerificarVenda($result->id) == false) {
                 $pedidos = new order_site();
