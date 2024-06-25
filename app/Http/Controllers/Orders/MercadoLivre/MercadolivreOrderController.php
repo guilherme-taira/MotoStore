@@ -120,7 +120,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
-                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1");
+                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
                             }
