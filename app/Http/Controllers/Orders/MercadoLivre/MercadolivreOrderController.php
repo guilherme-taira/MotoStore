@@ -71,7 +71,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
         // IMPLEMENTA MARKETPLACE FEE
 
-        FacadesLog::critical($json->payments[0]->marketplace_fee);
+        // FacadesLog::critical($json->payments[0]->marketplace_fee);
 
         try {
             if ($httpCode == 200) {
@@ -107,7 +107,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                              *  16/04/2024 11:20
                              */
 
-                             Log::critical($json->payments[0]->marketplace_fee);
+
                             if(isset($produto)){
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
                                 $preference = $prefence->resource();
