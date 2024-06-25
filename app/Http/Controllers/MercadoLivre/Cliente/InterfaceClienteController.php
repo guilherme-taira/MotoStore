@@ -21,15 +21,17 @@ class InterfaceClienteController implements ClienteController
     private String $exeternal_reference;
     private String $link_pagamento;
     private String $preference_id;
+    private String $fee;
 
 
-    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id)
+    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id, $fee = 0)
     {
         $this->Userid = $Userid;
         $this->token = $token;
         $this->exeternal_reference = $exeternal_reference;
         $this->link_pagamento = $link_pagamento;
         $this->preference_id = $preference_id;
+        $this->fee = $fee;
     }
 
     public function get($resource)
@@ -99,7 +101,6 @@ class InterfaceClienteController implements ClienteController
 
         try {
             if (order_site::VerificarVenda($result->id) == false) {
-
                 $pedidos = new order_site();
                 $pedidos->numeropedido = $result->id;
                 $pedidos->local = 'Mercado Livre';
@@ -113,6 +114,7 @@ class InterfaceClienteController implements ClienteController
                 $pedidos->status_mercado_livre = "0";
                 $pedidos->id_pagamento = 0;
                 $pedidos->link_pagamento = $this->getLinkPagamento();
+                $pedidos->fee = $this->getFee();
                 $pedidos->save();
 
                 foreach ($result->order_items as $pedido) {
@@ -199,5 +201,13 @@ class InterfaceClienteController implements ClienteController
     public function getPreferenceId(): String
     {
         return $this->preference_id;
+    }
+
+    /**
+     * Get the value of fee
+     */
+    public function getFee(): String
+    {
+        return $this->fee;
     }
 }
