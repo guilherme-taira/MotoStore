@@ -1269,7 +1269,7 @@ class productsController extends Controller
             $dataView['valorMedio'] = number_format($order / $valorMedioDiario,2);
             $dataView['qtdVendasMes'] = number_format($qtdVendasMes,2);
             $dataView['VendasPorDia'] = number_format($qtdVendaDia,2);
-
+            return response()->json($dataView);
         } catch (\DivisionByZeroError  $th) {
             $dataView = [];
             $order = order_site::OrdersMercadoLivreDay($request->user,"");

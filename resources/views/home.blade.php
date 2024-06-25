@@ -2,13 +2,6 @@
 @section('title', $viewData['title'])
 @section('conteudo')
 
-    {{-- LOADING --}}
-    <div class="spinner-overlay" id="loading-api">
-        <div class="spinner-border spinner-big text-light" role="status">
-            <span class="visually-hidden">Carregando...</span>
-        </div>
-    </div>
-
     <div class="container-fluid px-4">
         <h2 class="mt-4">Dashboard</h2>
         <ol class="breadcrumb mb-4">
@@ -20,6 +13,13 @@
                     <div class="col-md-3">
                         <div class="card card-custom">
 
+                            {{-- LOADING --}}
+                            <div class="spinner-overlay loading-api" id="loading-api">
+                                <div class="spinner-border spinner-big text-light" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+
                             <div class="card-header bg-dark text-white">Valor total de vendas</div>
                             <div class="card-body">
                                 <h5 class="card-title totalvenda">R$ 0,00</h5>
@@ -28,6 +28,14 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card card-custom">
+
+                            {{-- LOADING --}}
+                            <div class="spinner-overlay loading-api" id="loading-api">
+                                <div class="spinner-border spinner-big text-light" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+
                             <div class="card-header bg-dark text-white">Valor médio por dia</div>
                             <div class="card-body">
                                 <h5 class="card-title totalMedio">R$ 0,00</h5>
@@ -36,6 +44,13 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card card-custom">
+
+                            {{-- LOADING --}}
+                            <div class="spinner-overlay loading-api" id="loading-api">
+                                <div class="spinner-border spinner-big text-light" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
                             <div class="card-header bg-dark text-white">Total de vendas Mês</div>
                             <div class="card-body">
                                 <h5 class="card-title QuantidadeVendas">0</h5>
@@ -44,6 +59,13 @@
                     </div>
                     <div class="col-md-3">
                         <div class="card card-custom">
+
+                            {{-- LOADING --}}
+                            <div class="spinner-overlay loading-api" id="loading-api">
+                                <div class="spinner-border spinner-big text-light" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
                             <div class="card-header bg-dark text-white">Vendas por dia</div>
                             <div class="card-body">
                                 <h5 class="card-title vendasHoje">0</h5>
@@ -632,7 +654,6 @@
         <script>
             $(document).ready(function() {
                 //APAGAR A FOTO ROTA POST /
-
                 var idUser = $("#id_user").val();
                 $.ajax({
                     type: "POST",
@@ -647,7 +668,10 @@
                         $(".vendasHoje").text(response.VendasPorDia);
                         $(".QuantidadeVendas").text(response.qtdVendasMes);
 
-                        $("#loading-api").addClass('d-none');
+                        $('.loading-api').each(function() {
+                            $(this).addClass('d-none');
+                        });
+
                     },
                     error: function(xhr, status, error) {
                         // Ação a ser realizada em caso de erro
