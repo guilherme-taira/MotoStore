@@ -22,9 +22,10 @@ class InterfaceClienteController implements ClienteController
     private String $link_pagamento;
     private String $preference_id;
     private String $fee;
+    private String $comprador;
 
 
-    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id, $fee)
+    public function __construct($Userid,$token,$exeternal_reference,$link_pagamento,$preference_id, $fee,$comprador)
     {
         $this->Userid = $Userid;
         $this->token = $token;
@@ -99,7 +100,6 @@ class InterfaceClienteController implements ClienteController
     function saveClient($result,$sellerid)
     {
 
-        Log::critical("msg");
         try {
             if (order_site::VerificarVenda($result->id) == false) {
                 $pedidos = new order_site();
@@ -116,6 +116,7 @@ class InterfaceClienteController implements ClienteController
                 $pedidos->id_pagamento = 0;
                 $pedidos->link_pagamento = $this->getLinkPagamento();
                 $pedidos->fee = $this->getFee();
+                $pedidos->buyer = $this->getComprador();
                 $pedidos->save();
 
                 foreach ($result->order_items as $pedido) {
@@ -210,5 +211,13 @@ class InterfaceClienteController implements ClienteController
     public function getFee(): String
     {
         return $this->fee;
+    }
+
+    /**
+     * Get the value of comprador
+     */
+    public function getComprador(): String
+    {
+        return $this->comprador;
     }
 }

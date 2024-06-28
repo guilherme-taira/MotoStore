@@ -54,9 +54,8 @@ class testController extends Controller
 
 
     public function teste(Request $request){
-
-        $last15Days = order_site::getDataLast6Mounth(Auth::user()->id);
-        print_r($last15Days);
+        $data = order_site::getOrderByDashboard($request);
+        return response()->json($data);
     }
 
 }

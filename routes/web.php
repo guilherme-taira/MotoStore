@@ -117,7 +117,7 @@ Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
-        Route::get('/test',[testController::class,'teste']);
+        Route::post('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");

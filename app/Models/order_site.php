@@ -137,7 +137,7 @@ class order_site extends Model
             ->where('users.id', $user_id);
 
         if ($request->nome) {
-            $data->where('users.name', 'like', '%' . $request->nome . '%');
+            $data->where('order_site.cliente', 'like', '%' . $request->nome . '%');
         }
 
         if ($request->cpf) {
@@ -199,6 +199,41 @@ class order_site extends Model
             ->where('id_user', $user)
             ->where('order_site.created_at', 'like', '%' . now()->format('Y-m-d') . '%')->get();
         return count($data);
+    }
+
+    public static function getOrderByDashboard(Request $request){
+
+        $data = DB::table('pivot_site')
+        ->join('users', 'pivot_site.id_user', '=', 'users.id')
+        ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+        ->select(DB::raw('SUM(order_site.valorVenda) as totalValorVenda'),DB::raw('SUM(order_site.fee) as totalValorTarifa'),'dataVenda')
+        ->orderBy('order_site.dataVenda', 'asc')
+        ->where('users.id', $request->user_id);
+
+        if ($request->dataInicial && $request->dataFinal) {
+            $data->whereBetween('order_site.dataVenda', [$request->dataInicial, $request->dataFinal]);
+        }
+
+        $data->groupBy('order_site.dataVenda');
+        $dados = $data->get();
+
+        $valor = [];
+        $tarifa = [];
+        $datavenda = [];
+        $viewData = [];
+        // Formatar o número
+
+        foreach ($dados as $dado) {
+            array_push($valor,round($dado->totalValorVenda));
+            array_push($tarifa,round($dado->totalValorTarifa));
+            array_push($datavenda,$dado->dataVenda);
+        }
+
+        $viewData['valor'] = $valor;
+        $viewData['tarifa'] = $tarifa;
+        $viewData['dataVenda'] = $datavenda;
+
+        return $viewData;
     }
 
     public static function OrdersMercadoLivreDay($user, $monthCurrent)

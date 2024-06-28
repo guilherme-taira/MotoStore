@@ -103,28 +103,39 @@
 
                                     @foreach ($viewData['pedidos'] as $order)
 
-                                    <div class="col-md-6 col-lg-12 pb-3">
-                                        <div class="card card-custom bg-white border-white border-0">
-                                            <div class="card-custom-img" style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
-
-                                            <div class="card-body" style="overflow-y: auto">
-                                            <h4 class="card-title">
-                                                <div class="card-custom-avatar">
-                                                    <img class="img-fluid border border-dark rounded-circle" src="{{$order['produtos'][0]->image}}" width="64" />
+                                    <div class="container mt-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h5 class="card-title">#{{$order['pedido']->numeropedido}}</h5>
+                                                        <p class="card-subtitle mb-2 text-muted">{{$order['produtos'][0]->dataVenda}}</p>
+                                                        <p class="text-danger font-weight-bold">Envio pendente</p>
+                                                        <p class="card-text">Entre em contato com o seu comprador para entregar o produto. Se já o entregou, avise-nos.</p>
                                                     </div>
-
-                                                {{ $order['pedido']->cliente }}</h4>
-                                            <p class="card-text">Nome: {{$order['produtos'][0]->nome}} -   Quantidade: <span class="border border-dark rounded-circle px-3 py-2"> {{$order['produtos'][0]->quantidade}}</span> <hr> Número do Pedido:  {{$order['pedido']->numeropedido}} - Valor : R$ {{number_format($order['pedido']->valorVenda,2)}} </p>
-                                            </div>
-                                            <div class="card-footer" style="background: inherit; border-color: inherit;">
-                                            <a href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}" class="btn btn-primary">Ver Mais</a>
-                                            @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
-                                                <a href="{{$order['pedido']->link_pagamento}}" class="btn btn-outline-primary">Pagar</a>
-                                            @endif
+                                                    <div>
+                                                        <a href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}" class="btn btn-primary">Detalhes</a>
+                                                        @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
+                                                            <a href="{{$order['pedido']->link_pagamento}}" class="btn btn-outline-primary">Pagar</a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <img src="{{$order['produtos'][0]->image}}" alt="Kit Super Lanterna" class="img-thumbnail" style="width: 50px;">
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0">{{$order['produtos'][0]->nome}}</p>
+                                                        <p class="text-muted">{{$order['produtos'][0]->quantidade}} unidade(s)</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-weight-bold">R$ {{number_format($order['pedido']->valorVenda,2)}}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     @endforeach
                                 </nav>
                         </table>
