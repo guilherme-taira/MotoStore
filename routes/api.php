@@ -30,6 +30,7 @@ Route::prefix('v1')->group(function () {
         broadcast(new sendProduct($id));
     });
 
+
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
@@ -58,6 +59,8 @@ Route::prefix('v1')->group(function () {
     Route::post('code',[StoreController::class,'getCode']);
     Route::post('fotoPreview',[productsController::class,'fotoPreview']);
     Route::post('dataHome',[productsController::class,'dataHome']);
+    Route::get('/sales-data', [productsController::class, 'getSalesData']);
+    Route::get('/teste2',[productsController::class,'teste']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
 });

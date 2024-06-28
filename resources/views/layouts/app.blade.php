@@ -13,11 +13,15 @@
     <link href="{{ asset('/css/styles.css') }} " rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/37.0.1/classic/ckeditor.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <!-- DateRangePicker CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
     <style>
-        body{
+        body {
             padding: 20px;
         }
-        .imagemCs{
+
+        .imagemCs {
             width: 400px;
         }
 
@@ -42,9 +46,10 @@
         }
 
         .image-container {
-        display: flex;
-        flex-wrap: wrap;
+            display: flex;
+            flex-wrap: wrap;
         }
+
         .image-container-preview img {
             width: 100px;
             height: 100px;
@@ -54,35 +59,37 @@
         }
 
         .image-container {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    .image-item {
-        position: relative;
-        margin: 5px;
-        display: inline-block;
-    }
-    .image-item img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-    }
-    .remove-icon {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        color: white;
-        cursor: pointer;
-        z-index: 1;
-    }
+            display: flex;
+            flex-wrap: wrap;
+        }
 
+        .image-item {
+            position: relative;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .image-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .remove-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: white;
+            cursor: pointer;
+            z-index: 1;
+        }
     </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.html">Afilidrop</a>
+        <a class="navbar-brand ps-3" href="{{route('home')}}">Afilidrop</a>
         <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
                 class="fas fa-bars"></i></button>
@@ -186,7 +193,7 @@
                             </nav>
                         </div>
                         <div class="sb-sidenav-menu-heading">Planos</div>
-                        <a class="nav-link" href="{{route('planos')}}">
+                        <a class="nav-link" href="{{ route('planos') }}">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                             Ver Planos
                         </a>

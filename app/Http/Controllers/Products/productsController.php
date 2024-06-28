@@ -41,6 +41,7 @@ use App\Http\Controllers\MercadoLivre\MlbTipos;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 ini_set('max_execution_time', 30); //300 seconds = 5 minutes
@@ -214,6 +215,12 @@ class productsController extends Controller
             array_push($history,['ACAO' => $log->acao, 'PRODUTO' =>json_decode($log->message)->thumbnail, 'TEMPO' => $log->created_at,'SUCESSO'=> $log->sucesso == true ? 'success' : 'danger']);
         }
        return response()->json($history);
+    }
+
+
+    public function teste(Request $request){
+        $data = order_site::getOrderByDashboard($request);
+        return response()->json($data);
     }
 
     public function getAttributesTrade(Request $request)
@@ -1283,6 +1290,38 @@ class productsController extends Controller
             return response()->json($dataView);
         }
 
+    }
+
+
+    public function getSalesData(Request $request)
+    {
+
+        $data = order_site::getOrderByDashboard($request);
+
+        // Exemplo de dados de vendas e tarifas
+        $data = [
+            'labels' => order_site::getOrderByDashboard($request)['dataVenda'],
+            'datasets' => [
+                [
+                    'label' => 'R$',
+                    'data' => order_site::getOrderByDashboard($request)['valor'],
+                    "backgroundColor" => 'rgba(75, 192, 192, 0.2)', // Cor de fundo
+                    "borderColor"=> 'rgba(75, 192, 192, 1)', // Cor da linha
+                    "pointBackgroundColor"=> 'rgba(75, 192, 192, 1)', // Cor do ponto
+                    "pointBorderColor"=> '#fff' // Cor da borda do ponto
+                ],
+                [
+                    'label' => 'Tarifa R$',
+                    'data' => order_site::getOrderByDashboard($request)['tarifa'],
+                    "backgroundColor" => 'rgba(220, 79, 79, 0.8)', // Cor de fundo
+                    "borderColor"=> 'red', // Cor da linha
+                    "pointBackgroundColor"=> 'red', // Cor do ponto
+                    "pointBorderColor"=> '#fff' // Cor da borda do ponto
+                ]
+            ]
+        ];
+
+        return response()->json($data);
     }
 
 

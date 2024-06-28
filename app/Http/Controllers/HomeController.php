@@ -37,6 +37,7 @@ class HomeController extends Controller
         $viewData = [];
         $viewData['title'] = "Afilidrop Dashboard";
         $viewData['subtitle'] = "Dashboard";
+        $viewData['orders'] = $orders;
         // $viewData['totalMonth'] = $this->getTotalMonth(Auth::user()->id);
         // $viewData['totalDay'] = $this->getTotalDay(Auth::user()->id);
         // $viewData['index'] = 0;
