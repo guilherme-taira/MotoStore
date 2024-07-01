@@ -112,11 +112,11 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
                                 $preference = $prefence->resource();
 
-                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$json->shipping->id);
+                                $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
+                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
 
-                                $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{

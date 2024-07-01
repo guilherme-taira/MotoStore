@@ -33,6 +33,7 @@ class InterfaceClienteController implements ClienteController
         $this->link_pagamento = $link_pagamento;
         $this->preference_id = $preference_id;
         $this->fee = $fee;
+        $this->comprador = $comprador;
     }
 
     public function get($resource)
