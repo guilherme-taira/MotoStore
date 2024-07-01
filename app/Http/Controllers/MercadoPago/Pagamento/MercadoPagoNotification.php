@@ -37,8 +37,10 @@ class MercadoPagoNotification extends Controller
                         case 'orders_v2':
                             \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);
                             break;
+                            case 'items':
+                               \App\Jobs\productMercadoLivreController::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);
+                                break;
                     default:
-                      Log::emergency(json_encode($request->all()));
                         break;
                 }
             }
