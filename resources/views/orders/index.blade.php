@@ -110,7 +110,12 @@
                                                     <div>
                                                         <h5 class="card-title">#{{$order['pedido']->numeropedido}}</h5>
                                                         <p class="card-subtitle mb-2 text-muted">{{$order['produtos'][0]->dataVenda}}</p>
-                                                        <p class="text-danger font-weight-bold">Envio pendente</p>
+
+                                                        @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
+                                                             <p class="text-danger font-weight-bold">Pagamento pendente</p>
+                                                        @else
+                                                            <p class="text-success font-weight-bold">Pagamento Realizado</p>
+                                                        @endif
                                                         <p class="card-text">Entre em contato com o seu comprador para entregar o produto. Se já o entregou, avise-nos.</p>
                                                     </div>
                                                     <div>
