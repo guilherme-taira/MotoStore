@@ -108,7 +108,8 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                              */
 
                             if(isset($produto)){
-                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php');
+
+                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php',$json->seller->id);
                                 $preference = $prefence->resource();
 
                                 $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;

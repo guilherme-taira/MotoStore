@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Mercadopago\Pagamento;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Models\token;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +32,12 @@ class MercadoPagoPreference extends AbstractMercadoPagoPreference
 
 
         $token = token::where('user_id',$this->getItens()->getFornecedorId())->first();
-
+        if($token){
+            $dataAtual = new DateTime();
+            // GET NEW TOKEN
+            $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
+            $newToken->resource();
+        }
         // ENDPOINT PARA REQUISICAO |
         try {
 

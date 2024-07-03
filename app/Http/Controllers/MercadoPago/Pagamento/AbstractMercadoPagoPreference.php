@@ -11,14 +11,16 @@ abstract class AbstractMercadoPagoPreference
     private $externalPreference;
     private $itens;
     private $notificationUrl;
+    private $userid;
 
 
-    public function __construct(MercadoPagoCesta $itens,$notificationUrl)
+    public function __construct(MercadoPagoCesta $itens,$notificationUrl,$userid)
     {
 
         $this->externalPreference = uniqid('afilidrop');
         $this->itens = $itens;
         $this->notificationUrl = $notificationUrl;
+        $this->userid = $userid;
     }
 
 
@@ -78,5 +80,13 @@ abstract class AbstractMercadoPagoPreference
         $this->notificationUrl = $notificationUrl;
 
         return $this;
+    }
+
+    /**
+     * Get the value of userid
+     */
+    public function getUserid()
+    {
+        return $this->userid;
     }
 }
