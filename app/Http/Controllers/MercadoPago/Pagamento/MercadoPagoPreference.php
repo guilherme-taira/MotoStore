@@ -8,8 +8,10 @@ use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Mercadopago\Pagamento\AbstractMercadoPagoPreference;
 
 class MercadoPagoPreference extends AbstractMercadoPagoPreference
+
 {
     const URL_BASE  = "https://api.mercadopago.com/";
 
