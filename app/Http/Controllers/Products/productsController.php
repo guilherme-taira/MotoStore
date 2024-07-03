@@ -312,6 +312,7 @@ class productsController extends Controller
             curl_close($ch);
             $json = json_decode($reponse);
 
+            Log::emergency($reponse);
             if ($httpCode == '200') {
                 logAlteracao::dispatch('TROCA COM BASE',$user,$reponse,true);
                 echo 200;

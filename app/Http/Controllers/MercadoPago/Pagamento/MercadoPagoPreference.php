@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mercadopago\Pagamento;
+namespace App\Http\Controllers\MercadoPago\Pagamento;
 
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Models\token;
