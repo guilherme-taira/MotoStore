@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Mercadopago\Pagamento;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Models\token;
 use DateTime;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Mercadopago\Pagamento\AbstractMercadoPagoPreference;
+use AbstractMercadoPagoPreference;
+use App\Http\Controllers\Mercadopago\Pagamento\AbstractMercadoPagoPreference as PagamentoAbstractMercadoPagoPreference;
 
-class MercadoPagoPreference extends AbstractMercadoPagoPreference
+class MercadoPagoPreference extends PagamentoAbstractMercadoPagoPreference
 
 {
     const URL_BASE  = "https://api.mercadopago.com/";

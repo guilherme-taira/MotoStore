@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mercadopago\Pagamento;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Unique;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
 
 abstract class AbstractMercadoPagoPreference
 {
