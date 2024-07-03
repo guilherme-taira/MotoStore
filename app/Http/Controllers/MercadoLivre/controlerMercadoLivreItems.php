@@ -44,14 +44,15 @@ class controlerMercadoLivreItems extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);
-        Log::critical($reponse);
+
+        Log::critical($json->initial_quantity);
         try {
             if ($httpCode == 200) {
                 // PEGA O VALOR DO PRODUTO
                 $produto = Products::where('id',$json->id)->first();
                 // COLOCA O PRODUTO EM CESTA
                 if(isset($produto)){
-                    Log::critical($reponse);
+                    Log::critical($json->initial_quantity);
                 }
 
          }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
+use App\Models\produtos_integrados;
 use App\Models\token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -140,11 +141,14 @@ class InterfaceClienteController implements ClienteController
                         $venda_pivot->save();
                     }else{
                          // PEDIDO NOVO
+
+                         $sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
                          $produto = new product_site();
                          $produto->nome = $pedido->item->title;
                          $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
                          $produto->valor = $pedido->unit_price;
                          $produto->quantidade = $pedido->quantity;
+
                          $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
                          $produto->image = $this->getPicture($pedido->item->id);
                          $produto->save();
@@ -155,6 +159,9 @@ class InterfaceClienteController implements ClienteController
                          $venda_pivot->product_id = $produto->id;
                          $venda_pivot->id_user = $userid;
                          $venda_pivot->save();
+
+                        // REMOVE ESTOQUE DO PRODUTO
+                        produtos_integrados::removeStockProduct($sku,$pedido->quantity);
                     }
                 }
                 // RETORNA O ID DO PEDIDO PARA GRAVAR.

@@ -30,4 +30,15 @@ class produtos_integrados extends Model
         $integrado->save();
     }
 
+    public static function removeStockProduct($produto,$quantidade){
+        $data = produtos_integrados::where('id',$produto)->first();
+        if($data){
+            $atualStock = Products::where('id',$data->product_id)->first();
+            $novoEstoque = $atualStock->available_quantity - $quantidade;
+            Products::where('id',$data->product_id)->update([
+                'available_quantity' => $novoEstoque
+            ]);
+        }
+    }
+
 }
