@@ -57,7 +57,7 @@ class RefreshTokenController extends Controller
             $response = curl_exec($ch);
             curl_close($ch);
             $dados = json_decode($response);
-            // Log::debug(json_encode($this->getUserId()));
+            Log::critical($response);
             // GRAVA OS DADOS DE ACESSO!
             $this->getDataAtual()->modify('+6 hours');
             try {
