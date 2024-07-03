@@ -111,11 +111,13 @@ class MercadoPagoPreference extends Controller
 
 
         $token = token::where('user_id',$this->getItens()->getFornecedorId())->first();
+
         if($token){
             $dataAtual = new DateTime();
             // GET NEW TOKEN
             $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
             $newToken->resource();
+            $token = token::where('user_id',$this->getItens()->getFornecedorId())->first();
         }
         // ENDPOINT PARA REQUISICAO |
         try {
