@@ -371,9 +371,17 @@
             pegarToken();
             $("#inserir").click(function() {
                 var item = $("#id").val()
-                if (item !== "") {
-                    var listItem = $(`<li id="ids_li">${$("#id").val()}</li>`);
-                    $("#titulo-anuncio").append(listItem);
+
+                // Divide a string em códigos separados por vírgula
+                const codigos = item.split(',');
+                console.log(codigos);
+                if (codigos !== "") {
+                    // Itera sobre cada código e imprime no console
+                    codigos.forEach(codigo => {
+                        var listItem = $(`<li id="ids_li">${codigo.trim()}</li>`);
+                        $("#titulo-anuncio").append(listItem);
+                    });
+
                     $("#id").val("");
                 }
             });
@@ -462,7 +470,7 @@
             function getAllHistoryByUser($user) {
 
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getHistory",
+                    url: "/api/v1/getHistory",
                     type: "POST",
                     data: {
                         "user": $("#user").val()
@@ -517,7 +525,7 @@
                 };
 
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/tradeCategoria`,
+                    url: `/api/v1/tradeCategoria`,
                     type: "POST",
                     data: JSON.stringify(body),
                     headers: {
@@ -612,7 +620,7 @@
             function getToken() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getTokenMl",
+                    url: "/api/v1/getTokenMl",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -631,7 +639,7 @@
             function getUserID() {
                 // console.log({{ Auth::user()->id }});
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getUserID",
+                    url: "/api/v1/getUserID",
                     type: "GET",
                     data: {
                         "id": {{ Auth::user()->id }}
@@ -715,7 +723,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function sendProductIdForServer(data, base, newtitle) {
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/tradeCategoria",
+                    url: "/api/v1/tradeCategoria",
                     type: "POST",
                     data: {
                         "id": data,
@@ -743,7 +751,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function sendProductIdForVariations(data, base) {
                 $.ajax({
-                    url: "https://melimaximo.com.br/api/v1/getAttributesForVariations",
+                    url: "/api/v1/getAttributesForVariations",
                     type: "POST",
                     data: {
                         "id": data,
@@ -804,7 +812,7 @@
             // FUNCAO PARA CHAMAR TOKEN
             function getAllProducts(name = null, inputdata = "", status = "active") {
                 $.ajax({
-                    url: `https://melimaximo.com.br/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
+                    url: `/api/v1/getProductsApi?user=${name}&item=${inputdata}&status=${status}`,
                     // url: `https://api.mercadolibre.com/sites/MLB/search?status=${status}&seller_id=s${name}`,
                     type: "GET",
 

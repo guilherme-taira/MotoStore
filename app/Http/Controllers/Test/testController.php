@@ -11,6 +11,8 @@ use App\Http\Controllers\MercadoLivreHandler\ConcretoDomainController;
 use App\Http\Controllers\MercadoLivreHandler\getDomainController;
 use App\Models\order_site;
 use App\Models\token;
+use App\Models\User;
+use App\Notifications\PushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -54,8 +56,8 @@ class testController extends Controller
 
 
     public function teste(Request $request){
-        $data = order_site::getOrderByDashboard($request);
-        return response()->json($data);
+        $user = User::find(Auth::user()->id); // ou qualquer usuário que você deseja notificar
+        $user->notify(new PushNotification("Você Vendeu! Verifique em suas vendas!"));
     }
 
 }

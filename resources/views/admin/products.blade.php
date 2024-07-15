@@ -298,12 +298,13 @@
                                         aria-describedby="inputGroupPrepend2">
                                 </div>
                             </div>
+
                             <div class="col-md-3">
                                 <label for="validationDefault04" class="form-label">Categoria</label>
                                 <select class="form-select" name="categoria" id="validationDefault04">
                                     <option selected disabled value="">Selecione uma categoria</option>
                                     @foreach ($viewData['categorias'] as $categoria)
-                                        <option value="{{$categoria->id}}">{{ $categoria->name }}</option>
+                                        <option value="{{$categoria->id}}">{{ $categoria->name }} <span class="badge text-bg-secondary">(4)</span></option>
                                     @endforeach
                                 </select>
                             </div>

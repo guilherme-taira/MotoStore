@@ -333,5 +333,6 @@
                     // Aqui você obtém o src da foto
                 });
             });
+
         </script>
     @endsection

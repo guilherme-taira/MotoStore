@@ -7,9 +7,14 @@ use App\Http\Controllers\Orders\MercadoLivre\MercadolivreOrderController;
 use App\Models\order_site;
 use App\Models\Orders;
 use App\Models\token;
+use App\Models\User;
+use App\Notifications\PushNotification;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
 set_time_limit(0);
 class HomeController extends Controller
 {
@@ -33,16 +38,31 @@ class HomeController extends Controller
 
 
         // PEGA AS VENDAS DO SISTEMA
-        $orders = order_site::Ordersjoin(Auth::user()->id,$request);
+
         $viewData = [];
         $viewData['title'] = "Afilidrop Dashboard";
         $viewData['subtitle'] = "Dashboard";
+        // Defina a chave do cache
+        $cacheKey = 'vendas';
+
+        // Tempo em minutos que o cache será mantido
+        $cacheTime = 5;
+
+          // Verifique se já existe um cache
+          if (Cache::has($cacheKey)) {
+            // Se existir, recupere o resultado do cache
+            $orders = Cache::get($cacheKey);
+            Log::info('Cache encontrado para a chave: ' . $cacheKey);
+        } else {
+            Log::info('Cache não encontrado para a chave: ' . $cacheKey);
+            // Se não existir, execute a query
+            $orders = order_site::Ordersjoin(Auth::user()->id,$request);
+            // Armazene o resultado no cache
+            Cache::put($cacheKey, $orders, now()->addMinutes($cacheTime));
+        }
+
         $viewData['orders'] = $orders;
-        // $viewData['totalMonth'] = $this->getTotalMonth(Auth::user()->id);
-        // $viewData['totalDay'] = $this->getTotalDay(Auth::user()->id);
-        // $viewData['index'] = 0;
-        // $viewData['orders'] = $orders;
-        // $viewData['mercadolivre'] = $userML;
+
         return view('home')->with('viewData', $viewData);
     }
 

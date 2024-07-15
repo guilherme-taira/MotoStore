@@ -15,7 +15,10 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/37.0.1/classic/ckeditor.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- DateRangePicker CSS -->
+    <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
+    <meta name="user-id" content="{{ auth()->user()->id }}">
+    <meta name="user-id" content="{{ auth()->user()->id }}">
     <style>
         body {
             padding: 20px;
@@ -89,7 +92,7 @@
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="{{route('home')}}">Afilidrop</a>
+        <a class="navbar-brand ps-3" href="{{ route('home') }}">Afilidrop</a>
         <!-- Sidebar Toggle-->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
                 class="fas fa-bars"></i></button>
@@ -241,7 +244,46 @@
         crossorigin="anonymous"></script>
     <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
 
+    <script>
+        function askNotificationPermission() {
+            return new Promise(function(resolve, reject) {
+                const permissionResult = Notification.requestPermission(function(result) {
+                    resolve(result);
+                });
 
+                if (permissionResult) {
+                    permissionResult.then(resolve, reject);
+                }
+            }).then(function(permissionResult) {
+                if (permissionResult !== 'granted') {
+                    throw new Error('Permission not granted for Notification');
+                }
+            });
+        }
+
+        function showNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                navigator.serviceWorker.getRegistration().then(function(reg) {
+                    const options = {
+                        body: body,
+                        icon: '/path/to/icon.png' // Opcional: adicione um ícone para a notificação
+                    };
+                    reg.showNotification(title, options);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            askNotificationPermission();
+
+            const userId = document.querySelector('meta[name="user-id"]').getAttribute('content');
+
+            Echo.private('App.Models.User.' + userId)
+                .notification((notification) => {
+                    showNotification('Nova Notificação', notification.message);
+                });
+        });
+    </script>
 </body>
 
 </html>

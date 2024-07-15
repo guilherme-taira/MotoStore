@@ -46,8 +46,6 @@ class Generatecharts extends chartsController
     }
 
     public function handleResult($response){
-
-
         $data = [];
         $data['id'] = [
             "id" => "SIZE_GRID_ID",
@@ -58,7 +56,6 @@ class Generatecharts extends chartsController
             $data['rows'][$id] = $row;
         }
         return $data;
-
     }
 
 
@@ -184,7 +181,9 @@ class Generatecharts extends chartsController
                                             ];
 
 
-                                        array_push($attribute_combinations[$key],$arrayData,$foto->pictures,$produto->price);
+                                         array_push($attribute_combinations[$key],$arrayData,$foto->pictures,$produto->price);
+
+
                                     }
 
                                 }
