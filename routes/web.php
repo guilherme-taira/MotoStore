@@ -54,7 +54,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect()->route('stores.index');
+    return redirect()->route('home');
 });
 
 route::view('/brod','brod');
@@ -117,7 +117,7 @@ Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
-        Route::post('/test',[testController::class,'teste']);
+        Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");

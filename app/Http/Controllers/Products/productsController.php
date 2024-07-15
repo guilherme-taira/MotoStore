@@ -43,6 +43,7 @@ use App\Models\order_site;
 use App\Models\produtos_integrados;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 ini_set('max_execution_time', 30); //300 seconds = 5 minutes
 
@@ -56,38 +57,61 @@ class productsController extends Controller
      */
     public function index(Request $request)
     {
+
+
+
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
 
-        $query = Products::query();
-        $query->where('isKit',0);
 
-        if ($request->has('nome')) {
-            $query->where('title', 'like', '%' . $request->nome . '%');
-        }
+        $categoriaKeyCache = 'categoriasProdutos';
 
-        if ($request->has('preco') && $request->preco != "") {
-            $query->where('price', '>', $request->preco);
-        }
+        // Tempo em minutos que o cache será mantido
+        $cacheTime = 5;
 
-        if ($request->has('estoque') or is_null($request->estoque)) {
-            if(is_null($request->estoque)){
-                $query->where('available_quantity', '>=', 0);
-            }else{
-                $query->where('available_quantity', '>=', $request->estoque);
+            $query = Products::query();
+            $query->where('isKit',0);
+
+            if ($request->has('nome')) {
+                $query->where('title', 'like', '%' . $request->nome . '%');
             }
-        }
 
-        if ($request->has('categoria')) {
-            $query->where('subcategoria', '=', $request->categoria);
-        }
+            if ($request->has('preco') && $request->preco != "") {
+                $query->where('price', '>', $request->preco);
+            }
+
+            if ($request->has('estoque') or is_null($request->estoque)) {
+                if(is_null($request->estoque)){
+                    $query->where('available_quantity', '>=', 0);
+                }else{
+                    $query->where('available_quantity', '>=', $request->estoque);
+                }
+            }
+
+            if ($request->has('categoria')) {
+                $query->where('subcategoria', '=', $request->categoria);
+            }
 
 
         $viewData['products'] = $query->paginate(10);
 
-        $viewData['categorias'] = categorias::all();
-        $viewData['filtro'] = $request->all();
-        return view('admin.products', compact('viewData'));
+
+        // Verifique se já existe um cache
+        if (Cache::has($categoriaKeyCache)) {
+            // Se existir, recupere o resultado do cache
+            $viewData['categorias'] = Cache::get($categoriaKeyCache);
+        }else{
+            $viewData['categorias'] = categorias::all();
+            Cache::put($categoriaKeyCache, $viewData['categorias'], now()->addMinutes($cacheTime));
+        }
+
+        $data = [];
+        foreach($viewData['categorias'] as $categoria){
+
+        }
+
+        // $viewData['filtro'] = $request->all();
+        // return view('admin.products', compact('viewData'));
     }
 
     /**
@@ -625,7 +649,7 @@ class productsController extends Controller
                 $newCharts = new Generatecharts("GRADE UNIVERSAL".uniqid('CHART'),$dados->domain_id,$dadosAttr,$chart->getMainAttribute(),$chart->getAttributesSneakers());
                 $chart = $newCharts->requestChart($request->user);
                 $variacao = $newCharts->insertDataResult($dados,$chart);
-
+                Log::debug(json_encode($chart['rows']));
                 if ($httpcode == '200') {
                     $array = [];
                     $array = ["attributes" => [$chart['id']], "pictures" => $dados->pictures, "variations" => $variacao];
@@ -1297,30 +1321,43 @@ class productsController extends Controller
     public function getSalesData(Request $request)
     {
 
-        $data = order_site::getOrderByDashboard($request);
 
-        // Exemplo de dados de vendas e tarifas
-        $data = [
-            'labels' => order_site::getOrderByDashboard($request)['dataVenda'],
-            'datasets' => [
-                [
-                    'label' => 'R$',
-                    'data' => order_site::getOrderByDashboard($request)['valor'],
-                    "backgroundColor" => 'rgba(75, 192, 192, 0.2)', // Cor de fundo
-                    "borderColor"=> 'rgba(75, 192, 192, 1)', // Cor da linha
-                    "pointBackgroundColor"=> 'rgba(75, 192, 192, 1)', // Cor do ponto
-                    "pointBorderColor"=> '#fff' // Cor da borda do ponto
-                ],
-                [
-                    'label' => 'Tarifa R$',
-                    'data' => order_site::getOrderByDashboard($request)['tarifa'],
-                    "backgroundColor" => 'rgba(220, 79, 79, 0.8)', // Cor de fundo
-                    "borderColor"=> 'red', // Cor da linha
-                    "pointBackgroundColor"=> 'red', // Cor do ponto
-                    "pointBorderColor"=> '#fff' // Cor da borda do ponto
-                ]
-            ]
-        ];
+         // Defina a chave do cache
+         $cacheKey = 'metricasVendasHomePage';
+
+         // Tempo em minutos que o cache será mantido
+         $cacheTime = 2;
+
+           // Verifique se já existe um cache
+           if (Cache::has($cacheKey)) {
+             // Se existir, recupere o resultado do cache
+             $data = Cache::get($cacheKey);
+           } else {
+                // Exemplo de dados de vendas e tarifas
+                $data = [
+                    'labels' => order_site::getOrderByDashboard($request)['dataVenda'],
+                    'datasets' => [
+                        [
+                            'label' => 'R$',
+                            'data' => order_site::getOrderByDashboard($request)['valor'],
+                            "backgroundColor" => 'rgba(75, 192, 192, 0.2)', // Cor de fundo
+                            "borderColor"=> 'rgba(75, 192, 192, 1)', // Cor da linha
+                            "pointBackgroundColor"=> 'rgba(75, 192, 192, 1)', // Cor do ponto
+                            "pointBorderColor"=> '#fff' // Cor da borda do ponto
+                        ],
+                        [
+                            'label' => 'Tarifa R$',
+                            'data' => order_site::getOrderByDashboard($request)['tarifa'],
+                            "backgroundColor" => 'rgba(220, 79, 79, 0.8)', // Cor de fundo
+                            "borderColor"=> 'red', // Cor da linha
+                            "pointBackgroundColor"=> 'red', // Cor do ponto
+                            "pointBorderColor"=> '#fff' // Cor da borda do ponto
+                        ]
+                    ]
+                ];
+             // Armazene o resultado no cache
+             Cache::put($cacheKey, $data, $cacheTime);
+         }
 
         return response()->json($data);
     }
