@@ -6,10 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
 use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
+use App\Http\Controllers\MercadoLivre\getShippingData;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoItem;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoPreference;
+use App\Http\Controllers\Shopify\LineItem;
+use App\Http\Controllers\Shopify\Order;
+use App\Http\Controllers\Shopify\SendOrder;
+use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Yapay\GeradorPagamento;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
 use App\Models\financeiro;
@@ -17,7 +22,9 @@ use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
 use App\Models\Products;
+use App\Models\Shopify;
 use App\Models\token;
+use Aws\Token\Token as TokenToken;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,7 +69,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$this->getToken()}"]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$this->getToken()}", "x-format-new: true"]);
         $reponse = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -79,10 +86,12 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $produtos = [];
                     // IMPLEMENTACAO DO CARRINHO CESTA PARA PRODUTOS
                     $carrinhoCesta = new MercadoPagoCesta();
+                    $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
+
+
+
                     foreach ($json->payments as $payments) {
-
                         foreach ($json->order_items as $items) {
-
                         // PEGA O VALOR DO PRODUTO
                         $produto = Products::where('id',$items->item->seller_sku)->first();
                         // COLOCA O PRODUTO EM CESTA
@@ -112,19 +121,82 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php',$json->seller->id);
                                 $preference = $prefence->resource();
 
-                                $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
 
+                                $line_item = [];
+                                // IMPLEMENTAR DADOS DA SHOPIFY ********
+                                foreach ($json->order_items as $items) {
+                                    // PRODUTOS DO ARRAY DA SHOPIFY
+                                    $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                                }
+                                $shippingClient = new getShippingData($shipping,$this->getToken());
+                                $dados = $shippingClient->resource();
+
+                                // PEGA OS DADOS DA INTEGRACAO SHOPIFY
+                                try {
+                                    $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
+                                    $getLink = Shopify::getLink($user->user_id);
+                                    if($getLink->comunicando == 1 && $dados['transportadora'] == null){
+                                        $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
+                                        ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                                        $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
+                                        $dados['province_code']);
+
+                                        $order = new Order($line_item, "paid", "BRL", $shipping_address);
+                                        // // Print the order object to verify its structure
+                                        $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                                        $data->resource();
+                                    }
+
+                                } catch (\Throwable $th) {
+                                    FacadesLog::emergency($th->getMessage());
+                                }
+                                // FIM -*************
+
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
+
+
+                                $line_item = [];
+                                // IMPLEMENTAR DADOS DA SHOPIFY ********
+                                foreach ($json->order_items as $items) {
+                                    // PRODUTOS DO ARRAY DA SHOPIFY
+                                    $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                                }
+                                $shippingClient = new getShippingData($shipping,$this->getToken());
+                                $dados = $shippingClient->resource();
+
+                                // PEGA OS DADOS DA INTEGRACAO SHOPIFY
+                                try {
+                                    $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
+                                    $getLink = Shopify::getLink($user->user_id);
+                                    if($getLink->comunicando == 1 && $dados['transportadora'] == null){
+                                        $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
+                                        ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                                        $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
+                                        $dados['province_code']);
+
+                                        $order = new Order($line_item, "paid", "BRL", $shipping_address);
+                                        // // Print the order object to verify its structure
+                                        $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                                        $data->resource();
+                                    }
+
+                                } catch (\Throwable $th) {
+                                    FacadesLog::emergency($th->getMessage());
+                                }
+                                // FIM -*************
+
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
                             }
+
                         }
+
                     }
                 }
         } catch (\Exception $th) {

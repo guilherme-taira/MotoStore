@@ -26,6 +26,11 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function shopify()
+    {
+        return $this->hasOne(Shopify::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

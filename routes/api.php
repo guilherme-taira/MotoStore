@@ -30,7 +30,6 @@ Route::prefix('v1')->group(function () {
         broadcast(new sendProduct($id));
     });
 
-
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);

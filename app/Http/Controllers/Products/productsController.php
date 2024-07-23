@@ -110,8 +110,8 @@ class productsController extends Controller
 
         }
 
-        // $viewData['filtro'] = $request->all();
-        // return view('admin.products', compact('viewData'));
+        $viewData['filtro'] = $request->all();
+        return view('admin.products', compact('viewData'));
     }
 
     /**
@@ -249,8 +249,6 @@ class productsController extends Controller
 
     public function getAttributesTrade(Request $request)
     {
-
-        Log::critical(json_encode($request->all()));
         if($request->base){
              // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/'.$request->base;
@@ -288,7 +286,7 @@ class productsController extends Controller
 
             if($request->categoria){
                 // TROCAR A CATEGORIA
-                $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user,$request->newtitle);
+                $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user,$request->newtitle,$request->required);
             }
         }
 
@@ -361,7 +359,7 @@ class productsController extends Controller
 
     }
 
-    public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle) {
+    public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle,$required) {
         $ids = $id;
         $category = $categoria;
         // NUMERO DE TENTATIVAS
@@ -372,7 +370,7 @@ class productsController extends Controller
             if($try){
                 $data_json = json_encode($data);
             }else{
-                $data_json = json_encode(['category_id' => $categoria]);
+                $data_json = json_encode(['category_id' => $categoria,'attributes' => $required]);
                 $try = TRUE;
             }
 
@@ -394,22 +392,37 @@ class productsController extends Controller
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
             } else {
                 echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Arrumando Pendências..</li>";
-                Log::notice(json_encode($json));
-                Log::notice($data_json);
+                // Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
                     $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle);
 
-                    $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user,$newtitle);
+                    $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user,$newtitle,$required);
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
+               if($json->status == 400){
+                    foreach ($json->cause as $value) {
+                        if($value->department != "shipping"){
+                            echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> " . $value->message ."</li>";
+                        }
+                    }
+               }
+
             }
 
     }
+
+    function primeiraMaiuscula($input) {
+        if (preg_match('/[A-Z]/', $input, $matches)) {
+            return $matches[0];
+        }
+        return '';
+    }
+
     /**
      * Display the specified resource.
      *
