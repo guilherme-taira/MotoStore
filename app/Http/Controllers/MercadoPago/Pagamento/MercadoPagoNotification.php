@@ -16,6 +16,10 @@ class MercadoPagoNotification extends Controller
         \App\Jobs\aliexpressTraking::dispatch($request->all());
     }
 
+    public function notificationShopify(Request $request){
+        Log::alert($request->all());
+    }
+
 
     public function notification(Request $request){
 
