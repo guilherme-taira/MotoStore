@@ -77,7 +77,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -89,6 +89,36 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
 
 
+                    $line_item = [];
+                    // IMPLEMENTAR DADOS DA SHOPIFY ********
+                    foreach ($json->order_items as $items) {
+                        // PRODUTOS DO ARRAY DA SHOPIFY
+                        $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                    }
+                    $shippingClient = new getShippingData($shipping,$this->getToken());
+                    $dados = $shippingClient->resource();
+
+                    // PEGA OS DADOS DA INTEGRACAO SHOPIFY
+                    try {
+                        $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
+                        $getLink = Shopify::getLink($user->user_id);
+                        if($getLink->comunicando == 1 && $dados['transportadora'] == null){
+                            $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
+                            ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                            $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
+                            $dados['province_code']);
+
+                            $nota = $json->id . " - " .$json->buyer->nickname;
+                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
+                            // Print the order object to verify its structure
+                            $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                            $data->resource();
+                        }
+
+                    } catch (\Throwable $th) {
+                        FacadesLog::emergency($th->getMessage());
+                    }
+                    // FIM -*************
 
                     foreach ($json->payments as $payments) {
                         foreach ($json->order_items as $items) {
@@ -101,6 +131,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         }
                             array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));
                         }
+
 
 
                         /***
@@ -125,70 +156,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
 
-                                $line_item = [];
-                                // IMPLEMENTAR DADOS DA SHOPIFY ********
-                                foreach ($json->order_items as $items) {
-                                    // PRODUTOS DO ARRAY DA SHOPIFY
-                                    $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
-                                }
-                                $shippingClient = new getShippingData($shipping,$this->getToken());
-                                $dados = $shippingClient->resource();
-
-                                // PEGA OS DADOS DA INTEGRACAO SHOPIFY
-                                try {
-                                    $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
-                                    $getLink = Shopify::getLink($user->user_id);
-                                    if($getLink->comunicando == 1 && $dados['transportadora'] == null){
-                                        $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                                        ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
-                                        $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
-                                        $dados['province_code']);
-
-                                        $order = new Order($line_item, "paid", "BRL", $shipping_address);
-                                        // // Print the order object to verify its structure
-                                        $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                                        $data->resource();
-                                    }
-
-                                } catch (\Throwable $th) {
-                                    FacadesLog::emergency($th->getMessage());
-                                }
-                                // FIM -*************
-
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
-
-
-                                $line_item = [];
-                                // IMPLEMENTAR DADOS DA SHOPIFY ********
-                                foreach ($json->order_items as $items) {
-                                    // PRODUTOS DO ARRAY DA SHOPIFY
-                                    $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
-                                }
-                                $shippingClient = new getShippingData($shipping,$this->getToken());
-                                $dados = $shippingClient->resource();
-
-                                // PEGA OS DADOS DA INTEGRACAO SHOPIFY
-                                try {
-                                    $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
-                                    $getLink = Shopify::getLink($user->user_id);
-                                    if($getLink->comunicando == 1 && $dados['transportadora'] == null){
-                                        $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                                        ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
-                                        $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
-                                        $dados['province_code']);
-
-                                        $order = new Order($line_item, "paid", "BRL", $shipping_address);
-                                        // // Print the order object to verify its structure
-                                        $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                                        $data->resource();
-                                    }
-
-                                } catch (\Throwable $th) {
-                                    FacadesLog::emergency($th->getMessage());
-                                }
-                                // FIM -*************
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
                                 $cliente->resource();

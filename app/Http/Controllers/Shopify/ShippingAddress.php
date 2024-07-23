@@ -20,6 +20,7 @@ class ShippingAddress extends Controller
     public $name;
     public $country_code;
     public $province_code;
+    public $note;
 
     public function __construct($first_name, $address1, $phone, $city, $zip, $province, $country, $last_name, $address2, $company, $name, $country_code, $province_code)
     {

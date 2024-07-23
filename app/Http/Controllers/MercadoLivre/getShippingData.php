@@ -36,7 +36,7 @@ class getShippingData extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response,true);
         curl_close($ch);
-        // Log::emergency($response);
+        Log::emergency($response);
         return $this->trataDados($res);
     }
 
@@ -106,4 +106,5 @@ class getShippingData extends Controller
     {
         return $this->token;
     }
+
 }
