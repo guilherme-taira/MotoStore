@@ -557,3 +557,60 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/
 /******/ })()
 ;
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('js/service-worker.js')
+        .then(function(registration) {
+            console.log('Service Worker Registered with scope:', registration.scope);
+        }).catch(function(error) {
+            console.error('Service Worker Registration failed:', error);
+        });
+    });
+}
+
+function askNotificationPermission() {
+    return new Promise(function(resolve, reject) {
+        const permissionResult = Notification.requestPermission(function(result) {
+            resolve(result);
+        });
+
+        if (permissionResult) {
+            permissionResult.then(resolve, reject);
+        }
+    }).then(function(permissionResult) {
+        if (permissionResult !== 'granted') {
+            throw new Error('Permission not granted for Notification');
+        }
+    });
+}
+
+function showNotification(title, body) {
+    if (Notification.permission === 'granted') {
+        navigator.serviceWorker.getRegistration().then(function(registration) {
+            console.log('Service Worker registration:', registration); // Adicione esta linha
+            if (registration) {
+                const options = {
+                    body: body,
+                    icon: '/path/to/icon.png', // Opcional: adicione um ícone para a notificação
+                };
+                registration.showNotification(title, options);
+            } else {
+                console.error('Service Worker registration not found');
+            }
+        }).catch(function(error) {
+            console.error('Error getting Service Worker registration:', error);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    askNotificationPermission();
+
+    const userId = document.querySelector('meta[name="user-id"]').getAttribute('content');
+
+    Echo.private('App.Models.User.' + userId)
+        .notification((notification) => {
+            showNotification('Nova Notificação', notification.message);
+        });
+});

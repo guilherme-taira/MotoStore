@@ -30,6 +30,7 @@ use App\Http\Controllers\planos\planosController;
 use App\Http\Controllers\Products\ProductByFornecedor;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
+use App\Http\Controllers\ShopifyController;
 use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
@@ -132,6 +133,7 @@ Route::middleware('admin')->group(function () {
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
         Route::get('/getTokenAliexpress',[AlieExpressController::class,'getToken']);
 
+        Route::resource('shopify','App\Http\Controllers\ShopifyController')->names('shopify');
         Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
         Route::resource('subcategoriafornecedor','App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor')->names("subcategoriafornecedor");
         Route::resource('categoriasfornecedor','App\Http\Controllers\categoriaFornecedor\categoriasFornecedor')->names('categoriasfornecedor');

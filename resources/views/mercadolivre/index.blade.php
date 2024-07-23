@@ -105,7 +105,7 @@
                 <span class="input-group-text">Anúncio / Anúncio Base</span>
                 <input type="text" class="form-control" id="id"
                     placeholder="Código do anúncio que sofrerá Mudança." />
-                <input type="text" class="form-control" id="base" placeholder="Código do anúncio base." />
+                <input type="text" class="form-control" id="base" placeholder="Código do anúncio base." value="@php echo isset($_GET['id']) ? $_GET['id'] : "" @endphp">
                 <div class="input-group-append">
                     <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
                 </div>
@@ -117,13 +117,14 @@
                 Título do Anúncio: <div id="contador" class="text-end">0/60</div>
                 <input type="text" class="form-control" name="titlenovo" id="titlenovo">
                 <div class="progress mt-2">
-                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
+                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"
+                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
             </label>
 
             <div class="col-md-8 d-none" id="div-sugestoes">
                 <label for="validationCustom04" class="form-label">Sugestões de Nomes</label>
-                    <select id="selectSugestoes" class="form-select bg-warning"></select>
+                <select id="selectSugestoes" class="form-select bg-warning"></select>
             </div>
 
 
@@ -205,6 +206,16 @@
                         </div>
                     </div>
                 </div>
+
+
+                <div class="card mt-4 bg-primary smartFiled d-none">
+                    <h5 class="card-header">Campos Obrigatórios:</h5>
+                    <div class="card-body">
+                        <h5 class="card-title">Preencha por favor</h5>
+                        <div id="formContainer"></div>
+                    </div>
+                </div>
+
 
                 <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
                 <hr class="mt-4">
@@ -308,7 +319,7 @@
             $("#loading").fadeIn();
 
             $('#titlenovo').on('keyup', function() {
-                 // Pegue o número de caracteres digitados
+                // Pegue o número de caracteres digitados
                 var caracteresDigitados = $(this).val().length;
                 // Atualize o contador de caracteres
                 $('#contador').text(caracteresDigitados + '/60');
@@ -399,6 +410,28 @@
 
             $("#trocar").click(function() {
 
+
+                const formContainer = document.getElementById('formContainer');
+                const inputs = formContainer.querySelectorAll('input, select');
+                const formData = [];
+
+                inputs.forEach(input => {
+                    const name = input.name;
+                    const value = input.value;
+                    const entry = {
+                        id: name,
+                        value: value,
+                        value_id: value,
+                        value_name: value,
+                        values: [{
+                            id: value,
+                            struct: "null"
+                        }]
+                    };
+                    formData.push(entry);
+                });
+
+
                 $("#resultadoServer").empty();
 
                 var atributos = [];
@@ -424,7 +457,7 @@
                 } else {
                     console.log("BASE VAZIA");
                     $("li#ids_li").each(function(index, element) {
-                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val());
+                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData);
                     });
 
                 }
@@ -516,12 +549,13 @@
             });
 
             // FUNCAO PARA TROCAR DE CATEGORIA
-            function pushProduct(product, accessToken, category) {
+            function pushProduct(product, accessToken, category,array) {
 
                 var body = {
                     'user': $("#user").val(),
                     "id": product,
-                    "categoria": category
+                    "categoria": category,
+                    "required": array
                 };
 
                 $.ajax({
@@ -697,7 +731,7 @@
                                             $("#VerificadoVariacao").empty()
                                                 .append(
                                                     `<div class="alert alert-success" role="alert">Variação Verificada com Sucesso</div>`
-                                                    );
+                                                );
                                             $("#secoundStep").removeClass(
                                                 'd-none');
                                             clearTimeout(ativerIntervalo);
@@ -877,7 +911,8 @@
                             var sugestoesdiv = $("#div-sugestoes");
                             var selectElement = $("#selectSugestoes");
 
-                            selectElement.append($('<option>').text(title).css("background-color", "#03fc45"));
+                            selectElement.append($('<option>').text(title).css("background-color",
+                                "#03fc45"));
 
                             // Adicionar barra separadora
                             selectElement.append($('<option disabled>').text("--------------"));
@@ -889,8 +924,7 @@
                                 selectElement.append(optionElement);
                             });
 
-                            // Remover a classe d-none para mostrar o elemento select
-                            sugestoesdiv.removeClass('d-none');
+
                         }
                     },
                 });
@@ -910,12 +944,90 @@
                             var index = [];
                             $.each(response.children_categories, function(i, item) {
                                 index[i] =
-                                    '<option class="option-size" value=' + item.id + '>  - </option><option class="option-size" value=' + item.id + '>' +
-                                item.name + '</option>';
+                                    '<option class="option-size" value=' + item.id +
+                                    '>  - </option><option class="option-size" value=' + item
+                                    .id + '>' +
+                                    item.name + '</option>';
                             });
 
                             var arr = jQuery.makeArray(index);
                             arr.reverse();
+
+                            if (index.length <= 1) {
+                                   // Remover a classe d-none para mostrar o elemento select
+                            $(".smartFiled").removeClass('d-none');
+                                $.ajax({
+                                    url: " https://api.mercadolibre.com/categories/" +
+                                        category + "/attributes",
+                                    type: "GET",
+                                    success: function(response) {
+                                        if (response) {
+
+                                            const requiredItems = [];
+                                            const requiredAttributeNames = [];
+
+                                            response.forEach(item => {
+                                                if (item.tags && item.tags
+                                                    .required === true && !
+                                                    requiredAttributeNames.includes(
+                                                        item.id)) {
+                                                    requiredItems.push(item);
+                                                }
+                                            });
+
+                                            // // Adiciona o h2
+                                            // var h2 = document.createElement("h2");
+                                            // h2.textContent = "Campos Obrigatórios";
+                                            // formContainer.appendChild(h2);
+
+                                            requiredItems.forEach(element => {
+                                                // Adiciona o label
+                                                var label = document.createElement(
+                                                    "label");
+                                                label.textContent = element.name;
+                                                formContainer.appendChild(label);
+
+                                                if (!element.values) {
+                                                    var input = document
+                                                        .createElement("input");
+                                                    // Define o tipo do input como "text"
+                                                    input.type = "text";
+                                                    input.className =
+                                                        "form-control";
+                                                    input.name = element.id;
+                                                    // Define um ID para o input (opcional)
+                                                    // Adiciona o input ao corpo do documento (ou a qualquer outro elemento desejado)
+                                                    formContainer.appendChild(
+                                                        input);
+                                                } else {
+                                                    var selectField = document
+                                                        .createElement("select");
+                                                    for (var i = 0; i < element
+                                                        .values.length; i++) {
+                                                        var option = document
+                                                            .createElement(
+                                                                "option");
+                                                        selectField.className =
+                                                            "form-control";
+                                                        selectField.name = element
+                                                            .id;
+                                                        option.text = element
+                                                            .values[i].name;
+                                                        option.value = element
+                                                            .values[i].id;
+                                                        selectField.appendChild(
+                                                            option);
+
+                                                    }
+                                                    formContainer.appendChild(
+                                                        selectField);
+                                                }
+
+                                            });
+                                        }
+                                    }
+                                });
+                            }
                             $("#categorias").html(arr);
 
                         }
@@ -937,7 +1049,9 @@
                         // SHOW ALL RESULT QUERY
                         var index = [];
                         $.each(response, function(i, item) {
-                            index[i] = '<option class="option-size" value=' + '' + ' > - </option><option class="option-size" value=' + item.id + '>' +
+                            index[i] = '<option class="option-size" value=' + '' +
+                                ' > - </option><option class="option-size" value=' + item.id +
+                                '>' +
                                 item.name + '</option>';
                         });
 

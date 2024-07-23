@@ -9,6 +9,10 @@ use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
 use App\Http\Controllers\MercadoLivreHandler\ConcretoDomainController;
 use App\Http\Controllers\MercadoLivreHandler\getDomainController;
+use App\Http\Controllers\Shopify\LineItem;
+use App\Http\Controllers\Shopify\Order;
+use App\Http\Controllers\Shopify\SendOrder;
+use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Models\order_site;
 use App\Models\token;
 use App\Models\User;
@@ -56,8 +60,21 @@ class testController extends Controller
 
 
     public function teste(Request $request){
-        $user = User::find(Auth::user()->id); // ou qualquer usuário que você deseja notificar
-        $user->notify(new PushNotification("Você Vendeu! Verifique em suas vendas!"));
+        // $user = User::find(Auth::user()->id); // ou qualquer usuário que você deseja notificar
+        // $user->notify(new PushNotification("Você Vendeu! Verifique em suas vendas!"));
+
+        $line_item = new LineItem(44822191374571, 1);
+        $shipping_address = new ShippingAddress(
+            "Guilherme", "Rua Monteiro Lobato", "+5517981142728", "Leme", "13611-330",
+            "São Paulo", "Brazil", "Taira", "Perto da Escola", "46857167877",
+            "Guilherme Lindo Taira", "BR", "SP"
+        );
+
+        $order = new Order([$line_item], "paid", "BRL", $shipping_address);
+        // Print the order object to verify its structure
+
+        $data = new SendOrder($order,'https://e3f527-5.myshopify.com/admin/api/2023-10/');
+        $data->resource();
     }
 
 }

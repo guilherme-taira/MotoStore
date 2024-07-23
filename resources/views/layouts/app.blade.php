@@ -18,7 +18,6 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
     <meta name="user-id" content="{{ auth()->user()->id }}">
-    <meta name="user-id" content="{{ auth()->user()->id }}">
     <style>
         body {
             padding: 20px;
@@ -178,7 +177,7 @@
                                     <nav class="sb-sidenav-menu-nested nav">
                                         <a class="nav-link" href="{{ route('integracaoml') }}">Mercado Livre</a>
                                         <a class="nav-link" href="register.html">Shopee</a>
-                                        <a class="nav-link" href="password.html">Shopify</a>
+                                        <a class="nav-link" href="{{route('shopify.create')}}">Shopify</a>
                                     </nav>
                                 </div>
                                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
@@ -244,46 +243,6 @@
         crossorigin="anonymous"></script>
     <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
 
-    <script>
-        function askNotificationPermission() {
-            return new Promise(function(resolve, reject) {
-                const permissionResult = Notification.requestPermission(function(result) {
-                    resolve(result);
-                });
-
-                if (permissionResult) {
-                    permissionResult.then(resolve, reject);
-                }
-            }).then(function(permissionResult) {
-                if (permissionResult !== 'granted') {
-                    throw new Error('Permission not granted for Notification');
-                }
-            });
-        }
-
-        function showNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                navigator.serviceWorker.getRegistration().then(function(reg) {
-                    const options = {
-                        body: body,
-                        icon: '/path/to/icon.png' // Opcional: adicione um ícone para a notificação
-                    };
-                    reg.showNotification(title, options);
-                });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            askNotificationPermission();
-
-            const userId = document.querySelector('meta[name="user-id"]').getAttribute('content');
-
-            Echo.private('App.Models.User.' + userId)
-                .notification((notification) => {
-                    showNotification('Nova Notificação', notification.message);
-                });
-        });
-    </script>
 </body>
 
 </html>
