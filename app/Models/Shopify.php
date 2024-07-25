@@ -19,7 +19,6 @@ class Shopify extends Model
         return $this->belongsTo(User::class);
     }
 
-
     public static function getLink($id){
         $data = DB::table('shopify')
         ->join('users', 'users.id', '=', 'shopify.user_id')
