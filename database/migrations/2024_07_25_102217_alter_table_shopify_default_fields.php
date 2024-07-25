@@ -14,7 +14,8 @@ class AlterTableShopifyDefaultFields extends Migration
     public function up()
     {
         Schema::table('shopify', function (Blueprint $table) {
-            //
+            $table->string('email')->nullable();
+            $table->string('telefone')->nullable();
         });
     }
 
@@ -26,7 +27,8 @@ class AlterTableShopifyDefaultFields extends Migration
     public function down()
     {
         Schema::table('shopify', function (Blueprint $table) {
-            //
+            $table->dropColumn('email');
+            $table->dropColumn('telefone');
         });
     }
 }
