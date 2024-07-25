@@ -19,8 +19,13 @@ class MercadoPagoNotification extends Controller
     public function notificationShopify(Request $request){
 
         $data = json_decode(json_encode($request->all()));
-        Log::critical(" DEFAULT GUI  ----------". $data->id);
-        Log::critical(json_encode($request->all()));
+        if(isset($data->id)){
+            Log::critical(" DEFAULT GUI  ----------". $data->id);
+            Log::critical(json_encode($request->all()));
+        }else{
+            Log::critical(json_encode($request->all()));
+        }
+
         // switch ($request->order) {
         //     case 'order':
         //         Log::critical($request->fulfillments);
