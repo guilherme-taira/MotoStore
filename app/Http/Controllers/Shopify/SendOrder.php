@@ -41,7 +41,7 @@ class SendOrder extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         curl_close($ch);
-        Log::debug($response);
+        return $res;
     }
 
     public function resource()
