@@ -12,7 +12,7 @@ class Shopify extends Model
 
     protected $table = "shopify";
 
-    protected $fillable = ['apiKey', 'token', 'user_id','name_loja','comunicando'];
+    protected $fillable = ['apiKey', 'token', 'user_id','name_loja','comunicando','email','telefone'];
 
     public function user()
     {
