@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Mercadopago\Pagamento;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Models\ShippingUpdate;
+use App\Models\Shopify;
 use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
@@ -21,6 +23,8 @@ class MercadoPagoNotification extends Controller
         $data = json_decode(json_encode($request->all()));
         if(isset($data->id)){
             Log::critical(" DEFAULT GUI  ----------". $data->id);
+            $shopifyData = ShippingUpdate::getDataById($data->id);
+            Log::debug(json_encode($shopifyData));
             Log::critical(json_encode($data->fulfillments));
         }else{
             Log::critical(json_encode($request->all()));

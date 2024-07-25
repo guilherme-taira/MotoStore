@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ShippingUpdate extends Model
 {
@@ -23,4 +24,10 @@ class ShippingUpdate extends Model
         'id_user',
         'id_vendedor',
     ];
+
+    public static function getDataById($id){
+        $data = DB::table('shipping_updates')
+        ->where('id_shopify','=',$id)->first();
+        return $data;
+    }
 }
