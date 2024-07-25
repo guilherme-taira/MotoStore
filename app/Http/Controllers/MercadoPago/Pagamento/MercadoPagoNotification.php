@@ -25,7 +25,7 @@ class MercadoPagoNotification extends Controller
             Log::critical(" DEFAULT GUI  ----------". $data->id);
             $shopifyData = ShippingUpdate::getDataById($data->id);
             Log::debug(json_encode($shopifyData));
-            Log::critical(json_encode($data->fulfillments));
+            Log::emergency(json_encode($data->fulfillments));
         }else{
             Log::critical(json_encode($request->all()));
         }
