@@ -96,6 +96,8 @@ class ShopifyController extends Controller
                 'apiKey' => 'required|string',
                 'token' => 'required|string',
                 'name_store' => 'required|string',
+                'email' => 'required|string',
+                'telefone' => 'required|string'
             ]);
 
             $comunicando = isset($request->comunicando) ? 1 : 0;
@@ -104,7 +106,8 @@ class ShopifyController extends Controller
             Shopify::updateOrCreate(
                 ['user_id' => $user->id],
                 ['apiKey' => $request->apiKey, 'token' => $request->token,
-                 'name_loja' => $request->name_store,'comunicando' => $comunicando]
+                 'name_loja' => $request->name_store,'comunicando' => $comunicando,
+                 'email' => $request->email, 'telefone' => $request->telefone]
             );
 
         } catch (\Throwable $th) {
