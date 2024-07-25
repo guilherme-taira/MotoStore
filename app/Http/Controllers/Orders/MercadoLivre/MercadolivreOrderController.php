@@ -22,6 +22,7 @@ use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
 use App\Models\Products;
+use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
 use Aws\Token\Token as TokenToken;
@@ -102,7 +103,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     try {
                         $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
                         $getLink = Shopify::getLink($user->user_id);
-                        if($getLink->comunicando == 1 && $dados['transportadora'] == null){
+                        if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                             ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
@@ -110,9 +111,12 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             $nota = $json->id . " - " .$json->buyer->nickname;
                             $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
+
                             // Print the order object to verify its structure
                             $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                            $data->resource();
+                            $id_shopifyOrder = $data->resource();
+                            // SALVAR OS DADOS DO PEDIDO
+                            $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
                         }
 
                     } catch (\Throwable $th) {
@@ -173,6 +177,26 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
             FacadesLog::critical($th->getMessage());
         }
 
+    }
+
+    public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
+        // Dados para criar ou atualizar
+        $data = [
+            'id_shopify' => $id_shopify,
+            'isBrazil' => false,
+            'id_mercadoLivre' => $id_mercadoLivre,
+            'id_user' => $id_user,
+            'id_vendedor' => $id_vendedor,
+        ];
+
+        // Condições para encontrar o registro
+        $conditions = [
+            'id_shopify' => $data['id_shopify'],
+            'id_mercadoLivre' => $data['id_mercadoLivre'],
+        ];
+
+        // Crie ou atualize o registro
+        ShippingUpdate::updateOrCreate($conditions, $data);
     }
 
     public function resource()
