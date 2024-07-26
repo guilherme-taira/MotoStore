@@ -72,7 +72,7 @@ class getShippingData extends Controller
     $result = [
         'first_name' => $first_name,
         'address1' => $street_name,
-        'phone' => "XXXXXX",
+        'phone' => $receiver_phone,
         'city' => $city,
         'zip' => $zip_code,
         'province' => $state,
