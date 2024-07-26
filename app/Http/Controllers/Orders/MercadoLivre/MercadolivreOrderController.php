@@ -110,7 +110,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             $dados['province_code']);
                             $nota = $json->id . " - " .$json->buyer->nickname;
                             $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
-                            FacadesLog::critical(json_encode($order));
+                            FacadesLog::critical($json->buyer->email);
                             // Print the order object to verify its structure
                             $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
                             $id_shopifyOrder = $data->resource();
