@@ -105,18 +105,17 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         $getLink = Shopify::getLink($user->user_id);
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                            ,$this->isStringOnly($dados['phone'],$getLink->telefone),$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                            ,$this->isNumericString($dados['phone'],$getLink->telefone) ? $dados['phone'] : $getLink->telefone,$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
                             $dados['province_code']);
-
                             $nota = $json->id . " - " .$json->buyer->nickname;
-                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
+                            // $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
 
-                            // Print the order object to verify its structure
-                            $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                            $id_shopifyOrder = $data->resource();
-                            // SALVAR OS DADOS DO PEDIDO
-                            $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
+                            // // Print the order object to verify its structure
+                            // $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                            // $id_shopifyOrder = $data->resource();
+                            // // SALVAR OS DADOS DO PEDIDO
+                            // $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
                         }
 
                     } catch (\Throwable $th) {
@@ -180,13 +179,16 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
     }
 
 
-    function isStringOnly($var,$telefone = "") {
-        if (is_string($var)) {
-            return $telefone;
-        } else {
+    function isNumericString($var,$telefone) {
+         if(ctype_digit($var)){
             return $var;
-        }
+         }else{
+            return $telefone;
+         }
     }
+
+
+
 
     public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
         // Dados para criar ou atualizar
