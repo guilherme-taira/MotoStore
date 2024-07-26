@@ -72,7 +72,7 @@ class getShippingData extends Controller
     $result = [
         'first_name' => $first_name,
         'address1' => $street_name,
-        'phone' => $receiver_phone,
+        'phone' => "XXXXXX",
         'city' => $city,
         'zip' => $zip_code,
         'province' => $state,
@@ -86,7 +86,7 @@ class getShippingData extends Controller
         'transportadora' => $transportadora
     ];
 
-    // Log::emergency(json_encode($result));
+    Log::emergency(json_encode($result));
     // Return the array
     return $result;
     }

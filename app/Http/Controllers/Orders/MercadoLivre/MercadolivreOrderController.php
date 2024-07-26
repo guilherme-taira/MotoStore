@@ -105,7 +105,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         $getLink = Shopify::getLink($user->user_id);
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                            ,$dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                            ,$this->isStringOnly($dados['phone'],$getLink->telefone),$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
                             $dados['province_code']);
 
@@ -177,6 +177,15 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
             FacadesLog::critical($th->getMessage());
         }
 
+    }
+
+
+    function isStringOnly($var,$telefone = "") {
+        if (is_string($var)) {
+            return $telefone;
+        } else {
+            return $var;
+        }
     }
 
     public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
