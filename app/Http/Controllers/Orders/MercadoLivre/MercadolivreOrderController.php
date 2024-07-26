@@ -103,19 +103,22 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     try {
                         $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
                         $getLink = Shopify::getLink($user->user_id);
+                        FacadesLog::alert("CODIGO :". ShippingUpdate::ifExist($json->id));
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
+                            if(ShippingUpdate::ifExist($json->id)){
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                             ,$this->isNumericString($dados['phone'],$getLink->telefone) ? $dados['phone'] : $getLink->telefone,$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
                             $dados['province_code']);
                             $nota = $json->id . " - " .$json->buyer->nickname;
                             $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
-                            FacadesLog::critical($json->buyer->email);
-                            // Print the order object to verify its structure
-                            $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                            $id_shopifyOrder = $data->resource();
-                            // SALVAR OS DADOS DO PEDIDO
-                            $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
+                                // Print the order object to verify its structure
+                                $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                                $id_shopifyOrder = $data->resource();
+                                // SALVAR OS DADOS DO PEDIDO
+                                $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
+                            }
+
                         }
 
                     } catch (\Throwable $th) {

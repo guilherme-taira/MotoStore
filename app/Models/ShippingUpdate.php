@@ -30,4 +30,16 @@ class ShippingUpdate extends Model
         ->where('id_shopify','=',$id)->first();
         return $data;
     }
+
+
+    public static function ifExist($id){
+        $data = DB::table('shipping_updates')
+        ->where('id_mercadolivre','=',$id)->first();
+
+        if($data){
+            return false;
+        }else{
+            return true;
+        }
+    }
 }
