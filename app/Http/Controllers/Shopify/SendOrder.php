@@ -41,15 +41,16 @@ class SendOrder extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         curl_close($ch);
+        Log::alert($response);
         return $res;
     }
 
     public function resource()
     {
-        return $this->get("orders.json");
+        return $this->get("draft_orders.json");
     }
     public function toJson(){
-        return json_encode(['order' => $this->getOrder()]);
+        return json_encode(['draft_order' => $this->getOrder()]);
     }
     /**
      * Get the value of order

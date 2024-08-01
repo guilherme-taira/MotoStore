@@ -25,7 +25,6 @@
         <form action="{{ route('shopify.store') }}" method="POST">
             @csrf
             <div class="form-row">
-
                 <div class="form-check form-switch">
                     @if (isset($viewData['shopify']->comunicando) && $viewData['shopify']->comunicando != 0)
                     <input class="form-check-input" name="comunicando" type="checkbox" checked id="flexSwitchCheckDefault">
