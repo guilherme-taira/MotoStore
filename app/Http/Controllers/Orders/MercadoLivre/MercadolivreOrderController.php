@@ -7,14 +7,17 @@ use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
 use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
 use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
 use App\Http\Controllers\MercadoLivre\getShippingData;
+use App\Http\Controllers\MercadoLivre\LineItemNull;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoItem;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoPreference;
 use App\Http\Controllers\Shopify\LineItem;
+use App\Jobs\putDraftShopifyOrder;
 use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
+use App\Http\Controllers\Shopify\ShopifyProduct;
 use App\Http\Controllers\Yapay\GeradorPagamento;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
 use App\Models\financeiro;
@@ -78,7 +81,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -89,21 +92,28 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $carrinhoCesta = new MercadoPagoCesta();
                     $shipping = isset($json->shipping->id) ? $json->shipping->id : 0;
 
+                    $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
+                    $getLink = Shopify::getLink($user->user_id);
 
                     $line_item = [];
                     // IMPLEMENTAR DADOS DA SHOPIFY ********
                     foreach ($json->order_items as $items) {
                         // PRODUTOS DO ARRAY DA SHOPIFY
-                        $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                        $produto = new ShopifyProduct($items->item->seller_sku,$getLink);
+                        $verificar = $produto->resource();
+                        if(isset($verificar['variant'])){
+                            $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                        }else{
+                            $line_item[] = new LineItem("ND", $items->quantity);
+                        }
+
                     }
                     $shippingClient = new getShippingData($shipping,$this->getToken());
                     $dados = $shippingClient->resource();
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
-                        $user = token::where('user_id_mercadolivre','=',$this->getSellerId())->first();
-                        $getLink = Shopify::getLink($user->user_id);
-                        FacadesLog::alert("CODIGO :". ShippingUpdate::ifExist($json->id));
+
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
                             if(ShippingUpdate::ifExist($json->id)){
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
@@ -111,12 +121,13 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
                             $dados['province_code']);
                             $nota = $json->id . " - " .$json->buyer->nickname;
-                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,$json->buyer->email);
+                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($json->buyer->email) ? $json->buyer->email :$getLink->email);
                                 // Print the order object to verify its structure
                                 $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
                                 $id_shopifyOrder = $data->resource();
-                                // SALVAR OS DADOS DO PEDIDO
-                                $this->storeShipping($id_shopifyOrder->order->id,$json->id,$json->buyer->id,$json->seller->id);
+                                // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
+                                \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->draft_order->id,$json->id,$json->buyer->id,$json->seller->id);
+
                             }
 
                         }
@@ -179,6 +190,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
             FacadesLog::critical($th->getMessage());
         }
 
+        return response()->json(["msg" => "cadastrado"],200);
     }
 
 
@@ -193,25 +205,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
 
 
-    public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
-        // Dados para criar ou atualizar
-        $data = [
-            'id_shopify' => $id_shopify,
-            'isBrazil' => false,
-            'id_mercadoLivre' => $id_mercadoLivre,
-            'id_user' => $id_user,
-            'id_vendedor' => $id_vendedor,
-        ];
 
-        // Condições para encontrar o registro
-        $conditions = [
-            'id_shopify' => $data['id_shopify'],
-            'id_mercadoLivre' => $data['id_mercadoLivre'],
-        ];
-
-        // Crie ou atualize o registro
-        ShippingUpdate::updateOrCreate($conditions, $data);
-    }
 
     public function resource()
     {
