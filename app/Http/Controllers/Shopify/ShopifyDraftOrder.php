@@ -64,7 +64,7 @@ class ShopifyDraftOrder extends Controller
 
         // Condições para encontrar o registro
         $conditions = [
-            // 'id_shopify' => $data['id_shopify'],
+            // 'id_shopify' => $data['id_shopify'],*
             'id_mercadoLivre' => $data['id_mercadoLivre'],
         ];
 

@@ -118,6 +118,8 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(ShippingUpdate::ifExist($json->id)){
 
+                            $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
+
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                             ,$this->isNumericString($dados['phone'],$getLink->telefone) ? $dados['phone'] : $getLink->telefone,$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
