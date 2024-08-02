@@ -115,7 +115,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     try {
 
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
+
                             if(ShippingUpdate::ifExist($json->id)){
+
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                             ,$this->isNumericString($dados['phone'],$getLink->telefone) ? $dados['phone'] : $getLink->telefone,$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
@@ -191,6 +193,26 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         }
 
         return response()->json(["msg" => "cadastrado"],200);
+    }
+
+    public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
+        // Dados para criar ou atualizar
+        $data = [
+            'id_shopify' => $id_shopify,
+            'isBrazil' => false,
+            'id_mercadoLivre' => $id_mercadoLivre,
+            'id_user' => $id_user,
+            'id_vendedor' => $id_vendedor,
+        ];
+
+        // Condições para encontrar o registro
+        $conditions = [
+            'id_shopify' => $data['id_shopify'],
+            'id_mercadoLivre' => $data['id_mercadoLivre'],
+        ];
+
+        // Crie ou atualize o registro
+        ShippingUpdate::updateOrCreate($conditions, $data);
     }
 
 
