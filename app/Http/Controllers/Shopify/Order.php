@@ -13,8 +13,9 @@ class Order extends Controller
     public $shipping_address;
     public $note;
     public $email;
+    public $notify_customer = "false";
 
-    public function __construct($line_items, $financial_status, $currency, $shipping_address,$note,$email)
+    public function __construct($line_items, $financial_status, $currency, $shipping_address,$note,$email,$notify_customer = "false")
     {
         $this->line_items = $line_items;
         $this->financial_status = $financial_status;
@@ -22,5 +23,6 @@ class Order extends Controller
         $this->shipping_address = $shipping_address;
         $this->note = $note;
         $this->email = $email;
+        $this->notify_customer = $notify_customer;
     }
 }
