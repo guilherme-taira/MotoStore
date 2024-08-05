@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
+    Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);
     Route::post('/notificationShopify',[MercadoPagoNotification::class,'notificationShopify']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);

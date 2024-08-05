@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mercadopago\Pagamento;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\Shopify\ShippingController;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
@@ -18,18 +19,20 @@ class MercadoPagoNotification extends Controller
         \App\Jobs\aliexpressTraking::dispatch($request->all());
     }
 
+    public function notificationTrakingMelhorEnvio(Request $request){
+        Log::critical(json_encode($request->all()));
+    }
+
     public function notificationShopify(Request $request){
 
-        $data = json_decode(json_encode($request->all()));
-        if(isset($data->id)){
-            Log::critical(" DEFAULT GUI  ----------". $data->id);
-            $shopifyData = ShippingUpdate::getDataById($data->id);
-            Log::debug(json_encode($shopifyData));
-            Log::emergency(json_encode($data));
-        }else{
-            Log::critical(json_encode($request->all()));
+        Log::critical(json_encode($request->all()));
+        if(isset($request->id) && count($request->fulfillments) > 0){
+            $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
+            $setShipping = new ShippingController($shopifyData,$request->fulfillments);
+            $setShipping->setShipping();
         }
 
+        return response()->json("ok",200);
         // switch ($request->order) {
         //     case 'order':
         //         Log::critical($request->fulfillments);
