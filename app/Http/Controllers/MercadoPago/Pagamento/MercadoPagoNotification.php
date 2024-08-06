@@ -25,11 +25,13 @@ class MercadoPagoNotification extends Controller
 
     public function notificationShopify(Request $request){
 
-        Log::critical(json_encode($request->all()));
-        if(isset($request->id) && count($request->fulfillments) > 0){
-            $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
-            $setShipping = new ShippingController($shopifyData,$request->fulfillments);
-            $setShipping->setShipping();
+        Log::emergency(json_encode($request->all()));
+        if(isset($request->id) && isset($request->fulfillments) > 0){
+            if(count($request->fulfillments) > 0){
+                $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
+                $setShipping = new ShippingController($shopifyData,$request->fulfillments);
+                $setShipping->setShipping();
+            }
         }
 
         return response()->json("ok",200);
