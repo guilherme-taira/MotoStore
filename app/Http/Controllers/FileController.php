@@ -13,7 +13,14 @@ class FileController extends Controller
 
         // Caminho do arquivo
         $filePath = storage_path('app/public/testApi.txt');
-        // Criar e gravar dados no arquivo
-        File::put($filePath, $data);
+
+         // Verificar se o arquivo já existe
+         if (File::exists($filePath)) {
+             // Abrir o arquivo para acrescentar dados
+             File::append($filePath, $data);
+         } else {
+             // Criar e gravar dados no arquivo
+             File::put($filePath, $data);
+         }
     }
 }
