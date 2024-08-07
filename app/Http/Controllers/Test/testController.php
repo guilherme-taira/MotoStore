@@ -15,6 +15,7 @@ use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
 use App\Models\order_site;
+use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
 use App\Models\User;
@@ -65,14 +66,8 @@ class testController extends Controller
         // $user = User::find(Auth::user()->id); // ou qualquer usuário que você deseja notificar
         // $user->notify(new PushNotification("Você Vendeu! Verifique em suas vendas!"));
 
-        $ids = "44822226764011,45678183973099,45678183645419,44822229385451";
 
-        $user = token::where('user_id_mercadolivre','=','1157621959')->first();
-        $getLink = Shopify::getLink($user->user_id);
 
-        $produto = new ShopifyProduct($ids,$getLink);
-        echo "<pre>";
-        print_r($produto->resource());
     }
 
 }
