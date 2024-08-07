@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mercadopago\Pagamento;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\ImplementSendNoteOrderClient;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\Shopify\ShippingController;
 use App\Models\ShippingUpdate;
@@ -25,12 +26,23 @@ class MercadoPagoNotification extends Controller
 
     public function notificationShopify(Request $request){
 
-        Log::emergency(json_encode($request->all()));
-        if(isset($request->id) && isset($request->fulfillments) > 0){
+        if(isset($request->id) && isset($request->fulfillments)){
+
+            // PEGA OS DADOS DO PEDIDO
+            $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
+
             if(count($request->fulfillments) > 0){
-                $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
                 $setShipping = new ShippingController($shopifyData,$request->fulfillments);
                 $setShipping->setShipping();
+            }
+
+            // NOTIFICA CAMPO DE OBSERVACAO NO MELI >
+            if(isset($request->note_attributes)){
+                foreach ($request->note_attributes as $notes) {
+                    // Log::critical($this->getFirstNumber($notes['name']));
+                    $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, $this->getFirstNumber($notes['name']) . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor);
+                    $noteSend->send();
+                }
             }
         }
 
@@ -47,6 +59,13 @@ class MercadoPagoNotification extends Controller
         //         Log::critical(json_encode($request->fulfillments));
         //         break;
         // }
+    }
+
+    function getFirstNumber($string) {
+        // Usa expressão regular para encontrar o primeiro número na string
+        preg_match('/\d+/', $string, $matches);
+        // Retorna o primeiro número encontrado ou null se não encontrar nenhum número
+        return $matches[0] ?? null;
     }
 
 
