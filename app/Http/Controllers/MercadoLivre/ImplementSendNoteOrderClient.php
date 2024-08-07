@@ -30,7 +30,10 @@ class ImplementSendNoteOrderClient extends SendNoteOrderClient
             "endpoint" => $endpoint,
             "data" => json_decode($this->toJson(),true),
         ];
-        Log::alert(json_encode($array));
+
+        $salvar = new FileController;
+        $salvar->createFile(json_encode($array));
+
         // // CONVERTE O ARRAY PARA JSON
         // $ch = curl_init();
         // curl_setopt($ch, CURLOPT_URL, $endpoint);
