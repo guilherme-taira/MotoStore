@@ -15,12 +15,12 @@ class ImplementSendNoteOrderClient extends SendNoteOrderClient
 
     public function send(){
 
-    $dataAtual = new DateTime();
-    $token = token::where('user_id_mercadolivre', $this->getUserId())->first(); // CHAMANDO ANTIGO
-    $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id);
-    $newToken->resource();
+    // $dataAtual = new DateTime();
+    // $token = token::where('user_id_mercadolivre', $this->getUserId())->first(); // CHAMANDO ANTIGO
+    // $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id);
+    // $newToken->resource();
 
-    $token = token::where('user_id_mercadolivre', $this->getUserId())->first();
+    // $token = token::where('user_id_mercadolivre', $this->getUserId())->first();
 
     // ENDPOINT PARA REQUISICAO |
     try {
