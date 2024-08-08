@@ -37,6 +37,7 @@ class MercadoPagoNotification extends Controller
                 $setShipping->setShipping();
             }
 
+            $nota = "";
             // NOTIFICA CAMPO DE OBSERVACAO NO MELI >
             if(isset($request->note_attributes)){
                 foreach ($request->note_attributes as $notes) {
