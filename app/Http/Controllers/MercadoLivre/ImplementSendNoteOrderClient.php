@@ -15,12 +15,12 @@ class ImplementSendNoteOrderClient extends SendNoteOrderClient
 
     public function send(){
 
-    $dataAtual = new DateTime();
-    $token = token::where('user_id_mercadolivre', $this->getUserId())->first(); // CHAMANDO ANTIGO
-    $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id);
-    $newToken->resource();
+    // $dataAtual = new DateTime();
+    // $token = token::where('user_id_mercadolivre', $this->getUserId())->first(); // CHAMANDO ANTIGO
+    // $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id);
+    // $newToken->resource();
 
-    $token = token::where('user_id_mercadolivre', $this->getUserId())->first();
+    // $token = token::where('user_id_mercadolivre', $this->getUserId())->first();
 
     // ENDPOINT PARA REQUISICAO |
     try {
@@ -37,37 +37,37 @@ class ImplementSendNoteOrderClient extends SendNoteOrderClient
         // $salvar->createFile(json_encode($array));
 
         // CONVERTE O ARRAY PARA JSON
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->toJson());
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $data = json_decode($response);
+    //     $ch = curl_init();
+    //     curl_setopt($ch, CURLOPT_URL, $endpoint);
+    //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    //     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, $this->toJson());
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+    //     $response = curl_exec($ch);
+    //     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    //     curl_close($ch);
+    //     $data = json_decode($response);
 
-    if ($httpCode == '200') {
+    // if ($httpCode == '200') {
 
-            $data = [
-              'observacaomeli' => "X",
-              'msg' => $data->note->note,
-          ];
+    //         $data = [
+    //           'observacaomeli' => "X",
+    //           'msg' => $data->note->note,
+    //       ];
 
-          // Condições para encontrar o registro
-          $conditions = [
-              'id' => $this->getNumeroPedido(),
-          ];
-          // Crie ou atualize o registro
-          ShippingUpdate::updateOrCreate($conditions, $data);
+    //       // Condições para encontrar o registro
+    //       $conditions = [
+    //           'id' => $this->getNumeroPedido(),
+    //       ];
+    //       // Crie ou atualize o registro
+    //       ShippingUpdate::updateOrCreate($conditions, $data);
 
-        Log::emergency($response);
-    }else{
-        Log::error($response);
-    }
+    //     Log::emergency($response);
+    // }else{
+    //     Log::error($response);
+    // }
 
 } catch (\Exception $e) {
     // return response()->json($e->getMessage());
