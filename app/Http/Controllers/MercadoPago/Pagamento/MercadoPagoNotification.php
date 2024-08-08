@@ -39,7 +39,7 @@ class MercadoPagoNotification extends Controller
 
             $nota = "";
             // NOTIFICA CAMPO DE OBSERVACAO NO MELI >
-            if(isset($request->note_attributes)){
+            if(isset($request->note_attributes) && count($request->note_attributes) > 0){
                 foreach ($request->note_attributes as $notes) {
                     // Log::critical($this->getFirstNumber($notes['name']));
                     $nota = $this->getFirstNumber($notes['name']);
