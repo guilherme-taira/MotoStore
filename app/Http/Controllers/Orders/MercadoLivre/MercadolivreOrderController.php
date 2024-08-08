@@ -191,7 +191,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     }
                 }
         } catch (\Exception $th) {
-            FacadesLog::critical($th->getMessage());
+            // FacadesLog::critical($th->getMessage());
         }
 
         return response()->json(["msg" => "cadastrado"],200);

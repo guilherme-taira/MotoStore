@@ -86,7 +86,7 @@ class getShippingData extends Controller
         'transportadora' => $transportadora
     ];
 
-    Log::emergency(json_encode($result));
+    // Log::emergency(json_encode($result));
     // Return the array
     return $result;
     }
