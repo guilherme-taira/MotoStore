@@ -42,9 +42,10 @@ class MercadoPagoNotification extends Controller
             if(isset($request->note_attributes)){
                 foreach ($request->note_attributes as $notes) {
                     // Log::critical($this->getFirstNumber($notes['name']));
-                    $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, $this->getFirstNumber($notes['name']) . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor);
-                    $noteSend->send();
+                    $nota = $this->getFirstNumber($notes['name']);
                 }
+                $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre,  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor);
+                $noteSend->send();
             }
         }
 
