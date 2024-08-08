@@ -26,7 +26,6 @@ class MercadoPagoNotification extends Controller
 
     public function notificationShopify(Request $request){
 
-
         Log::critical(json_encode($request->all()));
         if(isset($request->id) && isset($request->fulfillments)){
 
