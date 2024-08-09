@@ -23,6 +23,9 @@ class ShippingUpdate extends Model
         'id_mercadoLivre',
         'id_user',
         'id_vendedor',
+        'msg',
+        'observacaomeli',
+        'id_meli'
     ];
 
     public static function getDataById($id){
