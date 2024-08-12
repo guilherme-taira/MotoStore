@@ -56,7 +56,7 @@ class getShippingData extends Controller
     $zip_code = $data['receiver_address']['zip_code'];
     $state = $data['receiver_address']['state']['name'];
     $country = $data['receiver_address']['country']['name'];
-    $comment = $data['receiver_address']['comment'];
+    $comment = $data['receiver_address']['neighborhood']['name'];
     $country_id = $data['receiver_address']['country']['id'];
     $state_id_full  = $data['receiver_address']['state']['id'];
     $transportadora = $data['tracking_method'];
@@ -71,14 +71,14 @@ class getShippingData extends Controller
     // Create array with required fields
     $result = [
         'first_name' => $first_name,
-        'address1' => $street_name,
+        'address1' => $street_name . ", ". $comment,
         'phone' => $receiver_phone,
         'city' => $city,
         'zip' => $zip_code,
         'province' => $state,
         'country' => "Brazil",
         'last_name' => $surname,
-        'address2' => $comment,
+        // 'address2' => $comment,
         'company' => "",
         'name' => $receiver_name,
         'country_code' => $country_id,
