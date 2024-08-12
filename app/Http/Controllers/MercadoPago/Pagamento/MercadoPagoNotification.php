@@ -32,6 +32,7 @@ class MercadoPagoNotification extends Controller
             // PEGA OS DADOS DO PEDIDO
             $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
 
+            Log::alert(json_encode($shopifyData));
             if(count($request->fulfillments) > 0){
                 $setShipping = new ShippingController($shopifyData,$request->fulfillments);
                 $setShipping->setShipping();
