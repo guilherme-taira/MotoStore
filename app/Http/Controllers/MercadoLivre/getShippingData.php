@@ -78,7 +78,7 @@ class getShippingData extends Controller
         'province' => $state,
         'country' => "Brazil",
         'last_name' => $surname,
-        // 'address2' => $comment,
+        'address2' => $comment,
         'company' => "",
         'name' => $receiver_name,
         'country_code' => $country_id,

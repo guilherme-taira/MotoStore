@@ -139,7 +139,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         }
 
                     } catch (\Throwable $th) {
-                        // FacadesLog::emergency($th->getMessage());
+                        FacadesLog::emergency($th->getMessage());
                     }
                     // FIM -*************
 
