@@ -36,7 +36,7 @@ class getShippingData extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response,true);
         curl_close($ch);
-        // Log::emergency($response);
+        Log::emergency($response);
         return $this->trataDados($res);
     }
 
@@ -55,7 +55,7 @@ class getShippingData extends Controller
     $city = $data['receiver_address']['city']['name'];
     $zip_code = $data['receiver_address']['zip_code'];
     $state = $data['receiver_address']['state']['name'];
-    $country = $data['receiver_address']['country']['name'];
+    $comment_receiver = $data['receiver_address']['comment'];
     $comment = $data['receiver_address']['neighborhood']['name'];
     $country_id = $data['receiver_address']['country']['id'];
     $state_id_full  = $data['receiver_address']['state']['id'];
@@ -78,7 +78,7 @@ class getShippingData extends Controller
         'province' => $state,
         'country' => "Brazil",
         'last_name' => $surname,
-        'address2' => $comment,
+        'address2' => isset($comment_receiver) ? $comment_receiver : "",
         'company' => "",
         'name' => $receiver_name,
         'country_code' => $country_id,
