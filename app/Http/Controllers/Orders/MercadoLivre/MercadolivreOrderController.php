@@ -127,7 +127,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
                             $dados['province_code']);
                             $nota = $json->id . " - " .$json->buyer->nickname;
-                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($json->buyer->email) ? uniqid("cliente")."@gmail.com" :$getLink->email);
+                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($json->buyer->email) ? $getLink->email : uniqid("cliente")."@gmail.com");
                                 // Print the order object to verify its structure
                                 $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
                                 $id_shopifyOrder = $data->resource();
