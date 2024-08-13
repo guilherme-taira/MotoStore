@@ -346,6 +346,7 @@ class getDomainController extends Controller
             }
         }
 
+
         $data = [
             'category_id' => $category_id,
             'attributes' => $attributes
