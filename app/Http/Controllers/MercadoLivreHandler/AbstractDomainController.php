@@ -29,8 +29,8 @@ abstract class AbstractDomainController {
     }
 
 
-    public function CallErrorAttributes($error,$produto,$categoria,$category_id,$newtitle){
-        return $this->domain_id->HandlerError($error,$produto,$categoria,$category_id,$newtitle);
+    public function CallErrorAttributes($error,$produto,$categoria,$category_id,$newtitle,$atributos){
+        return $this->domain_id->HandlerError($error,$produto,$categoria,$category_id,$newtitle,$atributos);
    }
 
 
