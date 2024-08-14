@@ -358,14 +358,17 @@ class getDomainController extends Controller
                         ]
                     ];
 
-                    if($categoria->id == "SIZE_GRID_ID"){
-                        array_push($atributos,$sizeGridArray);
-                        // Filtra o array, removendo o item com "id" igual a "COLOR"
-                        $filteredArray = array_filter($atributos, function($item) {
-                            return $item['id'] !== 'COLOR';
-                        });
+                    $sizeGridRow = [
+                        "id" =>  "SIZE_GRID_ROW_ID",
+                        "value_id" =>  "2181441",
+                        "value_name" => "2181441:1"
+                    ];
 
-                        $atributos = array_values($filteredArray);
+
+                    if($categoria->id == "SIZE_GRID_ID"){
+                        array_push($atributos,$sizeGridArray,$sizeGridRow);
+
+                        // $atributos = array_values($filteredArray);
                     }
 
                     // if (in_array($categoria->id, $dados)) {

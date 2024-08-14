@@ -74,7 +74,7 @@ class getShippingData extends Controller
     $result = [
         'first_name' => $first_name,
         'address1' => $street_name . ", ". $comment,
-        'phone' => isset($this->getData()->buyer->phone->number) ? $this->getData()->buyer->phone->number : $receiver_phone,
+        'phone' => isset($this->getData()->buyer->phone->number) ? $this->getData()->buyer->phone->area_code.$this->getData()->buyer->phone->number : $receiver_phone,
         'city' => $city,
         'zip' => $zip_code,
         'province' => $state,
