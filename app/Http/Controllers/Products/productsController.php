@@ -360,6 +360,8 @@ class productsController extends Controller
     }
 
     public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle,$required) {
+
+        Log::critical(json_encode($required));
         $ids = $id;
         $category = $categoria;
         // NUMERO DE TENTATIVAS
@@ -397,7 +399,7 @@ class productsController extends Controller
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
-                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle);
+                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle,$required);
 
                     $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user,$newtitle,$required);
                 } catch (\Throwable $th) {

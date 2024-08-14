@@ -39,8 +39,9 @@ class getDomainController extends Controller
         //  print_r($attributes);
     }
 
-    public function HandlerError($error,$data,$categoria = false,$category_id,$newtitle){
+    public function HandlerError($error,$data,$categoria = false,$category_id,$newtitle,$atributos){
         $handerError = [];
+
         try {
             if(count($error->cause) > 1){
                 foreach ($error->cause as $erro) {
@@ -63,7 +64,7 @@ class getDomainController extends Controller
         if($categoria == false){
             return $this->DeleteAttribute($data,$handerError,$newtitle);
         }else{
-            return $this->IncluirAttribute($data,$handerError,$error,$category_id);
+            return $this->IncluirAttribute($data,$handerError,$error,$category_id,$atributos);
         }
 
     }
@@ -330,32 +331,61 @@ class getDomainController extends Controller
         return $matches[1];
     }
 
-    public function IncluirAttribute($data,$array,$message,$category_id){
-
+    public function IncluirAttribute($data,$array,$message,$category_id,$atributos){
+        Log::debug($atributos);
+        $isSIZEGRID = false;
         $attributes = [];
+
         foreach ($message->cause as $value) {
-            if($value->cause_id == 147){
-                $dados = $this->extrairPalavrasMaiusculas($value->message);
-                // Log::emergency(json_encode($dados));
+            // Verifica se o erro é 147
+            // if ($value->cause_id == 147) {
+
+                // $dados = $this->extrairPalavrasMaiusculas($value->message);
+
                 foreach ($this->getAttributescategoria($category_id) as $categoria) {
-                    if(in_array($categoria->id,$dados)){
-                        $categoria->values =[array_shift($categoria->values)];
-                        array_push($attributes,$categoria);
+
+                    $sizeGridArray = [
+                        "id" =>  "SIZE_GRID_ID",
+                        "name" =>  "ID da guia de tamanhos",
+                        "value_id" =>  null,
+                        "value_name" =>  "2181441",
+                        "values" =>  [
+                            [
+                                "id" =>  null,
+                                "name" =>  "2181441",
+                                "struct" =>  null
+                            ]
+                        ]
+                    ];
+
+                    if($categoria->id == "SIZE_GRID_ID"){
+                        array_push($atributos,$sizeGridArray);
+                        // Filtra o array, removendo o item com "id" igual a "COLOR"
+                        $filteredArray = array_filter($atributos, function($item) {
+                            return $item['id'] !== 'COLOR';
+                        });
+
+                        $atributos = array_values($filteredArray);
                     }
-                }
+
+                    // if (in_array($categoria->id, $dados)) {
+                    //     $categoria->values = [array_shift($categoria->values)];
+                    //     array_push($attributes, $categoria);
+                    // }
+                // }
             }
-        }
 
 
         $data = [
             'category_id' => $category_id,
-            'attributes' => $attributes
+            'attributes' => $atributos
         ];
 
-        // Log::warning(json_encode($data));
+        Log::warning(json_encode($data));
 
         return $data;
-    }
+
+    }}
 
     public function getAttributescategoria($categoria) {
 

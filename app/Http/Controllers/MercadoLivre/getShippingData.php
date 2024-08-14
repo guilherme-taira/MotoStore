@@ -14,11 +14,13 @@ class getShippingData extends Controller
 
     private $shippingId;
     private $token;
+    private $data;
 
-    public function __construct($shippingId,$token)
+    public function __construct($shippingId,$token,$data)
     {
         $this->shippingId = $shippingId;
         $this->token = $token;
+        $this->data = $data;
     }
 
 
@@ -72,7 +74,7 @@ class getShippingData extends Controller
     $result = [
         'first_name' => $first_name,
         'address1' => $street_name . ", ". $comment,
-        'phone' => $receiver_phone,
+        'phone' => isset($this->getData()->buyer->phone->number) ? $this->getData()->buyer->phone->number : $receiver_phone,
         'city' => $city,
         'zip' => $zip_code,
         'province' => $state,
@@ -107,4 +109,12 @@ class getShippingData extends Controller
         return $this->token;
     }
 
+
+    /**
+     * Get the value of data
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
 }
