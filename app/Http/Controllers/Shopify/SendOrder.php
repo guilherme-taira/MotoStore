@@ -72,7 +72,7 @@ class SendOrder extends Controller
                     "localizationExtensions": [
                             {
                                 "key": "TAX_CREDENTIAL_BR",
-                                "value": "39053344705"
+                                "value": "INFORMAR"
                             }
                       ]
                     }
