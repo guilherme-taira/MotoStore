@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MercadoLivreHandler;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -39,9 +40,9 @@ class getDomainController extends Controller
         //  print_r($attributes);
     }
 
-    public function HandlerError($error,$data,$categoria = false,$category_id,$newtitle,$atributos){
-        $handerError = [];
+    public function HandlerError($error,$data,$categoria = false,$category_id,$newtitle,$atributos,$token){
 
+        $handerError = [];
         try {
             if(count($error->cause) > 1){
                 foreach ($error->cause as $erro) {
@@ -64,7 +65,7 @@ class getDomainController extends Controller
         if($categoria == false){
             return $this->DeleteAttribute($data,$handerError,$newtitle);
         }else{
-            return $this->IncluirAttribute($data,$handerError,$error,$category_id,$atributos);
+            return $this->IncluirAttribute($data,$handerError,$error,$category_id,$atributos,$token);
         }
 
     }
@@ -331,64 +332,59 @@ class getDomainController extends Controller
         return $matches[1];
     }
 
-    public function IncluirAttribute($data,$array,$message,$category_id,$atributos){
-        Log::debug($atributos);
-        $isSIZEGRID = false;
+    public function IncluirAttribute($data,$array,$message,$category_id,$atributos,$token){
+
         $attributes = [];
+        // foreach ($message->cause as $value) {
+        //     // SIZE_GRID_ID
+        //     if($value->cause_id == 147){
+        //         $dados = $this->extrairPalavrasMaiusculas($value->message);
+        //         // Log::emergency(json_encode($dados));
+        //         foreach ($this->getAttributescategoria($category_id) as $categoria) {
 
-        foreach ($message->cause as $value) {
-            // Verifica se o erro é 147
-            // if ($value->cause_id == 147) {
+        //             if(in_array($categoria->id,$dados)){
+        //                 $categoria->values = [array_shift($categoria->values)];
+        //                 array_push($attributes,$categoria);
+        //             }
+        //         }
+        //     }
+        // }
 
-                // $dados = $this->extrairPalavrasMaiusculas($value->message);
+        foreach ($this->getAttributescategoria($category_id) as $categoria) {
 
-                foreach ($this->getAttributescategoria($category_id) as $categoria) {
+            if($categoria->id == "SIZE_GRID_ID"){
+                foreach ($atributos as $atributo) {
 
-                    $sizeGridArray = [
-                        "id" =>  "SIZE_GRID_ID",
-                        "name" =>  "ID da guia de tamanhos",
-                        "value_id" =>  null,
-                        "value_name" =>  "2181441",
-                        "values" =>  [
-                            [
-                                "id" =>  null,
-                                "name" =>  "2181441",
-                                "struct" =>  null
-                            ]
-                        ]
-                    ];
-
-                    $sizeGridRow = [
-                        "id" =>  "SIZE_GRID_ROW_ID",
-                        "value_id" =>  "2181441",
-                        "value_name" => "2181441:1"
-                    ];
-
-
-                    if($categoria->id == "SIZE_GRID_ID"){
-                        array_push($atributos,$sizeGridArray,$sizeGridRow);
-
-                        // $atributos = array_values($filteredArray);
+                    // Filtra o array, removendo o item com "id" igual a "COLOR"
+                    $filteredArray = array_filter($atributos, function($item) {
+                        return $item['id'] !== 'SIZE';
+                    });
+                    //
+                    // *** CRIA A TABELA DE MEDIDAS
+                    //
+                    if($atributo['id'] == 'GENDER'){
+                        // CRIA A TABELA DE MEDIDAS CONFORME O GENERO
+                        $atributos = $filteredArray;
+                        foreach ($this->getAttributesCharts($token,$atributo['value']) as $key => $value) {
+                            array_push($atributos,$value);
+                        }
                     }
 
-                    // if (in_array($categoria->id, $dados)) {
-                    //     $categoria->values = [array_shift($categoria->values)];
-                    //     array_push($attributes, $categoria);
-                    // }
-                // }
-            }
 
+                }
+
+            }
+        }
 
         $data = [
             'category_id' => $category_id,
             'attributes' => $atributos
         ];
 
-        Log::warning(json_encode($data));
+        Log::alert(json_encode($data));
 
         return $data;
-
-    }}
+    }
 
     public function getAttributescategoria($categoria) {
 
@@ -407,6 +403,194 @@ class getDomainController extends Controller
             if ($httpCode == '200') {
                 return $json;
             }
+
+    }
+
+
+    public function getAttributesCharts($token,$gender) {
+
+        $endpoint = "https://api.mercadolibre.com/catalog/charts";
+
+            $data_json = json_encode($this->TypeCharts($gender));
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse,true);
+
+            $data = [];
+            if ($httpCode == '201') {
+                // // Extraindo a primeira linha de rows
+                $first_row = $json['rows'][0];
+
+                // Encontrando o valor de SIZE
+                $size_value = null;
+                foreach ($first_row['attributes'] as $attribute) {
+                    if ($attribute['id'] === 'SIZE') {
+                        $size_value = $attribute;
+                        break;
+                    }
+                }
+
+                $data = [
+                    [
+                        "id" => "SIZE_GRID_ID",
+                        "name" => "ID da guia de tamanhos",
+                        "value_id" => null,
+                        "value_name" => $json['id'],
+                        "values" => [
+                            [
+                                "id" => null,
+                                "name" => $json['id'],
+                                "struct" => null
+                            ]
+                        ]
+                        ],
+                    [
+                        "id" => "SIZE_GRID_ROW_ID",
+                        "value_id" => $json['id'],
+                        "value_name" => $json['id'].":1"
+                    ],
+                    $size_value
+                ];
+                return array_values($data);
+            }
+
+    }
+
+
+    public function TypeCharts($gender){
+
+        $letra = null;
+        if($gender == 339665){
+            $letra = "F";
+        }else{
+            $letra = "M";
+        }
+
+
+        $name = uniqid("ALTERADOR" . date('Y-m-d'));
+        return  [
+          "names" => [
+                "MLB" => "GUIA $name"
+             ],
+          "domain_id" => "SNEAKERS",
+          "site_id" => "MLB",
+          "main_attribute" => [
+                   "attributes" => [
+                      [
+                         "site_id" => "MLB",
+                         "id" => $letra."_US_SIZE"
+                      ]
+                   ]
+                ],
+          "attributes" => [
+                    [
+                    "id" => "GENDER",
+                    "values" => [
+                    [
+                    "id" => "339665",
+                    "name" => "Feminino"
+                    ]
+                    ]
+                    ]
+                    ],
+                    "rows" => [
+                    [
+                    "attributes" => [
+                    [
+                    "id" => "BR_SIZE",
+                    "values" => [
+                    [
+                        "name" => "40 BR"
+                    ]
+                    ]
+                    ],
+                    [
+            "id" => $letra."_US_SIZE",
+            "values" => [
+            [
+            "name" => "8,5 US"
+            ]
+            ]
+            ],
+            [
+            "id" => "FOOT_LENGTH",
+            "values" => [
+            [
+            "name" => "10 cm"
+            ]
+            ]
+            ]
+            ]
+            ],
+            [
+            "attributes" => [
+            [
+            "id" => "BR_SIZE",
+            "values" => [
+            [
+            "name" => "41 BR"
+            ]
+            ]
+            ],
+            [
+            "id" => $letra."_US_SIZE",
+            "values" => [
+            [
+            "name" => "9 US"
+            ]
+            ]
+            ],
+            [
+            "id" => "FOOT_LENGTH",
+            "values" => [
+            [
+            "name" => "15 cm"
+            ]
+            ]
+            ]
+            ]
+            ],
+            [
+            "attributes" => [
+            [
+            "id" => "BR_SIZE",
+            "values" => [
+            [
+            "name" => "42 BR"
+            ]
+            ]
+            ],
+            [
+            "id" => $letra."_US_SIZE",
+            "values" => [
+            [
+            "name" => "9,5 US"
+            ]
+            ]
+            ],
+            [
+            "id" => "FOOT_LENGTH",
+            "values" => [
+            [
+            "name" => "20 cm"
+            ]
+            ]
+            ]
+            ]
+            ]
+                    ]
+       ];
+
 
     }
 

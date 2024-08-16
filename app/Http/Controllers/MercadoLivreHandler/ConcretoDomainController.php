@@ -11,7 +11,7 @@ class ConcretoDomainController extends AbstractDomainController
         return parent::CallAttributes($attributes);
     }
 
-    public function CallErrorAttributes($error,$produto,$categoria = false,$category_id = null,$newtitle,$atributos = null){
-       return parent::CallErrorAttributes($error,$produto,$categoria,$category_id,$newtitle,$atributos);
+    public function CallErrorAttributes($error,$produto,$categoria = false,$category_id = null,$newtitle,$atributos = null,$token = null){
+       return parent::CallErrorAttributes($error,$produto,$categoria,$category_id,$newtitle,$atributos,$token);
    }
 }

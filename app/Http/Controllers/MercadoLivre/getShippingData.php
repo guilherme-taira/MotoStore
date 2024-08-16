@@ -81,11 +81,12 @@ class getShippingData extends Controller
         'country' => "Brazil",
         'last_name' => $surname,
         'address2' => isset($comment_receiver) ? $comment_receiver : "",
-        'company' => "",
+        'company' => "14329878879",
         'name' => $receiver_name,
         'country_code' => $country_id,
         'province_code' => $state_id,
-        'transportadora' => $transportadora
+        'transportadora' => $transportadora,
+        'cpf' => "14329878879"
     ];
 
     // Log::emergency(json_encode($result));

@@ -21,8 +21,9 @@ class ShippingAddress extends Controller
     public $country_code;
     public $province_code;
     public $note;
+    public $cpf;
 
-    public function __construct($first_name, $address1, $phone, $city, $zip, $province, $country, $last_name, $address2, $company, $name, $country_code, $province_code)
+    public function __construct($first_name, $address1, $phone, $city, $zip, $province, $country, $last_name, $address2, $company = "14705621972", $name, $country_code, $province_code,$cpf)
     {
         $this->first_name = $first_name;
         $this->address1 = $address1;
@@ -37,5 +38,6 @@ class ShippingAddress extends Controller
         $this->name = $name;
         $this->country_code = $country_code;
         $this->province_code = $province_code;
+        $this->cpf = $cpf;
     }
 }
