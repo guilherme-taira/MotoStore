@@ -118,7 +118,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
 
-                            // if(ShippingUpdate::ifExist($json->id)){
+                            if(ShippingUpdate::ifExist($json->id)){
 
                             $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
 
@@ -134,7 +134,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
                                 \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id);
 
-                            // }
+                            }
 
                         }
 
