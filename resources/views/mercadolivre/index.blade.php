@@ -987,6 +987,19 @@
                                                 label.textContent = element.name;
                                                 formContainer.appendChild(label);
 
+                                                if(label.textContent == "Marca"){
+                                                    var input = document
+                                                        .createElement("input");
+                                                    // Define o tipo do input como "text"
+                                                    input.type = "text";
+                                                    input.className =
+                                                        "form-control";
+                                                    input.name = element.id;
+                                                    // Define um ID para o input (opcional)
+                                                    // Adiciona o input ao corpo do documento (ou a qualquer outro elemento desejado)
+                                                    formContainer.appendChild(
+                                                        input);
+                                                }else
                                                 if (!element.values) {
                                                     var input = document
                                                         .createElement("input");

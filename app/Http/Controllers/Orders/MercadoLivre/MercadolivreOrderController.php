@@ -111,30 +111,30 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
 
-                    FacadesLog::debug(json_encode($dados));
+                    // FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
 
                         if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
 
-                            if(ShippingUpdate::ifExist($json->id)){
+                            // if(ShippingUpdate::ifExist($json->id)){
 
                             $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
 
                             $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                             ,$this->isNumericString($dados['phone'],$getLink->telefone) ? $dados['phone'] : $getLink->telefone,$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
                             $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
-                            $dados['province_code']);
+                            $dados['province_code'],$dados['cpf']);
                             $nota = $json->id . " - " .$json->buyer->nickname;
                             $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($json->buyer->email) ? $getLink->email : uniqid("cliente")."@gmail.com");
                                 // Print the order object to verify its structure
                                 $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
                                 $id_shopifyOrder = $data->resource();
                                 // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
-                                \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->draft_order->id,$json->id,$json->buyer->id,$json->seller->id);
+                                \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id);
 
-                            }
+                            // }
 
                         }
 

@@ -31,26 +31,49 @@ class ShopifyDraftOrder extends Controller
 
       try {
          // URL PARA REQUISICAO
-         $endpoint = $this->getGetLink()->name_loja . $resource;
+        //  $endpoint = $this->getGetLink()->name_loja . $resource;
 
-         $ch = curl_init();
-         curl_setopt($ch, CURLOPT_URL, $endpoint);
-         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-         curl_setopt($ch, CURLOPT_HTTPHEADER, ["X-Shopify-Access-Token: {$this->getGetLink()->token}", 'Content-Length: 0']);
-         $response = curl_exec($ch);
-         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-         $res = json_decode($response);
-         curl_close($ch);
+        //  $ch = curl_init();
+        //  curl_setopt($ch, CURLOPT_URL, $endpoint);
+        //  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        //  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        //  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        //  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $query = '{
+            "query": "mutation draftOrderComplete($id: ID!) { draftOrderComplete(id: $id) { draftOrder { id order { id name } } userErrors { field message } } }",
+            "variables": {
+                "id": "' . $this->getDraftId() . '"
+            }
+        }';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->getGetLink()->name_loja."graphql.json");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["X-Shopify-Access-Token: {$this->getGetLink()->token}", "Content-Type: application/json"]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $res = json_decode($response);
+        curl_close($ch);
          // SALVAR OS DADOS DO PEDIDO
-          $this->storeShipping($res->draft_order->order_id,$this->getMercadoLivreId(),$this->getComprador(),$this->getSeller());
-        //  Log::debug($response);
+          $this->storeShipping($this->extractNumberFromGid($res->data->draftOrderComplete->draftOrder->order->id),$this->getMercadoLivreId(),$this->getComprador(),$this->getSeller());
+         Log::debug($response);
       } catch (\Throwable $th) {
          Log::emergency($th->getMessage());
       }
     }
+
+    function extractNumberFromGid($gid) {
+        // Usar a função explode para dividir a string pelo "/"
+        $parts = explode('/', $gid);
+
+        // O último elemento do array será o número desejado
+        return end($parts);
+    }
+
+
 
     public function storeShipping($id_shopify,$id_mercadoLivre,$id_user,$id_vendedor){
         // Dados para criar ou atualizar

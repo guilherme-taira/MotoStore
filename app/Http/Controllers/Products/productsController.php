@@ -360,8 +360,6 @@ class productsController extends Controller
     }
 
     public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle,$required) {
-
-        Log::critical(json_encode($required));
         $ids = $id;
         $category = $categoria;
         // NUMERO DE TENTATIVAS
@@ -399,20 +397,22 @@ class productsController extends Controller
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
                     $concreto->CallAttributes($data);
-                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle,$required);
+                    $data_json = $concreto->CallErrorAttributes($json,$data,true,$category,$newtitle,$required,$token);
+
+                    if($json->status == 400){
+                        foreach ($json->cause as $value) {
+                            if($value->department != "shipping"){
+                                echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> " . $value->message ."</li>";
+                            }
+                        }
+                   }
 
                     $this->TrocarCategoriaRequest($data_json,TRUE,$ids,$category,$user,$newtitle,$required);
                 } catch (\Throwable $th) {
-                    Log::error($th->getMessage());
+                    // Log::error($th->getMessage());
                 }
 
-               if($json->status == 400){
-                    foreach ($json->cause as $value) {
-                        if($value->department != "shipping"){
-                            echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> " . $value->message ."</li>";
-                        }
-                    }
-               }
+
 
             }
 
