@@ -9,6 +9,7 @@ use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
 use App\Http\Controllers\MercadoLivreHandler\ConcretoDomainController;
 use App\Http\Controllers\MercadoLivreHandler\getDomainController;
+use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\Shopify\LineItem;
 use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
@@ -63,11 +64,11 @@ class testController extends Controller
 
 
     public function teste(Request $request){
-        // $user = User::find(Auth::user()->id); // ou qualquer usuário que você deseja notificar
-        // $user->notify(new PushNotification("Você Vendeu! Verifique em suas vendas!"));
 
-
-
+        Log::alert($request->all()['event']['unit_name']);
+        // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
+        // $notify = new SendNotificationPraEntregaController($shipping->traking,"Olá Querido Cliente seu Rastreio ".$shipping->rastreio,$shipping->id_mercadoLivre,$shipping->id_user,$shipping->id_vendedor);
+        // $notify->save();
     }
 
 }
