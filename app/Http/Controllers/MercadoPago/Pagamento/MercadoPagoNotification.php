@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mercadopago\Pagamento;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ImplementSendNoteOrderClient;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\Shopify\ShippingController;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
@@ -22,6 +23,43 @@ class MercadoPagoNotification extends Controller
 
     public function notificationTrakingMelhorEnvio(Request $request){
         Log::critical(json_encode($request->all()));
+        // $this->GetType($request);
+        // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
+        // $notify = new SendNotificationPraEntregaController($shipping->traking,"Olá Querido Cliente seu Rastreio ".$shipping->rastreio,$shipping->id_mercadoLivre,$shipping->id_user,$shipping->id_vendedor);
+        // $notify->save();
+    }
+
+    function containsTransferencia($data) {
+        // Verifica se o status contém a palavra "transferência"
+        if (isset($data) && strpos($data, 'transferência') !== false) {
+            return true;
+        }
+        return false;
+    }
+
+    public function GetType(Request $request){
+
+        switch ($request->all()['event']) {
+            case 'event.created':
+
+                    $msg = "Informamos que seu produto já chegou na/em ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
+                    $transferencia = $this->containsTransferencia($request->all()['data']['current']['status']);
+                    if($transferencia){
+                        $msg = "Informamos que seu produto esta em tranferência da ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
+                    }
+
+                      $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
+                      $notify = new SendNotificationPraEntregaController($shipping->id,$shipping->traking,
+                      $msg,$shipping->id_mercadoLivre,$shipping->id_vendedor,$shipping->id_user);
+                      $notify->save();
+                break;
+                case 'event.updated':
+                        // NÂO IMPLEMENTAR
+                    break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function notificationShopify(Request $request){
