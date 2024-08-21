@@ -25,7 +25,16 @@ class ShippingUpdate extends Model
         'id_vendedor',
         'msg',
         'observacaomeli',
-        'id_meli'
+        'id_meli',
+        'was_damaged',
+        'was_delivered',
+        'was_delivered_to_sender',
+        'was_forwarded',
+        'was_fulfilled',
+        'was_misplaced',
+        'was_refused',
+        'was_returned',
+        'was_scheduled'
     ];
 
     public static function getDataById($id){
