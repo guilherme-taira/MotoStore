@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ImplementSendNoteOrderClient;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
+use App\Http\Controllers\SaiuPraEntrega\TypeMessageController;
 use App\Http\Controllers\Shopify\ShippingController;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
@@ -23,7 +24,7 @@ class MercadoPagoNotification extends Controller
 
     public function notificationTrakingMelhorEnvio(Request $request){
         Log::critical(json_encode($request->all()));
-        // $this->GetType($request);
+        $this->GetType($request);
         // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
         // $notify = new SendNotificationPraEntregaController($shipping->traking,"Olá Querido Cliente seu Rastreio ".$shipping->rastreio,$shipping->id_mercadoLivre,$shipping->id_user,$shipping->id_vendedor);
         // $notify->save();
@@ -39,19 +40,23 @@ class MercadoPagoNotification extends Controller
 
     public function GetType(Request $request){
 
-        switch ($request->all()['event']) {
+        $object = json_decode(json_encode($request->data));
+        switch ($request->event) {
             case 'event.created':
-
                     $msg = "Informamos que seu produto já chegou na/em ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
                     $transferencia = $this->containsTransferencia($request->all()['data']['current']['status']);
                     if($transferencia){
                         $msg = "Informamos que seu produto esta em tranferência da ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
                     }
 
-                      $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
-                      $notify = new SendNotificationPraEntregaController($shipping->id,$shipping->traking,
-                      $msg,$shipping->id_mercadoLivre,$shipping->id_vendedor,$shipping->id_user);
-                      $notify->save();
+                    $shipping = ShippingUpdate::where('rastreio','=',$object->current->package->tracking_code)->first();
+                    $message = new TypeMessageController($object->current,$shipping);
+                    $message->setFields();
+
+                    // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
+                    // $notify = new SendNotificationPraEntregaController($shipping->id,$shipping->traking,
+                    // $msg,$shipping->id_mercadoLivre,$shipping->id_vendedor,$shipping->id_user);
+                    // $notify->save();
                 break;
                 case 'event.updated':
                         // NÂO IMPLEMENTAR
