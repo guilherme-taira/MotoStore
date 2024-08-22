@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mercadopago\Pagamento;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ImplementSendNoteOrderClient;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
+use App\Http\Controllers\SaiuPraEntrega\SaiuPraEntregaService;
 use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\SaiuPraEntrega\TypeMessageController;
 use App\Http\Controllers\Shopify\ShippingController;
@@ -94,6 +95,9 @@ class MercadoPagoNotification extends Controller
                 }else if($shopifyData->rastreio != NULL && $shopifyData->observacaomeli == "X"){
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id,$shopifyData->id_meli);
                     $noteSend->send();
+
+                    //** ENVIAR SAIU PARA ENTREGA RASTREIO*/
+                   \App\Jobs\sendRastreioSaiuPraEnrega::dispatch($shopifyData->rastreio);
                 }
             }
         }
