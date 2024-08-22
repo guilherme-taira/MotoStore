@@ -109,7 +109,6 @@ class MercadoPagoPreference extends Controller
 
     public function get($resource){
 
-
         $token = token::where('user_id',$this->getItens()->getFornecedorId())->first();
 
         if($token){
@@ -119,9 +118,8 @@ class MercadoPagoPreference extends Controller
             $newToken->resource();
             $token = token::where('user_id',$this->getItens()->getFornecedorId())->first();
         }
-        // ENDPOINT PARA REQUISICAO |
+        // ENDPOINT PARA REQUISICAO
         try {
-
             $endpoint = self::URL_BASE.$resource;
             // CONVERTE O ARRAY PARA JSON
             $ch = curl_init();

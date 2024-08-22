@@ -34,7 +34,8 @@ class ShippingUpdate extends Model
         'was_misplaced',
         'was_refused',
         'was_returned',
-        'was_scheduled'
+        'was_scheduled',
+        'id_rastreio'
     ];
 
     public static function getDataById($id){

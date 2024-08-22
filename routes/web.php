@@ -30,6 +30,7 @@ use App\Http\Controllers\planos\planosController;
 use App\Http\Controllers\Products\ProductByFornecedor;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Report\reportController;
+use App\Http\Controllers\SaiuPraEntrega\PackageController;
 use App\Http\Controllers\ShopifyController;
 use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
@@ -81,6 +82,7 @@ Route::get('/baixarVenda/{id}', [orderscontroller::class, 'baixarvenda'])->name(
 Route::post('cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.add');
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
+Route::post('/package/create', [PackageController::class, 'createPackage']);
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
