@@ -34,23 +34,48 @@ class sendRastreioSaiuPraEnrega implements ShouldQueue
      */
     public function handle()
     {
-        $object = [
-            "description" => "PEDIDOs",
-            "customer_name" => "Diitudo",
-            "customer_email" => "manual@manual.com",
-            "customer_phone" => "19999999999",
-            "tracking_code" => $this->traking,
-            "shipping_company" => "correios",
-            "items" => [
-                [
-                    "name" => "produto drop",
-                    "quantity" => 1,
-                    "value" => 0
+        if($this->iniciaComCN($this->traking)){
+            $object = [
+                "description" => "PEDIDOs",
+                "customer_name" => "Diitudo",
+                "customer_email" => "manual@manual.com",
+                "customer_phone" => "19999999999",
+                "tracking_code" => $this->traking,
+                "shipping_company" => "cainiao",
+                "items" => [
+                    [
+                        "name" => "produto drop",
+                        "quantity" => 1,
+                        "value" => 0
+                    ]
                 ]
-            ]
-        ];
+            ];
+        }else{
+            $object = [
+                "description" => "PEDIDOs",
+                "customer_name" => "Diitudo",
+                "customer_email" => "manual@manual.com",
+                "customer_phone" => "19999999999",
+                "tracking_code" => $this->traking,
+                "shipping_company" => "correios",
+                "items" => [
+                    [
+                        "name" => "produto drop",
+                        "quantity" => 1,
+                        "value" => 0
+                    ]
+                ]
+            ];
+        }
+
 
         Log::alert(json_encode($object));
         (new SaiuPraEntregaService())->createPackage($object);
     }
+
+    function iniciaComCN($string) {
+        // Verifica se a string começa com "CN"
+        return strpos($string, 'CN') === 0;
+    }
+
 }

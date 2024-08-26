@@ -27,6 +27,7 @@ class SaiuPraEntregaService extends Controller
         if(isset($response['data']['id'])){
             $this->setFields($response['data']['id'],$data['tracking_code']);
         }
+        Log::alert($response->json());
         return $response->json();
     }
 
