@@ -67,21 +67,10 @@ class testController extends Controller
 
     public function teste(Request $request){
 
-        $object = json_decode('{
-        "description": "Aliexpress pedido",
-        "customer_name": "Guilherme Taiar",
-        "customer_email": "manual@manual.com",
-        "customer_phone": "19999999999",
-        "tracking_code": "NM573274327BR",
-        "shipping_company": "correios",
-        "items": [
-            {
-                "name" : "produto drop",
-                "quantity": 1,
-                "value": 0
-            }
-        ]
-        }',true);
+        // Atualizando um registro existente
+        $shippingUpdate = ShippingUpdate::find(537); // Substitua 1 pelo ID do registro que você deseja atualizar
+        $shippingUpdate->was_delivered = 1;  // Atualize um campo diferente para 1
+        $shippingUpdate->save();
 
         // $data = (new SaiuPraEntregaService())->createPackage($object);
         \App\Jobs\sendRastreioSaiuPraEnrega::dispatch("NM573812471BR");
