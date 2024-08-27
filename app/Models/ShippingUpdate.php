@@ -45,6 +45,13 @@ class ShippingUpdate extends Model
     }
 
 
+    public static function getDataByIdMeli($id){
+        $data = ShippingUpdate::where('id_vendedor', '=', $id)
+        ->orderBy('id', 'desc')  // Substitua 'id' pelo campo que deseja ordenar
+        ->paginate(20);
+        return $data;
+    }
+
     public static function ifExist($id){
         $data = DB::table('shipping_updates')
         ->where('id_mercadolivre','=',$id)->first();
