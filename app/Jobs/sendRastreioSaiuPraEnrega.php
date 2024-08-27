@@ -34,7 +34,7 @@ class sendRastreioSaiuPraEnrega implements ShouldQueue
      */
     public function handle()
     {
-        if($this->iniciaComCN($this->traking)){
+        if($this->iniciaComCNouCANI($this->traking)){
             $object = [
                 "description" => "PEDIDOs",
                 "customer_name" => "Diitudo",
@@ -73,9 +73,9 @@ class sendRastreioSaiuPraEnrega implements ShouldQueue
         (new SaiuPraEntregaService())->createPackage($object);
     }
 
-    function iniciaComCN($string) {
-        // Verifica se a string começa com "CN"
-        return strpos($string, 'CN') === 0;
+    function iniciaComCNouCANI($string) {
+        // Verifica se a string começa com "CN" ou "CANI"
+        return strpos($string, 'CN') === 0 || strpos($string, 'CANI') === 0;
     }
 
 }
