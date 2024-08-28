@@ -194,7 +194,7 @@
                                 </div>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                        <a class="nav-link collapsed" href="{{route('fretes.index')}}" data-bs-toggle="collapse"
                             data-bs-target="#collapseFrete" aria-expanded="false" aria-controls="collapseFrete">
                             <div class="sb-nav-link-icon"><i class="bi bi-truck"></i></div>
                             Fretes
