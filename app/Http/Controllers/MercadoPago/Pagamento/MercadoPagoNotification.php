@@ -54,10 +54,10 @@ class MercadoPagoNotification extends Controller
                     $message = new TypeMessageController($object->current,$shipping);
                     $message->setFields();
 
-                    // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
-                    // $notify = new SendNotificationPraEntregaController($shipping->id,$shipping->traking,
-                    // $msg,$shipping->id_mercadoLivre,$shipping->id_vendedor,$shipping->id_user);
-                    // $notify->save();
+                    // NOTIFY CLIENT NOT IMPLEMENTED
+                    $notify = new SendNotificationPraEntregaController($shipping->id,$shipping->traking,
+                    $msg,$shipping->id_mercadoLivre,$shipping->id_vendedor,$shipping->id_user);
+                    $notify->save();
                 break;
                 case 'event.updated':
                         // NÂO IMPLEMENTAR

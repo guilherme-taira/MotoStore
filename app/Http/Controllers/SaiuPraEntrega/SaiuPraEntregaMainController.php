@@ -24,28 +24,15 @@ class SaiuPraEntregaMainController extends Controller
         $id = token::where('user_id','=',Auth::user()->id)->first();
 
         if($id){
-            $data = ShippingUpdate::getDataByIdMeli($id->user_id_mercadolivre);
-            echo "<pre>";
-         // Array para armazenar as chaves dos campos que possuem valor 1
-            $wasFields = [];
-
-            foreach ($data as $key => $value) {
-                // Verifica se o campo começa com 'was_' e tem valor 1
-                if (strpos($key, 'was_') === 0 && $value == 1) {
-                    $wasFields[] = $key;
-                }
-            }
-
-            // Exibindo as chaves que possuem valor 1
-            print_r($wasFields);
-            // $viewData['shipping']
+            // Array para armazenar as chaves dos campos que possuem valor 1
+            $viewData['shipping'] = ShippingUpdate::getDataByIdMeli($id->user_id_mercadolivre);
         }else{
-            $viewData['shipping'] = [];
+            $viewData['shipping'] = collect();
         }
 
-        // return view('fretes.index',
-        // ['viewData' => $viewData]
-        // );
+        return view('fretes.index',
+        ['viewData' => $viewData]
+        );
     }
 
 

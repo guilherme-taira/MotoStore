@@ -48,8 +48,73 @@ class ShippingUpdate extends Model
     public static function getDataByIdMeli($id){
         $data = ShippingUpdate::where('id_vendedor', '=', $id)
         ->orderBy('id', 'desc')  // Substitua 'id' pelo campo que deseja ordenar
-        ->paginate(20);
+        ->paginate(100);
+         // Modifica os itens do paginador, mantendo o objeto de paginação intacto
+        $data->getCollection()->transform(function ($item) {
+            // Inicializa uma variável para armazenar o campo 'was_' encontrado
+            $wasField = null;
+
+            // Obtenha todos os atributos do item
+            $attributes = $item->getAttributes();
+
+            // Verifique se algum campo começa com 'was_' e tem o valor 1
+            foreach ($attributes as $key => $value) {
+                if (strpos($key, 'was_') === 0 && $value == 1) {
+                    // Define o campo encontrado
+                    $wasField = $key;
+                    break; // Sai do loop assim que encontrar o primeiro campo com valor 1
+                }
+            }
+
+            // Adicione o campo encontrado ao array de atributos
+            if ($wasField) {
+                $item->setAttribute('was_field',$wasField);
+            }
+
+            return $item;
+        });
+
         return $data;
+    }
+
+
+    public static function extrairNumeros($texto) {
+        // Expressão regular para encontrar todos os dígitos
+        preg_match('/\d+/', $texto, $matches);
+        // Retorna o primeiro conjunto de números encontrado
+        return isset($matches[0]) ? $matches[0] : "";
+    }
+
+
+    public static function getStatus($status){
+        $array = [
+            'was_damaged' => "<span class='badge text-bg-danger'>Foi danificado</span>",
+            'was_delivered' => "<span class='badge text-bg-success'>Foi entregue</span>",
+            'was_delivered_to_sender' => "<span class='badge text-bg-warning'>Foi devolvido ao remetente</span>",
+            'was_forwarded' => "<span class='badge text-bg-primary'>Foi encaminhado</span>",
+            'was_fulfilled' => "<span class='badge text-bg-info'>Foi realizado</span>",
+            'was_misplaced' => "<span class='badge text-bg-secondary'>Foi extraviado</span>",
+            'was_refused' => "<span class='badge text-bg-dark'>Foi recusado</span>",
+            'was_returned' => "<span class='badge text-bg-light'>Foi devolvido</span>",
+            'was_scheduled' => "<span class='badge text-bg-muted'>Foi agendado</span>",
+            '' => "<span class='badge text-bg-warning'>Aguardando..</span>"
+        ];
+
+
+        foreach ($array as $key => $value) {
+            if($key == $status){
+                return $value;
+            }
+        }
+    }
+
+    public static function getIntegrado($status){
+
+        if($status != ""){
+            return "<span class='badge text-bg-success'>OK</span>";
+        }else{
+            return "<span class='badge text-bg-danger'>N</span>";
+        }
     }
 
     public static function ifExist($id){

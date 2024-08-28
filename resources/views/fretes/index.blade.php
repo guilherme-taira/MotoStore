@@ -19,6 +19,7 @@
                             <th scope="col">Rastreio</th>
                             <th scope="col">Comprado</th>
                             <th scope="col">Aliexpress ID</th>
+                            <th scope="col">Rastreado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -27,9 +28,12 @@
                                 <td>{{ $shipping->id }}</td>
                                 <td>{{ $shipping->created_at }}</td>
                                 <td>{{ $shipping->id_mercadoLivre }}</td>
-                                <td> - </td>
-                                <td>{{$shipping->rastreio}}</td>
+                                <td> {!! App\Models\ShippingUpdate::getStatus($shipping->was_field) !!} </td>
+                                <td>{{ $shipping->rastreio }}</td>
                                 <td>{{ $shipping->updated_at }}</td>
+                                <td>{!! App\Models\ShippingUpdate::extrairNumeros($shipping->msg) !!}</td>
+                                <td>{!! App\Models\ShippingUpdate::getIntegrado($shipping->id_rastreio) !!}</td>
+
                             </tr>
                         @endforeach
                     </tbody>

@@ -17,7 +17,7 @@ class SendNotificationPraEntregaController extends SaiuPraEntregaController
 
     public function save(){
         if($this->saveMessage() == TRUE){
-            $this->notifyClient();
+            // $this->notifyClient();
         }
     }
 
@@ -61,19 +61,19 @@ class SendNotificationPraEntregaController extends SaiuPraEntregaController
                 /**
                  * CURL REQUISICAO -X GET
                  * **/
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $endpoint);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$userML->access_token}", "x-format-new: true"]);
-                $reponse = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                $json = json_decode($reponse);
-                Log::emergency($reponse);
+                // $ch = curl_init();
+                // curl_setopt($ch, CURLOPT_URL, $endpoint);
+                // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$userML->access_token}", "x-format-new: true"]);
+                // $reponse = curl_exec($ch);
+                // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                // curl_close($ch);
+                // $json = json_decode($reponse);
+                // Log::emergency($reponse);
 
     }
 }
