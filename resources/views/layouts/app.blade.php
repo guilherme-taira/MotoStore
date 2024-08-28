@@ -194,7 +194,7 @@
                                 </div>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="{{route('fretes.index')}}" data-bs-toggle="collapse"
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                             data-bs-target="#collapseFrete" aria-expanded="false" aria-controls="collapseFrete">
                             <div class="sb-nav-link-icon"><i class="bi bi-truck"></i></div>
                             Fretes
@@ -203,7 +203,7 @@
                         <div class="collapse" id="collapseFrete" aria-labelledby="headingOne"
                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="{{ route('products.index') }}">Listar Fretes</a>
+                                <a class="nav-link" href="{{route('fretes.index')}}">Listar Fretes</a>
                             </nav>
                         </div>
                         <div class="sb-sidenav-menu-heading">Planos</div>
