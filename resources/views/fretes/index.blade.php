@@ -5,8 +5,37 @@
 
     <div class="container-fluid px-4">
         <div class="card mt-2">
+
             <div class="card-header">
                 Fretes
+
+                <form action="" method="GET">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <input type="text" name="id" class="form-control" placeholder="ID">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" name="data" class="form-control" placeholder="Data">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" name="id_venda" class="form-control" placeholder="ID Venda">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-control">
+                                <option value="">Status</option>
+                                <option value="Aguardando">Aguardando</option>
+                                <option value="Foi encaminhado">Foi encaminhado</option>
+                                <!-- Adicione os outros status aqui -->
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" name="rastreio" class="form-control" placeholder="Rastreio">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-hover">
