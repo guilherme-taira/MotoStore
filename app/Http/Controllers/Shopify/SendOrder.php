@@ -71,7 +71,7 @@ class SendOrder extends Controller
                     "localizationExtensions" => [
                         [
                             "key" => "TAX_CREDENTIAL_BR",
-                            "value" => "INFORMAR"
+                            "value" => "77195411036"
                         ]
                     ]
                 ]
@@ -93,6 +93,7 @@ class SendOrder extends Controller
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
+        // Log::critical( $query);
         Log::alert($response);
         return $res;
     }
