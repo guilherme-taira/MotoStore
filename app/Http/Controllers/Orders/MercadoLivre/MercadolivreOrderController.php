@@ -139,8 +139,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                     } catch (\Throwable $th) {
                         // Deletar um registro específico
+                        FacadesLog::emergency("VENDA CANCELADA: " .  $json->id);
                         ShippingUpdate::where('id_mercadoLivre','=', $json->id)->delete();
-                        // FacadesLog::emergency($th->getMessage());
+                        FacadesLog::emergency($th->getMessage());
                     }
                     // FIM -*************
 
