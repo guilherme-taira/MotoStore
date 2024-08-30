@@ -21,11 +21,18 @@
                             <input type="text" name="id_venda" class="form-control" placeholder="ID Venda">
                         </div>
                         <div class="col-md-2">
-                            <select name="status" class="form-control">
-                                <option value="">Status</option>
-                                <option value="Aguardando">Aguardando</option>
-                                <option value="Foi encaminhado">Foi encaminhado</option>
-                                <!-- Adicione os outros status aqui -->
+                            <select name="status" id="status" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="default" {{ request()->get('status') == 'default' ? 'selected' : '' }}>Aguardando..</option>
+                                <option value="was_damaged" {{ request()->get('status') == 'was_damaged' ? 'selected' : '' }}>Foi danificado</option>
+                                <option value="was_delivered" {{ request()->get('status') == 'was_delivered' ? 'selected' : '' }}>Foi entregue</option>
+                                <option value="was_delivered_to_sender" {{ request()->get('status') == 'was_delivered_to_sender' ? 'selected' : '' }}>Foi devolvido ao remetente</option>
+                                <option value="was_forwarded" {{ request()->get('status') == 'was_forwarded' ? 'selected' : '' }}>Foi encaminhado</option>
+                                <option value="was_fulfilled" {{ request()->get('status') == 'was_fulfilled' ? 'selected' : '' }}>Foi realizado</option>
+                                <option value="was_misplaced" {{ request()->get('status') == 'was_misplaced' ? 'selected' : '' }}>Foi extraviado</option>
+                                <option value="was_refused" {{ request()->get('status') == 'was_refused' ? 'selected' : '' }}>Foi recusado</option>
+                                <option value="was_returned" {{ request()->get('status') == 'was_returned' ? 'selected' : '' }}>Foi devolvido</option>
+                                <option value="was_scheduled" {{ request()->get('status') == 'was_scheduled' ? 'selected' : '' }}>Foi agendado</option>
                             </select>
                         </div>
                         <div class="col-md-2">

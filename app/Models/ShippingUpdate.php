@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ShippingUpdate extends Model
 {
@@ -45,12 +46,40 @@ class ShippingUpdate extends Model
     }
 
 
-    public static function getDataByIdMeli($id){
-        $data = ShippingUpdate::where('id_vendedor', '=', $id)
+    public static function getDataByIdMeli(Request $request,$id){
+
+        $query = ShippingUpdate::query();
+
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+        if ($request->filled('data')) {
+            $query->whereDate('data', $request->data);
+        }
+        if ($request->filled('id_venda')) {
+            $query->where('id_venda', $request->id_venda);
+        }
+        if ($request->filled('status')) {
+            $query->where($request->status,1);
+        }
+        if ($request->filled('rastreio')) {
+            $query->where('rastreio', 'like', '%' . $request->rastreio . '%');
+        }
+        if ($request->filled('comprado')) {
+            $query->whereDate('comprado', $request->comprado);
+        }
+        if ($request->filled('aliexpress_id')) {
+            $query->where('aliexpress_id', 'like', '%' . $request->aliexpress_id . '%');
+        }
+        if ($request->filled('rastreado')) {
+            $query->where('rastreado', $request->rastreado);
+        }
+
+        $query = ShippingUpdate::where('id_vendedor', '=', $id)
         ->orderBy('id', 'desc')  // Substitua 'id' pelo campo que deseja ordenar
         ->paginate(100);
          // Modifica os itens do paginador, mantendo o objeto de paginação intacto
-        $data->getCollection()->transform(function ($item) {
+        $query->getCollection()->transform(function ($item) {
             // Inicializa uma variável para armazenar o campo 'was_' encontrado
             $wasField = null;
 
@@ -74,7 +103,7 @@ class ShippingUpdate extends Model
             return $item;
         });
 
-        return $data;
+        return $query;
     }
 
 
