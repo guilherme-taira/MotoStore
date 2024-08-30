@@ -15,7 +15,7 @@ class SaiuPraEntregaMainController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $viewData = [];
         $viewData['title'] = "Fretes";
@@ -25,7 +25,7 @@ class SaiuPraEntregaMainController extends Controller
 
         if($id){
             // Array para armazenar as chaves dos campos que possuem valor 1
-            $viewData['shipping'] = ShippingUpdate::getDataByIdMeli($id->user_id_mercadolivre);
+            $viewData['shipping'] = ShippingUpdate::getDataByIdMeli($request,$id->user_id_mercadolivre);
         }else{
             $viewData['shipping'] = collect();
         }

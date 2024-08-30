@@ -29,6 +29,7 @@ use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
 use Aws\Token\Token as TokenToken;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -120,26 +121,26 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(ShippingUpdate::ifExist($json->id)){
 
-                            $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
+                                $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
 
-                            $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                            ,$dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
-                            $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
-                            $dados['province_code'],$dados['cpf']);
-                            $nota = $json->id . " - " .$json->buyer->nickname;
-                            $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($getLink->email) ? $getLink->email : uniqid("cliente")."@gmail.com");
-                                // Print the order object to verify its structure
-                                $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                                $id_shopifyOrder = $data->resource();
-                                // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
-                                \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id);
-
+                                $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
+                                ,$dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
+                                $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
+                                $dados['province_code'],$dados['cpf']);
+                                $nota = $json->id . " - " .$json->buyer->nickname;
+                                $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($getLink->email) ? $getLink->email : uniqid("cliente")."@gmail.com");
+                                    // Print the order object to verify its structure
+                                    $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
+                                    $id_shopifyOrder = $data->resource();
+                                    // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
+                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id)->delay(Carbon::now()->addSeconds(30));
                             }
-
                         }
 
                     } catch (\Throwable $th) {
-                        FacadesLog::emergency($th->getMessage());
+                        // Deletar um registro específico
+                        ShippingUpdate::where('id_mercadoLivre','=', $json->id)->delete();
+                        // FacadesLog::emergency($th->getMessage());
                     }
                     // FIM -*************
 
