@@ -12,6 +12,7 @@ use App\Http\Controllers\Shopify\ShippingController;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -131,7 +132,7 @@ class MercadoPagoNotification extends Controller
                         \App\Jobs\MercadoPagoPagamentos::dispatch($request->id);
                         break;
                         case 'orders_v2':
-                            \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);
+                            \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(80));
                             break;
                             case 'items':
                             //    \App\Jobs\productMercadoLivreController::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);

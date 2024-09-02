@@ -34,6 +34,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log as FacadesLog;
+use Illuminate\Support\Facades\Redis;
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
 {
@@ -121,7 +122,16 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(ShippingUpdate::ifExist($json->id)){
 
+                                $redisKey = 'shipping_update_' . $json->id;
+
+                                if (Redis::get($redisKey)) {
+                                    return; // Registro já processado recentemente, não processar novamente
+                                }
+
                                 $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
+
+                                // Marcar como processado com tempo de expiração, por exemplo, 10 minutos
+                                Redis::set($redisKey, true, 'EX', 1200);
 
                                 $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
                                 ,$dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],

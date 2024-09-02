@@ -23,7 +23,6 @@
                         <div class="col-md-2">
                             <select name="status" id="status" class="form-control">
                                 <option value="">Todos</option>
-                                <option value="default" {{ request()->get('status') == 'default' ? 'selected' : '' }}>Aguardando..</option>
                                 <option value="was_damaged" {{ request()->get('status') == 'was_damaged' ? 'selected' : '' }}>Foi danificado</option>
                                 <option value="was_delivered" {{ request()->get('status') == 'was_delivered' ? 'selected' : '' }}>Foi entregue</option>
                                 <option value="was_delivered_to_sender" {{ request()->get('status') == 'was_delivered_to_sender' ? 'selected' : '' }}>Foi devolvido ao remetente</option>
