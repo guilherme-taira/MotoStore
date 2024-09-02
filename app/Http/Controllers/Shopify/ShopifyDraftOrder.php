@@ -30,15 +30,6 @@ class ShopifyDraftOrder extends Controller
     {
 
       try {
-         // URL PARA REQUISICAO
-        //  $endpoint = $this->getGetLink()->name_loja . $resource;
-
-        //  $ch = curl_init();
-        //  curl_setopt($ch, CURLOPT_URL, $endpoint);
-        //  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        //  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        //  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        //  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $query = '{
             "query": "mutation draftOrderComplete($id: ID!) { draftOrderComplete(id: $id) { draftOrder { id order { id name } } userErrors { field message } } }",

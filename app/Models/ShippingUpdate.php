@@ -46,8 +46,8 @@ class ShippingUpdate extends Model
     }
 
 
-    public static function getDataByIdMeli(Request $request,$id){
-
+    public static function getDataByIdMeli(Request $request, $id)
+    {
         $query = ShippingUpdate::query();
 
         if ($request->filled('id')) {
@@ -57,10 +57,10 @@ class ShippingUpdate extends Model
             $query->whereDate('data', $request->data);
         }
         if ($request->filled('id_venda')) {
-            $query->where('id_venda', $request->id_venda);
+            $query->where('id_mercadoLivre', $request->id_venda);
         }
         if ($request->filled('status')) {
-            $query->where($request->status,1);
+            $query->where($request->status, 1);
         }
         if ($request->filled('rastreio')) {
             $query->where('rastreio', 'like', '%' . $request->rastreio . '%');
@@ -75,11 +75,12 @@ class ShippingUpdate extends Model
             $query->where('rastreado', $request->rastreado);
         }
 
-        $query = ShippingUpdate::where('id_vendedor', '=', $id)
-        ->orderBy('id', 'desc')  // Substitua 'id' pelo campo que deseja ordenar
-        ->paginate(100);
-         // Modifica os itens do paginador, mantendo o objeto de paginação intacto
-        $query->getCollection()->transform(function ($item) {
+        $paginator = $query->where('id_vendedor', '=', $id)
+            ->orderBy('id', 'desc')  // Substitua 'id' pelo campo que deseja ordenar
+            ->paginate(100);
+
+        // Modifica os itens do paginador, mantendo o objeto de paginação intacto
+        $paginator->getCollection()->transform(function ($item) {
             // Inicializa uma variável para armazenar o campo 'was_' encontrado
             $wasField = null;
 
@@ -97,14 +98,15 @@ class ShippingUpdate extends Model
 
             // Adicione o campo encontrado ao array de atributos
             if ($wasField) {
-                $item->setAttribute('was_field',$wasField);
+                $item->setAttribute('was_field', $wasField);
             }
 
             return $item;
         });
 
-        return $query;
+        return $paginator;
     }
+
 
 
     public static function extrairNumeros($texto) {
