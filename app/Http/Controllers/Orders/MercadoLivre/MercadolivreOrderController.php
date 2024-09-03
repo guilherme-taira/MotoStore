@@ -144,7 +144,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                     $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
                                     $id_shopifyOrder = $data->resource();
                                     // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
-                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id)->delay(Carbon::now()->addSeconds(30));
+                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id)->delay(Carbon::now()->addSeconds(10));
                             }
                         }
 
