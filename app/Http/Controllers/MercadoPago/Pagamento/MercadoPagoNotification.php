@@ -132,7 +132,7 @@ class MercadoPagoNotification extends Controller
                         \App\Jobs\MercadoPagoPagamentos::dispatch($request->id);
                         break;
                         case 'orders_v2':
-                            \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(80));
+                            \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
                             break;
                             case 'items':
                             //    \App\Jobs\productMercadoLivreController::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);
