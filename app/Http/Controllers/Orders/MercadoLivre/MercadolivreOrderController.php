@@ -125,6 +125,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $redisKey = 'shipping_update_' . $json->id;
 
                                 if (Redis::get($redisKey)) {
+                                    FacadesLog::debug("JA EXISTE CHAVE : " . $json->id);
                                     return; // Registro já processado recentemente, não processar novamente
                                 }
 
