@@ -14,10 +14,10 @@
                         <div class="col-md-2">
                             <input type="text" name="id" class="form-control" placeholder="ID">
                         </div>
-                        <div class="col-md-2">
-                            <input type="text" name="data" class="form-control" placeholder="Data">
+                        <div class="col-md-3">
+                            <input type="text" id="daterange" class="form-control">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <input type="text" name="id_venda" class="form-control" placeholder="ID Venda">
                         </div>
                         <div class="col-md-2">
@@ -37,7 +37,8 @@
                         <div class="col-md-2">
                             <input type="text" name="rastreio" class="form-control" placeholder="Rastreio">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mt-4">
+                            <button><i class="bi bi-file-earmark-spreadsheet"></i></button>
                             <button type="submit" class="btn btn-primary">Filtrar</button>
                         </div>
                     </div>
@@ -81,17 +82,56 @@
 
     </div>
     {{-- AJAX JQUERY SEARCH --}}
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
 
 
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
+    <!-- DateRangePicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+
     <script>
         $(document).ready(function() {
 
+            function getCurrentDate() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
+                const day = String(today.getDate()).padStart(2, '0');
 
+                return `${year}-${month}-${day}`;
+            }
+
+            // Função para obter a data de ontem no formato YYYY-MM-DD
+            function getYesterdayDate() {
+                const today = new Date();
+                today.setDate(today.getDate() - 7);
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+             // Inicializando o daterangepicker
+             $('#daterange').daterangepicker({
+                opens: 'left',
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                autoUpdateInput: true, // Atualiza o input automaticamente
+                startDate: moment().startOf('month'),
+                endDate: moment().endOf('month')
+            }, function(start, end, label) {
+                // Função de callback
+                console.log("Início: " + start.format('YYYY-MM-DD') + " Fim: " + end.format('YYYY-MM-DD'));
+            });
+
+
+            $('#daterange').val(moment().startOf('month').format('YYYY-MM-DD') + ' - ' + moment().endOf('month').format('YYYY-MM-DD'));
         });
     </script>
 

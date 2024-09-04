@@ -76,8 +76,7 @@ class MercadoPagoNotification extends Controller
 
             // PEGA OS DADOS DO PEDIDO
             $shopifyData = ShippingUpdate::where('id_shopify','=',$request->id)->first();
-
-            Log::alert(json_encode($shopifyData));
+            // Log::alert(json_encode($shopifyData));
             if(count($request->fulfillments) > 0){
                 $setShipping = new ShippingController($shopifyData,$request->fulfillments);
                 $setShipping->setShipping();
@@ -94,6 +93,7 @@ class MercadoPagoNotification extends Controller
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id);
                     $noteSend->send();
                 }else if($shopifyData->rastreio != NULL && $shopifyData->observacaomeli == "X"){
+                    Log::alert("ATUALIZOU O RASTREIO NO ML");
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id,$shopifyData->id_meli);
                     $noteSend->send();
 
