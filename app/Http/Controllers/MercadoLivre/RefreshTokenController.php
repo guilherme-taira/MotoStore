@@ -33,7 +33,7 @@ class RefreshTokenController extends Controller
 
     public function get($resource)
     {
-        Log::critical("TESTE PRA VER SE SOBE O RASTREIO NO MERCADO LIVRE");
+
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
         $acesso = token::where('user_id_mercadolivre', $this->getUserId())->first();
 
