@@ -83,7 +83,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
