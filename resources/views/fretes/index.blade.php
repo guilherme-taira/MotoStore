@@ -48,8 +48,8 @@
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
                             <th scope="col">Data</th>
+                            <th scope="col">Shopify</th>
                             <th scope="col">ID Venda</th>
                             <th scope="col">Status</th>
                             <th scope="col">Rastreio</th>
@@ -61,8 +61,8 @@
                     <tbody>
                         @foreach ($viewData['shipping'] as $shipping)
                             <tr id="linhasProduct">
-                                <td>{{ $shipping->id }}</td>
                                 <td>{{ $shipping->created_at }}</td>
+                                <td>{{ $shipping->id_shopify }}</td>
                                 <td>{{ $shipping->id_mercadoLivre }}</td>
                                 <td> {!! App\Models\ShippingUpdate::getStatus($shipping->was_field) !!} </td>
                                 <td>{{ $shipping->rastreio }}</td>

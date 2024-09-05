@@ -93,10 +93,9 @@ class MercadoPagoNotification extends Controller
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id);
                     $noteSend->send();
                 }else if($shopifyData->rastreio != NULL && $shopifyData->observacaomeli == "X"){
-                    Log::alert("ATUALIZOU O RASTREIO NO ML");
+                    Log::alert("ATUALIZOU O RASTREIO NO ML " . $shopifyData->rastreio);
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id,$shopifyData->id_meli);
                     $noteSend->send();
-
                     //** ENVIAR SAIU PARA ENTREGA RASTREIO*/
                    \App\Jobs\sendRastreioSaiuPraEnrega::dispatch($shopifyData->rastreio);
                 }
