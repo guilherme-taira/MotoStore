@@ -25,6 +25,7 @@ class SaiuPraEntregaService extends Controller
                         ->acceptJson()
                         ->post("{$this->baseUrl}/packages", $data);
         if(isset($response['data']['id'])){
+            Log::alert("ENTROU NO DATA ID NA CRIACAO DO RASTREIO: > ");
             $this->setFields($response['data']['id'],$data['tracking_code']);
         }
         Log::alert($response->json());
@@ -34,7 +35,7 @@ class SaiuPraEntregaService extends Controller
     public function setFields($id,$traking){
 
         $data = [
-            'id_rastreio' => $id
+            'id_rastreio' => $id,
         ];
 
         // Condições para encontrar o registro
