@@ -41,7 +41,6 @@ class MercadoPagoNotification extends Controller
     }
 
     public function GetType(Request $request){
-
         $object = json_decode(json_encode($request->data));
         switch ($request->event) {
             case 'event.created':
@@ -96,8 +95,7 @@ class MercadoPagoNotification extends Controller
                     Log::alert("ATUALIZOU O RASTREIO NO ML " . $shopifyData->rastreio);
                     $noteSend = new ImplementSendNoteOrderClient($shopifyData->id_mercadoLivre, "Pedido - ".  $nota . " - " . $shopifyData->rastreio, $shopifyData->id_vendedor,$shopifyData->id,$shopifyData->id_meli);
                     $noteSend->send();
-                    //** ENVIAR SAIU PARA ENTREGA RASTREIO*/
-                   \App\Jobs\sendRastreioSaiuPraEnrega::dispatch($shopifyData->rastreio);
+
                 }
             }
         }

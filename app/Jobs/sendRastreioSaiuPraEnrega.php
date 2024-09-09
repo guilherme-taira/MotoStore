@@ -75,7 +75,7 @@ class sendRastreioSaiuPraEnrega implements ShouldQueue
 
     function iniciaComCNouCANI($string) {
         // Verifica se a string começa com "CN" ou "CANI"
-        return strpos($string, 'CN') === 0 || strpos($string, 'CANI') === 0;
+        return strpos($string, 'CN') === 0 || strpos($string, 'CANI') === 0 || strpos($string, 'LP') === 0;
     }
 
 }
