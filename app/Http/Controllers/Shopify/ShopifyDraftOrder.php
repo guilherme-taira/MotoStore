@@ -38,6 +38,9 @@ class ShopifyDraftOrder extends Controller
             }
         }';
 
+        $lastVerify = ShippingUpdate::where('id_mercadoLivre','=',$this->getMercadoLivreId())->first();
+        if(!$lastVerify->id_shopify){
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getGetLink()->name_loja."graphql.json");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -51,6 +54,9 @@ class ShopifyDraftOrder extends Controller
          // SALVAR OS DADOS DO PEDIDO
           $this->storeShipping($this->extractNumberFromGid($res->data->draftOrderComplete->draftOrder->order->id),$this->getMercadoLivreId(),$this->getComprador(),$this->getSeller());
          Log::debug($response);
+        }else{
+            Log::critical("TENTOU DUPLICAR PEDIDO : " . $this->getMercadoLivreId());
+        }
       } catch (\Throwable $th) {
          Log::emergency($th->getMessage());
       }

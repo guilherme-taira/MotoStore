@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        // Agendar o comando para rodar a cada 5 minutos
+         $schedule->command('processar:pedidos-sem-rastreio')->everyFiveMinutes();
     }
 
     /**

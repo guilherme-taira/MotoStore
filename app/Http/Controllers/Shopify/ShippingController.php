@@ -11,12 +11,16 @@ class ShippingController extends setShippingController
 {
     public function setShipping(){
 
-        foreach ($this->getData() as $key => $fulfillment) {
+        foreach ($this->getData() as $fulfillment) {
           $data = [
             'rastreio' => $fulfillment['tracking_number'],
             'url_rastreio' => $fulfillment['tracking_url'],
-        ];
+            ];
+            //** ENVIAR SAIU PARA ENTREGA RASTREIO*/
+            \App\Jobs\sendRastreioSaiuPraEnrega::dispatch($fulfillment['tracking_number']);
         }
+
+
 
         // Condições para encontrar o registro
         $conditions = [
