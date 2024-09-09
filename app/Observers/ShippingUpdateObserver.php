@@ -27,6 +27,11 @@ class ShippingUpdateObserver
             'was_refused',
             'was_returned',
             'was_scheduled',
+            'is_address_not_found',
+            'is_awaiting_withdrawal',
+            'is_delivery_attempt_failed',
+            'is_out_for_delivery',
+            'is_waiting_tax_payment'
         ];
 
         // Identifique o campo que foi modificado

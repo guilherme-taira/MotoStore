@@ -36,7 +36,12 @@ class ShippingUpdate extends Model
         'was_refused',
         'was_returned',
         'was_scheduled',
-        'id_rastreio'
+        'id_rastreio',
+        'is_address_not_found',
+        'is_awaiting_withdrawal',
+        'is_delivery_attempt_failed',
+        'is_out_for_delivery',
+        'is_waiting_tax_payment'
     ];
 
     public static function getDataById($id){
@@ -94,6 +99,11 @@ class ShippingUpdate extends Model
                     $wasField = $key;
                     break; // Sai do loop assim que encontrar o primeiro campo com valor 1
                 }
+                if (strpos($key, 'is_') === 0 && $value == 1) {
+                    // Define o campo encontrado
+                    $wasField = $key;
+                    break; // Sai do loop assim que encontrar o primeiro campo com valor 1
+                }
             }
 
             // Adicione o campo encontrado ao array de atributos
@@ -118,6 +128,7 @@ class ShippingUpdate extends Model
 
 
     public static function getStatus($status){
+
         $array = [
             'was_damaged' => "<span class='badge text-bg-danger'>Foi danificado</span>",
             'was_delivered' => "<span class='badge text-bg-success'>Foi entregue</span>",
@@ -128,9 +139,13 @@ class ShippingUpdate extends Model
             'was_refused' => "<span class='badge text-bg-dark'>Foi recusado</span>",
             'was_returned' => "<span class='badge text-bg-light'>Foi devolvido</span>",
             'was_scheduled' => "<span class='badge text-bg-muted'>Foi agendado</span>",
+            'is_address_not_found' => "<span class='badge text-bg-danger'>Endereço não encontrado</span>",
+            'is_awaiting_withdrawal' => "<span class='badge text-bg-warning'>Aguardando retirada</span>",
+            'is_delivery_attempt_failed' => "<span class='badge text-bg-danger'>Tentativa de entrega falhou</span>",
+            'is_out_for_delivery' => "<span class='badge text-bg-info'>Saiu para entrega</span>",
+            'is_waiting_tax_payment' => "<span class='badge text-bg-secondary'>Aguardando pagamento de taxas</span>",
             '' => "<span class='badge text-bg-warning'>Aguardando..</span>"
         ];
-
 
         foreach ($array as $key => $value) {
             if($key == $status){
