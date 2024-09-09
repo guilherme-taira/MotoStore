@@ -32,8 +32,14 @@
                                 <option value="was_refused" {{ request()->get('status') == 'was_refused' ? 'selected' : '' }}>Foi recusado</option>
                                 <option value="was_returned" {{ request()->get('status') == 'was_returned' ? 'selected' : '' }}>Foi devolvido</option>
                                 <option value="was_scheduled" {{ request()->get('status') == 'was_scheduled' ? 'selected' : '' }}>Foi agendado</option>
+                                <option value="is_address_not_found" {{ request()->get('status') == 'is_address_not_found' ? 'selected' : '' }}>Endereço não encontrado</option>
+                                <option value="is_awaiting_withdrawal" {{ request()->get('status') == 'is_awaiting_withdrawal' ? 'selected' : '' }}>Aguardando retirada</option>
+                                <option value="is_delivery_attempt_failed" {{ request()->get('status') == 'is_delivery_attempt_failed' ? 'selected' : '' }}>Tentativa de entrega falhou</option>
+                                <option value="is_out_for_delivery" {{ request()->get('status') == 'is_out_for_delivery' ? 'selected' : '' }}>Saiu para entrega</option>
+                                <option value="is_waiting_tax_payment" {{ request()->get('status') == 'is_waiting_tax_payment' ? 'selected' : '' }}>Aguardando pagamento de taxas</option>
                             </select>
                         </div>
+
                         <div class="col-md-2">
                             <input type="text" name="rastreio" class="form-control" placeholder="Rastreio">
                         </div>
@@ -69,7 +75,6 @@
                                 <td>{{ $shipping->updated_at }}</td>
                                 <td>{!! App\Models\ShippingUpdate::extrairNumeros($shipping->msg) !!}</td>
                                 <td>{!! App\Models\ShippingUpdate::getIntegrado($shipping->id_rastreio) !!}</td>
-
                             </tr>
                         @endforeach
                     </tbody>

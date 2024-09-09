@@ -46,7 +46,9 @@ class MercadoPagoNotification extends Controller
             case 'event.created':
                     $msg = "Informamos que seu produto já chegou na/em ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
                     $transferencia = $this->containsTransferencia($request->all()['data']['current']['status']);
-                    if($transferencia){
+                    if($request['data']['current']['was_delivered'] == true){
+                        $msg = "Informamos que seu produto esta em trajeto até você. Obrigado pela confiança!";
+                    }else if($transferencia){
                         $msg = "Informamos que seu produto esta em tranferência da ".$request->all()['data']['current']['unit_name']." e em breve continuará o trajeto até você. Obrigado pela confiança!";
                     }
 
