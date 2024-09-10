@@ -39,7 +39,7 @@ class ShopifyDraftOrder extends Controller
         }';
 
         $lastVerify = ShippingUpdate::where('id_mercadoLivre','=',$this->getMercadoLivreId())->first();
-        if(!$lastVerify->id_shopify){
+        if($lastVerify->id_shopify == "D"){
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getGetLink()->name_loja."graphql.json");
