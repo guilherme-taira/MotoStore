@@ -15,7 +15,7 @@ class AddNewFieldsToShippingUpdatesTable extends Migration
         Schema::table('shipping_updates', function (Blueprint $table) {
             $table->boolean('is_address_not_found')->default(false);
             $table->boolean('is_awaiting_withdrawal')->default(false);
-            $table->boolean('is_delivery_attempt_failed')->default(true);
+            $table->boolean('is_delivery_attempt_failed')->default(false);
             $table->boolean('is_out_for_delivery')->default(false);
             $table->boolean('is_waiting_tax_payment')->default(false);
         });
