@@ -38,6 +38,7 @@ use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
+use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
@@ -1391,6 +1392,28 @@ class productsController extends Controller
         return response()->json($imageUrls);
     }
 
+    public function getVisits(Request $request){
+
+        $dataAtual = new DateTime();
+        $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", '38');
+        $newToken->resource();
+
+        try {
+
+            $context = stream_context_create([
+                "http" => [
+                    "header" => "Authorization: Bearer $request->access_token"
+                ]
+            ]);
+
+            $response = file_get_contents("https://api.mercadolibre.com/items/{$request->item}/visits/time_window?last=60&unit=day&ending={$request->currentDate}",false,$context);
+
+            return response($response)->header('Content-Type', 'application/json');  // Certifique-se de que o PHP retorne JSON puro
+
+            } catch (\Exception $e) {
+                return response()->json($e->getMessage());
+            }
+    }
 
     public function destroyFotoS3(Request $request){{
         try {
