@@ -181,7 +181,8 @@ class productsController extends Controller
         $produto->price = $request->price;
         $produto->title = $request->name;
         $produto->description = $request->description;
-        $produto->available_quantity = 10;
+        $produto->available_quantity = $request->stock;
+        $produto->priceWithFee = $request->PriceWithFee;
         // Categoria Principal Removido da inserção
         //$produto->categoria = $produto::getIdPrincipal($request->categoria);
         $produto->category_id = $request->id_categoria;
@@ -534,7 +535,6 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $request->validate([
             "name" => "required|max:255",
             "description" => "required",
@@ -555,12 +555,13 @@ class productsController extends Controller
         ]);
 
         $produto = Products::findOrFail($id);
-        $preco =  $produto->price > $request->PriceWithFee ? $produto->price : $produto->pricePromotion;
+        $preco =  $produto->price;
         $newpreco =  $request->PriceWithFee;
         if($produto){
             (new updatePriceSiteController($preco,$newpreco,$produto))->vericaPreco();
         }
 
+        $produto->priceWithFee = $request->PriceWithFee;
         $produto->setTitle($request->input('name'));
         // $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
@@ -1398,11 +1399,13 @@ class productsController extends Controller
         $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", '38');
         $newToken->resource();
 
+        // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
+        $acesso = token::where('user_id','38')->first();
         try {
 
             $context = stream_context_create([
                 "http" => [
-                    "header" => "Authorization: Bearer $request->access_token"
+                    "header" => "Authorization: Bearer $acesso->access_token"
                 ]
             ]);
 

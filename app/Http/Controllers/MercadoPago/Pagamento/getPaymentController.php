@@ -50,7 +50,7 @@ class getPaymentController extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         curl_close($ch);
-
+        Log::critical($response);
         if($httpCode == '400'){
             order_site::where('external_reference',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){

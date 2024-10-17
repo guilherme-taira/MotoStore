@@ -41,7 +41,7 @@ class GetTokenForApi extends Controller
         return response()->json(["token" => $token->access_token]);
     }
 
-    public function getUserID(Request $request){
+    public function hgetUserID(Request $request){
         $token = token::where("user_id", $request->id)->first();
         return response()->json(["user" => $token->user_id_mercadolivre]);
     }
