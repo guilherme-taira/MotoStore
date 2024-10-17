@@ -114,7 +114,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
 
-                    FacadesLog::debug(json_encode($dados));
+                    // FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
