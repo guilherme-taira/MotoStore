@@ -166,7 +166,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                     )->delay(Carbon::now()->addSeconds(10));
 
                                 } else {
-                                    FacadesLog::debug("Chave já existente: " . $json->id);
+                                    // FacadesLog::debug("Chave já existente: " . $json->id);
                                     return; // Registro já processado recentemente, não processar novamente
                                 }
                             }
@@ -216,12 +216,11 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
-                                $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
+                                // $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
 
 
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-
                             }else{
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
