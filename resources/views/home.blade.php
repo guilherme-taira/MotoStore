@@ -188,7 +188,7 @@
             var idUser = $("#id_user").val();
 
             $.ajax({
-                url: 'http://127.0.0.1:8000/api/v1/sales-data',
+                url: 'https://afilidrop.com.br/api/v1/sales-data',
                 method: 'GET',
                 data: {
                     'dataInicial': getYesterdayDate(),
@@ -265,7 +265,7 @@
                 //APAGAR A FOTO ROTA POST /
                 var idUser = $("#id_user").val();
                 $.ajax({
-                    url: 'http://127.0.0.1:8000/api/v1/sales-data',
+                    url: 'https://afilidrop.com.br/api/v1/sales-data',
                     method: 'GET',
                     data: {
                         'dataInicial': start.format('YYYY-MM-DD'),
@@ -309,7 +309,7 @@
                 var idUser = $("#id_user").val();
                 $.ajax({
                     type: "POST",
-                    url: "http://127.0.0.1:8000/api/v1/dataHome",
+                    url: "https://afilidrop.com.br/api/v1/dataHome",
                     data: {
                         'user': idUser
                     },
