@@ -158,7 +158,7 @@ class order_site extends Model
     public static function getOrderjoin($id)
     {
         $data = DB::table('pivot_site')
-            // ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
             ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
             // ->join('products', 'product_site.seller_sku', '=', 'products.id')

@@ -21,14 +21,14 @@
 
 
 
-            <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data"  class="needs-validation">
                 @csrf
                 <div class="row mt-4">
                     <div class="col">
                         <div class="mb-3 row">
                             <label class="col-lg-2 col-md-4 col-sm-12 col-form-label">Image:</label>
                             <div class="col-lg-10 col-md-6 col-sm-12">
-                                <input class="form-control" type="file" id="file" name="photos[]" multiple>
+                                <input class="form-control" type="file" id="file" name="photos[]" multiple required>
                                 @error('photos')
                                     <span class="badge text-bg-danger">Foto é um campo Obrigatório.</span>
                                 @enderror
@@ -40,74 +40,7 @@
                 <div id="imagePreview" class="image-container-preview"></div>
                 <div id="image-count"></div>
                 <!--- MODAL QUE SELECIONA O MOTORISTA --->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-dark" id="exampleModalLabel">Tarifa Plataforma <i
-                                        class="bi bi-money"></i>
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
 
-                            <div class="modal-body">
-                                <div class="col-md-12">
-
-                                    <div class="col-md-12">
-                                        <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
-                                        <div class="col">
-                                            <div class="mb-3 row">
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoP" class="form-control porcem">
-                                                </div>
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoR" type="text" class="form-control porcem">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-md-12">
-                                        <div class="col">
-                                            <div class="mb-3 row">
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="price" id="precoFinal" value="{{ old('price') }}"
-                                                        type="text" class="form-control">
-                                                </div>
-
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="fee" id="precoLiquido" type="text"
-                                                        class="form-control">
-                                                </div>
-
-                                                <hr class="mt-4">
-                                                <label class="col-lg-4 col-md-3 col-sm-12 col-form-label">Taxa %: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="taxaFee" id="taxaFee" type="text" value="4.99"
-                                                        class="form-control">
-                                                </div>
-
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="PriceWithFee" id="PriceWithFee" type="text"
-                                                        class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="spinner-overlay d-none" id="loading-api">
                     <div class="spinner-border spinner-big text-light" role="status">
@@ -137,12 +70,12 @@
                     <div class="col-lg-2">
                         <label>Valor Termômetro <i class="bi bi-speedometer"></i></label>
                         <input type="number" name="termometro" id="termometro" value="{{ old('termometro') }}"
-                            min="0" max="150" class="form-control">
+                            min="0" max="150" value="0" class="form-control">
                     </div>
 
                     <div class="col-lg-2">
                         <label>Marca :</label>
-                        <input name="brand" type="text" value="{{ old('brand') }}" class="form-control">
+                        <input name="brand" type="text" value="{{ old('brand') }}" class="form-control" required>
                     </div>
                 </div>
 
@@ -151,7 +84,7 @@
                         <div class="mb-3 row mt-2">
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
                             <div class="col-lg-10 col-md-6 col-sm-12">
-                                <input name="name" type="text" value="{{ old('name') }}" class="form-control">
+                                <input name="name" type="text" value="{{ old('name') }}" class="form-control" required>
                             </div>
                         </div>
                     </div>
@@ -161,7 +94,7 @@
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço R$:</label>
                             <div class="col-lg-3 col-md-6 col-sm-12">
                                 <input name="price" id="precoNormal" value="{{ old('price') }}" type="text"
-                                    class="form-control">
+                                    class="form-control" required>
                                 @error('price')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -169,7 +102,7 @@
 
                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Estoque:</label>
                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="stock" type="number" value="{{ old('stock') }}" class="form-control">
+                                <input name="stock" type="number" value="{{ old('stock') }}" class="form-control" required>
                             </div>
                         </div>
                     </div>
@@ -184,25 +117,25 @@
 
                             <div class="col-lg-3">
                                 <label>GTIN / EAN :</label>
-                                <input name="ean" value="{{ old('ean') }}" class="form-control">
+                                <input name="ean" value="{{ old('ean') }}" class="form-control" required>
                             </div>
 
 
                             <div class="col-lg-1">
                                 <label>Largura: </label>
-                                <input name="width" value="{{ old('width') }}" class="form-control">
+                                <input name="width" value="{{ old('width') }}" class="form-control" required>
                             </div>
 
 
                             <div class="col-lg-1">
                                 <label>Altura: </label>
-                                <input name="height" value="{{ old('height') }}" class="form-control">
+                                <input name="height" value="{{ old('height') }}" class="form-control" required>
                             </div>
 
 
                             <div class="col-lg-2">
                                 <label>Comprimento: </label>
-                                <input name="length" value="{{ old('length') }}" class="form-control">
+                                <input name="length" value="{{ old('length') }}" class="form-control" required>
                             </div>
 
                             <div class="col-lg-3">
@@ -216,14 +149,13 @@
 
 
                             <div class="col-lg-3">
-                                <label >Categoria Mercado Livre:</label>
-                                <select class="form-select" id="categorias" aria-label="Default select example">
+                                <label>Categoria Mercado Livre:</label>
+                                <select class="form-select" id="categorias" aria-label="Default select example" required>
                                     <option selected disabled>Selecionar</option>
                                 </select>
                             </div>
 
-                            <input type="hidden" class="form-control" name="id_categoria"
-                            id="id_categoria">
+                            <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
 
 
                             <div class="col-md-4">
@@ -238,53 +170,96 @@
 
                         <div class="row mb-3">
 
-                                <label for="categoria">Categorias:</label>
-                                <select class="form-select mt-2" name="categoria" id="categoria" required
-                                    aria-label="Default select example">
-                                    @foreach ($viewData['categorias'] as $categoria)
-                                        <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
-                                        @foreach ($categoria['subcategory'] as $subcategoria)
-                                            <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}
-                                            </option>
-                                        @endforeach
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col col-lg-4">
-                                <label>Fornecedor</label>
-                                <select name="fornecedor" class="form-control mt-2" required>
-                                    @foreach ($viewData['fornecedor'] as $fornecedor)
-                                        <option class="bg-warning" value="{{ $fornecedor->id }}">{{ $fornecedor->name }}
+                            <label for="categoria">Categorias:</label>
+                            <select class="form-select mt-2" name="categoria" id="categoria" required
+                                aria-label="Default select example">
+                                @foreach ($viewData['categorias'] as $categoria)
+                                    <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
+                                    @foreach ($categoria['subcategory'] as $subcategoria)
+                                        <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}
                                         </option>
                                     @endforeach
-                                </select>
-                            </div>
-
-
-                            <div class="col col-lg-2">
-                                <label>Tarifa</label>
-                                <select name="feeClass" class="form-control mt-2" id="feeClass" required>
-                                    <option selected>selecione..</option>
-                                    <option value="1" data-bs-toggle="modal" data-bs-target="#exampleModal">Calcular
-                                </select>
-                                @error('PriceWithFee')
-                                    <span class="badge text-bg-danger">Preencha as taxas em calcular!</span>
-                                @enderror
-                            </div>
-
-                            <div class="col col-lg-2">
-                                <div id="inputContainer"></div>
-                            </div>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col col-lg-4">
+                            <label>Fornecedor</label>
+                            <select name="fornecedor" class="form-control mt-2" required>
+                                @foreach ($viewData['fornecedor'] as $fornecedor)
+                                    <option class="bg-warning" value="{{ $fornecedor->id }}">{{ $fornecedor->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
 
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" rows="3">{{ old('description') }}</textarea>
+                        <div class="col-md-12 mt-3">
+                            <h3>Taxas</h3>
+                            <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                            <div class="col">
+                                <div class="mb-3 row">
+                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                        <input id="acressimoP" class="form-control porcem">
+                                    </div>
+                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                        <input id="acressimoR" type="text" class="form-control porcem">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-primary">Atualizar <i class="bi bi-hdd"></i></button>
+
+                        <div class="col-md-12">
+                            <div class="col">
+                                <div class="mb-3 row">
+                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
+                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                        <input name="price" id="precoFinal" value="{{ old('price') }}"
+                                            type="text" class="form-control" disabled>
+                                    </div>
+
+                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                        <input name="fee" id="precoLiquido" type="text" class="form-control" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="col">
+                                        <div class="mb-3 row">
+
+                                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Taxa %: </label>
+                                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                                <input name="taxaFee" id="taxaFee" type="text" value="4.99"
+                                                    class="form-control" disabled>
+                                            </div>
+
+                                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final: </label>
+                                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                                <input name="PriceWithFee" id="PriceWithFee" type="text"
+                                                    class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="col col-lg-2">
+                        <div id="inputContainer"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Descrição:</label>
+                    <textarea required class="form-control" name="description" rows="3">{{ old('description') }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Cadastrar <i class="bi bi-hdd"></i></button>
+                </div>
             </form>
         </div>
     </div>
@@ -294,109 +269,38 @@
     <script>
         $(document).ready(function() {
 
-        var i = 0;
+            var i = 0;
 
-        //
-        $.ajax({
-            url: "https://api.mercadolibre.com/sites/MLB/categories",
-            type: "GET",
-            success: function(response) {
-                if (response) {
-                    // SHOW ALL RESULT QUERY
-                    var index = [];
-                    $.each(response, function(i, item) {
-                        index[i] = '<option class="option-size" value=' + item.id + '>' +
-                            item.name + '</option>';
-                    });
-
-                    if (i == 0) {
-                        // PEGA A ALTERACAO DAS CATEGORIAS
-                        $("#categorias").change(function() {
-                            var ids = $(this).children("option:selected").val();
-                            var name = $(this).children("option:selected").text();
-                            var content_category = '<li class="list-group-item">' + name +
-                                '</li>';
-                            $(".content_categorias").append(content_category);
-                            $("#id_categoria").val(
-                                ids); // COLOCA O ID DA CATEGORIA NO CAMPO
-                            getCategory(ids);
-                        });
-                    }
-
-                    var arr = jQuery.makeArray(index);
-                    arr.reverse();
-                    $("#categorias").html(arr);
-                }
-            },
-            error: function(error) {
-                $('#result').html(
-                    '<option> Produto Digitado Não Existe! </option>'
-                );
-            }
-        });
-
-        // FUNCAO PARA CHAMAR CATEGORIAS
-        function getCategory(category) {
+            //
             $.ajax({
-                url: " https://api.mercadolibre.com/categories/" + category,
+                url: "https://api.mercadolibre.com/sites/MLB/categories",
                 type: "GET",
                 success: function(response) {
                     if (response) {
                         // SHOW ALL RESULT QUERY
                         var index = [];
-                        // Adiciona a primeira opção estática
-                        index.push('<option class="option-size" >Selecionar</option>');
-
-                        $.each(response.children_categories, function(i, item) {
-                            // Crie suas opções dinâmicas aqui
-                            var option = '<option class="option-size" value=' + item.id +
-                                '>' + item.name + '</option>';
-                            index.push(option);
+                        $.each(response, function(i, item) {
+                            index[i] = '<option class="option-size" value=' + item.id + '>' +
+                                item.name + '</option>';
                         });
 
-                        if (index.length <= 1) {
-                            $.ajax({
-                                url: " https://api.mercadolibre.com/categories/"+category+"/attributes",
-                                type: "GET",
-                                success: function(response) {
-                                    if (response) {
-
-                                        const requiredItems = [];
-                                        const requiredAttributeNames = ['BRAND', 'MODEL', 'LENGTH', 'HEIGHT'];
-                                        response.forEach(item => {
-                                                if (item.tags && item.tags.required === true && !requiredAttributeNames.includes(item.id)) {
-                                                    requiredItems.push(item);
-                                                }
-                                            });
-
-                                        // Adiciona o h2
-                                        var h2 = document.createElement("h2");
-                                        h2.textContent = "Campos Obrigatórios";
-                                        formContainer.appendChild(h2);
-
-                                        requiredItems.forEach(element => {
-                                            // Adiciona o label
-                                            var label = document.createElement("label");
-                                            label.textContent = element.name;
-                                            formContainer.appendChild(label);
-
-                                            var selectField = document.createElement("select");
-                                            for (var i = 0; i < element.values.length; i++) {
-                                                var option = document.createElement("option");
-                                                selectField.className = "form-control";
-                                                selectField.name = element.id;
-                                                option.text = element.values[i].name;
-                                                option.value = element.values[i].id;
-                                                selectField.appendChild(option);
-
-                                            }
-                                            formContainer.appendChild(selectField);
-                                        });
-                                    }
-                                }
+                        if (i == 0) {
+                            // PEGA A ALTERACAO DAS CATEGORIAS
+                            $("#categorias").change(function() {
+                                var ids = $(this).children("option:selected").val();
+                                var name = $(this).children("option:selected").text();
+                                var content_category = '<li class="list-group-item">' + name +
+                                    '</li>';
+                                $(".content_categorias").append(content_category);
+                                $("#id_categoria").val(
+                                    ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                getCategory(ids);
                             });
                         }
-                        $("#categorias").html(index.join(''));
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $("#categorias").html(arr);
                     }
                 },
                 error: function(error) {
@@ -406,7 +310,92 @@
                 }
             });
 
-        }
+            // FUNCAO PARA CHAMAR CATEGORIAS
+            function getCategory(category) {
+                $.ajax({
+                    url: " https://api.mercadolibre.com/categories/" + category,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            var index = [];
+                            // Adiciona a primeira opção estática
+                            index.push('<option class="option-size" >Selecionar</option>');
+
+                            $.each(response.children_categories, function(i, item) {
+                                // Crie suas opções dinâmicas aqui
+                                var option = '<option class="option-size" value=' + item.id +
+                                    '>' + item.name + '</option>';
+                                index.push(option);
+                            });
+
+                            if (index.length <= 1) {
+                                $.ajax({
+                                    url: " https://api.mercadolibre.com/categories/" +
+                                        category + "/attributes",
+                                    type: "GET",
+                                    success: function(response) {
+                                        if (response) {
+
+                                            const requiredItems = [];
+                                            const requiredAttributeNames = ['BRAND',
+                                                'MODEL', 'LENGTH', 'HEIGHT'
+                                            ];
+                                            response.forEach(item => {
+                                                if (item.tags && item.tags
+                                                    .required === true && !
+                                                    requiredAttributeNames.includes(
+                                                        item.id)) {
+                                                    requiredItems.push(item);
+                                                }
+                                            });
+
+                                            // Adiciona o h2
+                                            var h2 = document.createElement("h2");
+                                            h2.textContent = "Campos Obrigatórios";
+                                            formContainer.appendChild(h2);
+
+                                            requiredItems.forEach(element => {
+                                                // Adiciona o label
+                                                var label = document.createElement(
+                                                    "label");
+                                                label.textContent = element.name;
+                                                formContainer.appendChild(label);
+
+                                                var selectField = document
+                                                    .createElement("select");
+                                                for (var i = 0; i < element.values
+                                                    .length; i++) {
+                                                    var option = document
+                                                        .createElement("option");
+                                                    selectField.className =
+                                                        "form-control";
+                                                    selectField.name = element.id;
+                                                    option.text = element.values[i]
+                                                        .name;
+                                                    option.value = element.values[i]
+                                                        .id;
+                                                    selectField.appendChild(option);
+
+                                                }
+                                                formContainer.appendChild(
+                                                    selectField);
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                            $("#categorias").html(index.join(''));
+                        }
+                    },
+                    error: function(error) {
+                        $('#result').html(
+                            '<option> Produto Digitado Não Existe! </option>'
+                        );
+                    }
+                });
+
+            }
 
             $('#file').change(function() {
                 var formData = new FormData();
@@ -422,7 +411,7 @@
                     processData: false,
                     success: function(data) {
                         $('#imagePreview')
-                    .empty(); // Limpa a div antes de adicionar novas imagens
+                            .empty(); // Limpa a div antes de adicionar novas imagens
                         $.each(data, function(index, imageUrl) {
                             $('#imagePreview').append(
                                 '<div class="image-item position-relative"><img src="' +
@@ -512,20 +501,19 @@
             }
 
 
-            $('#feeClass').change(function() {
+            $('#precoNormal').keyup(function() {
                 var selectedValue = $(this).val();
+
                 // Remover input anterior, se existir
                 $('#inputContainer').empty();
+                $('#precoFinal').val($("#precoNormal").val());
 
-                // Criar novo input com a máscara apropriada
-                if (selectedValue === '1') {
-                    $("#precoFinal").val($("#precoNormal").val());
-                    $('#exampleModal').modal('show');
-                } else if (selectedValue === '2') {
-                    $("#precoFinal").val($("#precoNormal").val());
-                    $('#exampleModal').modal('show');
+                // valor com as taxas calculo final
+                valorProduto = (parseFloat($("#precoFinal").val()) / 0.95);
+                // claculo do valor liquido
+                // totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
+                $('#precoFinal').val(valorProduto.toFixed(2));
 
-                }
             });
 
             // VALOR TOTAL
@@ -540,7 +528,7 @@
                 return valor * (porcem / 100);
             }
 
-            $('#precoFinal').val(parseFloat(total).toFixed(2));
+            $('#precoFinal').val(0);
 
 
             $('#acressimoP').keyup(function() {

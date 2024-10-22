@@ -63,8 +63,6 @@ class productsController extends Controller
 
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
-
-
         $categoriaKeyCache = 'categoriasProdutos';
 
         // Tempo em minutos que o cache será mantido
@@ -1004,6 +1002,7 @@ class productsController extends Controller
             $data['listing_type_id'] = $product->listing_type_id;
             $data['condition'] = $product->condition;
             $data['description'] = $product->description;
+            $data['priceWithFee'] = $product->priceWithFee;
             $data['ean'] = $product->gtin;
             $data['tags'] = [
                 "immediate_payment",
@@ -1063,12 +1062,21 @@ class productsController extends Controller
                 ->withInput();
         }
 
+        echo "<pre>";
+        print_r($request->all());
+
+
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;
+
+        if($request->category_default && !isset($request->id_categoria)){
+            $id_categoria = $request->category_id;
+        }
+
 
         $array = [];
         // Itera sobre os dados recebidos

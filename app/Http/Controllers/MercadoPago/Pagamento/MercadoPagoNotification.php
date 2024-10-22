@@ -118,7 +118,10 @@ class MercadoPagoNotification extends Controller
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
 
-        if(isset($request->_id)){
+        // if(isset($request->_id)){
+
+            // Verifica se é 'topic' ou 'type' e atribui à variável $eventType
+            $eventType = $request->topic ?? $request->type;
 
             if($userML){
                 $dataAtual = new DateTime();
@@ -126,7 +129,9 @@ class MercadoPagoNotification extends Controller
                 $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->user_id);
                 $newToken->resource();
 
-                switch ($request->topic){
+                $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
+
+                switch ($eventType){
                     case 'payment':
                         \App\Jobs\MercadoPagoPagamentos::dispatch($request->id);
                         break;
@@ -142,6 +147,6 @@ class MercadoPagoNotification extends Controller
             }
 
 
-        }
+        // }
     }
 }

@@ -112,9 +112,11 @@
                                                         <p class="card-subtitle mb-2 text-muted">{{$order['produtos'][0]->dataVenda}}</p>
 
                                                         @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
-                                                             <p class="text-danger font-weight-bold">Pagamento pendente</p>
+                                                        <p class="text-danger font-weight-bold">Pagamento pendente</p>
+                                                        @elseif($order['pedido']->status_id == 5)
+                                                        <p class="text-danger font-weight-bold">Pagamento Cancelado</p>
                                                         @else
-                                                            <p class="text-success font-weight-bold">Pagamento Realizado</p>
+                                                        <p class="text-success font-weight-bold">Pagamento Realizado</p>
                                                         @endif
                                                         <p class="card-text">Entre em contato com o seu comprador para entregar o produto. Se já o entregou, avise-nos.</p>
                                                     </div>

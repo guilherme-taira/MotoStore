@@ -51,22 +51,26 @@ class getPaymentController extends Controller
         $res = json_decode($response);
         curl_close($ch);
         Log::critical($response);
+       try {
         if($httpCode == '400'){
-            order_site::where('external_reference',$res->external_reference)->update(['status_id' => 5]);
+            order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
                 $userML = token::where('user_id_mercadolivre',$res->collector_id)->first();
                 // INSERE A NOTIFICAÇÃO
                 $user = User::find($userML->user_id);
-
                 $user->notify(new notificaUserOrder($user,$this->getOrderId()));
-
-                order_site::where('external_reference',$res->external_reference)->update(['status_id' => 4]);
-                $dados = financeiro::where('token_transaction',$res->external_reference)->get();
-                Log::critical(json_encode($dados));
+                order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 4]);
+                // financeiro::where('token_transaction',$res->external_reference)->get();
                 financeiro::where('token_transaction',$res->external_reference)->update(['status' => 4,'valor' => $res->transaction_details->net_received_amount]);
+            }else if($res->status == "cancelled" || $res->status == "refunded"){
+                order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
+                financeiro::where('token_transaction',$res->external_reference)->update(['status' => 5,'valor' => $res->transaction_details->net_received_amount]);
             }
         }
+       } catch (\Throwable $th) {
+         Log::critical($th->getMessage());
+       }
     }
 
     public function resource()

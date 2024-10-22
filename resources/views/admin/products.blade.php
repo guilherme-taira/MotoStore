@@ -156,15 +156,33 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+
+                                            <div class="col-md-6">
                                                 <div class="col">
                                                     <div class="mb-3 row">
-                                                        <label
-                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Categorias:</label>
-                                                        <select class="form-select" id="categorias"
-                                                            aria-label="Default select example">
-                                                            <option selected disabled>Selecionar</option>
-                                                        </select>
+                                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                                            <div class="form-check">
+                                                                <input type="hidden" class="form-control" name="category_id" id="category_id">
+                                                                <input class="form-check-input" type="checkbox" name="category_default" id="flexCheckChecked"
+                                                                    checked>
+                                                                <label class="form-check-label" for="flexCheckChecked">
+                                                                    Usar Categoria Padrão Selecionada
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label class="col-lg-2 col-md-12 col-sm-12 col-form-label">Categorias:</label>
+                                                        <div class="col-lg-8 col-md-12 col-sm-12">
+                                                            <select class="form-select" id="categorias" aria-label="Default select example">
+                                                                <option selected disabled>Selecionar</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -439,14 +457,15 @@
                     success: function(response) {
                         $("#loading-api").addClass('d-none');
                         if (response) {
-                            valorProduto = response.price;
-                            $("#total").val(response.price);
+                            valorProduto = response.priceWithFee;
+                            $("#total").val(response.priceWithFee);
                             $("#name").val(response.title);
-                            $("#precoFinal").val(response.price);
+                            $("#precoFinal").val(response.priceWithFee);
+                            $("#category_id").val(response.category_id);
                             $(".img_integracao_foto").attr('src',response.image);
                             $(".img_integracao_title").append(response.title);
                             $(".img_integracao_ean").append("EAN : " + response.ean);
-                            $(".img_integracao_price").append("Preço: " + response.price);
+                            $(".img_integracao_price").append("Preço: " + response.priceWithFee);
                             ClassicEditor
                                 .create(document.querySelector('#editor'))
                                 .then(editor => {

@@ -10,18 +10,14 @@ use Illuminate\Support\Facades\Log;
 class controlerMercadoLivreItems extends Controller
 {
     private String $resource;
-    private String $topic;
-    private String $sellerId;
     private String $token;
 
     const URL_BASE_ML = "https://api.mercadolibre.com/";
 
 
-    public function __construct($resource,$topic, $sellerId, $token)
+    public function __construct($resource, $token)
     {
         $this->resource = $resource;
-        $this->topic = $topic;
-        $this->sellerId = $sellerId;
         $this->token = $token;
     }
 
@@ -45,16 +41,10 @@ class controlerMercadoLivreItems extends Controller
         curl_close($ch);
         $json = json_decode($reponse);
 
-        Log::critical($json->initial_quantity);
+        // Log::critical($json->initial_quantity);
         try {
             if ($httpCode == 200) {
-                // PEGA O VALOR DO PRODUTO
-                $produto = Products::where('id',$json->id)->first();
-                // COLOCA O PRODUTO EM CESTA
-                if(isset($produto)){
-                    Log::critical($json->initial_quantity);
-                }
-
+                return $json;
          }
 
         } catch (\Exception $th) {
@@ -74,22 +64,6 @@ class controlerMercadoLivreItems extends Controller
     public function getResource(): String
     {
         return $this->resource;
-    }
-
-    /**
-     * Get the value of topic
-     */
-    public function getTopic(): String
-    {
-        return $this->topic;
-    }
-
-    /**
-     * Get the value of sellerId
-     */
-    public function getSellerId(): String
-    {
-        return $this->sellerId;
     }
 
     /**
