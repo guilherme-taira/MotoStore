@@ -3,7 +3,14 @@
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
     <div class="container">
-        <h3>Fornecedor {{ Auth::user()->name }}</h3>
+        <h3>Central do Vendedor : {{ Auth::user()->name }}</h3>
+
+
+        @if (session('error'))
+            <div class="alert alert-danger" role="alert">
+                {{ session()->get('error') }}
+            </div>
+        @endif
 
         @if (session()->get('msg'))
             <div class="alert alert-success" role="alert">

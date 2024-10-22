@@ -28,11 +28,13 @@ use App\Models\Products;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
+use AWS\CRT\Log;
 use Aws\Token\Token as TokenToken;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Redis;
 
@@ -83,7 +85,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        // FacadesLog::critical($reponse);
+        FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -98,6 +100,8 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $getLink = Shopify::getLink($user->user_id);
 
                     $line_item = [];
+
+                    if($getLink != null){
                     // IMPLEMENTAR DADOS DA SHOPIFY ********
                     foreach ($json->order_items as $items) {
                         // PRODUTOS DO ARRAY DA SHOPIFY
@@ -110,6 +114,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         }
 
                     }
+                   }
 
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
@@ -119,40 +124,61 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
 
-                        if($getLink->comunicando == 1 && $dados['transportadora'] == NULL){
+                        if($getLink != null){
 
-                            if(ShippingUpdate::ifExist($json->id)){
+                        if ($getLink->comunicando == 1 && $dados['transportadora'] == NULL) {
 
+                            if (ShippingUpdate::ifExist($json->id)) {
                                 $redisKey = 'shipping_update_' . $json->id;
 
-                                if (Redis::get($redisKey)) {
-                                    FacadesLog::debug("JA EXISTE CHAVE : " . $json->id);
+                                // Usar SETNX para garantir que não haja concorrência
+                                $isLocked = Redis::setnx($redisKey, true);
+
+                                if ($isLocked) {
+                                    // Define o tempo de expiração de 5 horas (18.000 segundos)
+                                    Redis::expire($redisKey, 18000);
+
+                                    FacadesLog::debug("Processando pedido: " . $json->id);
+
+                                    // Processar o pedido
+                                    $this->storeShipping("D", $json->id, $json->buyer->id, $json->seller->id);
+
+                                    $shipping_address = new ShippingAddress(
+                                        $dados['first_name'], $dados['address1'],
+                                        $dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],
+                                        $dados['city'], $dados['zip'], $dados['province'], $dados['country'],
+                                        $dados['last_name'], $dados['address2'], $dados['company'], $dados['name'],
+                                        $dados['country_code'], $dados['province_code'], $dados['cpf']
+                                    );
+
+                                    $nota = $json->id . " - " . $json->buyer->nickname;
+                                    $order = new Order($line_item, "paid", "BRL", $shipping_address, $nota,
+                                                       isset($getLink->email) ? $getLink->email : uniqid("cliente") . "@gmail.com");
+
+                                    // Enviar o pedido
+                                    $data = new SendOrder($order, $getLink->name_loja, $getLink->token);
+                                    $id_shopifyOrder = $data->resource();
+
+                                    // Coloca na fila a conversão de rascunho para pedido
+                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,
+                                        $id_shopifyOrder->data->draftOrderCreate->draftOrder->id,
+                                        $json->id, $json->buyer->id, $json->seller->id
+                                    )->delay(Carbon::now()->addSeconds(10));
+
+                                } else {
+                                    FacadesLog::debug("Chave já existente: " . $json->id);
                                     return; // Registro já processado recentemente, não processar novamente
                                 }
-
-                                $this->storeShipping("D",$json->id,$json->buyer->id,$json->seller->id);
-
-                                // Marcar como processado com tempo de expiração, por exemplo, 10 minutos
-                                Redis::set($redisKey, true, 'EX', 1200);
-
-                                $shipping_address = new ShippingAddress($dados['first_name'],$dados['address1']
-                                ,$dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],$dados['city'],$dados['zip'],$dados['province'],$dados['country'],
-                                $dados['last_name'],$dados['address2'],$dados['company'],$dados['name'],$dados['country_code'],
-                                $dados['province_code'],$dados['cpf']);
-                                $nota = $json->id . " - " .$json->buyer->nickname;
-                                $order = new Order($line_item, "paid", "BRL", $shipping_address,$nota,isset($getLink->email) ? $getLink->email : uniqid("cliente")."@gmail.com");
-                                    // Print the order object to verify its structure
-                                    $data = new SendOrder($order,$getLink->name_loja,$getLink->token);
-                                    $id_shopifyOrder = $data->resource();
-                                    // COLOCA NA FILA A CONVERSAO DE RASCUNHO PARA PEDIDO
-                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,$id_shopifyOrder->data->draftOrderCreate->draftOrder->id,$json->id,$json->buyer->id,$json->seller->id)->delay(Carbon::now()->addSeconds(10));
                             }
                         }
-
+                     }
                     } catch (\Throwable $th) {
-                        // Deletar um registro específico
+                        // Em caso de erro, remover a chave Redis para permitir nova tentativa no futuro
+                        Redis::del($redisKey);
+
+                        // Deletar o registro do banco de dados e registrar o erro
                         FacadesLog::emergency("VENDA CANCELADA: " .  $json->id);
-                        ShippingUpdate::where('id_mercadoLivre','=', $json->id)->delete();
+                        ShippingUpdate::where('id_mercadoLivre', '=', $json->id)->delete();
                         FacadesLog::emergency($th->getMessage());
                     }
                     // FIM -*************
@@ -168,8 +194,6 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         }
                             array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));
                         }
-
-
 
                         /***
                          * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
@@ -192,9 +216,12 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
+                                $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
 
-                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, Auth::user()->id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+
                                 financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+
                             }else{
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
@@ -207,7 +234,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     }
                 }
         } catch (\Exception $th) {
-            // FacadesLog::critical($th->getMessage());
+            FacadesLog::critical($th->getMessage());
         }
 
         return response()->json(["msg" => "cadastrado"],200);

@@ -244,10 +244,12 @@
                                     <option value="{{ $viewData['product']->subcategoria }}" selected>
                                         {{ $viewData['categoriaSelected']->name }}</option>
 
-                                    @foreach ($viewData['categorias'] as $categoria)
+                                    @foreach ($viewData['categorias'] as $key => $categoria)
+
                                         <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
+
                                         @foreach ($categoria['subcategory'] as $subcategoria)
-                                            <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}
+                                            <option value="{{ $key }}"> - {{ $subcategoria->name }}
                                             </option>
                                         @endforeach
                                     @endforeach

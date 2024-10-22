@@ -25,37 +25,53 @@ class PrinterController implements ClienteController
 
     public function get($resource)
     {
-        // ENDPOINT PARA REQUISICAO
-        $endpoint = self::URL_BASE . $resource;
+          // ENDPOINT PARA REQUISICAO
+    $endpoint = self::URL_BASE . $resource;
 
-        /**
-         * CURL REQUISICAO -X GET
-         * **/
-        $fp = fopen(dirname(__FILE__) . "/{$this->getShippingId()}.pdf", 'w+');
+    /**
+     * CURL REQUISICAO -X GET
+     * **/
+    $fp = fopen(dirname(__FILE__) . "/{$this->getShippingId()}.pdf", 'w+');
 
-        $headers = array(
-            "Accept: application/pdf",
-            "Content-Type: application/pdf",
-            "Authorization: Bearer {$this->getToken()}",
-            "X-Format-New: true",
-        );
+    $headers = array(
+        "Accept: application/pdf",
+        "Content-Type: application/pdf",
+        "Authorization: Bearer {$this->getToken()}",
+        "X-Format-New: true",
+    );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        $reponse = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $endpoint);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Captura o retorno da requisição como string
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+    $response = curl_exec($ch);  // Armazena o conteúdo da resposta
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode == 400) {
+        // Trata o caso de erro e exibe o conteúdo da resposta (JSON com erro)
+        $errorResponse = json_decode($response, true);  // Decodifica o JSON da resposta
+        if (isset($errorResponse['failed_shipments'])) {
+            // Lógica para tratar o erro, como exibir a mensagem
+            return [
+                'error' => $errorResponse['message'],
+                'causes' => $errorResponse['causes']
+            ];
+        }
+    } elseif ($httpCode == 200) {
+        // Somente grava no arquivo PDF se o status for 200
+        fwrite($fp, $response); // Salva o conteúdo no arquivo PDF
+        fclose($fp);
 
         $this->TransformaPDF($this->getShippingId());
         $this->setIsReady($this->getShippingId());
     }
+}
 
     public function resource()
     {

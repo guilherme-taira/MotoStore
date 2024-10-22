@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Orders;
 
 use App\Events\sendProduct;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\controlerMercadoLivreItems;
 use App\Http\Controllers\MercadoLivre\Printer\PrinterController;
 use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
 use App\Models\financeiro;
@@ -40,7 +41,6 @@ class orderscontroller extends Controller
         foreach ($orders as $order) {
             array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->order_id)]);
         }
-
 
         return view('orders.index', [
             'viewData' => $viewData,
@@ -82,13 +82,20 @@ class orderscontroller extends Controller
     public function show($id)
     {
         $order = order_site::getOrderjoin($id);
+        // GET TOKEN
+        $token = token::where('user_id_mercadolivre', $order[0]->user_id_mercadolivre)->first();
+        $data = (new controlerMercadoLivreItems("orders/".$order[0]->numeropedido,$token->access_token))->resource();
+        $shipping = (new controlerMercadoLivreItems("shipments/".$data->shipping->id,$token->access_token))->resource();
+
 
         $viewData = [];
         $viewData['title'] = "Pedido";
         $viewData['subtitle'] = "$id";
         $viewData['order'] = $order;
         $viewData['pedidos'] = [];
-
+        $viewData['dados'] = $data;
+        $viewData['shipping_cost'] = $shipping->shipping_option->list_cost;
+        $viewData['shipping'] = $shipping;
         $i = 0;
         foreach ($order as $key => $product) {
 
@@ -185,6 +192,12 @@ class orderscontroller extends Controller
         // IMPRIME ETIQUETA
         $data = new PrinterController($request->shipping_id, $token->access_token);
         $dados = $data->resource();
+          // Verifica se houve erro no retorno dos dados
+        if (isset($dados['error'])) {
+            // Retorna com os dados de erro para a view
+            return back()->with('error', $dados['error']);
+        }
+
     }
 
     public function UpdateNewPayment(Request $request)
