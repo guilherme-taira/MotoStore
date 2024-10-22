@@ -78,7 +78,7 @@
                                 </a>
                                 <!-- Dropdown menu -->
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    @if (Auth::user()->forncecedor == 1) {
+                                    @if (Auth::user()->forncecedor == 1)
                                         <li>
                                             <a class="dropdown-item" href="{{ route('orders.areceber') }}">Página do
                                                 Fornecedor</a>
