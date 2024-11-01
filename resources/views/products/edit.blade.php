@@ -2,7 +2,7 @@
 @section('conteudo')
     <div class="card mb-4">
         <div class="card-header">
-            Criar Produto
+            Editar Produto
         </div>
 
         <div class="card-body">
@@ -15,289 +15,332 @@
             @endif
 
 
-            <!--- FINAL DO MODAL ---->
-            <div id="liveAlertPlaceholder"></div>
+           <!--- FINAL DO MODAL ---->
+           <div id="liveAlertPlaceholder"></div>
+
+           <form method="POST" action="{{ route('products.update', ['id' => $viewData['product']->id]) }}" enctype="multipart/form-data" class="needs-validation">
+            @method('PUT')
+            @csrf
 
 
-            <div class="spinner-overlay d-none" id="loading-api">
-                <div class="spinner-border spinner-big text-light" role="status">
-                  <span class="visually-hidden">Carregando...</span>
-                </div>
-              </div>
-
-            <form method="POST" action="{{ route('products.update', ['id' => $viewData['product']->id]) }}"
-                enctype="multipart/form-data">
-                @method('PUT')
-                @csrf
-
-                <!--- MODAL QUE SELECIONA O MOTORISTA --->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title text-dark" id="exampleModalLabel">Tarifa Plataforma <i
-                                        class="bi bi-money"></i>
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-
-                            <div class="modal-body">
-                                <div class="col-md-12">
-
-                                    <div class="col-md-12">
-                                        <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
-                                        <div class="col">
-                                            <div class="mb-3 row">
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoP" class="form-control porcem">
-                                                </div>
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoR" type="text" value="{{$viewData['product']->fee}}" class="form-control porcem">
+               <div class="accordion" id="productFormAccordion">
+                   <!-- Informações Básicas -->
+                   <div class="accordion-item">
+                       <h2 class="accordion-header" id="headingBasicInfo">
+                           <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                               data-bs-target="#collapseBasicInfo" aria-expanded="true" aria-controls="collapseBasicInfo">
+                               Informações Básicas
+                           </button>
+                       </h2>
+                       <div id="collapseBasicInfo" class="accordion-collapse collapse show"
+                           aria-labelledby="headingBasicInfo" data-bs-parent="#productFormAccordion">
+                           <div class="accordion-body">
+                               <div class="row mb-3">
+                                   <div class="col">
+                                    <div class="row imagemCs">
+                                        @foreach ($viewData['photos'] as $foto)
+                                        <div class="col row-cols-1 row-cols-md g-2">
+                                            <div class="col">
+                                                    <div class="foto-container position-relative">
+                                                        <img src="{{ $foto }}" alt="{{ $viewData['product']->getName() }}"
+                                                            class="img-fluid border border-3 border-secondary rounded imagem">
+                                                        <span
+                                                            class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle"><i
+                                                                class="fas fa-trash-alt text-danger"></i></span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-md-12">
-                                        <div class="col">
-                                            <div class="mb-3 row">
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="price" id="precoFinal" type="text"
-                                                        class="form-control">
-                                                </div>
-
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="fee" value="{{$viewData['product']->fee}}" id="precoLiquido" type="text"
-                                                        class="form-control">
-                                                </div>
-
-                                                <hr class="mt-4">
-                                                <label class="col-lg-4 col-md-3 col-sm-12 col-form-label">Taxa %: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="taxaFee" id="taxaFee" type="text" value="4.99"
-                                                        class="form-control">
-                                                </div>
-
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final: </label>
-                                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                                    <input name="PriceWithFee" id="PriceWithFee" value="{{$viewData['product']->valorProdFornecedor}}" type="text"
-                                                        class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-                <div class="row">
-                    <div class="row imagemCs">
-                        @foreach ($viewData['photos'] as $foto)
-                        <div class="col row-cols-1 row-cols-md g-2">
-                            <div class="col">
-                                    <div class="foto-container position-relative">
-                                        <img src="{{ $foto }}" alt="{{ $viewData['product']->getName() }}"
-                                            class="img-fluid border border-3 border-secondary rounded imagem">
-                                        <span
-                                            class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle"><i
-                                                class="fas fa-trash-alt text-danger"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <hr class="mt-3">
-
-                    <div class="col-lg-3">
-                        <label>Ativo / Público</label>
-                        <select name="isPublic" class="form-control" required>
-                            <option value="1" selected>SIM</option>
-                            <option value="0">NÂO</option>
-                        </select>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <label>NFT</label>
-                        <select name="isNft" class="form-control" required>
-                            <option value="1">SIM</option>
-                            <option value="0"selected>NÂO</option>
-                        </select>
-                    </div>
-
-                    <div class="col-lg-2">
-                        <label>Valor Termômetro <i class="bi bi-speedometer"></i></label>
-                        <input type="number" name="termometro" value="{{ $viewData['product']->termometro }}"
-                            id="termometro" min="0" max="150" class="form-control">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="mb-3 row mt-2">
-                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
-                            <div class="col-lg-10 col-md-6 col-sm-12">
-                                <input name="name" value="{{ $viewData['product']->title }}" type="text"
-                                    class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <div class="mb-3 row mt-2">
-                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço R$:</label>
-                            <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}"
-                                    type="text" class="form-control">
-                            </div>
-
-                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Estoque:</label>
-                            <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="stock" value="{{ $viewData['product']->available_quantity }}"
-                                    type="number" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="mb-3 row mt-2">
-                            <label class="col-lg-2 col-md-2 col-sm-2 col-form-label">Categoria Mercado Livre:</label>
-                            <div class="col-lg-3 col-md-2 col-sm-2">
-                                <input name="categoria_mercadolivre" value="{{ $viewData['product']->category_id }}"
-                                    type="text" class="form-control">
-                            </div>
-
-                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Marca :</label>
-                            <div class="col-lg-3 col-md-6 col-sm-12">
-                                <input name="brand" value="{{ $viewData['product']->brand }}" type="text"
-                                    class="form-control">
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="mb-3 row">
-                            <div class="col-lg-3">
-                                <label>Preço Promocional:</label>
-                                <input name="pricePromotion" value="{{ $viewData['product']->pricePromotion }}"
-                                    type="text" class="form-control">
-                            </div>
-
-                            <div class="col-lg-3">
-                                <label>GTIN / EAN :</label>
-                                <input name="ean" value="{{ $viewData['product']->gtin }}" class="form-control">
-                            </div>
-
-
-                            <div class="col-lg-1">
-                                <label>Largura: </label>
-                                <input name="width" value="{{ $viewData['product']->width }}" class="form-control">
-                            </div>
-
-
-                            <div class="col-lg-1">
-                                <label>Altura: </label>
-                                <input name="height" value="{{ $viewData['product']->height }}" class="form-control">
-                            </div>
-
-
-                            <div class="col-lg-2">
-                                <label>Comprimento: </label>
-                                <input name="length" value="{{ $viewData['product']->length }}" class="form-control">
-                            </div>
-
-                            <div class="col-lg-3">
-                                <label>Tipo de Anúncio :</label>
-                                <select name="tipo_anuncio" class="form-control" aria-label=".form-select-sm example"
-                                    required>
-
-                                    @if ($viewData['product']->listing_type_id == 'gold_special')
-                                        <option value="gold_special" selected>Clássico</option>
-                                        <option value="gold_pro">Premium</option>
-                                    @elseif($viewData['product']->listing_type_id == 'gold_pro')
-                                        <option value="gold_pro" selected>Premium</option>
-                                        <option value="gold_special">Clássico</option>
-                                    @else
-                                        <option value="gold_special">Clássico</option>
-                                        <option value="gold_pro">Premium</option>
-                                    @endif
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col col-lg-4">
-                                <label for="categoria">Categorias:</label>
-                                <select class="form-select mt-2" name="categoria" id="categoria" required
-                                    aria-label="Default select example">
-                                    <option value="{{ $viewData['product']->subcategoria }}" selected>
-                                        {{ $viewData['categoriaSelected']->name }}</option>
-
-                                    @foreach ($viewData['categorias'] as $key => $categoria)
-
-                                        <option class="bg-warning" disabled>{{ $categoria['nome'] }}</option>
-
-                                        @foreach ($categoria['subcategory'] as $subcategoria)
-                                            <option value="{{ $key }}"> - {{ $subcategoria->name }}
-                                            </option>
                                         @endforeach
-                                    @endforeach
-
-                                </select>
-                            </div>
-                            <div class="col col-lg-4">
-                                <label>Fornecedor</label>
-                                <select name="fornecedor" class="form-control mt-2" required>
-                                    @foreach ($viewData['fornecedor'] as $fornecedor)
-                                        <option class="bg-warning" value="{{ $fornecedor->id }}">{{ $fornecedor->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-
-                            <div class="col col-lg-2">
-                                <label>Tarifa</label>
-                                <select name="feeClass" class="form-control mt-2" id="feeClass" required>
-                                    <option selected>selecione..</option>
-                                    <option value="1" data-bs-toggle="modal" data-bs-target="#exampleModal">Calcular
-                                </select>
-                            </div>
-
-                            <div class="col col-lg-2">
-                                <div id="inputContainer"></div>
-                            </div>
-                        </div>
-                        <div class="row mt-4">
-                            <div class="col">
-                                <div class="mb-3 row">
-                                    <label class="col-lg-2 col-md-4 col-sm-12 col-form-label">Image:</label>
-                                    <div class="col-lg-10 col-md-6 col-sm-12">
-                                        <input class="form-control" type="file" name="image">
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                                    <hr class="mt-3">
+                                       <label class="col-lg-2 col-md-4 col-sm-12 col-form-label">Imagem:</label>
+                                       <div class="col-lg-10 col-md-6 col-sm-12">
+                                           <input class="form-control" type="file" id="file" name="photos[]"
+                                               multiple>
+                                           @error('photos')
+                                               <span class="badge text-bg-danger">Foto é um campo Obrigatório.</span>
+                                           @enderror
+                                       </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" rows="3">{{ $viewData['product']->description }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-primary">Atualizar <i class="bi bi-hdd"></i></button>
-                        </div>
-            </form>
+                                       <div class="container mt-4">
+                                           <div id="imagePreview" class="image-container-preview"></div>
+                                       </div>
+                                       <div id="image-count mt-4"></div>
+                                   </div>
+                                   <div class="col-lg-3">
+                                       <label for="isPublic">Ativo / Público:</label>
+                                       <select name="isPublic" class="form-control" required>
+                                           <option value="1" selected>SIM</option>
+                                           <option value="0">NÃO</option>
+                                       </select>
+                                   </div>
+                                   <div class="col-lg-3">
+                                       <label for="isNft">NFT:</label>
+                                       <select name="isNft" class="form-control" required>
+                                           <option value="1">SIM</option>
+                                           <option value="0" selected>NÃO</option>
+                                       </select>
+                                   </div>
+                               </div>
+
+                               <div class="row mb-3">
+                                   <div class="col">
+                                       <label for="name" class="form-label">Nome:</label>
+                                       <input name="name" type="text" value="{{ $viewData['product']->title }}"
+                                           class="form-control" required>
+                                   </div>
+                                   <div class="col-lg-4">
+                                       <label for="brand" class="form-label">Marca:</label>
+                                       <input name="brand" type="text" value="{{ $viewData['product']->brand }}"
+                                           class="form-control" required>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <!-- Preço e Estoque -->
+                   <div class="accordion-item">
+                       <h2 class="accordion-header" id="headingPricing">
+                           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                               data-bs-target="#collapsePricing" aria-expanded="false" aria-controls="collapsePricing">
+                               Preço e Estoque
+                           </button>
+                       </h2>
+                       <div id="collapsePricing" class="accordion-collapse collapse" aria-labelledby="headingPricing"
+                           data-bs-parent="#productFormAccordion">
+                           <div class="accordion-body">
+                               <div class="row mb-3">
+                                   <div class="col-lg-3">
+                                       <label for="precoNormal">Preço R$:</label>
+                                       <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}" type="text"
+                                           class="form-control" required>
+                                       @error('price')
+                                           <span class="text-danger">{{ $message }}</span>
+                                       @enderror
+                                   </div>
+                                   <div class="col-lg-3">
+                                       <label for="pricePromotion">Preço Promocional:</label>
+                                       <input name="pricePromotion" value="0" type="text" class="form-control">
+                                   </div>
+                                   <div class="col-lg-3">
+                                       <label for="stock">Estoque:</label>
+                                       <input name="stock" type="number" value="{{ $viewData['product']->available_quantity }}"
+                                           class="form-control" required>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <!-- Atributos -->
+                   <div class="accordion-item">
+                       <h2 class="accordion-header" id="headingAttributes">
+                           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                               data-bs-target="#collapseAttributes" aria-expanded="false"
+                               aria-controls="collapseAttributes">
+                               Atributos
+                           </button>
+                       </h2>
+                       <div id="collapseAttributes" class="accordion-collapse collapse"
+                           aria-labelledby="headingAttributes" data-bs-parent="#productFormAccordion">
+                           <div class="accordion-body">
+
+                               <div class="mb-3">
+                                   <label class="form-label">Descrição:</label>
+                                   <textarea required class="form-control" name="description"
+                                       rows="3">{{ $viewData['product']->description }}</textarea>
+                               </div>
+
+                               <div class="row mb-3">
+                                   <div class="col-lg-2">
+                                       <label for="termometro">Valor Termômetro:</label>
+                                       <input type="number" name="termometro" id="termometro"
+                                           value="{{ $viewData['product']->termometro }}" min="0" max="150"
+                                           class="form-control">
+                                   </div>
+                                   <div class="col-lg-3">
+                                       <label for="ean">GTIN / EAN:</label>
+                                       <input name="ean" value="{{ $viewData['product']->gtin }}" class="form-control" required>
+                                   </div>
+                               </div>
+
+                               <div class="row mb-3">
+                                   <div class="col-lg-2">
+                                       <label for="width">Largura:</label>
+                                       <input name="width" value="{{ $viewData['product']->width }}" class="form-control" required>
+                                   </div>
+                                   <div class="col-lg-2">
+                                       <label for="height">Altura:</label>
+                                       <input name="height" value="{{ $viewData['product']->height }}" class="form-control" required>
+                                   </div>
+                                   <div class="col-lg-2">
+                                       <label for="length">Comprimento:</label>
+                                       <input name="length" value="{{ $viewData['product']->length }}" class="form-control" required>
+                                   </div>
+                               </div>
+
+                               <div class="col-lg-3">
+                                <label for="tipo_anuncio">Tipo de Anúncio:</label>
+                                <select name="tipo_anuncio" id="tipo_anuncio" class="form-control" aria-label=".form-select-sm example" required>
+                                    @php
+                                        $tiposAnuncio = [
+                                            'gold_special' => 'Clássico',
+                                            'gold_pro' => 'Premium'
+                                        ];
+                                        $tipoAtual = $viewData['product']->listing_type_id ?? '';
+                                    @endphp
+
+                                    @foreach ($tiposAnuncio as $valor => $label)
+                                        <option value="{{ $valor }}" {{ $tipoAtual == $valor ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+
+                               <div class="row mb-3">
+
+                                   <div class="col-md-8">
+                                       <label for="preco" class="form-label">Fornecedores
+                                           <div id="loadingF" class="spinner-border spinner-border-sm d-none"
+                                               role="status">
+                                               <span class="visually-hidden">Loading...</span>
+                                           </div>
+                                       </label>
+                                       <div class="input-group">
+                                        <select id="fornecedor-select" name="fornecedor" class="form-select" style="max-width: 240px;">
+                                            <option value="">Selecione..</option>
+                                            @foreach ($viewData['fornecedor'] as $fornecedor)
+                                                <option class="bg-warning" value="{{ $fornecedor->id }}"
+                                                    {{ old('fornecedor', $viewData['product']->fornecedor_id ?? '') == $fornecedor->id ? 'selected' : '' }}>
+                                                    {{ $fornecedor->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                           <span class="input-group-text"><i class="bi bi-person-lines-fill"></i></span>
+                                           <input type="text" id="fornecedor-input" class="form-control"
+                                               placeholder="digite o nome do fornecedor">
+
+                                       </div>
+                                   </div>
+
+                                   <div class="col-md-6 mt-2">
+                                       <label for="categoria">Categorias:</label>
+                                       <select class="form-select mt-2" name="categoria" id="categoria" required aria-label="Default select example">
+                                        @foreach ($viewData['categorias'] as $categoria)
+                                            <option class="bg-dark text-white" disabled>{{ $categoria['nome'] }}</option>
+                                            @foreach ($categoria['subcategory'] as $subcategoria)
+                                                <option value="{{ $subcategoria->id }}" {{ (old('categoria') ?? ($viewData['product']->subcategoria ?? '')) == $subcategoria->id ? 'selected' : '' }}>
+                                                    - {{ $subcategoria->name }}
+                                                </option>
+                                            @endforeach
+                                        @endforeach
+                                    </select>
+                                   </div>
+                               </div>
+
+                               <div class="col-lg-3">
+                                   <label>Categoria Mercado Livre:</label>
+
+                                   <div class="alert alert-primary" id="mercadoLivreCategoria" role="alert">
+
+                                  </div>
+
+                                   <div class="input-group">
+                                       <select class="form-select" id="categorias" aria-label="Default select example" required>
+                                           <option selected disabled>Selecionar</option>
+                                       </select>
+                                       <button type="button" class="btn btn-secondary" id="resetButton">Reset</button>
+                                </div>
+
+                               <input type="hidden" class="form-control" value="{{$viewData['product']->category_id}}" name="categoria_mercadolivre" id="id_categoria">
+
+                               <div class="col-md-12 mt-3">
+                                   <div class="col">
+                                       <div class="mb-3 row">
+                                           <ol class="list-group list-group-numbered content_categorias">
+                                           </ol>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+
+                           </div>
+                       </div>
+                   </div>
+
+                   <!-- Taxas -->
+                   <div class="accordion-item">
+                       <h2 class="accordion-header" id="headingFees">
+                           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                               data-bs-target="#collapseFees" aria-expanded="false" aria-controls="collapseFees">
+                               Taxas
+                           </button>
+                       </h2>
+                       <div id="collapseFees" class="accordion-collapse collapse" aria-labelledby="headingFees"
+                           data-bs-parent="#productFormAccordion">
+                           <div class="accordion-body">
+                               <div class="row mb-3">
+                                   <div class="col">
+                                       <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                                       <div class="col">
+                                           <div class="mb-3 row">
+                                               <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                               <div class="col-lg-3 col-md-6 col-sm-6">
+                                                   <input id="acressimoP" class="form-control porcem" value="{{ old('acressimoP') }}">
+                                               </div>
+                                               <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                               <div class="col-lg-3 col-md-6 col-sm-6">
+                                                   <input id="acressimoR" name="acressimoR" type="text"
+                                                       class="form-control porcem" value="{{ $viewData['product']->fee }}">
+                                               </div>
+                                           </div>
+                                       </div>
+
+                                       <div class="mb-3 row">
+                                           <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
+                                           <div class="col-lg-3 col-md-6 col-sm-12">
+                                               <input id="precoFinal" value="{{ old('price') }}"
+                                                   type="text" class="form-control">
+                                           </div>
+                                           <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                           <div class="col-lg-3 col-md-6 col-sm-12">
+                                               <input name="fee" value="{{ $viewData['product']->fee }}" id="precoLiquido" type="text" class="form-control">
+                                           </div>
+                                       </div>
+
+                                       <div class="col-md-12">
+                                           <div class="col">
+                                               <div class="mb-3 row">
+
+                                                   <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Taxa %:
+                                                   </label>
+                                                   <div class="col-lg-3 col-md-6 col-sm-12">
+                                                       <input name="taxaFee" id="taxaFee" type="text"
+                                                           value="4.99" class="form-control">
+                                                   </div>
+
+                                                   <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final:
+                                                   </label>
+                                                   <div class="col-lg-3 col-md-6 col-sm-12">
+                                                       <input name="PriceWithFee" id="PriceWithFee" type="text"
+                                                           class="form-control"  value="{{ $viewData['product']->priceWithFee }}">
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div class="mt-3">
+                       <button type="submit" class="btn btn-primary">Cadastrar <i class="bi bi-hdd"></i></button>
+                   </div>
+           </form>
+
         </div>
     </div>
 
@@ -305,6 +348,231 @@
 
     <script>
         $(document).ready(function() {
+
+
+            $('#fornecedor-input').on('input', function() {
+                        let inputVal = $(this).val();
+
+                        if (inputVal.length >= 1) { // Começa a buscar após 2 caracteres
+                            $.ajax({
+                                url: '/api/v1/fornecedores',
+                                data: {
+                                    name: inputVal
+                                },
+                                success: function(data) {
+                                    // Esconde o spinner após o carregamento
+                                    $("#spinner").removeClass('d-none');
+                                    // Limpa as opções existentes
+                                    $('#fornecedor-select').empty().append(
+                                        '<option value="">Selecione um fornecedor</option>');
+
+                                    // Adiciona os novos fornecedores ao select
+                                    $.each(data, function(index, fornecedor) {
+                                        $('#fornecedor-select').append('<option value="' +
+                                            fornecedor.id + '">' + fornecedor.name +
+                                            '</option>');
+                                    });
+
+                                    // Esconde o spinner após o carregamento
+                                    $("#spinner").addClass('d-none');
+                                },
+                                error: function(xhr) {
+                                    console.error('Erro ao buscar fornecedores', xhr);
+                                }
+                            });
+                        } else {
+                            // Limpa o select se menos de 2 caracteres
+                            $('#fornecedor-select').empty().append(
+                                '<option value="">Selecione um fornecedor</option>');
+                        }
+                    });
+
+                    var i = 0;
+                    // Função para resetar o conteúdo
+                    $('#resetButton').on('click', function() {
+                        getAllCategorias(); // VOLTA TUDO AS CATEGORIAS
+                        // Limpa a lista de categorias selecionadas
+                        $('.content_categorias').empty();
+
+                        // Limpa o campo de ID de categoria
+                        $('#id_categoria').val('');
+                        // Reseta o select para a opção padrão
+                        $('#categorias').empty();
+                    });
+
+                    getAllCategorias();
+
+                    function getAllCategorias(){
+                        $.ajax({
+                        url: "https://api.mercadolibre.com/sites/MLB/categories",
+                        type: "GET",
+                        success: function(response) {
+                            if (response) {
+                                // SHOW ALL RESULT QUERY
+                                var index = [];
+                                $.each(response, function(i, item) {
+                                    index[i] = '<option class="option-size" value=' + item.id + '>' +
+                                        item.name + '</option>';
+                                });
+
+                                if (i == 0) {
+                                    // PEGA A ALTERACAO DAS CATEGORIAS
+                                    $("#categorias").off("change").on("change", function() {
+                                        var ids = $(this).children("option:selected").val();
+                                        var name = $(this).children("option:selected").text();
+                                        var content_category = '<li class="list-group-item">' + name +
+                                            '</li>';
+                                        $(".content_categorias").append(content_category);
+                                        $("#id_categoria").val(
+                                            ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                        getCategory(ids);
+                                    });
+                                }
+
+                                var arr = jQuery.makeArray(index);
+                                arr.reverse();
+                                $("#categorias").html(arr);
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>'
+                            );
+                        }
+                    });
+                    }
+
+                    // FUNCAO PARA CHAMAR CATEGORIAS
+                    function getCategory(category) {
+                        $.ajax({
+                            url: " https://api.mercadolibre.com/categories/" + category,
+                            type: "GET",
+                            success: function(response) {
+                                if (response) {
+                                    // SHOW ALL RESULT QUERY
+                                    var index = [];
+                                    // Adiciona a primeira opção estática
+                                    index.push('<option class="option-size" >Selecionar</option>');
+
+                                    $.each(response.children_categories, function(i, item) {
+                                        // Crie suas opções dinâmicas aqui
+                                        var option = '<option class="option-size" value=' + item.id +
+                                            '>' + item.name + '</option>';
+                                        index.push(option);
+                                    });
+
+                                    if (index.length <= 1) {
+                                        $.ajax({
+                                            url: " https://api.mercadolibre.com/categories/" +
+                                                category + "/attributes",
+                                            type: "GET",
+                                            success: function(response) {
+                                                if (response) {
+
+                                                    const requiredItems = [];
+                                                    const requiredAttributeNames = ['BRAND',
+                                                        'MODEL', 'LENGTH', 'HEIGHT'
+                                                    ];
+                                                    response.forEach(item => {
+                                                        if (item.tags && item.tags
+                                                            .required === true && !
+                                                            requiredAttributeNames.includes(
+                                                                item.id)) {
+                                                            requiredItems.push(item);
+                                                        }
+                                                    });
+
+                                                    // Adiciona o h2
+                                                    var h2 = document.createElement("h2");
+                                                    h2.textContent = "Campos Obrigatórios";
+                                                    formContainer.appendChild(h2);
+
+                                                    requiredItems.forEach(element => {
+                                                        // Adiciona o label
+                                                        var label = document.createElement(
+                                                            "label");
+                                                        label.textContent = element.name;
+                                                        formContainer.appendChild(label);
+
+                                                        var selectField = document
+                                                            .createElement("select");
+                                                        for (var i = 0; i < element.values
+                                                            .length; i++) {
+                                                            var option = document
+                                                                .createElement("option");
+                                                            selectField.className =
+                                                                "form-control";
+                                                            selectField.name = element.id;
+                                                            option.text = element.values[i]
+                                                                .name;
+                                                            option.value = element.values[i]
+                                                                .id;
+                                                            selectField.appendChild(option);
+
+                                                        }
+                                                        formContainer.appendChild(
+                                                            selectField);
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                    $("#categorias").html(index.join(''));
+                                }
+                            },
+                            error: function(error) {
+                                $('#result').html(
+                                    '<option> Produto Digitado Não Existe! </option>'
+                                );
+                            }
+                        });
+
+                    }
+
+
+                    getNameCategory($("#id_categoria").val());
+
+                    // FUNCAO PARA CHAMAR CATEGORIAS
+                    function getNameCategory(category) {
+                        $.ajax({
+                            url: " https://api.mercadolibre.com/categories/" + category,
+                            type: "GET",
+                            success: function(response) {
+                                if (response) {
+                                    // SHOW ALL RESULT QUERY
+                                    var index = [];
+                                    // Adiciona a primeira opção estática
+                                    index.push('<option class="option-size" >Selecionar</option>');
+
+                                    $.each(response.children_categories, function(i, item) {
+                                        // Crie suas opções dinâmicas aqui
+                                        var option = '<option class="option-size" value=' + item.id +
+                                            '>' + item.name + '</option>';
+                                        index.push(option);
+                                    });
+
+                                    if (index.length <= 1) {
+                                        $.ajax({
+                                            url: " https://api.mercadolibre.com/categories/"+category,
+                                            type: "GET",
+                                            success: function(response) {
+                                                $("#mercadoLivreCategoria").append(response.name);
+                                            }
+                                        });
+                                    }
+
+                                }
+                            },
+                            error: function(error) {
+                                $('#result').html(
+                                    '<option> Produto Digitado Não Existe! </option>'
+                                );
+                            }
+                        });
+
+                    }
+
+
             $(".icone-lixeira").click(function(event){
 
                 if (confirm("Tem certeza que deseja apagar esta foto?")) {

@@ -231,6 +231,11 @@ class Products extends Model
         return $this->valorProdFornecedor;
     }
 
+    public function getPriceWithFeeMktplace()
+    {
+        return $this->PriceWithFee;
+    }
+
     public function setPriceWithFee($PriceWithFee)
     {
        $this->valorProdFornecedor = $PriceWithFee;
@@ -306,5 +311,34 @@ class Products extends Model
         ->select('products.*')
         ->whereBetween('created_at', [$datainicial, $datafinal])->where('isPublic', true)->paginate(10);
     return $data;
+    }
+
+
+    public static function getResults(Request $request){
+            $query = Products::query();
+            $query->where('isKit',0);
+
+            if ($request->has('nome')) {
+                $query->where('title', 'like', '%' . $request->nome . '%');
+            }
+
+            if ($request->has('preco') && $request->preco != "") {
+                $query->where('price', $request->preco_condicao, $request->preco);
+            }
+
+            if ($request->has('estoque') or is_null($request->estoque)) {
+                if(is_null($request->estoque)){
+                    $query->where('available_quantity', '>=', 0);
+                }else{
+                    $query->where('available_quantity', '>=', $request->estoque);
+                }
+            }
+
+            if ($request->has('categoria')) {
+                $query->where('subcategoria', '=', $request->categoria);
+            }
+
+
+        return $query->paginate(10);
     }
 }

@@ -6,6 +6,26 @@
     //
 // Scripts
 //
+function marcarComoLido(notificationId) {
+    fetch(`/notificacao/marcar-como-lida/${notificationId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remover a notificação da lista ou atualizar o contador
+            document.querySelector('.badge.bg-danger').textContent = parseInt(document.querySelector('.badge.bg-danger').textContent) - 1;
+            // Opcional: Remover o item de notificação
+            document.getElementById(notificationId).remove();
+        }
+    })
+    .catch(error => console.error('Erro:', error));
+}
+
 
 window.addEventListener('DOMContentLoaded', event => {
 

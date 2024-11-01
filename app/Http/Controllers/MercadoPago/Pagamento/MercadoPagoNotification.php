@@ -133,7 +133,7 @@ class MercadoPagoNotification extends Controller
 
                 switch ($eventType){
                     case 'payment':
-                        \App\Jobs\MercadoPagoPagamentos::dispatch($request->id);
+                        \App\Jobs\MercadoPagoPagamentos::dispatch($request->data['id']);
                         break;
                         case 'orders_v2':
                             \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
@@ -147,6 +147,6 @@ class MercadoPagoNotification extends Controller
             }
 
 
-        // }
-    }
+        }
+    // }
 }

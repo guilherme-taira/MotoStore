@@ -12,6 +12,7 @@
         "beyondcode/laravel-websockets": "^2.0.0",
         "doctrine/dbal": "^3.0",
         "fruitcake/laravel-cors": "^2.0",
+        "google/cloud-translate": "^1.19",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.75",
         "laravel/horizon": "^5.22",

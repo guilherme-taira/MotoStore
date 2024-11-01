@@ -15,15 +15,21 @@ class notificaUserOrder extends Notification
     use Queueable;
     private $usuario;
     private $order;
+    private $produto;
+    private $Orderid;
+    private $numeroPedido;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $usuario, $order)
+    public function __construct(User $usuario, $order,Products $produto,$Orderid = null, $numeroPedido = null)
     {
         $this->usuario = $usuario;
         $this->order = $order;
+        $this->produto = $produto;
+        $this->Orderid = $Orderid;
+        $this->numeroPedido = $numeroPedido;
     }
 
 
@@ -61,8 +67,12 @@ class notificaUserOrder extends Notification
     public function toArray($notifiable)
     {
         return [
-            'mensagem' => "Você Vendeu! ". $this->order ."envie o mais rápido possivel! para evitar atrasos.",
-            $this->usuario
+            'mensagem' => "Olá ".$this->usuario->name ." Aguarde o pagamento do afiliado e envie o mais rápido possivel! para evitar atrasos.",
+             $this->usuario,
+            'id' => $this->produto->getId(),
+            'image' => $this->produto->getImage(),
+            'orderid' => $this->Orderid,
+            'ml_id' => $this->numeroPedido
         ];
     }
 }

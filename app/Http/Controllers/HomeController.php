@@ -35,8 +35,6 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-
-
         // PEGA AS VENDAS DO SISTEMA
 
         $viewData = [];

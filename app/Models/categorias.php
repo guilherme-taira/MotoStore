@@ -21,6 +21,11 @@ class categorias extends Model
         ]);
     }
 
+    public static function filtrarPorNome($name)
+    {
+        return self::where('name', 'like', '%' . $name . '%')->get();
+    }
+
     public function getId(){
         return $this->id;
     }

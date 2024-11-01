@@ -3,6 +3,10 @@
 @section('subtitle', $viewData['subtitle'])
 @section('conteudo')
 
+@php
+    use Carbon\Carbon;
+@endphp
+
     <div class="container-fluid px-4">
         <h2 class="mt-4">Vendas</h2>
         <ol class="breadcrumb mb-4">
@@ -115,13 +119,16 @@
                                                         <p class="text-danger font-weight-bold">Pagamento pendente</p>
                                                         @elseif($order['pedido']->status_id == 5)
                                                         <p class="text-danger font-weight-bold">Pagamento Cancelado</p>
-                                                        @else
+                                                        @elseif($order['pedido']->status_id == 4)
                                                         <p class="text-success font-weight-bold">Pagamento Realizado</p>
                                                         @endif
-                                                        <p class="card-text">Entre em contato com o seu comprador para entregar o produto. Se já o entregou, avise-nos.</p>
+                                                        @if ($order['pedido']->detalhes_transacao)
+
+                                                         <p class="alert alert-success"><strong> Pagamento Disponível: R$: {{json_decode($order['pedido']->detalhes_transacao)->transaction_details->net_received_amount}}  em @php echo \Carbon\Carbon::parse(json_decode($order['pedido']->detalhes_transacao)->money_release_date)->translatedFormat('d \d\e F H:i'); @endphp </strong></p>
+                                                        @endif
                                                     </div>
                                                     <div>
-                                                        <a href="{{ route('orders.show', ['id' => $order['pedido']->order_id]) }}" class="btn btn-primary">Detalhes</a>
+                                                        <a href="{{ route('orders.show', ['id' => $order['pedido']->id_site]) }}" class="btn btn-primary">Detalhes</a>
                                                         @if ($order['pedido']->status_id == 3 && $order['pedido']->link_pagamento != "N/D")
                                                             <a href="{{$order['pedido']->link_pagamento}}" class="btn btn-outline-primary">Pagar</a>
                                                         @endif

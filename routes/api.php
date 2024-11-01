@@ -9,6 +9,7 @@ use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\Store\StoreController;
+use App\Http\Controllers\Usuarios\FornecedorController;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);
     Route::post('/notificationShopify',[MercadoPagoNotification::class,'notificationShopify']);
     Route::post("/sendEmail",[sendEmail::class,'sendEmail']);
+    Route::get('/fornecedores',[FornecedorController::class,'filtrarPorNome']);
     Route::post('trataErroMl',[GetTokenForApi::class,'trataError']);
     Route::get("/getTokenMl",[GetTokenForApi::class,'show']);
     Route::get("/getUserID",[GetTokenForApi::class,'getUserID']);

@@ -120,6 +120,8 @@ class FornecedorController extends Controller
         ]);
     }
 
+
+
     /**
      * Update the specified resource in storage.
      *
@@ -150,6 +152,12 @@ class FornecedorController extends Controller
 
         return redirect()->route('fornecedores.index')->with('msg',"Fornecedor Atualizado com sucesso!");
     }
+
+    public function filtrarPorNome(Request $request) {
+        $fornecedores = User::where('name', 'like', '%' . $request->query('name') . '%')->get();
+        return response()->json($fornecedores);
+    }
+
 
     /**
      * Remove the specified resource from storage.
