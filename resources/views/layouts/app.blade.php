@@ -270,6 +270,9 @@
                                 <a class="nav-link" href="{{ route('products.index') }}">Produtos Disponíveis</a>
                                 <a class="nav-link" href="{{ route('allProductsByFornecedor') }}">Meus Produtos</a>
                                 <a class="nav-link" href="{{ route('categorias.index') }}">Categorias</a>
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ route('subcategorias.index') }}">Subcategorias</a>
+                                </nav>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"

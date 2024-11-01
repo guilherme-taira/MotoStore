@@ -488,7 +488,7 @@ class productsController extends Controller
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
-                "nome" => $value->nome,
+                "nome" => $value->name,
                 "subcategory" => sub_category::getAllCategory($value->id),
             ];
         }
