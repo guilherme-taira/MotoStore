@@ -314,31 +314,35 @@ class Products extends Model
     }
 
 
-    public static function getResults(Request $request){
-            $query = Products::query();
-            $query->where('isKit',0);
+    public static function getResults(Request $request) {
+        $query = Products::query();
+        $query->where('isKit', 0);
 
-            if ($request->has('nome')) {
-                $query->where('title', 'like', '%' . $request->nome . '%');
+        // Verifica se o filtro 'nome' está preenchido
+        if ($request->filled('nome')) {
+            $query->where('title', 'like', '%' . $request->nome . '%');
+        }
+
+        // Verifica se o filtro 'preco' está preenchido
+        if ($request->filled('preco')) {
+            $query->where('price', $request->preco_condicao, $request->preco);
+        }
+
+        // Verifica o filtro de 'estoque', incluindo o caso nulo
+        if ($request->filled('estoque') || is_null($request->estoque)) {
+            if (is_null($request->estoque)) {
+                $query->where('available_quantity', '>=', 0);
+            } else {
+                $query->where('available_quantity', '>=', $request->estoque);
             }
+        }
 
-            if ($request->has('preco') && $request->preco != "") {
-                $query->where('price', $request->preco_condicao, $request->preco);
-            }
-
-            if ($request->has('estoque') or is_null($request->estoque)) {
-                if(is_null($request->estoque)){
-                    $query->where('available_quantity', '>=', 0);
-                }else{
-                    $query->where('available_quantity', '>=', $request->estoque);
-                }
-            }
-
-            if ($request->has('categoria')) {
-                $query->where('subcategoria', '=', $request->categoria);
-            }
-
+        // Verifica se o filtro 'categoria' está preenchido
+        if ($request->filled('categoria')) {
+            $query->where('subcategoria', '=', $request->categoria);
+        }
 
         return $query->paginate(10);
     }
+
 }
