@@ -184,38 +184,44 @@
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
                     <li><h6 class="dropdown-header">Notificações</h6></li>
                     @if(isset(Auth::user()->unreadNotifications))
-                    @foreach (Auth::user()->unreadNotifications as $notification)
-                        <li>
-                            @if (isset($notification->data['type']) &&  $notification->data['type'] == "produto")
-                             <a class="dropdown-item notification-item" onclick="marcarComoLido('{{ $notification->id }}')">
-                                <div class="notification-content">
-                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['imagem']) !!}" alt="Produto" class="notification-image" style="width: 20%">
-                                    <div class="notification-text">
-                                        <span class="notification-title">Produto Atualizado  <i class="bi bi-chat-left-text-fill"></i></span>
-                                        <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
-                                        <span class="notification-subtitle">Seu ID na Plataforma - {{ $notification->data['ml_id'] }} </span>
-                                        <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-coin"></i> Desatualizado  R${{ $notification->data['oldPrice'] }} ~ Novo:  R${{ $notification->data['newPrice'] }} </span>
-                                    </div>
-                                </div>
-                            </a>
-                            @else
-                            <a class="dropdown-item notification-item" href="{{route('orders.show', ['id' => $notification->data['orderid']])}}">
-                                <div class="notification-content mt-2">
-                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
-                                    <div class="notification-text">
-                                        <span class="notification-title">Você Vendeu!  <i class="bi bi-bag-plus-fill"></i></span>
-                                    <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
-                                    <span class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }} </span>
-                                    <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais  </span>
-                                  </div>
-                                </div>
-                            </a>
-                            @endif
-                        </li>
-                    @endforeach
-                @endif
+                        @foreach (Auth::user()->unreadNotifications as $notification)
+                            <li>
+                                @if (isset($notification->data['type']) &&  $notification->data['type'] == "produto")
+                                    <a class="dropdown-item notification-item" onclick="marcarComoLido('{{ $notification->id }}')">
+                                        <div class="notification-content">
+                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['imagem']) !!}" alt="Produto" class="notification-image" style="width: 20%">
+                                            <div class="notification-text">
+                                                <span class="notification-title">Produto Atualizado  <i class="bi bi-chat-left-text-fill"></i></span>
+                                                <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
+                                                <span class="notification-subtitle">Seu ID na Plataforma - {{ $notification->data['ml_id'] }} </span>
+                                                <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-coin"></i> Desatualizado  R${{ $notification->data['oldPrice'] }} ~ Novo:  R${{ $notification->data['newPrice'] }} </span>
+                                                <span class="notification-date text-muted d-block mt-1" style="font-size: 0.85em;">
+                                                    {{ $notification->created_at->format('d/m/Y H:i') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @else
+                                    <a class="dropdown-item notification-item" href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}">
+                                        <div class="notification-content mt-2">
+                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
+                                            <div class="notification-text">
+                                                <span class="notification-title">Você Vendeu!  <i class="bi bi-bag-plus-fill"></i></span>
+                                                <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
+                                                <span class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }} </span>
+                                                <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais  </span>
+                                                <span class="notification-date text-muted d-block mt-1" style="font-size: 0.85em;">
+                                                    {{ $notification->created_at->format('d/m/Y H:i') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+                            </li>
+                        @endforeach
+                    @endif
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-center" href="{{route('notifications')}}">Ver todas as notificações</a></li>
+                    <li><a class="dropdown-item text-center" href="{{ route('notifications') }}">Ver todas as notificações</a></li>
                 </ul>
             </li>
 
