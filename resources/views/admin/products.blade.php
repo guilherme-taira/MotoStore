@@ -329,7 +329,7 @@
                             <!-- Campo Categoria -->
                             <div class="col-md-4">
                                 <label for="validationDefault04" class="form-label">Categoria</label>
-                                <select class="form-select mt-2" name="categoria" id="categoria" required
+                                <select class="form-select mt-2" name="categoria" id="categoria"
                                     aria-label="Default select example">
                                     <option value="">Selecione..</option>
                                     @foreach ($viewData['categorias'] as $categoria)
