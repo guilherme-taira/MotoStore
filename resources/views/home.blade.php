@@ -76,17 +76,14 @@
                 <div class="row">
                     <div class="col-md-4">
                         <select class="form-control">
-                            <option>Selecionar...</option>
+                            {{-- <option>Selecionar...</option> --}}
                             <option>Mercado Livre</option>
-                            <option>Shopee</option>
+                            {{-- <option>Shopee</option> --}}
                         </select>
                     </div>
                     <div class="col-md-4">
                         <select class="form-control">
                             <option>Todas</option>
-                            <option>Opção A</option>
-                            <option>Opção B</option>
-                            <option>Opção C</option>
                         </select>
                     </div>
                     <div class="col-md-4">

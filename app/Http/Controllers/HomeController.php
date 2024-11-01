@@ -44,7 +44,7 @@ class HomeController extends Controller
         $cacheKey = 'vendas';
 
         // Tempo em minutos que o cache será mantido
-        $cacheTime = 5;
+        $cacheTime = 2;
 
           // Verifique se já existe um cache
           if (Cache::has($cacheKey)) {
