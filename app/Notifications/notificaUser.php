@@ -14,15 +14,21 @@ class notificaUser extends Notification
     use Queueable;
     private $usuario;
     private $produto;
+    private $id_mercadolivre;
+    private $oldPrice;
+    private $newPrice;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $usuario,Products $produto)
+    public function __construct(User $usuario,Products $produto,$id_mercadolivre = null, $oldPrice = null,$newPrice = null)
     {
         $this->usuario = $usuario;
         $this->produto = $produto;
+        $this->id_mercadolivre = $id_mercadolivre;
+        $this->oldPrice = $oldPrice;
+        $this->newPrice = $newPrice;
     }
 
     /**
@@ -60,7 +66,13 @@ class notificaUser extends Notification
     {
         return [
             'mensagem' => "produto ". $this->produto->getName() ." teve reajuste no preço! regularize seu cadastro nas plataformas!",
-             $this->usuario
+             $this->usuario,
+             'imagem' => $this->produto->getImage(),
+             'type' => 'produto',
+             'id' => $this->produto->getId(),
+             'ml_id' => $this->id_mercadolivre,
+             'oldPrice' => $this->oldPrice,
+             'newPrice' => $this->newPrice
         ];
     }
 }

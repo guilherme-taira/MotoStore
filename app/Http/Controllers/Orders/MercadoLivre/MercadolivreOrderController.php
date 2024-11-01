@@ -210,7 +210,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(isset($produto)){
 
-                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://www.hub.embaleme.com.br/webhook/mpago/webhooktest.php',$json->seller->id);
+                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id);
                                 $preference = $prefence->resource();
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);

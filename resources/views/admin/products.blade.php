@@ -285,54 +285,72 @@
                     </h2>
                 </div>
 
-                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                    data-parent="#accordionExample">
-                    <div class="card-body">
-                        <form class="row g-3 mt-2" action="{{ route('products.index') }}" method="GET">
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body bg-light rounded-3 p-4">
+                        <form class="row g-3" action="{{ route('products.index') }}" method="GET">
                             @csrf
+                            <!-- Campo Nome -->
                             <div class="col-md-4">
                                 <label for="validationDefault01" class="form-label">Nome</label>
-                                <input type="text" class="form-control" name="nome"
-                                    value="{{ isset($viewData['filtro']['nome']) ? $viewData['filtro']['nome'] : '' }}"
-                                    id="validationDefault01" placeholder="Iphone 13">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="validationDefaultUsername" class="form-label">Preço R$</label>
                                 <div class="input-group">
-                                    <span class="input-group-text" id="inputGroupPrepend2">0 ></span>
-                                    <input type="text" name="preco"
-                                        value="{{ isset($viewData['filtro']['preco']) ? $viewData['filtro']['preco'] : '' }}"
-                                        class="form-control" id="validationDefaultUsername"
-                                        aria-describedby="inputGroupPrepend2">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="validationDefaultUsername" class="form-label">Estoque</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" id="inputGroupPrepend2">0 ></span>
-                                    <input type="text" name="estoque"
-                                        value="{{ isset($viewData['filtro']['estoque']) ? $viewData['filtro']['estoque'] : '' }}"
-                                        class="form-control" id="validationDefaultUsername"
-                                        aria-describedby="inputGroupPrepend2">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" name="nome"
+                                           value="{{ isset($viewData['filtro']['nome']) ? $viewData['filtro']['nome'] : '' }}"
+                                           id="validationDefault01" placeholder="Iphone 13">
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            <!-- Campo Preço -->
+                            <div class="col-md-4">
+                                <label for="preco" class="form-label">Preço R$</label>
+                                <div class="input-group">
+                                    <select name="preco_condicao" class="form-select" style="max-width: 140px;">
+                                        <option value=">">Maior que</option>
+                                        <option value="<">Menor que</option>
+                                    </select>
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" name="preco"
+                                           value="{{ isset($viewData['filtro']['preco']) ? $viewData['filtro']['preco'] : '' }}"
+                                           class="form-control" id="preco" placeholder="0,00">
+                                </div>
+                            </div>
+
+                            <!-- Campo Estoque -->
+                            <div class="col-md-4">
+                                <label for="validationDefaultUsername" class="form-label">Estoque</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-box-seam"></i></span>
+                                    <input type="text" name="estoque"
+                                           value="{{ isset($viewData['filtro']['estoque']) ? $viewData['filtro']['estoque'] : '' }}"
+                                           class="form-control" id="validationDefaultUsername" placeholder="0">
+                                </div>
+                            </div>
+
+                            <!-- Campo Categoria -->
+                            <div class="col-md-4">
                                 <label for="validationDefault04" class="form-label">Categoria</label>
-                                <select class="form-select" name="categoria" id="validationDefault04">
-                                    <option selected disabled value="">Selecione uma categoria</option>
+                                <select class="form-select mt-2" name="categoria" id="categoria" required
+                                    aria-label="Default select example">
                                     @foreach ($viewData['categorias'] as $categoria)
-                                        <option value="{{$categoria->id}}">{{ $categoria->name }} <span class="badge text-bg-secondary">(4)</span></option>
+                                        <option class="bg-dark text-white" disabled>{{ $categoria['nome'] }}</option>
+                                        @foreach ($categoria['subcategory'] as $subcategoria)
+                                            <option value="{{ $subcategoria->id }}"> - {{ $subcategoria->name }}
+                                            </option>
+                                        @endforeach
                                     @endforeach
                                 </select>
                             </div>
 
-                            <div class="col-12">
-                                <button class="btn btn-primary float-end" type="submit">Filtrar</button>
+                            <!-- Botão Filtrar -->
+                            <div class="col-md-12 text-end mt-3">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-filter"></i> Filtrar
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
+
 
 
 
@@ -391,7 +409,7 @@
                                                             <div class="d-flex flex-row align-items-center mb-1">
                                                                 <h4 class="mb-1 me-1">R$:
                                                                     {{ number_format($product->priceWithFee, 2) }}</h4>
-                                                                <span class="text-danger"><s>$20.99</s></span>
+                                                                {{-- <span class="text-danger"><s>$20.99</s></span> --}}
                                                             </div>
                                                             <h6 class="text-success">Envio Imediato</h6>
                                                             <div class="d-flex flex-column mt-4">
@@ -425,14 +443,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
-
 
     <script>
         var valorProduto = 0;
         var i = 0;
         $(document).ready(function() {
 
+            $('input[name="preco"]').mask('000.000.000,00', {reverse: true});
 
             $('.botao_integracao').click(function(event){
                 $(".loading-integracao").removeClass('d-none');

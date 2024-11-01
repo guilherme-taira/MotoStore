@@ -6,6 +6,7 @@ use App\Events\sendProduct;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\controlerMercadoLivreItems;
 use App\Http\Controllers\MercadoLivre\Printer\PrinterController;
+use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
 use App\Models\financeiro;
 use App\Models\Items;
@@ -39,7 +40,7 @@ class orderscontroller extends Controller
         $viewData['orders'] = $orders;
 
         foreach ($orders as $order) {
-            array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->order_id)]);
+            array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->id_site)]);
         }
 
         return view('orders.index', [
@@ -81,12 +82,15 @@ class orderscontroller extends Controller
      */
     public function show($id)
     {
-        $order = order_site::getOrderjoin($id);
+        $order = order_site::getOrderjoinComplete($id);
         // GET TOKEN
-        $token = token::where('user_id_mercadolivre', $order[0]->user_id_mercadolivre)->first();
-        $data = (new controlerMercadoLivreItems("orders/".$order[0]->numeropedido,$token->access_token))->resource();
-        $shipping = (new controlerMercadoLivreItems("shipments/".$data->shipping->id,$token->access_token))->resource();
-
+        $userML = token::where('user_id_mercadolivre', $order[0]->user_id_mercadolivre)->first();
+        $dataAtual = new DateTime();
+        // GET NEW TOKEN
+        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id);
+        $newToken->resource();
+        $userML = token::where('user_id_mercadolivre', $userML->user_id_mercadolivre)->first();
+        $data = (new controlerMercadoLivreItems("orders/".$order[0]->numeropedido,$userML->access_token))->resource();
 
         $viewData = [];
         $viewData['title'] = "Pedido";
@@ -94,8 +98,15 @@ class orderscontroller extends Controller
         $viewData['order'] = $order;
         $viewData['pedidos'] = [];
         $viewData['dados'] = $data;
-        $viewData['shipping_cost'] = $shipping->shipping_option->list_cost;
-        $viewData['shipping'] = $shipping;
+        $viewData['shipping_cost'] = 0;
+        $viewData['shipping'] = [];
+
+        if(isset($data->shipping)){
+            $shipping = (new controlerMercadoLivreItems("shipments/".$data->shipping->id,$userML->access_token))->resource();
+            $viewData['shipping'] = $shipping;
+            $viewData['shipping_cost'] = $shipping->shipping_option->list_cost;
+        }
+
         $i = 0;
         foreach ($order as $key => $product) {
 
@@ -108,7 +119,6 @@ class orderscontroller extends Controller
                 array_push($viewData['pedidos'], ['produto' => $product, 'venda' => $order[$i]]);
             }
         }
-
 
         return view('orders.show')->with('viewData', $viewData);
     }

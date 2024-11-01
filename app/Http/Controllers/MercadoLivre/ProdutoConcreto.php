@@ -37,6 +37,7 @@ class ProdutoConcreto implements Produto
 
     public function integrar($descricao,$id_prod)
     {
+
         $error_message = [];
         $success_data = [];
         $fotos = images::where('product_id', $this->getProduto()->id)->get();
@@ -113,7 +114,7 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
-            if(count($this->getOpcionais()) > 1){
+            if(count($this->getOpcionais()) >= 1){
                 foreach ($this->getOpcionais() as $key => $dados) {
                     array_push($data['attributes'],$dados);
                }
@@ -136,7 +137,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-            Log::critical($data_json);
+
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -152,7 +153,7 @@ class ProdutoConcreto implements Produto
             curl_close($ch);
             $json = json_decode($reponse);
 
-            Log::emergency($reponse);
+            // Log::emergency($reponse);
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;

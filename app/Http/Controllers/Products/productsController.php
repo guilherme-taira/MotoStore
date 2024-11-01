@@ -68,45 +68,26 @@ class productsController extends Controller
         // Tempo em minutos que o cache será mantido
         $cacheTime = 5;
 
-            $query = Products::query();
-            $query->where('isKit',0);
-
-            if ($request->has('nome')) {
-                $query->where('title', 'like', '%' . $request->nome . '%');
-            }
-
-            if ($request->has('preco') && $request->preco != "") {
-                $query->where('price', '>', $request->preco);
-            }
-
-            if ($request->has('estoque') or is_null($request->estoque)) {
-                if(is_null($request->estoque)){
-                    $query->where('available_quantity', '>=', 0);
-                }else{
-                    $query->where('available_quantity', '>=', $request->estoque);
-                }
-            }
-
-            if ($request->has('categoria')) {
-                $query->where('subcategoria', '=', $request->categoria);
-            }
+        $viewData['products'] = Products::getResults($request);
 
 
-        $viewData['products'] = $query->paginate(10);
 
+        $data = [];
+        $categorias = [];
+       foreach (categorias::all() as $value) {
+           $categorias[$value->id] = [
+               "nome" => $value->name,
+               "subcategory" => sub_category::getAllCategory($value->id),
+           ];
+       }
 
         // Verifique se já existe um cache
         if (Cache::has($categoriaKeyCache)) {
-            // Se existir, recupere o resultado do cache
-            $viewData['categorias'] = Cache::get($categoriaKeyCache);
+        // Se existir, recupere o resultado do cache
+             $viewData['categorias'] = Cache::get($categoriaKeyCache);
         }else{
-            $viewData['categorias'] = categorias::all();
+            $viewData['categorias'] = $categorias;
             Cache::put($categoriaKeyCache, $viewData['categorias'], now()->addMinutes($cacheTime));
-        }
-
-        $data = [];
-        foreach($viewData['categorias'] as $categoria){
-
         }
 
         $viewData['filtro'] = $request->all();
@@ -125,7 +106,7 @@ class productsController extends Controller
          $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
-                "nome" => $value->nome,
+                "nome" => $value->name,
                 "subcategory" => sub_category::getAllCategory($value->id),
             ];
         }
@@ -145,9 +126,6 @@ class productsController extends Controller
      */
     public function store(Request $request)
     {
-
-
-
         // SERVICE TRATA PREÇO
         $TrataPreco = new ServicesController();
 
@@ -223,6 +201,7 @@ class productsController extends Controller
             $image->save();
             $i++;
         }
+
         $produto->save();
         return redirect()->route('allProductsByFornecedor');
     }
@@ -501,7 +480,6 @@ class productsController extends Controller
             array_push($photos,"https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url);
         }
 
-
         $viewData = [];
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
@@ -533,6 +511,8 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+
         $request->validate([
             "name" => "required|max:255",
             "description" => "required",
@@ -549,25 +529,28 @@ class productsController extends Controller
             'PriceWithFee' =>  "required|numeric|gt:0",
             'height' =>  "required|numeric|gt:0",
             'width' =>  "required|numeric|gt:0",
-            'length' =>  "required|numeric|gt:0"
+            'length' =>  "required|numeric|gt:0",
+            'price' =>"required|numeric|gt:0"
         ]);
 
         $produto = Products::findOrFail($id);
         $preco =  $produto->price;
         $newpreco =  $request->PriceWithFee;
+        $commonPrice = $request->input('price');
+
         if($produto){
-            (new updatePriceSiteController($preco,$newpreco,$produto))->vericaPreco();
+            (new updatePriceSiteController($preco,$newpreco,$produto,$commonPrice))->vericaPreco();
         }
 
         $produto->priceWithFee = $request->PriceWithFee;
+        $produto->fee = $request->input('fee');
         $produto->setTitle($request->input('name'));
-        // $produto->setPrice($request->input('price'));
         $produto->setStock($request->input('stock'));
         $produto->SetCategory_id($request->input('categoria_mercadolivre'));
         $produto->SetListing_type_id($request->input('tipo_anuncio'));
         $produto->SetBrand($request->input('brand'));
         $produto->SetIsNft($request->input('isNft'));
-        //$produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
+        // $produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
         $produto->SetSubCategory_id($request->input('categoria'));
         $produto->SetGtin($request->input('ean'));
         // $produto->setPricePromotion($request->input('pricePromotion'));
@@ -577,10 +560,9 @@ class productsController extends Controller
         $produto->SetFornecedor($request->input('fornecedor'));
         $produto->SetTermometro($request->input('termometro'));
         $produto->setPriceWithFee($request->input('price'));
-        $produto->setFee($request->input('fee'));
-        $produto->setHeight($request->input('height'));
         $produto->setWidth($request->input('width'));
         $produto->setLength($request->input('length'));
+        $produto->setPrice($request->input('price'));
 
         try {
             if ($request->hasFile('image')) {
@@ -1049,6 +1031,9 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
+
+
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
@@ -1061,10 +1046,6 @@ class productsController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-
-        echo "<pre>";
-        print_r($request->all());
-
 
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
@@ -1084,9 +1065,10 @@ class productsController extends Controller
             // Verifica se a chave possui letras maiúsculas
             if (preg_match('/[A-Z]/', $key)) {
                 // Adiciona o parâmetro ao array de parâmetros com letras maiúsculas
-                array_push($array,["id" => $key,"value" => $value,"value_id" => $value, "value_name" => $value, "values" => [["id" => $value,"struct" => "null"]]]);
+                array_push($array,["id" => $key,"value" => $value, "values" => [["id" => $value,"struct" => "null"]]]);
             }
         }
+
 
         $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array);
         $data = $factory->getProduto();

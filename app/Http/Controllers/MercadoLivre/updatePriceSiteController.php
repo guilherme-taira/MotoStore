@@ -23,10 +23,10 @@ class updatePriceSiteController extends AbstractPriceProdutoController
             foreach ($produtos as $key => $produto) {
                 // INSERE A NOTIFICAÇÃO
                 $user = User::find($produto->user_id);
-                $user->notify(new notificaUser($user,$this->getProduto()));
+                $user->notify(new notificaUser($user,$this->getProduto(),$produto->id_mercadolivre,$this->getOldPrice(),$this->getNewPrice()));
             }
             // FILA PARA COLOCAR O PRODUTO PRA ATUALIZAR EM 48 HORAS.
-            \App\Jobs\updatePriceSite::dispatch($this->getProduto()->id,$this->getNewPrice())->delay(now()->addMicrosecond(5));
+            \App\Jobs\updatePriceSite::dispatch($this->getProduto()->id,$this->getCommonPrice())->delay(now()->addMicrosecond(5));
         }
 
     }

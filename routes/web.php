@@ -23,6 +23,7 @@ use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Marketing\BannerPremiumController;
 use App\Http\Controllers\MercadoLivre\CategoryTest;
 use App\Http\Controllers\nft\nftcontroller;
+use App\Http\Controllers\Notification\NotificationSistemaController;
 use App\Http\Controllers\notificationController;
 use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Payment\PaymentController;
@@ -88,6 +89,20 @@ Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->n
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
+
+// Rota para listar todas as notificações
+Route::get('/vernotificacoes', [NotificationSistemaController::class, 'index'])->name('notifications');
+// NOTIFICAO MARCAR LIDO
+Route::post('/notificacao/marcar-como-lida/{id}', function($id) {
+    $notification = Auth::user()->unreadNotifications->where('id', $id)->first();
+
+    if ($notification) {
+        $notification->markAsRead();
+    }
+
+    return response()->json(['success' => true]);
+})->name('notificacao.marcar_como_lida');
+
 
 
 Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');

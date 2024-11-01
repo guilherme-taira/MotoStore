@@ -17,6 +17,13 @@
     <!-- DateRangePicker CSS -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
     <meta name="user-id" content="{{ auth()->user()->id }}">
     <style>
         body {
@@ -45,6 +52,23 @@
             align-items: center;
             z-index: 1000;
             /* Garante que o overlay fique acima de outros elementos */
+        }
+
+
+        .nav-link .fa-bell {
+        position: absolute;
+        font-size: 18px;
+        }
+
+        .nav-link .badge {
+            position: relative;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-size: 10px;
         }
 
         .image-container {
@@ -85,39 +109,128 @@
             cursor: pointer;
             z-index: 1;
         }
+
+        .dropdown-menu {
+            width: 500px; /* Ajusta a largura do dropdown */
+            max-height: 400px; /* Define uma altura máxima */
+            overflow-y: auto; /* Adiciona rolagem caso tenha muitas notificações */
+        }
+
+        .dropdown-menu h6 {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .dropdown-item {
+            font-size: 14px;
+        }
+
+        .dropdown-item.text-center {
+            font-weight: bold;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-image {
+            width: 50px;
+            height: 100px;
+            margin-right: 10px;
+        }
+
+        .notification-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .notification-subtitle {
+            font-weight: bold;
+            color: #348dfa;
+        }
+
+        .notification-details {
+            font-size: 12px;
+            color: #555;
+            white-space: normal; /* Permite que o texto quebre em várias linhas */
+        }
+
     </style>
+
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
         <a class="navbar-brand ps-3" href="{{ route('home') }}">Afilidrop</a>
+
         <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
-        <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <div class="input-group">
-                <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..."
-                    aria-describedby="btnNavbarSearch" />
-                <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i
-                        class="fas fa-search"></i></button>
-            </div>
-        </form>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+
         <!-- Navbar-->
-        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+        <ul class="navbar-nav ms-auto md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <!-- Notification Icon with Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge bg-danger">{{ count(Auth::user()->unreadNotifications) }}</span> <!-- Número de notificações -->
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
+                    <li><h6 class="dropdown-header">Notificações</h6></li>
+                    @if(isset(Auth::user()->unreadNotifications))
+                    @foreach (Auth::user()->unreadNotifications as $notification)
+                        <li>
+                            @if (isset($notification->data['type']) &&  $notification->data['type'] == "produto")
+                             <a class="dropdown-item notification-item" onclick="marcarComoLido('{{ $notification->id }}')">
+                                <div class="notification-content">
+                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['imagem']) !!}" alt="Produto" class="notification-image" style="width: 20%">
+                                    <div class="notification-text">
+                                        <span class="notification-title">Produto Atualizado  <i class="bi bi-chat-left-text-fill"></i></span>
+                                        <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
+                                        <span class="notification-subtitle">Seu ID na Plataforma - {{ $notification->data['ml_id'] }} </span>
+                                        <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-coin"></i> Desatualizado  R${{ $notification->data['oldPrice'] }} ~ Novo:  R${{ $notification->data['newPrice'] }} </span>
+                                    </div>
+                                </div>
+                            </a>
+                            @else
+                            <a class="dropdown-item notification-item" href="{{route('orders.show', ['id' => $notification->data['orderid']])}}">
+                                <div class="notification-content mt-2">
+                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
+                                    <div class="notification-text">
+                                        <span class="notification-title">Você Vendeu!  <i class="bi bi-bag-plus-fill"></i></span>
+                                    <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
+                                    <span class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }} </span>
+                                    <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais  </span>
+                                  </div>
+                                </div>
+                            </a>
+                            @endif
+                        </li>
+                    @endforeach
+                @endif
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="{{route('notifications')}}">Ver todas as notificações</a></li>
+                </ul>
+            </li>
+
+            <!-- User Icon -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Settings</a></li>
                     <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li>
-                        <hr class="dropdown-divider" />
-                    </li>
-                    <li> <a class="dropdown-item" href="{{ route('logout') }}"
-                            onclick="event.preventDefault();
-                                   document.getElementById('logout-form').submit();">
+                        <a class="dropdown-item" href="{{ route('logout') }}"
+                           onclick="event.preventDefault();
+                                     document.getElementById('logout-form').submit();">
                             {{ __('Logout') }}
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -128,6 +241,8 @@
             </li>
         </ul>
     </nav>
+
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">

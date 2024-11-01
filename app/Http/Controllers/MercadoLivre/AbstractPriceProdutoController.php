@@ -10,12 +10,14 @@ abstract class AbstractPriceProdutoController
     private $produto;
     private $oldPrice;
     private $newPrice;
+    private $commonPrice;
 
-    public function __construct($oldPrice,$newPrice,$produto)
+    public function __construct($oldPrice,$newPrice,$produto,$commonPrice)
     {
         $this->oldPrice = $oldPrice;
         $this->newPrice = $newPrice;
         $this->produto = $produto;
+        $this->commonPrice = $commonPrice;
     }
 
     // abstract function toJson();
@@ -42,5 +44,13 @@ abstract class AbstractPriceProdutoController
     public function getNewPrice()
     {
         return $this->newPrice;
+    }
+
+    /**
+     * Get the value of commonPrice
+     */
+    public function getCommonPrice()
+    {
+        return $this->commonPrice;
     }
 }

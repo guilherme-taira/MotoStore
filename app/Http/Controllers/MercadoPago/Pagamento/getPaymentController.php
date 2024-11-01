@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Models\financeiro;
 use App\Models\order_site;
+use App\Models\Products;
 use App\Models\token;
 use App\Models\User;
 use App\Notifications\notificaUserOrder;
@@ -34,9 +35,9 @@ class getPaymentController extends Controller
         $dataAtual = new DateTime();
         $userML = token::where('user_id_mercadolivre','1272736385')->first();
 
-
-        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id);
+        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id_mercadolivre);
         $newToken->resource();
+        $userML = token::where('user_id_mercadolivre','1272736385')->first();
         // URL PARA REQUISICAO
         $endpoint = self::URL_BASE_MERCADOPAGO . $resource;
         $ch = curl_init();
@@ -50,22 +51,28 @@ class getPaymentController extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         curl_close($ch);
-        Log::critical($response);
+
        try {
         if($httpCode == '400'){
             order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
-                $userML = token::where('user_id_mercadolivre',$res->collector_id)->first();
+                $userML = token::where('user_id_mercadolivre',$res->payer_id)->first();
                 // INSERE A NOTIFICAÇÃO
                 $user = User::find($userML->user_id);
-                $user->notify(new notificaUserOrder($user,$this->getOrderId()));
-                order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 4]);
+                $orderId = order_site::where('external_reference',$res->external_reference)->first();
+
+                foreach ($res->additional_info->items as $item) {
+                    $produto = Products::find($item->id);
+                    $user->notify(new notificaUserOrder($user,$this->getOrderId(),$produto,$orderId->id,$orderId->numeropedido));
+                }
+
+                order_site::where('external_reference',$res->external_reference)->update(['status_id' => 4]);
                 // financeiro::where('token_transaction',$res->external_reference)->get();
-                financeiro::where('token_transaction',$res->external_reference)->update(['status' => 4,'valor' => $res->transaction_details->net_received_amount]);
+                financeiro::where('token_transaction',$res->external_reference)->update(['status' => 4,'valor' => $res->transaction_details->net_received_amount,'detalhes_transacao' => $response]);
             }else if($res->status == "cancelled" || $res->status == "refunded"){
-                order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
-                financeiro::where('token_transaction',$res->external_reference)->update(['status' => 5,'valor' => $res->transaction_details->net_received_amount]);
+                order_site::where('external_reference',$res->external_reference)->update(['status_id' => 5]);
+                financeiro::where('token_transaction',$res->external_reference)->update(['status' => 5,'valor' => $res->transaction_details->net_received_amount,'detalhes_transacao' => $response]);
             }
         }
        } catch (\Throwable $th) {

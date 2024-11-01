@@ -37,7 +37,7 @@ class RefreshTokenController extends Controller
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
         $acesso = token::where('user_id_mercadolivre', $this->getUserId())->first();
 
-        // Log::critical(json_encode($acesso));
+
         if(is_null($acesso)){
             $acesso = token::join('users','token.user_id','=','users.id')->
             where('users.id', $this->getUserId())->first();
@@ -45,6 +45,7 @@ class RefreshTokenController extends Controller
         $DataSistema = $this->getDataAtual()->format('Y-m-d H:i:s');
 
         if ($DataSistema > $acesso->datamodify) {
+
             // ENDPOINT PARA REQUISAO;
             $endpoint = URL_BASE_REFRESH_TOKEN_MERCADOLIVRE . $resource;
             // CURL POST EXEC
@@ -58,14 +59,15 @@ class RefreshTokenController extends Controller
             $response = curl_exec($ch);
             curl_close($ch);
             $dados = json_decode($response);
-            Log::critical($response);
+
             // GRAVA OS DADOS DE ACESSO!
             $this->getDataAtual()->modify('+6 hours');
             try {
+
                 token::where('user_id_mercadolivre', $this->getUserId())->update(['access_token' => $dados->access_token, 'DataModify' => $this->getDataAtual()->format('Y-m-d H:i:s')]);
                 return $dados;
             } catch (\Exception $e) {
-                echo $e->getMessage();
+                // echo $e->getMessage();
             }
         }
     }

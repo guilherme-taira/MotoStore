@@ -118,6 +118,8 @@
                         @endforeach
 
                         @foreach ($viewData['dados']->payments as $payment)
+
+                        <h3>Mercado Livre</h3>
                         <div class="d-flex justify-content-between font-weight-bold">
                             <p>Total Pago</p>
                             <p>R$ {{$payment->total_paid_amount}}</p>
@@ -126,6 +128,41 @@
                             <p class="strong">Líquido</p>
                             <p>R$ {{$payment->total_paid_amount - $payment->marketplace_fee - $viewData['shipping_cost']}}</p>
                         </div>
+
+                        {{-- DADOS DA PLATAFORMA --}}
+                        <hr>
+
+                        @if($order['venda']->detalhes_transacao)
+                        @php
+                          $totalFees = 0; // Inicializa a variável para somar as taxas
+                        @endphp
+
+                        <p>{{json_decode($order['venda']->detalhes_transacao)->id}}</p>
+                        <h3>Afilidrop</h3>
+
+                        @foreach (json_decode($order['venda']->detalhes_transacao)->fee_details as $fee)
+
+                        @php
+                            $totalFees += $fee->amount; // Soma o valor da taxa
+                            $liquido = $payment->total_paid_amount - $payment->marketplace_fee - $viewData['shipping_cost'];
+                        @endphp
+
+                        <div class="d-flex justify-content-between font-weight-bold">
+                            <p class="strong">Taxa {{$fee->type}}</p>
+                            <p>R$ {{$fee->amount}}</p>
+                        </div>
+                        @endforeach
+
+                        @php
+                            $final =  ($liquido - ($totalFees + $fee->amount));
+                        @endphp
+                        @endif
+                        @if(isset($final))
+                        <div class="d-flex justify-content-between font-weight-bold">
+                            <p class="strong">Líquido</p>
+                           <p>R$: {{ number_format($final,2) }}</p>
+                        </div>
+                        @endif
                         @endforeach
 
                         @if (isset($viewData['dados']->cancel_detail))
