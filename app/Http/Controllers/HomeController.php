@@ -37,6 +37,15 @@ class HomeController extends Controller
     {
         // PEGA AS VENDAS DO SISTEMA
 
+        try {
+            $dataAtual = new DateTime();
+            $userML = token::where('user_id', Auth::user()->id)->first();
+            $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id_mercadolivre);
+            $newToken->resource();
+        } catch (\Exception $e) {
+            Log::alert($e->getMessage());
+        }
+
         $viewData = [];
         $viewData['title'] = "Afilidrop Dashboard";
         $viewData['subtitle'] = "Dashboard";
