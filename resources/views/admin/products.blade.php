@@ -17,6 +17,18 @@
         </div>
     @endif
 
+    <script>
+
+        function clearForm() {
+                // Seleciona o formulário e redefine os campos
+                const form = document.getElementById('filterForm');
+                form.reset(); // Limpa todos os campos do formulário
+
+                // Envia o formulário vazio
+                form.submit();
+            }
+    </script>
+
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
 
     <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
@@ -287,7 +299,7 @@
 
                 <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
                     <div class="card-body bg-light rounded-3 p-4">
-                        <form class="row g-3" action="{{ route('products.index') }}" method="GET">
+                        <form class="row g-3" id="filterForm" action="{{ route('products.index') }}" method="GET">
                             @csrf
                             <!-- Campo Nome -->
                             <div class="col-md-4">
@@ -347,6 +359,11 @@
                                 <button class="btn btn-primary" type="submit">
                                     <i class="bi bi-filter"></i> Filtrar
                                 </button>
+
+                                <button class="btn btn-secondary" type="button" onclick="clearForm()">
+                                    <i class="bi bi-x-circle"></i> Limpar Filtros
+                                </button>
+
                             </div>
                         </form>
                     </div>
@@ -449,6 +466,7 @@
         var valorProduto = 0;
         var i = 0;
         $(document).ready(function() {
+
 
             $('input[name="preco"]').mask('000.000.000,00', {reverse: true});
 
