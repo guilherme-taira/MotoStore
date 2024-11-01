@@ -331,6 +331,7 @@
                                 <label for="validationDefault04" class="form-label">Categoria</label>
                                 <select class="form-select mt-2" name="categoria" id="categoria" required
                                     aria-label="Default select example">
+                                    <option value="">Selecione..</option>
                                     @foreach ($viewData['categorias'] as $categoria)
                                         <option class="bg-dark text-white" disabled>{{ $categoria['nome'] }}</option>
                                         @foreach ($categoria['subcategory'] as $subcategoria)
