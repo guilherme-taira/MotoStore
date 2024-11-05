@@ -122,7 +122,7 @@
                                                         @elseif($order['pedido']->status_id == 4)
                                                         <p class="text-success font-weight-bold">Pagamento Realizado</p>
                                                         @endif
-                                                        @if ($order['pedido']->detalhes_transacao)
+                                                        @if (isset($order['pedido']->detalhes_transacao))
 
                                                          <p class="alert alert-success"><strong> Pagamento Disponível: R$: {{json_decode($order['pedido']->detalhes_transacao)->transaction_details->net_received_amount}}  em @php echo \Carbon\Carbon::parse(json_decode($order['pedido']->detalhes_transacao)->money_release_date)->translatedFormat('d \d\e F H:i'); @endphp </strong></p>
                                                         @endif

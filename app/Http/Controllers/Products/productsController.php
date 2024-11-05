@@ -207,6 +207,18 @@ class productsController extends Controller
     }
 
 
+    public function getProdutosPaginados(Request $request){
+        $produtos = Products::where('isKit','=','0')
+        ->where('isPublic','=',1)
+        ->paginate(10);
+        // Adiciona o URL completo da imagem para cada produto
+        foreach ($produtos as $produto) {
+            $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
+        }
+
+        return response()->json($produtos);
+    }
+
     public function tradeCategoria(Request $request){
         return $this->getAttributesTrade($request);
     }
@@ -530,7 +542,8 @@ class productsController extends Controller
             'height' =>  "required|numeric|gt:0",
             'width' =>  "required|numeric|gt:0",
             'length' =>  "required|numeric|gt:0",
-            'price' =>"required|numeric|gt:0"
+            'price' =>"required|numeric|gt:0",
+            'priceKit' => "required|numeric|gt:0"
         ]);
 
         $produto = Products::findOrFail($id);
@@ -563,6 +576,8 @@ class productsController extends Controller
         $produto->setWidth($request->input('width'));
         $produto->setLength($request->input('length'));
         $produto->setPrice($request->input('price'));
+        $produto->SetPriceKit($request->input('priceKit'));
+
 
         try {
             if ($request->hasFile('image')) {

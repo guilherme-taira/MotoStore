@@ -125,7 +125,7 @@ Route::get('/geradorProdutos', [reportController::class, 'generatingProduct'])->
 Route::get('/setSessionRoute',[KitsKitsController::class,'setSessionRoute'])->name('setSessionRoute');
 Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->name('getProductByName');
 Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
-Route::get('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
+Route::post('/adicionarQuantidade/{id}',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
 // ROTA DE EMAIL
 Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 // ROTAS DE FILA

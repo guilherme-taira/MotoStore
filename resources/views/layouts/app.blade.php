@@ -24,7 +24,10 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-    <meta name="user-id" content="{{ auth()->user()->id }}">
+    @if(Auth::check())
+        <meta name="user-id" content="{{ auth()->user()->id }}">
+    @endif
+
     <style>
         body {
             padding: 20px;
@@ -54,6 +57,10 @@
             /* Garante que o overlay fique acima de outros elementos */
         }
 
+        /* CSS personalizado para garantir que o modal de progresso fique visível */
+        #progressModal {
+            z-index: 1055; /* Valor ligeiramente maior que o padrão para Bootstrap modals */
+        }
 
         .nav-link .fa-bell {
         position: absolute;
@@ -177,12 +184,15 @@
         <ul class="navbar-nav ms-auto md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
             <!-- Notification Icon with Dropdown -->
             <li class="nav-item dropdown">
+                @if(Auth::check())
                 <a class="nav-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-bell"></i>
                     <span class="badge bg-danger">{{ count(Auth::user()->unreadNotifications) }}</span> <!-- Número de notificações -->
                 </a>
+                @endif
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
                     <li><h6 class="dropdown-header">Notificações</h6></li>
+                    @if(Auth::check())
                     @if(isset(Auth::user()->unreadNotifications))
                         @foreach (Auth::user()->unreadNotifications as $notification)
                             <li>
@@ -219,6 +229,7 @@
                                 @endif
                             </li>
                         @endforeach
+                    @endif
                     @endif
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-center" href="{{ route('notifications') }}">Ver todas as notificações</a></li>
@@ -275,6 +286,7 @@
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="{{ route('products.index') }}">Produtos Disponíveis</a>
                                 <a class="nav-link" href="{{ route('allProductsByFornecedor') }}">Meus Produtos</a>
+                                <a class="nav-link" href="{{ route('kits.index') }}">Kits</a>
                                 <a class="nav-link" href="{{ route('categorias.index') }}">Categorias</a>
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="{{ route('subcategorias.index') }}">Subcategorias</a>
@@ -341,10 +353,12 @@
                         </a>
                     </div>
                 </div>
+                @if(Auth::check())
                 <div class="sb-sidenav-footer">
                     <div class="small">Logged in as:</div>
                      {{Auth::user()->name}}
                 </div>
+                @endif
             </nav>
         </div>
 
