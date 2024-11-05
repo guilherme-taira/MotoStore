@@ -24,7 +24,8 @@ class Products extends Model
         'isNft',
         'height',
         'width',
-        'length'
+        'length',
+        'priceKit'
     ];
 
     protected $table = "products";
@@ -33,6 +34,9 @@ class Products extends Model
         $this->isNft = $valor;
     }
 
+    public function SetPriceKit($valor){
+        $this->priceKit = $valor;
+    }
 
     public function setHeight($valor){
         $this->height = $valor;

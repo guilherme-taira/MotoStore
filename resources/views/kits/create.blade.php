@@ -1,6 +1,85 @@
 @extends('layouts.app')
 @section('conteudo')
-    {{-- {{ Auth::user()->name }} --}}
+<script>
+
+function loadProducts(page = 1) {
+    $.get(`/api/v1/produtos?page=${page}`, function(data) {
+        const products = data.data;
+        const pagination = data.links;
+        // Limpa a lista e recria os produtos
+        products.forEach(product => {
+            $('#produto-list').append(`
+                <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+                    <input class="form-check-input me-2" type="checkbox" value="${product.id}" id="product-${product.id}">
+                    <img src="${product.imagem_url}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${product.title}</h6>
+                        <span class="text-muted">Preço: R$${product.priceKit.toFixed(2)}</span>
+                        <span class="text-muted ms-3">Estoque Disponível: ${product.available_quantity}</span>
+
+                        <!-- Campo de entrada para a quantidade desejada -->
+                        <div class="mt-2">
+                            <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
+                        </div>
+                    </div>
+                </li>
+            `);
+        });
+
+        // Atualiza a navegação de paginação
+        $('#pagination').html('');
+        // Adiciona botão "Anterior"
+        if (data.prev_page_url) {
+            $('#pagination').append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadProducts(${page - 1}); return false;">Anterior</a>
+                </li>
+            `);
+        }
+
+        // Adiciona números das páginas
+        pagination.forEach(pageLink => {
+            if (pageLink.url) {
+                $('#pagination').append(`
+                    <li class="page-item ${pageLink.active ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="loadProducts(${pageLink.label}); return false;">${pageLink.label}</a>
+                    </li>
+                `);
+            }
+        });
+
+        // Adiciona botão "Próximo"
+        if (data.next_page_url) {
+            $('#pagination').append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadProducts(${page + 1}); return false;">Próximo</a>
+                </li>
+            `);
+        }
+            });
+        }
+</script>
+
+    <!-- Modal de Progresso -->
+    <div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="progressModalLabel"> <div class="spinner-border text-success" role="status"> </div> Processando Produtos </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                    <p class="mt-3">Processando <span id="currentProduct">1</span> de <span id="totalProducts"></span> produtos...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -133,103 +212,125 @@
 
     <!--- FINAL DO MODAL ---->
 
-    <div class="card mb-4">
-        <div class="card-header">
-            Gerador de Kits
-        </div>
-        <div class="card-body">
-            @if ($errors->any())
-                <ul class="alert alert-danger list-unstyled">
-                    @foreach ($errors->all() as $error)
-                        <li>- {{ $error }}</li>
-                    @endforeach
-                </ul>
-            @endif
-            @if (!empty($msg))
-                <div class="alert alert-primary" role="alert">
-                    {{ $msg }}
+    <!-- Modal para exibir o catálogo de produtos com checkboxes -->
+    <div class="modal fade" id="catalogoModal" tabindex="-1" aria-labelledby="catalogoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="catalogoModalLabel">Catálogo de Produtos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            @endif
+                <div class="modal-body">
+                    <!-- Área onde os produtos serão listados -->
+                    <div id="produto-list"></div>
 
-            <form action="{{ route('setSessionRoute') }}" id="setSession" method="get">
-                <div class="row">
-                    <div class="col">
-                        <div class="mb-3 row">
-                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">SKU / CÓDIGO:</label>
-                            <div class="col-lg-10 col-md-6 col-sm-12">
-                                <input name="id" id="search" type="text" class="form-control">
-                                <select class="form-select d-none" multiple id="result"> </select>
-                            </div>
-                        </div>
+                    <!-- Botão para adicionar produtos selecionados ao kit -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                       <!-- Botão para enviar produtos selecionados -->
+                    <button type="button" class="btn btn-primary" id="adicionarSelecionados">Adicionar Produtos Selecionados</button>
+
+
+                        <!-- Navegação de paginação -->
+                        <nav aria-label="Navegação de página" id="pagination" class="pagination"></nav>
                     </div>
-
-                    <input type="hidden" name="id" class="form-control" id="id">
-                    <input type="hidden" id="name" name="name" class="form-control">
-
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <div class="d-grid gap-2 d-none" id="btnFinalizar">
-                            <button class="btn btn-success" type="submit">Inserir no Kit <i
-                                    class="bi bi-signpost-2"></i></button>
-                        </div>
-                    </div>
-            </form>
-
-            <div class="col-12">
-                <ol>
-                    @if ($produtos)
-                        @foreach ($produtos as $produto)
-                            @if (isset($produto['id']) != '')
-                                <span class="d-none">{{ $total += $produto['price'] }}</span>
-                                <li class="p-3 mb-2 kit-margin text-dark text-decoration-none produto">
-                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}" alt="{{ $produto['nome'] }}" style="width: 80px">
-                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">
-                                        {{ isset($produto['nome']) ? $produto['nome'] : '' }} Estoque:
-                                        <form
-                                            action="{{ route('adicionarQuantidade', ['id' => isset($produto['id']) ? $produto['id'] : 0]) }}"
-                                            method="get">
-
-                                            <div class="col-md-4"> <input name="stock" id="stock"
-                                                    value="{{ isset($produto['quantidade']) ? $produto['quantidade'] : 1 }}"
-                                                    type="number" class="form-control">
-                                                {{-- botao adicionar quantidade --}}
-                                                <button id="btnSalvarQuantidade"
-                                                    class="mt-2 btn btn-success btn-sm">Adicionar</button>
-                                        </form>
+                </div>
             </div>
-            </label>
+        </div>
+    </div>
+     <!--- FINAL DO MODAL ---->
 
-            <a href="{{ route('deleteSessionRoute', ['id' => isset($produto['id']) ? $produto['id'] : 0]) }}"
-                class="btn btn-danger float-end">Tirar do Kit <i class="bi bi-dash-circle-dotted"></i></a>
-            </li>
-            @endif
-            @endforeach
-            <input type="text" class="d-none" id="valorTotalInput" value="{{ $total }}">
-            @endif
+<div class="card mb-4 shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="m-0">Gerador de Kits</h5>
+    </div>
+    <div class="card-body">
+        @if ($errors->any())
+            <ul class="alert alert-danger list-unstyled">
+                @foreach ($errors->all() as $error)
+                    <li>- {{ $error }}</li>
+                @endforeach
+            </ul>
+        @endif
+        @if (!empty($msg))
+            <div class="alert alert-primary" role="alert">
+                {{ $msg }}
+            </div>
+        @endif
+
+        <form action="{{ route('setSessionRoute') }}" id="setSession" method="get" class="mb-3">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-3">
+                    <div class="input-group">
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#catalogoModal">
+                            <i class="bi bi-book me-2"></i> Ver Catálogo
+                        </button>
+                        <label for="search" class="input-group-text">SKU / CÓDIGO:</label>
+                        <input name="id" id="search" type="text" class="form-control" placeholder="Digite o código do produto">
+                        <select class="form-select d-none" multiple id="result"></select>
+                    </div>
+                </div>
+                <input type="hidden" name="id" id="id">
+                <input type="hidden" id="name" name="name">
+                <div class="col-lg-4 text-end">
+                    <button class="btn btn-success w-100 d-none" id="btnFinalizar">Inserir no Kit <i class="bi bi-signpost-2"></i></button>
+                </div>
+                <div class="spinner-border text-success d-none" id="carregando">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+        </form>
+
+        <div class="product-list">
+            <h6 class="border-bottom pb-2 mb-3">Produtos no Kit</h6>
+            <ol class="list-unstyled">
+                @if (isset($produtos) && count($produtos) > 0)
+                    @foreach ($produtos as $produto)
+                        @if (!empty($produto['id']))
+                            <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+                                <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}" alt="{{ $produto['nome'] }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $produto['nome'] ?? '' }}</h6>
+
+                                    <!-- Seção de preço e estoque -->
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="text-dark me-3">Preço: R$ {{ number_format($produto['price'], 2, ',', '.') }} Un / Pct </span>
+                                        <span class="text-dark">Estoque: {{ $produto['available_quantity'] ?? 0 }} Disponível</span>
+                                    </div>
+
+                                    <!-- Campo de quantidade e botão de adicionar -->
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">Quantidade:</span>
+                                        <form action="{{ route('adicionarQuantidade', ['id' => $produto['id']]) }}" method="POST" class="d-inline-flex align-items-center">
+                                            @csrf
+                                            <input name="stock" id="stock-{{ $produto['id'] }}" value="{{ $produto['quantidade'] ?? 1 }}" type="number" class="form-control form-control-sm w-25 me-2">
+                                            <button id="btnSalvarQuantidade" class="btn btn-success btn-sm">Adicionar</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('deleteSessionRoute', ['id' => $produto['id']]) }}" class="btn btn-danger ms-3">Remover <i class="bi bi-dash-circle-dotted"></i></a>
+                            </li>
+                        @endif
+                    @endforeach
+                @else
+                    <p class="text-muted">Nenhum produto no kit.</p>
+                @endif
             </ol>
         </div>
 
-        <div class="mb-3" id="submitado">
-            <div class="spinner-border text-success d-none" id="carregando">
-                <span class="visually-hidden">Loading...</span>
+
+        <div class="total mt-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <label class="me-2"><strong>Total R$:</strong></label>
+                <input name="price" id="total" type="text" value="{{ $total }}" class="form-control w-25">
+                <button type="button" class="btn btn-primary ms-2" id="modalbutton" data-bs-toggle="modal" data-bs-target="#exampleModal">Cadastrar Kit <i class="bi bi-pin-map"></i></button>
             </div>
-
-            <div class="mb-3 row">
-                <label class="col-form-label"><b>Total R$: </b></label>
-                <div class="col-lg-3 col-md-2 col-sm-12">
-                    <input name="price" id="total" type="text" value="{{ $total }}"
-                        class="form-control">
-                </div>
-
-                <div class="mb-3 col-lg-2 col-md-3 col-sm-6 row">
-                    <button type="button" class="btn btn-primary" id="modalbutton" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">Cadastrar Kit <i class="bi bi-pin-map"></i></button>
-                </div>
-            </div>
-
         </div>
     </div>
     </div>
-@endsection
+</div>
+
+    @endsection
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
@@ -237,7 +338,92 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 <script>
+
     $(document).ready(function() {
+
+
+        $('#adicionarSelecionados').on('click', function() {
+
+            // Fecha outros modais se estiverem abertos
+            $('.modal').modal('hide');
+
+            // Abre o modal de progresso
+            $('#progressModal').modal('show');
+
+            const selectedProducts = [];
+
+            // Captura os IDs e quantidades dos produtos selecionados
+            $('#produto-list input[type="checkbox"]:checked').each(function() {
+                const id = $(this).val();
+                const stock = $(`#stock-${id}`).val(); // Obtém o valor do stock especificado pelo usuário
+                selectedProducts.push({ id, stock });
+            });
+
+            if (selectedProducts.length === 0) {
+                alert("Nenhum produto selecionado.");
+                return;
+            }
+
+            // Inicializa o modal de progresso
+            $('#progressModal').modal('show');
+            $('#totalProducts').text(selectedProducts.length);
+            let completedRequests = 0;
+
+            // Função para atualizar a barra de progresso
+            function updateProgress() {
+                completedRequests++;
+                const progressPercent = (completedRequests / selectedProducts.length) * 100;
+                $('#progressBar').css('width', `${progressPercent}%`);
+                $('#progressBar').text(`${Math.round(progressPercent)}%`);
+                $('#currentProduct').text(completedRequests);
+
+                // Fecha o modal quando todos os produtos forem processados
+                if (completedRequests === selectedProducts.length) {
+                    setTimeout(() => {
+                        $('#progressModal').modal('hide');
+                        // alert("Todos os produtos foram adicionados com sucesso!");
+                        location.reload(); // Atualiza a página
+                    }, 6000);
+                }
+            }
+
+            // Envia uma requisição para cada produto selecionado
+            selectedProducts.forEach(item => {
+                $.ajax({
+                    url: `/adicionarQuantidade/${item.id}`,
+                    type: "POST",
+                    data: { stock: item.stock },
+                    success: function(response) {
+                        updateProgress(); // Atualiza o progresso ao concluir cada requisição
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(`Erro ao adicionar o produto ID: ${item.id}`, error);
+                        updateProgress(); // Atualiza o progresso mesmo se ocorrer um erro
+                    }
+                });
+            });
+        });
+
+
+
+
+        // Carregar produtos ao abrir o modal
+        $('#catalogoModal').on('show.bs.modal', function() {
+            loadProducts();
+        });
+
+        // Evento para adicionar os produtos selecionados ao kit
+        $('#addToKit').on('click', function() {
+            selectedProducts = [];
+            $('#produto-list input:checked').each(function() {
+                selectedProducts.push($(this).val());
+            });
+
+            // Aqui você pode enviar selectedProducts para sua rota ou processá-los
+            console.log(selectedProducts); // Exemplo para verificar os IDs selecionados
+            alert("Produtos adicionados ao kit!");
+            $('#catalogoModal').modal('hide');
+        });
 
         var valorProduto = 0;
         var i = 0;

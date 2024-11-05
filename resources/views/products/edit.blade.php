@@ -314,19 +314,25 @@
                                            <div class="col">
                                                <div class="mb-3 row">
 
-                                                   <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Taxa %:
+                                                   <label class="col-lg-2 col-md-3 col-sm-12 col-form-label">Taxa %:
                                                    </label>
-                                                   <div class="col-lg-3 col-md-6 col-sm-12">
+                                                   <div class="col-lg-1 col-md-6 col-sm-12">
                                                        <input name="taxaFee" id="taxaFee" type="text"
                                                            value="4.99" class="form-control">
                                                    </div>
 
-                                                   <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final:
+                                                   <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                    </label>
-                                                   <div class="col-lg-3 col-md-6 col-sm-12">
+                                                   <div class="col-lg-2 col-md-3 col-sm-12">
                                                        <input name="PriceWithFee" id="PriceWithFee" type="text"
                                                            class="form-control"  value="{{ $viewData['product']->priceWithFee }}">
                                                    </div>
+                                                   <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço Kit:
+                                                    </label>
+                                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                                        <input name="priceKit" id="priceKit" type="text"
+                                                            class="form-control"  value="{{ $viewData['product']->priceKit }}">
+                                                    </div>
                                                </div>
                                            </div>
                                        </div>
@@ -707,6 +713,8 @@
 
                     // valor com as taxas calculo final
                     valorProduto = (parseFloat($("#precoFinal").val()) / 0.95);
+
+                    valorKit = $("#priceKit").val(parseFloat(total / 0.90).toFixed(2));
                     // claculo do valor liquido
                     totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
                     // preço liquido final

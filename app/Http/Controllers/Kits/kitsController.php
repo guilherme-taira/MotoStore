@@ -10,6 +10,7 @@ use App\Models\Products;
 use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class kitsController extends Controller
@@ -46,12 +47,15 @@ class kitsController extends Controller
     public function create(Request $request)
     {
         $request->session()->forget(['_flash', '_token', '_previous', 'auth']);
-        $produtos = $request->session()->all();
+
+        // Obtém apenas a chave `produtos` da sessão, ou um array vazio se não houver produtos
+        $produtos = $request->session()->get('produtos', []);
 
         $viewData = [];
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
 
+        $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
                 "nome" => $value->nome,
@@ -67,6 +71,7 @@ class kitsController extends Controller
             'total' => 0,
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -142,7 +147,7 @@ class kitsController extends Controller
             }
 
             if (!in_array($codigoCliente, $chaves)) {
-                $request->session()->put($request->id, ['id' => $request->id, 'nome' => $request->name, 'imagem' => $this->getImageByUrl($request->id), 'price' => $this->getPrice($request->id), 'estoque' => '1']);
+                $request->session()->put($request->id, ['id' => $request->id, 'nome' => $request->name, 'imagem' => $this->getImageByUrl($request->id), 'price' => $this->getPriceKit($request->id), 'estoque' => '1']);
             } else {
                 $request->session()->forget($codigoCliente);
             }
@@ -178,6 +183,12 @@ class kitsController extends Controller
         return $data['image'];
     }
 
+    public function getTitle(int $id)
+    {
+        $data = Products::where('id', $id)->first();
+        return $data['title'];
+    }
+
 
     public function getStock(int $id)
     {
@@ -195,6 +206,12 @@ class kitsController extends Controller
             return $data['pricePromotion'];
         }
         return $data['price'];
+    }
+
+    public function getPriceKit(int $id)
+    {
+        $data = Products::where('id', $id)->first();
+        return $data['priceKit'];
     }
 
     public function StoreRota(Request $request)
@@ -224,130 +241,146 @@ class kitsController extends Controller
         // ]);
     }
 
-    public function adicionarQuantidade(Request $request)
-    {
-        $request->session()->forget(['_flash', '_token', '_previous', 'auth']);
-        $msg = "";
+    public function adicionarQuantidade(Request $request, $id)
+{
+    $request->session()->forget(['_flash', '_token', '_previous', 'auth']);
+    $msg = "";
 
-        try {
-            $data = $request->session()->all();
-            $codigoCliente = $request->id;
+    try {
+        // Verifica o estoque disponível
+        $availableStock = $this->getStock($id);
 
-            $i = 0;
-            $chaves = [];
-            try {
-                foreach ($data as $key => $value) {
-                    if (is_numeric($key)) {
-                        $chaves[$i] = $value['id'];
-                        $i++;
-                    }
-                }
-
-                if (in_array($codigoCliente, $chaves)) {
-                    foreach ($data as $key => $value) {
-                        if (is_numeric($key)) {
-                            if ($data[$key]['id'] == $codigoCliente) {
-                                $request->session()->forget($key);
-                            }
-                        }
-                    }
-
-                    if ($this->getStock($request->id) < $request->stock) {
-                        $msg = "Quantidade não adicionada por falta de estoque!";
-                        $request->session()->put($request->id + 1, ['id' => $request->id, 'nome' => "", 'imagem' => $this->getImageByUrl($request->id), 'price' => ($this->getPrice($request->id) * $request->stock), 'quantidade' => $this->getStock($request->id)]);
-                    } else {
-                        $request->session()->put($request->id + 1, ['id' => $request->id, 'nome' => "", 'imagem' => $this->getImageByUrl($request->id), 'price' => ($this->getPrice($request->id) * $request->stock), 'quantidade' => $request->stock]);
-                    }
-                }
-            } catch (\Exception $e) {
-                //e->getMessage();
-            }
-
-            $sessao = $request->session()->all();
-
-            $viewData = [];
-            $categorias = [];
-            $viewData['title'] = "Kits de Produtos";
-            $viewData['subtitle'] = "Kits";
-
-            foreach (categorias::all() as $value) {
-                $categorias[$value->id] = [
-                    "nome" => $value->nome,
-                    "subcategory" => sub_category::getAllCategory($value->id),
-                ];
-            }
-
-            $viewData['categorias'] = $categorias;
-
-            return view('kits.create', [
-                'viewData' => $viewData,
-                'produtos' => $sessao,
-                'total' => 0,
-                'msg' => $msg,
-            ]);
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        // Verifica se a quantidade solicitada é maior do que o estoque disponível
+        if ($availableStock < $request->stock) {
+            $msg = "Quantidade não adicionada por falta de estoque!";
+            $quantidadeAdicionada = $availableStock;
+        } else {
+            $quantidadeAdicionada = $request->stock;
         }
-    }
 
-    public function DeleteOrderSessionRoute(Request $request)
-    {
-        $request->session()->forget(['_flash', '_token', '_previous', 'auth', 'url']);
+        // Obtém os produtos já armazenados na sessão (ou um array vazio)
+        $produtos = $request->session()->get('produtos', []);
 
-        $msg = "";
+        // Verifica se o produto já está na sessão
+        if (isset($produtos[$id])) {
+            // Produto já existe, atualiza a quantidade
+            $produto = $produtos[$id];
+            $novaQuantidade = $quantidadeAdicionada;
 
-        try {
-            $data = $request->session()->all();
-            $codigoCliente = $request->id;
-
-            $i = 0;
-            $chaves = [];
-
-            try {
-                foreach ($data as $key => $value) {
-                    if (is_numeric($key)) {
-                        $chaves[$i] = $value['id'];
-                        $i++;
-                    }
-                }
-            } catch (\Exception $e) {
-                //e
+            // Verifica se a nova quantidade não excede o estoque disponível
+            if ($novaQuantidade > $availableStock) {
+                $msg = "Quantidade ajustada ao máximo disponível no estoque!";
+                $novaQuantidade = $availableStock; // Ajusta para o estoque máximo
             }
 
-            if (in_array($codigoCliente, $chaves)) {
-                $dados = array_keys($chaves, $codigoCliente);
-                foreach ($dados as $pos) {
-                    $request->session()->forget($pos);
-                    $msg = "Produto retirado do kit com sucesso!";
-                }
-            }
-
-            $sessao = $request->session()->all();
-
-            $viewData = [];
-            $viewData['title'] = "Kits de Produtos";
-            $viewData['subtitle'] = "Kits";
-
-            foreach (categorias::all() as $value) {
-                $categorias[$value->id] = [
-                    "nome" => $value->nome,
-                    "subcategory" => sub_category::getAllCategory($value->id),
-                ];
-            }
-
-            $viewData['categorias'] = $categorias;
-
-            return view('kits.create', [
-                'viewData' => $viewData,
-                'produtos' => $sessao,
-                'total' => 0,
-                'msg' => $msg,
-            ]);
-        } catch (\Exception $e) {
-
-            echo $e->getMessage();
+            // Atualiza o produto com a nova quantidade e o preço total
+            $produtos[$id] = [
+                'id' => $id,
+                'nome' => $produto['nome'],
+                'imagem' => $produto['imagem'],
+                'price' => $this->getPriceKit($id) * $novaQuantidade, // Preço total
+                'quantidade' => $novaQuantidade,
+                'available_quantity' => $availableStock
+            ];
+        } else {
+            // Produto não existe na sessão, então adiciona como um novo item
+            $produtos[$id] = [
+                'id' => $id,
+                'nome' => $this->getTitle($id),
+                'imagem' => $this->getImageByUrl($id),
+                'price' => $this->getPriceKit($id) * $quantidadeAdicionada, // Preço total
+                'quantidade' => $quantidadeAdicionada,
+                'available_quantity' => $availableStock
+            ];
         }
+
+        // Salva os produtos atualizados na sessão
+        $request->session()->put('produtos', $produtos);
+
+        // Recupera os dados da sessão para exibir na view
+        $sessao = $request->session()->all();
+
+        $viewData = [];
+        $categorias = [];
+        $viewData['title'] = "Kits de Produtos";
+        $viewData['subtitle'] = "Kits";
+
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        // Redireciona para a rota 'kits.create' sem parâmetros na URL
+        return redirect()->route('kits.create')->with([
+            'viewData' => $viewData,
+            'produtos' => $sessao['produtos'],
+            'total' => 0,
+            'msg' => $msg,
+        ]);
+
+    } catch (\Exception $e) {
+        Log::alert($e->getMessage());
     }
+}
+
+
+
+public function DeleteOrderSessionRoute(Request $request, $id)
+{
+    $msg = "";
+
+    try {
+        // Obtém todos os produtos armazenados na sessão
+        $produtos = $request->session()->get('produtos', []);
+
+        // Verifica se o produto com o ID especificado existe na sessão
+        if (isset($produtos[$id])) {
+            // Remove o produto específico
+            unset($produtos[$id]);
+
+            // Atualiza a sessão com os produtos restantes
+            $request->session()->put('produtos', $produtos);
+            $msg = "Produto retirado do kit com sucesso!";
+        } else {
+            $msg = "Produto não encontrado no kit.";
+        }
+
+        // Recupera a sessão atualizada
+        $sessao = $request->session()->all();
+
+        $viewData = [];
+        $viewData['title'] = "Kits de Produtos";
+        $viewData['subtitle'] = "Kits";
+
+        $categorias = [];
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->nome,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
+
+        $viewData['categorias'] = $categorias;
+
+        // Redireciona para a rota 'kits.create' sem parâmetros na URL
+        return redirect()->route('kits.create')->with([
+            'viewData' => $viewData,
+            'produtos' => $sessao['produtos'] ?? [],
+            'total' => 0,
+            'msg' => $msg,
+        ]);
+
+    } catch (\Exception $e) {
+        // Captura qualquer erro e exibe a mensagem
+        Log::error("Erro ao remover produto da sessão: " . $e->getMessage());
+        return redirect()->route('kits.create')->with('msg', 'Erro ao remover o produto do kit.');
+    }
+}
+
 
     public function getProductByName(Request $request)
     {

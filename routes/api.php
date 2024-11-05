@@ -67,6 +67,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/teste2',[productsController::class,'teste']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
+    Route::get('/produtos', [productsController::class, 'getProdutosPaginados']);
+
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
