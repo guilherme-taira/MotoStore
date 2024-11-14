@@ -100,6 +100,7 @@
             </div>
         </div>
 
+
         <form id="formulario">
             <div class="input-group">
                 <span class="input-group-text">Anúncio / Anúncio Base</span>
@@ -234,6 +235,7 @@
 
             <input type="hidden" name="token" id="token">
             <input type="hidden" name="user" id="user">
+            <input type="text" name="domain" id="domain">
 
             <div id="conteudo"></div>
             <hr>
@@ -314,6 +316,76 @@
 
     <script>
         $(document).ready(function() {
+
+            const data = {
+            "domains": [
+                { "domain_id": "MLB-SNEAKERS" },
+                { "domain_id": "MLB-BOOTS_AND_BOOTIES" },
+                { "domain_id": "MLB-LOAFERS_AND_OXFORDS" },
+                { "domain_id": "MLB-FOOTBALL_SHOES" },
+                { "domain_id": "MLB-SANDALS_AND_CLOGS" },
+                { "domain_id": "MLB-T_SHIRTS" },
+                { "domain_id": "MLB-JACKETS_AND_COATS" },
+                { "domain_id": "MLB-DRESSES" },
+                { "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES" },
+                { "domain_id": "MLB-BLOUSES" },
+                { "domain_id": "MLB-SHIRTS" },
+                { "domain_id": "MLB-PAJAMAS" },
+                { "domain_id": "MLB-PANTS_TEST" },
+                { "domain_id": "MLB-PANTS" },
+                { "domain_id": "MLB-SHORTS" },
+                { "domain_id": "MLB-LEGGINGS" },
+                { "domain_id": "MLB-HEELS_AND_WEDGES" },
+                { "domain_id": "MLB-SLIPPERS" },
+                { "domain_id": "MLB-FLATS" },
+                { "domain_id": "MLB-ESPADRILLES" },
+                { "domain_id": "MLB-HIKING_BOOTS" },
+                { "domain_id": "MLB-TACTICAL_BOOTS" },
+                { "domain_id": "MLB-NEOPRENE_BOOTS" },
+                { "domain_id": "MLB-DANCE_SNEAKERS_AND_SHOES" },
+                { "domain_id": "MLB-MOTORCYCLE_BOOTS" },
+                { "domain_id": "MLB-BABIES_FOOTWEAR" },
+                { "domain_id": "MLB-SAFETY_FOOTWEAR" },
+                { "domain_id": "MLB-SPORT_T_SHIRTS" },
+                { "domain_id": "MLB-SWEATERS_AND_CARDIGANS" },
+                { "domain_id": "MLB-CYCLING_JERSEYS" },
+                { "domain_id": "MLB-VESTS" },
+                { "domain_id": "MLB-ROBES" },
+                { "domain_id": "MLB-THERMAL_SHIRTS" },
+                { "domain_id": "MLB-FISHING_SHIRTS" },
+                { "domain_id": "MLB-FOOTBALL_JACKETS" },
+                { "domain_id": "MLB-BASKETBALL_JERSEYS" },
+                { "domain_id": "MLB-PONCHOS" },
+                { "domain_id": "MLB-FASHION_KIMONOS" },
+                { "domain_id": "MLB-FOOTBALL_SHIRTS" },
+                { "domain_id": "MLB-AMERICAN_FOOTBALL_JERSEYS" },
+                { "domain_id": "MLB-FOOTBALL_SWEATSHIRTS_AND_HOODIES" },
+                { "domain_id": "MLB-BASEBALL_AND_SOFTBALL_JERSEYS" },
+                { "domain_id": "MLB-FISHING_VESTS" },
+                { "domain_id": "MLB-RUGBY_JERSEYS" },
+                { "domain_id": "MLB-SCHOOL_SMOCKS" },
+                { "domain_id": "MLB-NIGHTGOWNS" },
+                { "domain_id": "MLB-SPORT_PANTS" },
+                { "domain_id": "MLB-WADERS" },
+                { "domain_id": "MLB-FISHING_PANTS" },
+                { "domain_id": "MLB-TACTICAL_PANTS" },
+                { "domain_id": "MLB-WORK_PANTS" },
+                { "domain_id": "MLB-SPORT_SHORTS" },
+                { "domain_id": "MLB-BRAS" },
+                { "domain_id": "MLB-UNDERPANTS" },
+                { "domain_id": "MLB-PANTIES" },
+                { "domain_id": "MLB-SKIRTS" },
+                { "domain_id": "MLB-SPORT_SKIRTS" },
+                { "domain_id": "MLB-TUTUS" },
+                { "domain_id": "MLB-SNEAKERS_TEST" }
+            ]
+        };
+
+        // Função para verificar se o domain_id existe
+        function checkDomainId(value) {
+            return data.domains.some(domain => domain.domain_id === value);
+        }
+
 
             // Show loading indicator
             $("#loading").fadeIn();
@@ -410,30 +482,34 @@
 
             $("#trocar").click(function() {
 
-
                 const formContainer = document.getElementById('formContainer');
                 const inputs = formContainer.querySelectorAll('input, select');
                 const formData = [];
 
                 inputs.forEach(input => {
-                    const name = input.name;
-                    const value = input.value;
-                    const entry = {
-                        id: name,
-                        value: value,
-                        value_id: value,
-                        value_name: value,
-                        values: [{
-                            id: value,
-                            struct: "null"
-                        }]
-                    };
-                    formData.push(entry);
-                });
+                        const name = input.name;
+                        const value = input.value;
 
+                        let optionText = value; // Valor padrão para `name` no caso de ser um `input`
+
+                        if (input.tagName === 'SELECT') {
+                            // Pega o texto do <option> selecionado
+                            const selectedOption = input.options[input.selectedIndex];
+                            optionText = selectedOption ? selectedOption.text : "";
+                        }
+
+                        const entry = {
+                            id: name,
+                            values: [{
+                                id: value,
+                                name: optionText // Usa o texto do <option> selecionado
+                            }]
+                        };
+
+                        formData.push(entry);
+                    });
 
                 $("#resultadoServer").empty();
-
                 var atributos = [];
                 var tp_cadastro;
                 var ids = [];
@@ -456,9 +532,19 @@
                     sendProductIdForServer(ids, base,title);
                 } else {
                     console.log("BASE VAZIA");
-                    $("li#ids_li").each(function(index, element) {
-                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData);
+                    // Exemplo de uso
+                    const domain = $("#domain").val();
+                    if (checkDomainId(domain)) {
+                        $("li#ids_li").each(function(index, element) {
+                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData,true,domain);
                     });
+                    } else {
+                        $("li#ids_li").each(function(index, element) {
+                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData,false,domain);
+                    });
+                    }
+
+
 
                 }
             });
@@ -549,17 +635,20 @@
             });
 
             // FUNCAO PARA TROCAR DE CATEGORIA
-            function pushProduct(product, accessToken, category,array) {
+            function pushProduct(product, accessToken, category,array,moda = false,domain = "") {
 
                 var body = {
                     'user': $("#user").val(),
                     "id": product,
                     "categoria": category,
-                    "required": array
+                    "required": array,
+                    "token": accessToken,
+                    "moda": moda,
+                    "domain": domain
                 };
 
                 $.ajax({
-                    url: `/api/v1/tradeCategoria`,
+                    url: `/api/v1/tradeCategoriaApi`,
                     type: "POST",
                     data: JSON.stringify(body),
                     headers: {
@@ -935,10 +1024,13 @@
 
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getCategory(category) {
+                var domain = "";
                 $.ajax({
                     url: " https://api.mercadolibre.com/categories/" + category,
                     type: "GET",
                     success: function(response) {
+
+                        domain = response.settings.catalog_domain;
                         if (response) {
                             // SHOW ALL RESULT QUERY
                             var index = [];
@@ -962,7 +1054,8 @@
                                     type: "GET",
                                     success: function(response) {
                                         if (response) {
-
+                                            // COMPLETA O DOMINIO
+                                            $("#domain").val(domain);
                                             const requiredItems = [];
                                             const requiredAttributeNames = [];
 
@@ -974,11 +1067,6 @@
                                                     requiredItems.push(item);
                                                 }
                                             });
-
-                                            // // Adiciona o h2
-                                            // var h2 = document.createElement("h2");
-                                            // h2.textContent = "Campos Obrigatórios";
-                                            // formContainer.appendChild(h2);
 
                                             requiredItems.forEach(element => {
                                                 // Adiciona o label

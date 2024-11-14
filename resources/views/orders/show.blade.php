@@ -15,6 +15,7 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
+                        @if(isset($viewData['dados']) && isset($viewData['dados']->order_items))
                         @foreach ($viewData['dados']->order_items as $key => $product)
                         <div>
                             <h6 class="mb-0">{{$viewData['order'][0]->cliente}}</h6>
@@ -66,6 +67,7 @@
                     </div>
 
                     @endforeach
+                    @endif
                 </div>
             </div>
         </div>
@@ -91,31 +93,38 @@
                         }
                     @endphp
 
+
+                    @if(isset($viewData['dados']) && isset($viewData['dados']->status))
                     <h6>Pagamento {{ traduzirStatusPagamento($viewData['dados']->status) }}</h6>
-                    <p class="text-muted">#{{$viewData['dados']->id}} |
+                    <p class="text-muted">#{{ $viewData['dados']->id }} |
                     @php
                         // Converte a string da data em um objeto Carbon
                         echo \Carbon\Carbon::parse($viewData['dados']->date_created)->translatedFormat('d \d\e F');
                     @endphp
+                    @else
+                    <h6>Informação de pagamento não disponível</h6>
+                    @endif
+
                     </p>
                     <hr>
 
-                    @foreach ($viewData['dados']->order_items as $product)
-
-                        <div class="d-flex justify-content-between">
-                            <p>Preço do Produto</p>
-                            <p>R$ {{$product->full_unit_price}}</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <p>Tarifas de venda</p>
-                            <p>R$ - {{$product->sale_fee}}</p>
-                        </div>
-                        <div class="d-flex justify-content-between font-weight-bold">
-                            <p>Frete</p>
-                            <p>R$ - {{$viewData['shipping_cost']}}</p>
-                        </div>
-                        <hr>
+                    @if(isset($viewData['dados']) && isset($viewData['dados']->order_items))
+                        @foreach ($viewData['dados']->order_items as $product)
+                            <div class="d-flex justify-content-between">
+                                <p>Preço do Produto</p>
+                                <p>R$ {{ $product->full_unit_price }}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>Tarifas de venda</p>
+                                <p>R$ - {{ $product->sale_fee }}</p>
+                            </div>
+                            <div class="d-flex justify-content-between font-weight-bold">
+                                <p>Frete</p>
+                                <p>R$ - {{ $viewData['shipping_cost'] }}</p>
+                            </div>
+                            <hr>
                         @endforeach
+
 
                         @foreach ($viewData['dados']->payments as $payment)
 
@@ -177,7 +186,7 @@
                             <p>Descrição: {{ $viewData['dados']->cancel_detail->description }}</p>
                         </div>
                     @endif
-
+                    @endif
             </div>
         </div>
     </div>

@@ -37,7 +37,6 @@ class RefreshTokenController extends Controller
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
         $acesso = token::where('user_id_mercadolivre', $this->getUserId())->first();
 
-
         if(is_null($acesso)){
             $acesso = token::join('users','token.user_id','=','users.id')->
             where('users.id', $this->getUserId())->first();
@@ -60,6 +59,7 @@ class RefreshTokenController extends Controller
             curl_close($ch);
             $dados = json_decode($response);
 
+            Log::alert($response);
             // GRAVA OS DADOS DE ACESSO!
             $this->getDataAtual()->modify('+6 hours');
             try {

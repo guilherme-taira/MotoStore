@@ -25,7 +25,8 @@ class Products extends Model
         'height',
         'width',
         'length',
-        'priceKit'
+        'priceKit',
+        'priceWithFee'
     ];
 
     protected $table = "products";
@@ -36,6 +37,10 @@ class Products extends Model
 
     public function SetPriceKit($valor){
         $this->priceKit = $valor;
+    }
+
+    public function getPriceKit(){
+        return $this->priceKit;
     }
 
     public function setHeight($valor){
@@ -237,7 +242,7 @@ class Products extends Model
 
     public function getPriceWithFeeMktplace()
     {
-        return $this->PriceWithFee;
+        return $this->priceWithFee;
     }
 
     public function setPriceWithFee($PriceWithFee)
@@ -320,7 +325,7 @@ class Products extends Model
 
     public static function getResults(Request $request) {
         $query = Products::query();
-        $query->where('isKit', 0);
+        // $query->where('isKit', 1);
 
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {

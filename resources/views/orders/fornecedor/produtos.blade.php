@@ -42,25 +42,28 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
+                            <th scope="col">Imagem</th>
                             <th scope="col">ID</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Imagem</th>
-                            <th scope="col">Preço</th>
+                            <th scope="col">Preço Fornecedor</th>
+                            <th scope="col">Preço Afiliado</th>
+                            <th scope="col">Preço Kit</th>
                             <th scope="col">Estoque</th>
                             <th scope="col">Ativo</th>
                             <th scope="col">Visualizações</th>
                             <th scope="col">Edit</th>
-                            <th scope="col">Delete</th>
+                            {{-- <th scope="col">Delete</th> --}}
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($viewData['products'] as $product)
                             <tr id="linhasProduct">
+                                <td style="width: 100px;"><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 120px; height: auto;" alt="{{ $product->getName() }}"></td>
                                 <td class="id_product">{{ $product->getId() }}</td>
                                 <td>{{ $product->getName() }}</td>
-                                <td><img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}" style="width: 10%" alt="{{ $product->getName() }}">
-                                </td>
-                                <td>{{ $product->getPrice() }}</td>
+                                <td>R$: {{ number_format($product->getPrice(),2) }}</td>
+                                <td>R$: {{ number_format($product->getPriceWithFeeMktplace(),2) }}</td>
+                                <td>R$: {{ number_format($product->getPriceKit(),2) }}</td>
                                 <td>{{ $product->getStock() }}</td>
                                 @if ($product->isPublic == 1)
                                     <td><i class="bi bi-check2-square text-success"></i></td>
@@ -72,9 +75,9 @@
                                             class="btn btn-primary btn-sm"><i
                                                 class="bi bi-pencil-square"></i>Editar</button>
                                     </a></td>
-                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
+                                {{-- <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
                                             class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
-                                </td>
+                                </td> --}}
                             </tr>
                         @endforeach
                     </tbody>

@@ -41,7 +41,6 @@ class controlerMercadoLivreItems extends Controller
         curl_close($ch);
         $json = json_decode($reponse);
 
-        Log::critical($endpoint);
         try {
             if ($httpCode == 200) {
                 return $json;

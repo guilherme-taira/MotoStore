@@ -42,6 +42,7 @@ Route::prefix('v1')->group(function () {
     Route::get("/getUserID",[GetTokenForApi::class,'getUserID']);
     Route::post("/getAttributesById",[productsController::class,'getAttributes']);
     Route::post("/tradeCategoria",[productsController::class,'tradeCategoria']);
+    Route::post("/tradeCategoriaApi",[productsController::class,'tradeCategoriaApiNew']);
     Route::post('/getHistory',[productsController::class,'getHistory']);
     Route::get('products', [productsController::class, 'getAllProduct']);
     Route::get('getVisits', [productsController::class, 'getVisits']);

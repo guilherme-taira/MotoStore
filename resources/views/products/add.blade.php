@@ -286,6 +286,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div id="formContainer"></div>
                             </div>
 
                             </div>
@@ -339,16 +341,23 @@
 
                                                     <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Taxa %:
                                                     </label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <div class="col-lg-2 col-md-6 col-sm-12">
                                                         <input name="taxaFee" id="taxaFee" type="text"
                                                             value="4.99" class="form-control">
                                                     </div>
 
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Final:
+                                                    <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                     </label>
-                                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <div class="col-lg-2 col-md-6 col-sm-12">
                                                         <input name="PriceWithFee" id="PriceWithFee" type="text"
                                                             class="form-control"  value="{{ old('PriceWithFee') }}">
+                                                    </div>
+
+                                                    <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Preço Kit:
+                                                    </label>
+                                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                                        <input name="priceKit" id="priceKit" type="text"
+                                                            class="form-control"  value="{{ old('priceKit') }}">
                                                     </div>
                                                 </div>
                                             </div>
@@ -473,8 +482,7 @@
                                         var content_category = '<li class="list-group-item">' + name +
                                             '</li>';
                                         $(".content_categorias").append(content_category);
-                                        $("#id_categoria").val(
-                                            ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                        $("#id_categoria").val(ids); // COLOCA O ID DA CATEGORIA NO CAMPO
                                         getCategory(ids);
                                     });
                                 }

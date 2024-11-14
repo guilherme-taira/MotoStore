@@ -1,13 +1,52 @@
 @extends('layouts.app')
 @section('conteudo')
+<style>
+    .highlighted-category {
+    color: red; /* Cor para destacar */
+    font-weight: bold;
+}
+
+</style>
 <script>
 
+// Array para armazenar os IDs dos produtos selecionados
+let selectedProducts = [];
+
+// Evento para monitorar mudanças nos checkboxes
+$(document).on('change', '.form-check-input', function() {
+    const productId = $(this).val();
+    const stockValue = $(`#stock-${productId}`).val(); // Obtém o valor do stock
+
+    if ($(this).is(':checked')) {
+        // Verifica se o produto já está no array
+        const existingProduct = selectedProducts.find(product => product.id === productId);
+
+        if (!existingProduct) {
+            // Adiciona o produto ao array se estiver marcado e não existir
+            selectedProducts.push({ id: productId, stock: stockValue });
+        }
+    } else {
+        // Remove o produto do array se for desmarcado
+        selectedProducts = selectedProducts.filter(product => product.id !== productId);
+    }
+
+    // Exibe o array no console sempre que um checkbox for clicado
+    console.log('Produtos selecionados:', selectedProducts);
+});
+
+
 function loadProducts(page = 1) {
+    $('#produto-list').empty(); // Limpa a lista de produtos enquanto carrega
+    $('#loader').removeClass('d-none');
     $.get(`/api/v1/produtos?page=${page}`, function(data) {
         const products = data.data;
         const pagination = data.links;
+        $('#loader').addClass('d-none');
+        // Oculta o loader após a requisição
         // Limpa a lista e recria os produtos
         products.forEach(product => {
+            const isChecked = selectedProducts.includes(product.id.toString()) ? 'checked' : '';
+
             $('#produto-list').append(`
                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
                     <input class="form-check-input me-2" type="checkbox" value="${product.id}" id="product-${product.id}">
@@ -37,25 +76,19 @@ function loadProducts(page = 1) {
             `);
         }
 
-        // Adiciona números das páginas
-        pagination.forEach(pageLink => {
+        // Adiciona números das páginas com índice
+        pagination.forEach((pageLink, index) => {
             if (pageLink.url) {
+
+                if(index != pagination.length- 1 || index == 0)
                 $('#pagination').append(`
                     <li class="page-item ${pageLink.active ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="loadProducts(${pageLink.label}); return false;">${pageLink.label}</a>
+                        <a class="page-link" href="#" onclick="loadProducts(${pageLink.label}); return false;">${index}</a>
                     </li>
                 `);
             }
         });
 
-        // Adiciona botão "Próximo"
-        if (data.next_page_url) {
-            $('#pagination').append(`
-                <li class="page-item">
-                    <a class="page-link" href="#" onclick="loadProducts(${page + 1}); return false;">Próximo</a>
-                </li>
-            `);
-        }
             });
         }
 </script>
@@ -82,13 +115,16 @@ function loadProducts(page = 1) {
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-dark" id="exampleModalLabel">Cadastro Kit <i class="bi bi-bookmarks"></i>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title text-dark" id="exampleModalLabel">Cadastro Kit <i class="bi bi-bookmarks"></i></h5>
+                    <div class="d-flex ms-auto">
+                        <input type="text" id="searchItemInput" class="form-control me-2" placeholder="Anúncio Base" style="max-width: 300px;">
+                        <button id="searchItemButton" class="btn btn-primary">Copiar</button>
+                    </div>
                 </div>
+
                 <form method="POST" action="{{ route('kitadd') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -98,7 +134,7 @@ function loadProducts(page = 1) {
                                     <div class="mb-3 row">
                                         <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
                                         <div class="col-lg-10 col-md-6 col-sm-12">
-                                            <input name="name" type="text" class="form-control">
+                                            <input name="name" id="titleAnuncio" type="text" value="{{old('name')}}" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -141,7 +177,7 @@ function loadProducts(page = 1) {
                                     <div class="mb-3 row">
                                         <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
                                         <div class="col-lg-3 col-md-6 col-sm-12">
-                                            <input name="price" id="precoFinal" type="text" class="form-control">
+                                            <input name="precoFinal" id="precoFinal" value="{{old('precoFinal')}}" type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -152,14 +188,14 @@ function loadProducts(page = 1) {
                                     <div class="mb-3 row">
                                         <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Image:</label>
                                         <div class="col-lg-10 col-md-6 col-sm-12">
-                                            <input class="form-control" type="file" name="photos[]" multiple>
+                                            <input class="form-control" type="file" value="{{old('photos')}}" name="photos[]" multiple>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="3"></textarea>
+                                <textarea class="form-control" name="description" id="description" rows="8"></textarea>
                             </div>
                         </div>
 
@@ -181,15 +217,17 @@ function loadProducts(page = 1) {
                                 <div class="col">
                                     <div class="mb-6 row">
                                         <label class="col-lg-2 col-md-3 col-sm-6 col-form-label">Categorias:</label>
-                                        <select class="form-select" name="categoriaMl" id="categorias"
-                                            aria-label="Default select example">
-                                            <option selected>...</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <select class="form-select" name="categoriaMl" id="categorias" aria-label="Default select example" required>
+                                                <option selected disabled>Selecionar</option>
+                                            </select>
+                                            <button type="button" class="btn btn-secondary" id="resetButton">Reset</button>
+                                     </div>
                                     </div>
                                 </div>
                             </div>
                             <input type="hidden" class="form-control" name="id_categoria" id="id_categoria">
-                            <input type="text" class="form-control"  name="stock" id="stock">
+                            {{-- <input type="text" class="form-control"  name="stock" id="stock"> --}}
                             <div class="col-md-4 p-4">
                                 <div class="col">
                                     <div class="mb-3 row">
@@ -221,6 +259,12 @@ function loadProducts(page = 1) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Loader -->
+                    <div id="loader" class="text-center mb-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                    </div>
                     <!-- Área onde os produtos serão listados -->
                     <div id="produto-list"></div>
 
@@ -245,12 +289,13 @@ function loadProducts(page = 1) {
     </div>
     <div class="card-body">
         @if ($errors->any())
-            <ul class="alert alert-danger list-unstyled">
-                @foreach ($errors->all() as $error)
-                    <li>- {{ $error }}</li>
-                @endforeach
-            </ul>
-        @endif
+        <ul class="alert alert-danger list-unstyled">
+            @foreach ($errors->all() as $error)
+                <li>- {{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+
         @if (!empty($msg))
             <div class="alert alert-primary" role="alert">
                 {{ $msg }}
@@ -282,10 +327,19 @@ function loadProducts(page = 1) {
         <div class="product-list">
             <h6 class="border-bottom pb-2 mb-3">Produtos no Kit</h6>
             <ol class="list-unstyled">
+                @php
+                    $total = 0;
+                @endphp
+
                 @if (isset($produtos) && count($produtos) > 0)
                     @foreach ($produtos as $produto)
                         @if (!empty($produto['id']))
+                        @php
+                            $total += $produto['price']; // Acumula o valor de cada produto no total
+                        @endphp
+
                             <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+
                                 <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}" alt="{{ $produto['nome'] }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
 
                                 <div class="flex-grow-1">
@@ -318,11 +372,10 @@ function loadProducts(page = 1) {
             </ol>
         </div>
 
-
         <div class="total mt-4">
             <div class="d-flex justify-content-between align-items-center">
                 <label class="me-2"><strong>Total R$:</strong></label>
-                <input name="price" id="total" type="text" value="{{ $total }}" class="form-control w-25">
+                <input name="price" id="total" type="text" value="{{ number_format($total, 2, ',', '.') }}" class="form-control w-25" readonly>
                 <button type="button" class="btn btn-primary ms-2" id="modalbutton" data-bs-toggle="modal" data-bs-target="#exampleModal">Cadastrar Kit <i class="bi bi-pin-map"></i></button>
             </div>
         </div>
@@ -341,6 +394,87 @@ function loadProducts(page = 1) {
 
     $(document).ready(function() {
 
+         // Função para resetar o conteúdo
+         $('#resetButton').on('click', function() {
+            getAllCategorias(); // VOLTA TUDO AS CATEGORIAS
+            // Limpa a lista de categorias selecionadas
+            $('.content_categorias').empty();
+
+            // Limpa o campo de ID de categoria
+            $('#id_categoria').val('');
+            // Reseta o select para a opção padrão
+            $('#categorias').empty();
+        });
+
+        $(document).on('click', '#searchItemButton', function() {
+        const itemId = $('#searchItemInput').val().trim();
+
+        if (itemId === '') {
+            alert('Por favor, insira um ID de item.');
+            return;
+        }
+
+        // URL base da API do Mercado Livre
+        const apiBaseUrl = 'https://api.mercadolibre.com/items/';
+
+        // Função genérica para fazer a requisição AJAX
+        function fetchData(url, successCallback, errorMessage) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: successCallback,
+                error: function() {
+                    $('#searchResult').html(`<p class="text-danger">${errorMessage}</p>`);
+                }
+            });
+        }
+
+    // Requisição para os dados do item
+    fetchData(
+        `${apiBaseUrl}${itemId}`,
+        function(response) {
+
+
+            $("#titleAnuncio").val(response.title);
+            $("#precoFinal").val(parseFloat(response.price).toFixed(2).replace('.', ','));
+            $("#acressimoR").val(0);
+
+            // Requisição para os dados da categoria
+            fetchData(
+                `https://api.mercadolibre.com/categories/${response.category_id}`,
+                function(categoryResponse) {
+                    $("#categoryName").val(categoryResponse.name);
+
+                    $("#id_categoria").val(categoryResponse.id);
+                    // Exibe o caminho da categoria (path_from_root)
+                    const pathList = categoryResponse.path_from_root.map((category, index, array) => {
+                        if (index === array.length - 1) {
+                            return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
+                        } else {
+                            return `<li class="list-group-item">${category.name}</li>`;
+                        }
+                    }).join('');
+                    $('.content_categorias').append(pathList);
+                },
+                'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
+            );
+        },
+        'Erro ao buscar o item. Verifique o ID e tente novamente.'
+    );
+
+    // Requisição para a descrição do item
+    fetchData(
+        `${apiBaseUrl}${itemId}/description`,
+        function(descriptionResponse) {
+            $("#description").val(descriptionResponse.plain_text);
+        },
+        'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
+    );
+
+
+});
+
+
 
         $('#adicionarSelecionados').on('click', function() {
 
@@ -350,7 +484,6 @@ function loadProducts(page = 1) {
             // Abre o modal de progresso
             $('#progressModal').modal('show');
 
-            const selectedProducts = [];
 
             // Captura os IDs e quantidades dos produtos selecionados
             $('#produto-list input[type="checkbox"]:checked').each(function() {
@@ -482,73 +615,134 @@ function loadProducts(page = 1) {
             });
         });
 
-        //
-        $.ajax({
-            url: "https://api.mercadolibre.com/sites/MLB/categories",
-            type: "GET",
-            success: function(response) {
-                if (response) {
-                    // SHOW ALL RESULT QUERY
-                    var index = [];
-                    $.each(response, function(i, item) {
-                        index[i] = '<option class="option-size" value=' + item.id + '>' +
-                            item.name + '</option>';
-                    });
+        getAllCategorias();
 
-                    if (i == 0) {
-                        // PEGA A ALTERACAO DAS CATEGORIAS
-                        $("#categorias").change(function() {
-                            var ids = $(this).children("option:selected").val();
-                            var name = $(this).children("option:selected").text();
-                            var content_category = '<li class="list-group-item">' + name +
-                                '</li>';
-                            $(".content_categorias").append(content_category);
-                            $("#id_categoria").val(
-                                ids); // COLOCA O ID DA CATEGORIA NO CAMPO
-                            getCategory(ids);
-                        });
-                    }
-
-                    var arr = jQuery.makeArray(index);
-                    arr.reverse();
-                    $("#categorias").html(arr);
-                }
-            },
-            error: function(error) {
-                $('#result').html(
-                    '<option> Produto Digitado Não Existe! </option>'
-                );
-            }
-        });
-
-        // FUNCAO PARA CHAMAR CATEGORIAS
-        function getCategory(category) {
-            $.ajax({
-                url: " https://api.mercadolibre.com/categories/" + category,
-                type: "GET",
-                success: function(response) {
-                    if (response) {
-                        // SHOW ALL RESULT QUERY
-                        var index = [];
-                        $.each(response.children_categories, function(i, item) {
-                            index[i] =
-                                '<option class="option-size" value=' + item.id + '>' + item
-                                .name + '</option>';
-                        });
-
-                        var arr = jQuery.makeArray(index);
-                        arr.reverse();
-                        $("#categorias").html(arr);
-                    }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>'
-                    );
-                }
+function getAllCategorias(){
+    $.ajax({
+    url: "https://api.mercadolibre.com/sites/MLB/categories",
+    type: "GET",
+    success: function(response) {
+        if (response) {
+            // SHOW ALL RESULT QUERY
+            var index = [];
+            $.each(response, function(i, item) {
+                index[i] = '<option class="option-size" value=' + item.id + '>' +
+                    item.name + '</option>';
             });
 
+            if (i == 0) {
+                // PEGA A ALTERACAO DAS CATEGORIAS
+                $("#categorias").off("change").on("change", function() {
+                    var ids = $(this).children("option:selected").val();
+                    var name = $(this).children("option:selected").text();
+                    var content_category = '<li class="list-group-item">' + name +
+                        '</li>';
+                    $(".content_categorias").append(content_category);
+                    $("#id_categoria").val(
+                        ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                    getCategory(ids);
+                });
+            }
+
+            var arr = jQuery.makeArray(index);
+            arr.reverse();
+            $("#categorias").html(arr);
         }
+    },
+    error: function(error) {
+        $('#result').html(
+            '<option> Produto Digitado Não Existe! </option>'
+        );
+    }
+});
+}
+
+// FUNCAO PARA CHAMAR CATEGORIAS
+function getCategory(category) {
+    $.ajax({
+        url: " https://api.mercadolibre.com/categories/" + category,
+        type: "GET",
+        success: function(response) {
+            if (response) {
+                // SHOW ALL RESULT QUERY
+                var index = [];
+                // Adiciona a primeira opção estática
+                index.push('<option class="option-size" >Selecionar</option>');
+
+                $.each(response.children_categories, function(i, item) {
+                    // Crie suas opções dinâmicas aqui
+                    var option = '<option class="option-size" value=' + item.id +
+                        '>' + item.name + '</option>';
+                    index.push(option);
+                });
+
+                if (index.length <= 1) {
+                    $.ajax({
+                        url: " https://api.mercadolibre.com/categories/" +
+                            category + "/attributes",
+                        type: "GET",
+                        success: function(response) {
+                            if (response) {
+
+                                const requiredItems = [];
+                                const requiredAttributeNames = ['BRAND',
+                                    'MODEL', 'LENGTH', 'HEIGHT'
+                                ];
+                                response.forEach(item => {
+                                    if (item.tags && item.tags
+                                        .required === true && !
+                                        requiredAttributeNames.includes(
+                                            item.id)) {
+                                        requiredItems.push(item);
+                                    }
+                                });
+
+                                // Adiciona o h2
+                                var h2 = document.createElement("h2");
+                                h2.textContent = "Campos Obrigatórios";
+                                formContainer.appendChild(h2);
+
+                                requiredItems.forEach(element => {
+                                    // Adiciona o label
+                                    var label = document.createElement(
+                                        "label");
+                                    label.textContent = element.name;
+                                    formContainer.appendChild(label);
+
+                                    var selectField = document
+                                        .createElement("select");
+                                    for (var i = 0; i < element.values
+                                        .length; i++) {
+                                        var option = document
+                                            .createElement("option");
+                                        selectField.className =
+                                            "form-control";
+                                        selectField.name = element.id;
+                                        option.text = element.values[i]
+                                            .name;
+                                        option.value = element.values[i]
+                                            .id;
+                                        selectField.appendChild(option);
+
+                                    }
+                                    formContainer.appendChild(
+                                        selectField);
+                                });
+                            }
+                        }
+                    });
+                }
+                $("#categorias").html(index.join(''));
+            }
+        },
+        error: function(error) {
+            $('#result').html(
+                '<option> Produto Digitado Não Existe! </option>'
+            );
+        }
+    });
+
+}
 
 
         $("form").submit(function(event) {
@@ -559,149 +753,69 @@ function loadProducts(page = 1) {
 
         // VALOR TOTAL
         var total = $('#total').val();
-        var totalCalculado = total;
+        console.log(total);
+        // var totalCalculado = $total;
+        $('#precoFinal').val(total);
 
-        $('#precoFinal').val(parseFloat(total).toFixed(2));
+        function calculaPorcentagem(base, porcentagem) {
+    return (base * parseFloat(porcentagem)) / 100;
+}
+// Evento para manipular descontos e acréscimos em porcentagem
+$('#acressimoP, #descontoP').keyup(function () {
+    let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+    let valorPorcentagem = parseFloat($(this).val().replace(',', '.'));
 
-        // // MASCARA DE PORCENTAGEM
-        // $('.porcem').mask('Z9999.999', {
-        //     translation: {
-        //         'Z': {
-        //             pattern: /[\-\+]/,
-        //             optional: true
-        //         }
-        //     }
-        // });
-
-        $('#descontoP').keyup(function() {
-            if ($('#descontoP').val().length >= 1) {
-                var porcem = $('#descontoP').val();
-                totalCalculado = parseFloat(total) - parseFloat(calculaPorcemtagem(total, porcem));
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-
-                $('#acressimoP').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-                $('#acressimoR').prop("disabled", true).css({
-                    'background-color': 'red'
-                });;
-                $('#descontoR').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-            } else {
-                totalCalculado = parseFloat(total);
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                $('#acressimoP').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-                $('#acressimoR').prop("disabled", false).css({
-                    'background-color': 'white'
-                });;
-                $('#descontoR').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-            }
-        });
-
-        $('#descontoR').keyup(function() {
-            $('#descontoR').keyup(function() {
-                var reais = $('#descontoR').val();
-                totalCalculado = parseFloat(total) - parseFloat(reais);
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                if ($('#descontoR').val().length >= 1) {
-                    $('#acressimoR').prop("disabled", true).css({
-                        'background-color': 'red'
-                    });
-                    $('#acressimoP').prop("disabled", true).css({
-                        'background-color': 'red'
-                    });;
-                    $('#descontoP').prop("disabled", true).css({
-                        'background-color': 'red'
-                    });
-                } else {
-                    $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                    $('#acressimoR').prop("disabled", false).css({
-                        'background-color': 'white'
-                    });
-                    $('#acressimoP').prop("disabled", false).css({
-                        'background-color': 'white'
-                    });;
-                    $('#descontoP').prop("disabled", false).css({
-                        'background-color': 'white'
-                    });
-                }
-            });
-        });
-
-        $('#acressimoP').keyup(function() {
-            if ($('#acressimoP').val().length >= 1) {
-                var porcem = $('#acressimoP').val();
-                totalCalculado = parseFloat(total) + parseFloat(calculaPorcemtagem(total, porcem));
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                $('#acressimoR').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-                $('#descontoP').prop("disabled", true).css({
-                    'background-color': 'red'
-                });;
-                $('#descontoR').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-            } else {
-                totalCalculado = parseFloat(total);
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                $('#acressimoR').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-                $('#descontoR').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-                $('#descontoP').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-            }
-        });
-
-        $('#acressimoR').keyup(function() {
-            if ($('#acressimoR').val().length >= 1) {
-                var reais = $('#acressimoR').val();
-                totalCalculado = parseFloat(total) + parseFloat(reais);
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-
-                $('#acressimoP').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-                $('#descontoP').prop("disabled", true).css({
-                    'background-color': 'red'
-                });;
-                $('#descontoR').prop("disabled", true).css({
-                    'background-color': 'red'
-                });
-            } else {
-                totalCalculado = parseFloat(total) + 0;
-                $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-                $('#acressimoP').prop("disabled", false).css({
-                    'background-color': 'white'
-                });
-                $('#descontoP').prop("disabled", false).css({
-                    'background-color': 'white'
-                });;
-                $('#descontoR').prop("disabled", false).css({
-                    'background-color': 'white'
-
-                });
-            }
-        });
-
-        function calculaPorcemtagem(valor, porcem) {
-            //60 x 25% = 160 (25/100) = 160 x 0,25 = 40.
-            return valor * (porcem / 100);
+    if ($(this).val().length > 0) {
+        if ($(this).attr('id') === 'acressimoP') {
+            totalCalculado = totalConvertido + calculaPorcentagem(totalConvertido, valorPorcentagem);
+        } else if ($(this).attr('id') === 'descontoP') {
+            totalCalculado = totalConvertido - calculaPorcentagem(totalConvertido, valorPorcentagem);
         }
+        $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
+    } else {
+        // Volta ao valor original se o campo estiver vazio
+        $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
+    }
 
+    // Desabilita outros campos enquanto um campo é preenchido
+    toggleInputFields(this);
+});
+
+// Evento para manipular descontos e acréscimos em reais
+$('#acressimoR, #descontoR').keyup(function () {
+    let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+    let valorReais = parseFloat($(this).val().replace(',', '.'));
+
+    if ($(this).val().length > 0) {
+        if ($(this).attr('id') === 'acressimoR') {
+            totalCalculado = totalConvertido + valorReais;
+        } else if ($(this).attr('id') === 'descontoR') {
+            totalCalculado = totalConvertido - valorReais;
+        }
+        $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
+    } else {
+        // Volta ao valor original se o campo estiver vazio
+        $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
+    }
+
+    // Desabilita outros campos enquanto um campo é preenchido
+    toggleInputFields(this);
+});
+
+// Função para desabilitar/reenabilitar campos
+function toggleInputFields(currentField) {
+    let fields = ['#acressimoP', '#acressimoR', '#descontoP', '#descontoR'];
+
+    fields.forEach(field => {
+        if (field !== `#${$(currentField).attr('id')}`) {
+            $(field).prop('disabled', $(currentField).val().length > 0).css('background-color', $(currentField).val().length > 0 ? 'red' : 'white');
+        }
+    });
+}
         // TOKEN DE ASSINATURA
         // let _token = $('meta[name="csrf-token"]').attr('content');
         // SETA O VALOR TOTAL DO KIT
-        $('#total').val($('#valorTotalInput').val());
+        // $('#total').val($('#valorTotalInput').val());
         /**
          * FUNCAO QUE PEGA VALOR DIGITADO NO INPUT
          */
@@ -764,3 +878,4 @@ function loadProducts(page = 1) {
 
     });
 </script>
+
