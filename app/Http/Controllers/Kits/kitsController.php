@@ -398,28 +398,58 @@ public function DeleteOrderSessionRoute(Request $request, $id)
 
         $products = session()->all();
 
-        // $validator = Validator::make($request->all(), [
-        //     'name' => 'required|min:5',
-        //     'price' => 'required|numeric|min:1',
-        //     // 'photos' => 'required|file',
-        //     //"stock" => "required|numeric",
-        //     'description' => 'required'
-        // ]);
+        $input = $request->all();
 
-        // if ($validator->fails()) {
-        //     return redirect()->back()
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
+        // Converter o valor de precoFinal para o formato numérico adequado (ponto como separador decimal)
+        $input['precoFinal'] = str_replace(',', '.', str_replace('.', '', $input['precoFinal']));
 
-        $produto = new Products();
+        $request->merge($input);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5',
+            'precoFinal' => 'required|numeric|min:1',
+            'photos.*' => 'required|file$|mimes:jpg,jpeg,png',
+            //"stock" => "required|numeric",
+            'description' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        echo "<pre>";
+        print_r(array_values($products['produtos']));
+
+
+    function calculaKitsPossiveis($produtos) {
+        $kitsPossiveis = PHP_INT_MAX; // Inicializa com um valor alto para encontrar o mínimo
+
+        foreach ($produtos as $produto) {
+            if ($produto['quantidade'] > 0) {
+                // Calcula quantos kits podem ser feitos com base no estoque e na quantidade necessária de cada produto
+                $kitsProduto = floor($produto['available_quantity'] / $produto['quantidade']);
+                $kitsPossiveis = min($kitsPossiveis, $kitsProduto); // Mantém o menor valor encontrado
+            }
+        }
+
+        return $kitsPossiveis;
+    }
+
+    // Exemplo de uso
+    $kitsPossiveis = calculaKitsPossiveis(array_values($products['produtos']));
+
+    if($kitsPossiveis > 0){
+     $produto = new Products();
         $produto->title = $request->name;
-        $produto->price = $request->price;
+        $produto->price = str_replace(',', '.',$request['precoFinal']);
         $produto->description = $request->description;
         // CATEGORIA REMOVIDA
         $produto->category_id = $request->id_categoria;
         $produto->subcategoria = $request->categoria;
         $produto->iskit = 1;
+        $produto->stock = $kitsPossiveis;
         $produto->image = "image.png";
         $produto->save();
 
@@ -440,14 +470,15 @@ public function DeleteOrderSessionRoute(Request $request, $id)
             $i++;
         }
 
-        //CADASTRA PRODUTO DO KIT
-        foreach ($products as $product) {
+        // //CADASTRA PRODUTO DO KIT
+        foreach (array_values($products['produtos']) as $key => $product) {
+
             $id = isset($product['id']) ? $product['id'] : 0;
             if ($id != 0) {
                 $produtoKit = new kit();
                 $produtoKit->product_id = $produto->getId();
                 $produtoKit->id_product_kit = isset($product['id']) ? $product['id'] : 0;
-                $produtoKit->available_quantity = isset($product['estoque']) ? $product['estoque'] : 0;
+                $produtoKit->available_quantity = isset($product['quantidade']) ? $product['quantidade'] : 0;
                 $produtoKit->acrescimo = 0;
                 $produtoKit->desconto = 0;
                 $produtoKit->user_id = Auth::user()->id;
@@ -470,6 +501,12 @@ public function DeleteOrderSessionRoute(Request $request, $id)
                 'total' => 0,
             ]
         );
+    }else{
+          // Redireciona de volta com uma mensagem de erro
+        return redirect()->back()->withErrors(['error' => 'Não é possível montar um kit com a quantidade atual de produtos.']);
+    }
+
+
     }
 
     public function VerificaQuantidade($id){

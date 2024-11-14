@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Products;
 
+use App\Events\EventoAfiliado;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Job\getProductDataController;
 use App\Http\Controllers\MercadoLivre\ProdutoImplementacao;
@@ -34,17 +35,22 @@ use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
 use App\Http\Controllers\image\image;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerShoes;
 use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
 use App\Http\Controllers\MercadoLivre\MlbCallAttributes;
 use App\Http\Controllers\MercadoLivre\MlbTipos;
+use App\Http\Controllers\MercadoLivre\ProdutoConcreto;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
+use App\Models\kit;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use stdClass;
 
 ini_set('max_execution_time', 30); //300 seconds = 5 minutes
 
@@ -58,9 +64,6 @@ class productsController extends Controller
      */
     public function index(Request $request)
     {
-
-
-
         $viewData = [];
         $viewData['title'] = "MotoStore Produtos";
         $categoriaKeyCache = 'categoriasProdutos';
@@ -69,7 +72,6 @@ class productsController extends Controller
         $cacheTime = 5;
 
         $viewData['products'] = Products::getResults($request);
-
 
 
         $data = [];
@@ -134,7 +136,7 @@ class productsController extends Controller
             'price' => 'required|numeric|min:1',
             "stock" => "required|numeric",
             'description' => 'required',
-            'brand' => 'required|min:3',
+            'brand' => 'required|min:1',
             'ean' => 'required',
             'termometro' => 'numeric',
             'fee' => "required|numeric|gt:0",
@@ -144,7 +146,8 @@ class productsController extends Controller
             'width' =>  "required|numeric|gt:0",
             'length' =>  "required|numeric|gt:0",
             'photos' => "required",
-            'id_categoria' => "required"
+            'id_categoria' => "required",
+            'priceKit' => "required|numeric|gt:0"
         ]);
 
         if ($validator->fails()) {
@@ -182,6 +185,7 @@ class productsController extends Controller
         $produto->setHeight($request->input('height'));
         $produto->setWidth($request->input('width'));
         $produto->setLength($request->input('length'));
+        $produto->setPriceKit($request->input('priceKit'));
 
         $produto->save();
 
@@ -222,6 +226,83 @@ class productsController extends Controller
     public function tradeCategoria(Request $request){
         return $this->getAttributesTrade($request);
     }
+
+    public function tradeCategoriaApiNew(Request $request){
+
+        if($request->via = "alterador"){
+
+             // ENDPOINT PARA REQUISICAO
+             $endpoint = 'https://api.mercadolibre.com/items/'.$request->id;
+
+             $ch = curl_init();
+             curl_setopt($ch, CURLOPT_URL, $endpoint);
+             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             $response = curl_exec($ch);
+             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+             curl_close($ch);
+             $data = json_decode($response,true);
+
+             $try = FALSE;
+
+             if($request->categoria){
+             // TROCAR A CATEGORIA
+
+             $obj = new stdClass();
+             $obj->domain = $request->domain;
+             $obj->token = $request->token;
+             $obj->data = $request->required;
+
+             $handler = new handlerDresses();
+             $handler->setNext(new handlerDresses())
+             ->setNext(new handlerShoes());
+
+             $grid = $handler->Manipular($obj);
+
+
+            if($request->moda){
+                    $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $grid]);
+
+            }else{
+                if($try){
+                    $data_json = json_encode($data);
+                }else{
+                    $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $request->required]);
+                    $try = TRUE;
+                }
+            }
+
+            $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
+
+            $dataAtual = new DateTime();
+            $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
+            $newToken->resource();
+            $token = token::where('user_id_mercadolivre',$request->user)->first(); // CHAMANDO ANTIGO
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $endpoint);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse);
+
+            if ($httpCode == '200') {
+                logAlteracao::dispatch('TROCA DE CATEGORIA',$request->user,$reponse,true);
+                echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
+            }else{
+                echo "<li class='list-group-item bg-danger text-white'>{$json->cause[0]->message}</li>";
+            }
+           }
+    }
+ }
 
     public function getHistory(Request $request){
         $logs = historico::where('user_id',$request->user)->limit(10)->orderBy('created_at', 'desc')->get();
@@ -347,7 +428,6 @@ class productsController extends Controller
                 }
 
             }
-
     }
 
     public function TrocarCategoriaRequest($data, $try = FALSE, $id,$categoria,$user,$newtitle,$required) {
@@ -364,6 +444,8 @@ class productsController extends Controller
                 $data_json = json_encode(['category_id' => $categoria,'attributes' => $required]);
                 $try = TRUE;
             }
+
+            Log::alert($data_json);
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -443,6 +525,7 @@ class productsController extends Controller
             $viewData['image'] = $produto->image;
             $viewData['images'] = $photos;
             $viewData['imageJson'] = $produto->imageJson;
+            $viewData['kitProducts'] = kit::getProductsByKit($produto->id);
 
             $categorias = [];
             foreach (categorias::all() as $value) {
@@ -497,6 +580,8 @@ class productsController extends Controller
         $viewData['product'] = $produto;
         $viewData['photos'] = $photos;
         $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);
+        $viewData['kitProducts'] = kit::getProductsByKit($produto->id);
+
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
@@ -523,7 +608,6 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
-
 
         $request->validate([
             "name" => "required|max:255",
@@ -1046,8 +1130,6 @@ class productsController extends Controller
 
     public function IntegrarProduto(Request $request)
     {
-
-
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5|max:60',

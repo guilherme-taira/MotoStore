@@ -99,6 +99,43 @@
                        </div>
                    </div>
 
+                     <!-- Nova aba apenas para kits -->
+                    @if(isset($viewData['product']->isKit) && $viewData['product']->isKit)
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingKit">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseKit" aria-expanded="false" aria-controls="collapseKit">
+                                Informações do Kit
+                            </button>
+                        </h2>
+                        <div id="collapseKit" class="accordion-collapse collapse" aria-labelledby="headingKit"
+                            data-bs-parent="#productFormAccordion">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <ul class="list-unstyled">
+                                        @foreach($viewData['kitProducts']['kitItems'] as $product)
+                                            <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+                                                <input class="form-check-input me-2" type="checkbox" value="{{ $product->id }}" id="product-{{ $product->id }}" checked>
+                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image)!!}" alt="{{ $product->title }}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ $product->title }}</h6>
+                                                    <span class="text-muted">Preço: R${{ number_format($product->priceKit, 2, ',', '.') }}</span>
+                                                    <span class="text-muted ms-3">Estoque Disponível: {{ $product->available_quantity }}</span>
+
+                                                    <!-- Campo de entrada para a quantidade desejada -->
+                                                    <div class="mt-2">
+                                                        <input type="hidden" id="stock-{{ $product->id }}" class="form-control form-control-sm w-25" min="1" max="{{ $product->available_quantity }}" value="1">
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                    <!-- Preço e Estoque -->
                    <div class="accordion-item">
                        <h2 class="accordion-header" id="headingPricing">
@@ -350,11 +387,8 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-
     <script>
         $(document).ready(function() {
-
 
             $('#fornecedor-input').on('input', function() {
                         let inputVal = $(this).val();
@@ -699,10 +733,17 @@
                 }
             });
 
+            function convertBrazilianToNumber(value) {
+                // Remove os pontos de milhares e substitui a vírgula decimal por um ponto
+                let number = parseFloat(value.replace(/\./g, '').replace(',', '.'));
+                return isNaN(number) ? 0 : number; // Retorna 0 se não for um número válido
+            }
+
+
             $('#acressimoR').keyup(function() {
 
                 total = $('#precoNormal').val();
-                $('#precoFinal').val(parseFloat(total).toFixed(2));
+                 precoFinal =$('#precoFinal').val(parseFloat(total).toFixed(2));
 
 
                 if ($('#acressimoR').val().length >= 1) {
@@ -714,7 +755,8 @@
                     // valor com as taxas calculo final
                     valorProduto = (parseFloat($("#precoFinal").val()) / 0.95);
 
-                    valorKit = $("#priceKit").val(parseFloat(total / 0.90).toFixed(2));
+                    valorKit = (parseFloat(total) / 0.90);
+                    $("#priceKit").val(parseFloat(valorKit).toFixed(2));
                     // claculo do valor liquido
                     totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
                     // preço liquido final

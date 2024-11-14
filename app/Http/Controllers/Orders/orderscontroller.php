@@ -85,12 +85,14 @@ class orderscontroller extends Controller
         $order = order_site::getOrderjoinComplete($id);
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $order[0]->user_id_mercadolivre)->first();
+
         $dataAtual = new DateTime();
         // GET NEW TOKEN
-        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id);
+        $newToken = new RefreshTokenController($userML->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id_mercadolivre);
         $newToken->resource();
         $userML = token::where('user_id_mercadolivre', $userML->user_id_mercadolivre)->first();
         $data = (new controlerMercadoLivreItems("orders/".$order[0]->numeropedido,$userML->access_token))->resource();
+
 
         $viewData = [];
         $viewData['title'] = "Pedido";
@@ -119,6 +121,7 @@ class orderscontroller extends Controller
                 array_push($viewData['pedidos'], ['produto' => $product, 'venda' => $order[$i]]);
             }
         }
+
 
         return view('orders.show')->with('viewData', $viewData);
     }
