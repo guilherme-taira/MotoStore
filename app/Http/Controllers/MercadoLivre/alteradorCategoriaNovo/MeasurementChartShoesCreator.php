@@ -24,6 +24,14 @@ class MeasurementChartShoesCreator extends Controller
         // Gera um unique_id com a data de hoje e o sufixo "sneakers"
         $uniqueName = uniqid(date('Y-m-d')."dresses");
 
+        $gender = [];
+
+        foreach (array_values($this->requestMain->data) as $key => $value) {
+           if($value['id'] == 'GENDER'){
+                $gender = array_values($value['values']);
+           }
+        }
+        Log::alert(json_encode($gender));
          // Estrutura da tabela de medidas para sapatos, incluindo o unique_id no nome
          $data = [
             "names" => [
@@ -42,12 +50,8 @@ class MeasurementChartShoesCreator extends Controller
             "attributes" => [
                 [
                     "id" => "GENDER",
-                    "values" => [
-                        [
-                            "id" => "339665", // Valor para gênero masculino, por exemplo
-                            "name" => "Masculino"
-                        ]
-                    ]
+                    "values" =>
+                       $gender
                 ]
             ],
             "rows" => [
@@ -73,6 +77,8 @@ class MeasurementChartShoesCreator extends Controller
                 ]
             ]
         ];
+
+
         // Configuração da requisição cURL
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -129,6 +135,7 @@ class MeasurementChartShoesCreator extends Controller
                 "value_name" => $result['rows'][0]['id']
             ]
             ];
+
 
            return array_merge($this->requestMain->data,$grid);
 
