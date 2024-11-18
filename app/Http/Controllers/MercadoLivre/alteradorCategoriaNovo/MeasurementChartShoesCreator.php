@@ -31,7 +31,7 @@ class MeasurementChartShoesCreator extends Controller
                 $gender = array_values($value['values']);
            }
         }
-        Log::alert(json_encode($gender));
+
          // Estrutura da tabela de medidas para sapatos, incluindo o unique_id no nome
          $data = [
             "names" => [

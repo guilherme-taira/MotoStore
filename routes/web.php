@@ -57,12 +57,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
+
 Route::get('/', function () {
     return redirect()->route('home');
 });
 
 route::view('/brod','brod');
 
+
+// Aplicação do Middleware `auth` às rotas protegidas
+Route::middleware('auth')->group(function () {
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');
 // Route::get('/categorias/{categoryId}',[SubCategoriaController::class,'getProductByCategory'])->name('categoryById');
 Route::get('/promocoes',[productsController::class,'GetPromotionProducts'])->name('GetPromotionProducts');
@@ -102,9 +108,11 @@ Route::post('/notificacao/marcar-como-lida/{id}', function($id) {
 
     return response()->json(['success' => true]);
 })->name('notificacao.marcar_como_lida');
+});
 
 
-
+// Aplicação do Middleware `auth` às rotas protegidas
+Route::middleware('auth')->group(function () {
 Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
@@ -132,6 +140,11 @@ Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 Route::get('queueYapay',[PaymentController::class,'getQueueData']);
 Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago']);
 // ROTAS AUTENTICADAS
+});
+
+
+// Aplicação do Middleware `auth` às rotas protegidas
+Route::middleware('auth')->group(function () {
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
 
@@ -179,5 +192,8 @@ Route::middleware('admin')->group(function () {
     });
 });
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+});
+
+
 Auth::routes();

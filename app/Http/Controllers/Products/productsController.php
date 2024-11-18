@@ -36,6 +36,7 @@ use Throwable;
 use App\Events\logAlteracao;
 use App\Http\Controllers\image\image;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerShoes;
 use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
@@ -257,14 +258,14 @@ class productsController extends Controller
 
              $handler = new handlerDresses();
              $handler->setNext(new handlerDresses())
-             ->setNext(new handlerShoes());
+             ->setNext(new handlerShoes())
+             ->setNext(new handlerPants());
 
              $grid = $handler->Manipular($obj);
 
 
             if($request->moda){
                     $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $grid]);
-
             }else{
                 if($try){
                     $data_json = json_encode($data);

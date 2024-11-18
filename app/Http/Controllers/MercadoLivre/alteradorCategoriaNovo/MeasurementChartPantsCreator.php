@@ -7,7 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class MeasurementChartCreator
+class MeasurementChartPantsCreator extends Controller
 {
     private $requestMain;
 
@@ -16,7 +16,7 @@ class MeasurementChartCreator
         $this->requestMain = $requestMain;
     }
 
-    public function createDressSizeChart()
+    public function createPantsSizeChart()
     {
         $url = 'https://api.mercadolibre.com/catalog/charts';
 
@@ -31,11 +31,26 @@ class MeasurementChartCreator
            }
         }
 
+        $size = [];
+        foreach ($this->requestMain->data as &$attribute) {
+
+            if ($attribute['id'] === "SIZE") {
+                foreach ($attribute['values'] as &$value) {
+
+                        $size['name'] = $value['name'];
+                        $value['name'] .= " BR"; // Adiciona " BR" ao valor "32"
+                        $size['id'] = $value['id'];
+
+                }
+            }
+        }
+
+
         $data = [
             "names" => [
                 "MLB" => $uniqueName
             ],
-            "domain_id" => "DRESSES",
+            "domain_id" => "PANTS",
             "site_id" => "MLB",
             "attributes" => [
                 [
@@ -44,28 +59,57 @@ class MeasurementChartCreator
                        $gender
                 ]
             ],
+            "main_attribute" => [
+                "attributes" => [
+                    [
+                        "site_id" => "MLB",
+                        "id" => "SIZE"
+                    ]
+                ]
+            ],
             "rows" => [
                 [
                     "attributes" => [
                         [
                             "id" => "SIZE",
                             "values" => [
-                                ["name" => "40 BR"]
+                                ["name" => $size['name']. " BR"]
                             ]
                         ],
                         [
                             "id" => "FILTRABLE_SIZE",
                             "values" => [
-                                [
-
-                                    "name" => "PP"
-                                ]
+                                ["name" => "P"]
                             ]
                         ],
                         [
-                            "id" => "CHEST_CIRCUMFERENCE_FROM",
+                            "id" => "WAIST_CIRCUMFERENCE_FROM",
                             "values" => [
-                                ["name" => "85 cm"]
+                                ["name" => "82 cm"]
+                            ]
+                        ],
+                        [
+                            "id" => "HIP_CIRCUMFERENCE_FROM",
+                            "values" => [
+                                ["name" => "90 cm"]
+                            ]
+                        ],
+                        [
+                            "id" => "LENGTH_FROM_WAIST_TO_ANKLE_FROM",
+                            "values" => [
+                                ["name" => "104 cm"]
+                            ]
+                        ],
+                        [
+                            "id" => "LENGTH_FROM_INSEAM_TO_ANKLE_FROM",
+                            "values" => [
+                                ["name" => "107 cm"]
+                            ]
+                        ],
+                        [
+                            "id" => "THIGH_CIRCUMFERENCE_FROM",
+                            "values" => [
+                                ["name" => "45 cm"]
                             ]
                         ]
                     ]
@@ -118,5 +162,5 @@ class MeasurementChartCreator
 
            return array_merge($this->requestMain->data,$grid);
 
-    }
+}
 }
