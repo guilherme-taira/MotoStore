@@ -189,7 +189,12 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         $produto = Products::where('id',$items->item->seller_sku)->first();
                         // COLOCA O PRODUTO EM CESTA
                         if(isset($produto)){
-                            $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
+                            if($produto->isKit){
+                                $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->priceKit);
+                            }else{
+                                $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
+                            }
+
                             $carrinhoCesta->addProdutos($item);
                         }
                             array_push($produtos, new ProdutoMercadoLivre($items->item->title, $items->quantity, $items->unit_price));

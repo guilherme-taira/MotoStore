@@ -51,6 +51,7 @@ use App\Models\produtos_integrados;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use stdClass;
 
 ini_set('max_execution_time', 30); //300 seconds = 5 minutes
@@ -211,7 +212,6 @@ class productsController extends Controller
         return redirect()->route('allProductsByFornecedor');
     }
 
-
     public function getProdutosPaginados(Request $request){
         $produtos = Products::where('isKit','=','0')
         ->where('isPublic','=',1)
@@ -220,7 +220,6 @@ class productsController extends Controller
         foreach ($produtos as $produto) {
             $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
         }
-
         return response()->json($produtos);
     }
 
@@ -275,6 +274,9 @@ class productsController extends Controller
                 }
             }
 
+
+            Log::alert($data_json);
+
             $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
 
             $dataAtual = new DateTime();
@@ -294,12 +296,18 @@ class productsController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-
+            Log::alert($reponse);
             if ($httpCode == '200') {
                 logAlteracao::dispatch('TROCA DE CATEGORIA',$request->user,$reponse,true);
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
             }else{
-                echo "<li class='list-group-item bg-danger text-white'>{$json->cause[0]->message}</li>";
+
+                if(isset($json->cause[0]->message)){
+                    echo "<li class='list-group-item bg-danger text-white'>{$json->cause[0]->message}</li>";
+                }else{
+                    echo "<li class='list-group-item bg-danger text-white'>{$json->message}</li>";
+                }
+
             }
            }
     }
@@ -611,7 +619,7 @@ class productsController extends Controller
     {
 
         $request->validate([
-            "name" => "required|max:255",
+            "title" => "required|max:255",
             "description" => "required",
             "stock" => "required|numeric|gt:0",
             "categoria_mercadolivre" => "required|max:20",
@@ -627,42 +635,38 @@ class productsController extends Controller
             'height' =>  "required|numeric|gt:0",
             'width' =>  "required|numeric|gt:0",
             'length' =>  "required|numeric|gt:0",
-            'price' =>"required|numeric|gt:0",
+            'price' => "required|numeric|gt:0",
             'priceKit' => "required|numeric|gt:0"
+        ], [
+            'title.required' => 'O campo Nome é obrigatório.',
+            'title.max' => 'O Nome não pode ter mais de 255 caracteres.',
+            'description.required' => 'A descrição é obrigatória.',
+            'stock.required' => 'O campo Estoque é obrigatório.',
+            'stock.numeric' => 'O campo Estoque deve ser um número.',
+            'stock.gt' => 'O campo Estoque deve ser maior que 0.',
+            'categoria_mercadolivre.required' => 'A Categoria Mercado Livre é obrigatória.',
+            'brand.max' => 'A Marca não pode ter mais de 100 caracteres.',
+            'image.image' => 'O campo Imagem deve ser uma imagem válida.',
+            'ean.required' => 'O código EAN é obrigatório.',
+            'ean.numeric' => 'O campo EAN deve ser numérico.',
+            'tipo_anuncio.required' => 'O Tipo de Anúncio é obrigatório.',
+            'pricePromotion.numeric' => 'O campo Preço Promocional deve ser numérico.',
+            'termometro.numeric' => 'O campo Termômetro deve ser numérico.',
+            'fee.required' => 'O campo Taxa é obrigatório.',
+            'fee.numeric' => 'O campo Taxa deve ser numérico.',
+            'fee.gt' => 'O campo Taxa deve ser maior que 0.',
+            'taxaFee.required' => 'O campo Taxa Fee é obrigatório.',
+            'PriceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
+            'height.required' => 'O campo Altura é obrigatório.',
+            'width.required' => 'O campo Largura é obrigatório.',
+            'length.required' => 'O campo Comprimento é obrigatório.',
+            'price.required' => 'O campo Preço é obrigatório.',
+            'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
         ]);
 
         $produto = Products::findOrFail($id);
-        $preco =  $produto->price;
-        $newpreco =  $request->PriceWithFee;
-        $commonPrice = $request->input('price');
-
-        if($produto){
-            (new updatePriceSiteController($preco,$newpreco,$produto,$commonPrice))->vericaPreco();
-        }
-
-        $produto->priceWithFee = $request->PriceWithFee;
-        $produto->fee = $request->input('fee');
-        $produto->setTitle($request->input('name'));
-        $produto->setStock($request->input('stock'));
-        $produto->SetCategory_id($request->input('categoria_mercadolivre'));
-        $produto->SetListing_type_id($request->input('tipo_anuncio'));
-        $produto->SetBrand($request->input('brand'));
-        $produto->SetIsNft($request->input('isNft'));
-        // $produto->setCategoria(Products::getIdPrincipal($request->input('categoria')));
-        $produto->SetSubCategory_id($request->input('categoria'));
-        $produto->SetGtin($request->input('ean'));
-        // $produto->setPricePromotion($request->input('pricePromotion'));
-        $produto->setDescription($request->input('description'));
-        $produto->SetLugarAnuncio($request->input('radio'));
-        $produto->setIsPublic($request->input('isPublic'));
-        $produto->SetFornecedor($request->input('fornecedor'));
-        $produto->SetTermometro($request->input('termometro'));
-        $produto->setPriceWithFee($request->input('price'));
-        $produto->setWidth($request->input('width'));
-        $produto->setLength($request->input('length'));
-        $produto->setPrice($request->input('price'));
-        $produto->SetPriceKit($request->input('priceKit'));
-
+        $produto->fill($request->except('products')); // Preenche os dados do produto
+        $produto->save();
 
         try {
             if ($request->hasFile('image')) {
@@ -677,9 +681,41 @@ class productsController extends Controller
            echo $th->getMessage();
         }
 
+        $products = $request->input('products');
+
+        if ($products) {
+            $kitId = $id; // ID do kit
+
+           // Obtem os IDs dos produtos enviados no array
+            $productIds = array_column($products, 'id');
+
+            // Busca os produtos existentes no kit na tabela 'kits'
+            $existingProducts = DB::table('kit')
+                ->where('product_id', $kitId)
+                ->pluck('id_product_kit')
+                ->toArray();
+
+            // Identifica os produtos que estão no kit, mas não foram enviados
+            $productsNotSent = array_diff($existingProducts, $productIds);
+
+            $removedProducts = [];
+            if (!empty($productsNotSent)) {
+                DB::table('kit')
+                    ->where('product_id', $kitId)
+                    ->whereIn('id_product_kit', $productsNotSent)
+                    ->delete();
+            }
+            $produto->save();
+            // Redireciona de volta com mensagens de sucesso
+            return redirect()->back()->with([
+                'message' => 'Kit atual com sucesso.',
+                'removed_products' => $removedProducts,
+            ]);
+        }
 
         $produto->save();
-        return redirect()->route('allProductsByFornecedor')->with('msg',"Produto {$produto->title} Editado Com Sucesso!");;
+        return redirect()->back()->with('success', 'Atualizado com sucesso!');
+
     }
 
     /**
@@ -718,6 +754,34 @@ class productsController extends Controller
             return response()->json(["products" => $products]);
         }
     }
+
+    public function getAllProductSearch(Request $request)
+    {
+        // Obtém o parâmetro de pesquisa enviado na requisição
+        $searchTerm = $request->input('q');
+
+        // Cria a query base para produtos públicos
+        $query = Products::where('isPublic', true);
+
+        // Adiciona a condição de pesquisa se o termo foi enviado
+        if ($searchTerm) {
+            $query->where('title', 'LIKE', '%' . $searchTerm . '%') // Busca pelo título
+                  ->orWhere('description', 'LIKE', '%' . $searchTerm . '%'); // Busca pela descrição
+        }
+
+        // Paginação dos resultados
+        $products = $query->paginate(10);
+
+         // Adiciona o URL completo da imagem para cada produto
+         foreach ($products as $produto) {
+            $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
+        }
+
+        // Retorna os produtos em formato JSON
+        return response()->json(["products" => $products]);
+    }
+
+
 
     public function getAttributesForVariations(Request $request)
     {
@@ -1546,6 +1610,40 @@ class productsController extends Controller
             Log::alert($e->getMessage());
         }
 
+    }
+
+
+    public function addProduct(Request $request)
+    {
+
+        try {
+            // Valida os dados recebidos
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'id_product_kit' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1',
+                'user_id' => 'required|exists:users,id', // Valida o user_id
+            ]);
+
+
+            // Salva o produto no kit
+            $kit = new Kit();
+            $kit->product_id = $validated['product_id'];
+            $kit->id_product_kit = $validated['id_product_kit'];
+            $kit->available_quantity = $validated['quantity'];
+            $kit->user_id = $validated['user_id']; // Associa o user_id
+            $kit->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produto adicionado ao kit com sucesso.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     public function integrados(){
