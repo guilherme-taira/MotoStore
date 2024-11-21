@@ -50,7 +50,7 @@ class MeasurementChartCreator
                         [
                             "id" => "SIZE",
                             "values" => [
-                                ["name" => "40 BR"]
+                                ["name" => "PP"]
                             ]
                         ],
                         [
@@ -115,7 +115,6 @@ class MeasurementChartCreator
                 "value_name" => $result['rows'][0]['id']
             ]
             ];
-
            return array_merge($this->requestMain->data,$grid);
 
     }

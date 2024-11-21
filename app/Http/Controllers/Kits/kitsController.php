@@ -509,6 +509,9 @@ public function DeleteOrderSessionRoute(Request $request, $id)
 
     }
 
+
+
+
     public function VerificaQuantidade($id){
 
     }

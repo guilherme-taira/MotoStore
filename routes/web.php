@@ -66,7 +66,6 @@ Route::get('/', function () {
 
 route::view('/brod','brod');
 
-
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware('auth')->group(function () {
 Route::get('/UpdateNewPayment/{id}',[orderscontroller::class,'UpdateNewPayment'])->name('renovarpagamento');

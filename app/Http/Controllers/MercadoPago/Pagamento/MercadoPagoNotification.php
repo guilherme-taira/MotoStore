@@ -114,7 +114,6 @@ class MercadoPagoNotification extends Controller
 
 
     public function notification(Request $request){
-        Log::critical(json_encode($request->all()));
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
 

@@ -4,6 +4,7 @@ use App\Events\sendProduct;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
+use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
@@ -31,6 +32,7 @@ Route::prefix('v1')->group(function () {
         broadcast(new sendProduct($id));
     });
 
+
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);
@@ -44,7 +46,9 @@ Route::prefix('v1')->group(function () {
     Route::post("/tradeCategoria",[productsController::class,'tradeCategoria']);
     Route::post("/tradeCategoriaApi",[productsController::class,'tradeCategoriaApiNew']);
     Route::post('/getHistory',[productsController::class,'getHistory']);
+    Route::post('/kitsAddProduct',[productsController::class,'addProduct']);
     Route::get('products', [productsController::class, 'getAllProduct']);
+    Route::get('products/search', [productsController::class, 'getAllProductSearch']);
     Route::get('getVisits', [productsController::class, 'getVisits']);
     Route::post('getAttributesForVariations',[productsController::class,'getAttributesForVariations']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
