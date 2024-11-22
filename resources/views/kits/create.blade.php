@@ -481,6 +481,8 @@ function loadProducts(page = 1) {
 
 });
 
+
+
 $('#adicionarSelecionados').on('click', function () {
     // Fecha outros modais se estiverem abertos
     $('.modal').modal('hide');
@@ -490,11 +492,10 @@ $('#adicionarSelecionados').on('click', function () {
 
     // Captura os IDs e quantidades dos produtos selecionados
     let selectedProducts = [];
-        $('#produto-list input[type="checkbox"]:checked').each(function () {
+    $('#produto-list input[type="checkbox"]:checked').each(function () {
         const id = $(this).val();
         const stock = $(`#stock-${id}`).val(); // Obtém o valor do stock especificado pelo usuário
-        const nome = $(`#title-${id}`).val(); // Captura o nome do produto associado ao ID
-        console.log(nome);
+        const nome = $(`#title-${id}`).val(); // Nome do produto (ajuste conforme necessário)
         selectedProducts.push({ id, stock, nome });
     });
 
@@ -504,50 +505,61 @@ $('#adicionarSelecionados').on('click', function () {
         return;
     }
 
-    // Atualiza o modal com o número total de produtos
-    $('#totalProducts').text(selectedProducts.length);
-
     let completedRequests = 0;
 
     // Função para atualizar a barra de progresso
-    function updateProgress(currentIndex) {
+    function updateProgress() {
         completedRequests++;
         const progressPercent = (completedRequests / selectedProducts.length) * 100;
-        $('#progressBar').css('width', `${progressPercent}%`).text(`${Math.round(progressPercent)}%`);
-        $('#currentProduct').text(currentIndex + 1); // Atualiza o produto atual
+        $('#progressBar').css('width', `${progressPercent}%`);
+        $('#progressBar').text(`${Math.round(progressPercent)}%`);
+        $('#currentProduct').text(completedRequests);
+        $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
+
+        // Fecha o modal quando todos os produtos forem processados
+        if (completedRequests === selectedProducts.length) {
+            setTimeout(() => {
+                $('#progressModal').modal('hide');
+                location.reload(); // Atualiza a página
+            }, 6000);
+        }
     }
 
-    selectedProducts.forEach((item, index) => {
-    $.ajax({
-        url: '/adicionarQuantidade', // Ajuste a rota conforme necessário
-        type: 'POST',
-        data: { products: [item] }, // Envia apenas um produto de cada vez
-        success: function (response) {
-            console.log(item);
-            // Atualiza o nome do produto atual no modal
-            $('#currentProductName').text(item.nome);
-
-            // Atualiza o progresso para o produto atual
-            updateProgress(index);
-            console.log(`Produto ID ${item.id} processado com sucesso.`);
-
-            if (completedRequests === selectedProducts.length) {
-                // Finaliza o modal após todos os produtos serem processados
-                setTimeout(() => {
-                    $('#progressModal').modal('hide');
-                    location.reload(); // Atualiza a página
-                }, 5000);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error(`Erro ao processar produto ID ${item.id}:`, error);
-            updateProgress(index); // Atualiza o progresso mesmo em caso de erro
+    // Função para enviar os produtos com atraso
+    function processProductsSequentially(index) {
+        if (index >= selectedProducts.length) {
+            return; // Fim do processamento
         }
-    });
 
+        const item = selectedProducts[index];
+        console.log(`Processando produto: ${item.nome} (${item.id})`);
 
-    });
+        // Envia o produto para a rota
+        $.ajax({
+            url: '/adicionarQuantidade',
+            type: 'POST',
+            data: { products: [item] },
+            success: function (response) {
+                console.log(`Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
+                updateProgress();
+            },
+            error: function (xhr, status, error) {
+                console.error(`Erro ao adicionar produto ${item.nome} (${item.id}):`, error);
+                updateProgress();
+            },
+            complete: function () {
+                // Chama a próxima iteração após 3 segundos
+                setTimeout(() => {
+                    processProductsSequentially(index + 1);
+                }, 3000);
+            }
+        });
+    }
+
+    // Inicia o processamento sequencial
+    processProductsSequentially(0);
 });
+
 
 
 
