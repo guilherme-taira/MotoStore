@@ -243,6 +243,7 @@ class kitsController extends Controller
 
     public function adicionarQuantidade(Request $request, $id)
 {
+
     $request->session()->forget(['_flash', '_token', '_previous', 'auth']);
     $msg = "";
 

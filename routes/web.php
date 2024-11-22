@@ -58,8 +58,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-
-
 Route::get('/', function () {
     return redirect()->route('home');
 });
@@ -193,6 +191,5 @@ Route::middleware('admin')->group(function () {
 
  Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 });
-
 
 Auth::routes();
