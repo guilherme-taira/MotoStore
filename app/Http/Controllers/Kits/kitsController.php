@@ -241,92 +241,53 @@ class kitsController extends Controller
         // ]);
     }
 
-    public function adicionarQuantidade(Request $request, $id)
-{
-
-    $request->session()->forget(['_flash', '_token', '_previous', 'auth']);
-    $msg = "";
-
-    try {
-        // Verifica o estoque disponível
-        $availableStock = $this->getStock($id);
-
-        // Verifica se a quantidade solicitada é maior do que o estoque disponível
-        if ($availableStock < $request->stock) {
-            $msg = "Quantidade não adicionada por falta de estoque!";
-            $quantidadeAdicionada = $availableStock;
-        } else {
-            $quantidadeAdicionada = $request->stock;
-        }
-
-        // Obtém os produtos já armazenados na sessão (ou um array vazio)
-        $produtos = $request->session()->get('produtos', []);
-
-        // Verifica se o produto já está na sessão
-        if (isset($produtos[$id])) {
-            // Produto já existe, atualiza a quantidade
-            $produto = $produtos[$id];
-            $novaQuantidade = $quantidadeAdicionada;
-
-            // Verifica se a nova quantidade não excede o estoque disponível
-            if ($novaQuantidade > $availableStock) {
-                $msg = "Quantidade ajustada ao máximo disponível no estoque!";
-                $novaQuantidade = $availableStock; // Ajusta para o estoque máximo
+    public function adicionarQuantidade(Request $request)
+    {
+        try {
+            $products = $request->input('products'); // Recebe o array de produtos enviados
+            if (!$products || !is_array($products)) {
+                return response()->json(['error' => 'Nenhum produto foi enviado.'], 400);
             }
 
-            // Atualiza o produto com a nova quantidade e o preço total
-            $produtos[$id] = [
-                'id' => $id,
-                'nome' => $produto['nome'],
-                'imagem' => $produto['imagem'],
-                'price' => $this->getPriceKit($id) * $novaQuantidade, // Preço total
-                'quantidade' => $novaQuantidade,
-                'available_quantity' => $availableStock
-            ];
-        } else {
-            // Produto não existe na sessão, então adiciona como um novo item
-            $produtos[$id] = [
-                'id' => $id,
-                'nome' => $this->getTitle($id),
-                'imagem' => $this->getImageByUrl($id),
-                'price' => $this->getPriceKit($id) * $quantidadeAdicionada, // Preço total
-                'quantidade' => $quantidadeAdicionada,
-                'available_quantity' => $availableStock
-            ];
+            $produtos = $request->session()->get('produtos', []); // Produtos existentes na sessão
+
+            foreach ($products as $product) {
+                $id = $product['id'];
+                $stock = $product['stock'];
+
+                // Verifica o estoque disponível
+                $availableStock = $this->getStock($id);
+
+                $quantidadeAdicionada = min($stock, $availableStock); // Adiciona o máximo permitido pelo estoque
+
+                // Verifica se o produto já está na sessão
+                if (isset($produtos[$id])) {
+                    // Atualiza a quantidade do produto existente
+                    $produtos[$id]['quantidade'] = $quantidadeAdicionada;
+                    $produtos[$id]['price'] = $this->getPriceKit($id) * $quantidadeAdicionada;
+                } else {
+                    // Adiciona o novo produto
+                    $produtos[$id] = [
+                        'id' => $id,
+                        'nome' => $this->getTitle($id),
+                        'imagem' => $this->getImageByUrl($id),
+                        'price' => $this->getPriceKit($id) * $quantidadeAdicionada,
+                        'quantidade' => $quantidadeAdicionada,
+                        'available_quantity' => $availableStock
+                    ];
+                }
+            }
+
+            // Atualiza a sessão com os produtos
+            $request->session()->put('produtos', $produtos);
+
+            return response()->json(['success' => true, 'message' => 'Produtos adicionados com sucesso!']);
+
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Ocorreu um erro ao adicionar os produtos.'], 500);
         }
-
-        // Salva os produtos atualizados na sessão
-        $request->session()->put('produtos', $produtos);
-
-        // Recupera os dados da sessão para exibir na view
-        $sessao = $request->session()->all();
-
-        $viewData = [];
-        $categorias = [];
-        $viewData['title'] = "Kits de Produtos";
-        $viewData['subtitle'] = "Kits";
-
-        foreach (categorias::all() as $value) {
-            $categorias[$value->id] = [
-                "nome" => $value->nome,
-                "subcategory" => sub_category::getAllCategory($value->id),
-            ];
-        }
-
-        $viewData['categorias'] = $categorias;
-
-        // Redireciona para a rota 'kits.create' sem parâmetros na URL
-        return redirect()->route('kits.create')->with([
-            'viewData' => $viewData,
-            'produtos' => $sessao['produtos'],
-            'total' => 0,
-            'msg' => $msg,
-        ]);
-
-    } catch (\Exception $e) {
-        Log::alert($e->getMessage());
     }
-}
 
 
 

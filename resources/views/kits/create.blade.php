@@ -474,8 +474,7 @@ function loadProducts(page = 1) {
 
 });
 
-
-
+// Nova abordagem: enviar todos os produtos de uma vez
 $('#adicionarSelecionados').on('click', function () {
     // Fecha outros modais se estiverem abertos
     $('.modal').modal('hide');
@@ -483,10 +482,8 @@ $('#adicionarSelecionados').on('click', function () {
     // Abre o modal de progresso
     $('#progressModal').modal('show');
 
-    // Inicializa o array de produtos selecionados (resetar para evitar duplicações)
-    let selectedProducts = [];
-
     // Captura os IDs e quantidades dos produtos selecionados
+    let selectedProducts = [];
     $('#produto-list input[type="checkbox"]:checked').each(function () {
         const id = $(this).val();
         const stock = $(`#stock-${id}`).val(); // Obtém o valor do stock especificado pelo usuário
@@ -495,48 +492,23 @@ $('#adicionarSelecionados').on('click', function () {
 
     if (selectedProducts.length === 0) {
         alert("Nenhum produto selecionado.");
-        $('#progressModal').modal('hide'); // Fecha o modal de progresso se nenhum produto for selecionado
+        $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
         return;
     }
 
-    // Inicializa o modal de progresso
-    $('#totalProducts').text(selectedProducts.length);
-
-    console.log("PRODUTOS >", selectedProducts.length);
-    let completedRequests = 0;
-
-    // Função para atualizar a barra de progresso
-    function updateProgress() {
-        completedRequests++;
-        const progressPercent = (completedRequests / selectedProducts.length) * 100;
-        $('#progressBar').css('width', `${progressPercent}%`);
-        $('#progressBar').text(`${Math.round(progressPercent)}%`);
-        $('#currentProduct').text(completedRequests);
-
-        // Fecha o modal quando todos os produtos forem processados
-        if (completedRequests === selectedProducts.length) {
-            setTimeout(() => {
-                $('#progressModal').modal('hide');
-                location.reload(); // Atualiza a página
-            }, 3000);
+    // Envia todos os produtos de uma só vez
+    $.ajax({
+        url: '/adicionarQuantidade', // Ajuste a rota conforme necessário
+        type: 'POST',
+        data: { products: selectedProducts },
+        success: function (response) {
+            console.log('Produtos adicionados com sucesso:', response);
+            location.reload(); // Atualiza a página após a conclusão
+        },
+        error: function (xhr, status, error) {
+            console.error('Erro ao adicionar produtos:', error);
+            alert('Ocorreu um erro ao adicionar os produtos. Tente novamente.');
         }
-    }
-
-    // Envia uma requisição para cada produto selecionado
-    selectedProducts.forEach(item => {
-        $.ajax({
-            url: `/adicionarQuantidade/${item.id}`,
-            type: "POST",
-            data: { stock: item.stock },
-            success: function (response) {
-                console.log(`Produto ID ${item.id} adicionado com sucesso.`);
-                updateProgress(); // Atualiza o progresso ao concluir cada requisição
-            },
-            error: function (xhr, status, error) {
-                console.error(`Erro ao adicionar o produto ID: ${item.id}`, error);
-                updateProgress(); // Atualiza o progresso mesmo se ocorrer um erro
-            }
-        });
     });
 });
 
