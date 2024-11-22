@@ -361,7 +361,7 @@ function loadProducts(page = 1) {
                                     <!-- Campo de quantidade e botão de adicionar -->
                                     <div class="d-flex align-items-center">
                                         <span class="me-2">Quantidade:</span>
-                                        <form action="{{ route('adicionarQuantidade', ['id' => $produto['id']]) }}" method="POST" class="d-inline-flex align-items-center">
+                                        <form action="{{ route('adicionarQuantidadeNoKit', ['id' => $produto['id']]) }}" method="POST" class="d-inline-flex align-items-center">
                                             @csrf
                                             <input name="stock" id="stock-{{ $produto['id'] }}" value="{{ $produto['quantidade'] ?? 1 }}" type="number" class="form-control form-control-sm w-25 me-2">
                                             <button id="btnSalvarQuantidade" class="btn btn-success btn-sm">Adicionar</button>
