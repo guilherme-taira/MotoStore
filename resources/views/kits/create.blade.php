@@ -59,6 +59,7 @@ function loadProducts(page = 1) {
                         <!-- Campo de entrada para a quantidade desejada -->
                         <div class="mt-2">
                             <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
+                             <input type="hidden" id="title-${product.id}" value="${product.title}">
                         </div>
                     </div>
                 </li>
@@ -98,19 +99,25 @@ function loadProducts(page = 1) {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="progressModalLabel"> <div class="spinner-border text-success" role="status"> </div> Processando Produtos </h5>
+                    <h5 class="modal-title" id="progressModalLabel">
+                        <div class="spinner-border text-success" role="status"></div> Processando Produtos
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="progress">
-                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0"
+                            aria-valuemax="100">0%</div>
                     </div>
-                    <p class="mt-3">Processando <span id="currentProduct">1</span> de <span id="totalProducts"></span> produtos...
+                    <p class="mt-3">
+                        Processando <span id="currentProduct">0</span> de <span id="totalProducts"></span> produtos...
                     </p>
+                    <p class="text-muted">Produto atual: <span id="currentProductName" class="fw-bold">---</span></p>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
@@ -474,7 +481,6 @@ function loadProducts(page = 1) {
 
 });
 
-// Nova abordagem: enviar todos os produtos de uma vez
 $('#adicionarSelecionados').on('click', function () {
     // Fecha outros modais se estiverem abertos
     $('.modal').modal('hide');
@@ -484,10 +490,12 @@ $('#adicionarSelecionados').on('click', function () {
 
     // Captura os IDs e quantidades dos produtos selecionados
     let selectedProducts = [];
-    $('#produto-list input[type="checkbox"]:checked').each(function () {
+        $('#produto-list input[type="checkbox"]:checked').each(function () {
         const id = $(this).val();
         const stock = $(`#stock-${id}`).val(); // Obtém o valor do stock especificado pelo usuário
-        selectedProducts.push({ id, stock });
+        const nome = $(`#title-${id}`).val(); // Captura o nome do produto associado ao ID
+        console.log(nome);
+        selectedProducts.push({ id, stock, nome });
     });
 
     if (selectedProducts.length === 0) {
@@ -496,21 +504,51 @@ $('#adicionarSelecionados').on('click', function () {
         return;
     }
 
-    // Envia todos os produtos de uma só vez
+    // Atualiza o modal com o número total de produtos
+    $('#totalProducts').text(selectedProducts.length);
+
+    let completedRequests = 0;
+
+    // Função para atualizar a barra de progresso
+    function updateProgress(currentIndex) {
+        completedRequests++;
+        const progressPercent = (completedRequests / selectedProducts.length) * 100;
+        $('#progressBar').css('width', `${progressPercent}%`).text(`${Math.round(progressPercent)}%`);
+        $('#currentProduct').text(currentIndex + 1); // Atualiza o produto atual
+    }
+
+    selectedProducts.forEach((item, index) => {
     $.ajax({
         url: '/adicionarQuantidade', // Ajuste a rota conforme necessário
         type: 'POST',
-        data: { products: selectedProducts },
+        data: { products: [item] }, // Envia apenas um produto de cada vez
         success: function (response) {
-            console.log('Produtos adicionados com sucesso:', response);
-            location.reload(); // Atualiza a página após a conclusão
+            console.log(item);
+            // Atualiza o nome do produto atual no modal
+            $('#currentProductName').text(item.nome);
+
+            // Atualiza o progresso para o produto atual
+            updateProgress(index);
+            console.log(`Produto ID ${item.id} processado com sucesso.`);
+
+            if (completedRequests === selectedProducts.length) {
+                // Finaliza o modal após todos os produtos serem processados
+                setTimeout(() => {
+                    $('#progressModal').modal('hide');
+                    location.reload(); // Atualiza a página
+                }, 5000);
+            }
         },
         error: function (xhr, status, error) {
-            console.error('Erro ao adicionar produtos:', error);
-            alert('Ocorreu um erro ao adicionar os produtos. Tente novamente.');
+            console.error(`Erro ao processar produto ID ${item.id}:`, error);
+            updateProgress(index); // Atualiza o progresso mesmo em caso de erro
         }
     });
+
+
+    });
 });
+
 
 
 
