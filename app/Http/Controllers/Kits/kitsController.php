@@ -243,9 +243,11 @@ class kitsController extends Controller
 
     public function adicionarQuantidade(Request $request)
     {
+
         try {
             $products = $request->input('products'); // Recebe o array de produtos enviados
-            Log::alert(json_encode($products));
+            Log::info(json_encode($products));
+
             if (!$products || !is_array($products)) {
                 return response()->json(['error' => 'Nenhum produto foi enviado.'], 400);
             }
