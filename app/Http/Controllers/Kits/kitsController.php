@@ -245,6 +245,7 @@ class kitsController extends Controller
     {
         try {
             $products = $request->input('products'); // Recebe o array de produtos enviados
+            Log::alert(json_encode($products));
             if (!$products || !is_array($products)) {
                 return response()->json(['error' => 'Nenhum produto foi enviado.'], 400);
             }
