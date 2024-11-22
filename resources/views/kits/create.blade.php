@@ -518,7 +518,7 @@ $('#adicionarSelecionados').on('click', function () {
             setTimeout(() => {
                 $('#progressModal').modal('hide');
                 location.reload(); // Atualiza a página
-            }, 1000);
+            }, 3000);
         }
     }
 
