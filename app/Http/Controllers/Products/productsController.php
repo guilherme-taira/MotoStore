@@ -45,6 +45,7 @@ use App\Http\Controllers\MercadoLivre\MlbTipos;
 use App\Http\Controllers\MercadoLivre\ProdutoConcreto;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
 use App\Models\kit;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
@@ -258,7 +259,8 @@ class productsController extends Controller
              $handler = new handlerDresses();
              $handler->setNext(new handlerDresses())
              ->setNext(new handlerShoes())
-             ->setNext(new handlerPants());
+             ->setNext(new handlerPants())
+             ->setNext(new handlerSkirts());
 
              $grid = $handler->Manipular($obj);
 
