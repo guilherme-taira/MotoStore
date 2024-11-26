@@ -699,7 +699,7 @@
                                     </div>
 
                                     <input type="hidden" class="form-control"
-                                        value="{{ $viewData['product']->category_id }}" name="categoria_mercadolivre"
+                                        value="{{ $viewData['product']->category_id }}" name="category_id"
                                         id="id_categoria">
 
                                     <div class="col-md-12 mt-3">
