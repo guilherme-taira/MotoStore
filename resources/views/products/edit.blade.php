@@ -4,6 +4,7 @@
     <meta name="auth-user-id" content="{{ Auth::user()->id }}">
 
     <script>
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput'); // Campo de pesquisa
             const searchButton = document.getElementById('searchButton'); // Botão de pesquisa
@@ -333,12 +334,6 @@
                 </div>
             @endif
 
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
 
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -435,10 +430,11 @@
                                     <div class="col-lg-3">
                                         <label for="isPublic">Ativo / Público:</label>
                                         <select name="isPublic" class="form-control" required>
-                                            <option value="1" selected>SIM</option>
-                                            <option value="0">NÃO</option>
+                                            <option value="1" {{ $viewData['product']->isPublic == 1 ? 'selected' : '' }}>SIM</option>
+                                            <option value="0" {{ $viewData['product']->isPublic == 0 ? 'selected' : '' }}>NÃO</option>
                                         </select>
                                     </div>
+
                                     <div class="col-lg-3">
                                         <label for="isNft">NFT:</label>
                                         <select name="isNft" class="form-control" required>
@@ -597,8 +593,8 @@
                                             class="form-control">
                                     </div>
                                     <div class="col-lg-3">
-                                        <label for="ean">GTIN / EAN:</label>
-                                        <input name="ean" value="{{ $viewData['product']->gtin }}"
+                                        <label for="gtin">GTIN / EAN:</label>
+                                        <input name="gtin" value="{{ $viewData['product']->gtin }}"
                                             class="form-control" required>
                                     </div>
                                 </div>
@@ -671,7 +667,7 @@
 
                                     <div class="col-md-6 mt-2">
                                         <label for="categoria">Categorias:</label>
-                                        <select class="form-select mt-2" name="categoria" id="categoria" required
+                                        <select class="form-select mt-2" name="subcategoria" id="categoria" required
                                             aria-label="Default select example">
                                             @foreach ($viewData['categorias'] as $categoria)
                                                 <option class="bg-dark text-white" disabled>{{ $categoria['nome'] }}
@@ -723,7 +719,7 @@
                     <!-- Taxas -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingFees">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            <button class="accordion-button collapsed" id="taxesTabButton" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapseFees" aria-expanded="false" aria-controls="collapseFees">
                                 Taxas
                             </button>
@@ -738,14 +734,14 @@
                                             <div class="mb-3 row">
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
                                                 <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoP" class="form-control porcem"
+                                                    <input id="acressimoP" name="valorProdFornecedor" class="form-control porcem"
                                                         value="{{ old('acressimoP') }}">
                                                 </div>
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
                                                 <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoR" name="acressimoR" type="text"
+                                                    <input id="acressimoR" name="valorProdFornecedor" type="text"
                                                         class="form-control porcem"
-                                                        value="{{ $viewData['product']->fee }}">
+                                                        value="{{ $viewData['product']->valorProdFornecedor }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -758,7 +754,7 @@
                                             </div>
                                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
                                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input name="fee" value="{{ $viewData['product']->fee }}"
+                                                <input name="valorProdFornecedor" value="{{ $viewData['product']->valorProdFornecedor }}"
                                                     id="precoLiquido" type="text" class="form-control">
                                             </div>
                                         </div>
@@ -777,7 +773,7 @@
                                                     <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                     </label>
                                                     <div class="col-lg-2 col-md-3 col-sm-12">
-                                                        <input name="PriceWithFee" id="PriceWithFee" type="text"
+                                                        <input name="priceWithFee" id="PriceWithFee" type="text"
                                                             class="form-control"
                                                             value="{{ $viewData['product']->priceWithFee }}">
                                                     </div>
@@ -845,6 +841,29 @@
 
     <script>
         $(document).ready(function() {
+
+        // Ativar a função quando houver alteração no campo #precoNormal
+        $('#precoNormal').on('input', function () {
+                const acressimoRField = $('#acressimoR'); // Campo que deve ser acionado
+
+                // Simula uma interação manual para ativar o evento keyup no campo #acressimoR
+                const currentValue = acressimoRField.val();
+                acressimoRField.val(''); // Limpa temporariamente o valor
+                setTimeout(() => {
+                    acressimoRField.val(currentValue); // Reinsere o valor
+                    acressimoRField.trigger('keyup'); // Dispara o evento keyup
+                }, 50); // Atraso para simular interação real
+
+                // Adiciona a classe para piscar
+                $('#taxesTabButton').addClass('blink-tab');
+
+                // Remove o piscar após 3 segundos
+                setTimeout(function() {
+                    $('#taxesTabButton').removeClass('blink-tab');
+                }, 2000); // 3 segundos
+            }); // Atraso para simular interação real
+
+
 
             $('#fornecedor-input').on('input', function() {
                 let inputVal = $(this).val();
