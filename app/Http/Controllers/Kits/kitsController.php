@@ -457,22 +457,50 @@ public function DeleteOrderSessionRoute(Request $request, $id)
 
         $request->merge($input);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:5',
-            'precoFinal' => 'required|numeric|min:1',
-            'photos.*' => 'required|file$|mimes:jpg,jpeg,png',
-            //"stock" => "required|numeric",
-            'description' => 'required'
-        ]);
+       // Validação do formulário
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => [
+                    'required',
+                    'min:5',
+                ],
+                'precoFinal' => [
+                    'required',
+                    'numeric',
+                    'min:1',
+                ],
+                'photos.*' => [
+                    'required',
+                    'file',
+                    'mimes:jpg,jpeg,png',
+                ],
+                'description' => [
+                    'required',
+                ],
+            ],
+            [
+                // Mensagens de erro personalizadas
+                'name.required' => 'O campo Nome é obrigatório.',
+                'name.min' => 'O Nome deve ter no mínimo 5 caracteres.',
+                'precoFinal.required' => 'O campo Preço Final é obrigatório.',
+                'precoFinal.numeric' => 'O campo Preço Final deve ser um número.',
+                'precoFinal.min' => 'O campo Preço Final deve ser maior que zero.',
+                'photos.required' => 'É necessário fazer upload de uma imagem.',
+                'photos.file' => 'O campo Fotos deve ser um arquivo.',
+                'photos.mimes' => 'As imagens devem estar no formato JPG ou PNG.',
+                'description.required' => 'O campo Descrição é obrigatório.',
+            ]
+        );
 
+        // Verifica se a validação falhou
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()
+                ->back()
+                ->withErrors($validator) // Adiciona os erros de validação
+                ->withInput(); // Mantém os valores preenchidos no formulário
         }
 
-        echo "<pre>";
-        print_r(array_values($products['produtos']));
 
 
     function calculaKitsPossiveis($produtos) {
@@ -501,19 +529,53 @@ public function DeleteOrderSessionRoute(Request $request, $id)
         $produto->category_id = $request->id_categoria;
         $produto->subcategoria = $request->categoria;
         $produto->iskit = 1;
-        $produto->stock = $kitsPossiveis;
+        $produto->available_quantity = $kitsPossiveis;
         $produto->image = "image.png";
         $produto->save();
 
+        // $files = $request->file('photos');
+
+        // $i = 0;
+
+        // foreach ($files as $file) {
+        //     $filename = $file->getClientOriginalName();
+        //     $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
+        //     if ($i == 0) {
+        //         $produto->setImage($filename);
+        //     }
+        //     $image = new images();
+        //     $image->url = $filename;
+        //     $image->product_id = $produto->getId();
+        //     $image->save();
+        //     $i++;
+        // }
+
+
         $files = $request->file('photos');
 
-        $i = 0;
+        // Verifica se a ordem foi alterada
+        $imageOrder = json_decode($request->imageOrder, true);
+        $orderedFiles = [];
 
-        foreach ($files as $file) {
+        if (!empty($imageOrder)) {
+            foreach ($imageOrder as $orderedImage) {
+                foreach ($files as $file) {
+                    if ($file->getClientOriginalName() === $orderedImage['originalName']) {
+                        $orderedFiles[] = $file;
+                    }
+                }
+            }
+        } else {
+            $orderedFiles = $files; // Usa a ordem original se `imageOrder` estiver vazio
+        }
+
+        // Salva as imagens na ordem definida
+        $i = 0;
+        foreach ($orderedFiles as $file) {
             $filename = $file->getClientOriginalName();
             $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
             if ($i == 0) {
-                $produto->setImage($filename);
+                $produto->setImage($filename); // Define a imagem principal
             }
             $image = new images();
             $image->url = $filename;
@@ -546,13 +608,13 @@ public function DeleteOrderSessionRoute(Request $request, $id)
         $viewData['categorias'] = categorias::all();
         $viewData['kits'] = kit::getAllKits(Auth::user()->id);
 
-        return redirect()->route(
-            'kits.index',
-            [
-                'viewData' => $viewData,
-                'total' => 0,
-            ]
-        );
+        return redirect()
+        ->route('kits.index', [
+            'viewData' => $viewData,
+            'total' => 0,
+        ])
+        ->with('success', 'Kit cadastrado com sucesso!');
+
     }else{
           // Redireciona de volta com uma mensagem de erro
         return redirect()->back()->withErrors(['error' => 'Não é possível montar um kit com a quantidade atual de produtos.']);

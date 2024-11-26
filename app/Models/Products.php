@@ -12,6 +12,8 @@ class Products extends Model
 {
     protected $fillable = [
         'name',
+        'isPublic',
+        'subcategoria',
         'description',
         'image',
         'price',
@@ -26,7 +28,10 @@ class Products extends Model
         'width',
         'length',
         'priceKit',
-        'priceWithFee'
+        'priceWithFee',
+        'fee',
+        'valorProdFornecedor',
+        'termometro'
     ];
 
     protected $table = "products";
@@ -325,7 +330,7 @@ class Products extends Model
 
     public static function getResults(Request $request) {
         $query = Products::query();
-        // $query->where('isKit', 1);
+        $query->where('isPublic', 1);
 
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {

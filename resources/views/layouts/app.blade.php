@@ -168,6 +168,22 @@
             white-space: normal; /* Permite que o texto quebre em várias linhas */
         }
 
+        @keyframes blink {
+            0%, 100% {
+                background-color: rgb(255, 50, 50); /* Cor inicial/final */
+            }
+            50% {
+                background-color: rgb(255, 255, 255); /* Cor no meio do piscar */
+            }
+        }
+
+        .blink-tab {
+            animation: blink 1.5s linear infinite; /* Duração de 1s, pisca continuamente */
+            border: 1px solid red; /* Borda destacada */
+        }
+
+
+
     </style>
 
 </head>

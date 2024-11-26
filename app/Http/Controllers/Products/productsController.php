@@ -621,25 +621,29 @@ class productsController extends Controller
     {
 
         $request->validate([
+            'isPublic' => "required",
             "title" => "required|max:255",
             "description" => "required",
             "stock" => "required|numeric|gt:0",
             "categoria_mercadolivre" => "required|max:20",
+            'subcategoria' => "required",
             "brand" => "max:100",
             'image' => 'image',
-            "ean" => "required|numeric",
+            "gtin" => "required|numeric",
             "tipo_anuncio" => "required|max:50",
             'pricePromotion' => 'numeric',
             'termometro' => 'numeric',
-            'fee' => "required|numeric|gt:0",
             'taxaFee' => "required|numeric|gt:0",
-            'PriceWithFee' =>  "required|numeric|gt:0",
+            'priceWithFee' =>  "required|numeric|gt:0",
             'height' =>  "required|numeric|gt:0",
             'width' =>  "required|numeric|gt:0",
             'length' =>  "required|numeric|gt:0",
             'price' => "required|numeric|gt:0",
-            'priceKit' => "required|numeric|gt:0"
+            'priceKit' => "required|numeric|gt:0",
+            'valorProdFornecedor' => "required|numeric"
         ], [
+            'subcategoria.required' => "O campo Categoria é obrigatório",
+            'isPublic.required' => "O campo ativo é obrigatório.",
             'title.required' => 'O campo Nome é obrigatório.',
             'title.max' => 'O Nome não pode ter mais de 255 caracteres.',
             'description.required' => 'A descrição é obrigatória.',
@@ -649,21 +653,23 @@ class productsController extends Controller
             'categoria_mercadolivre.required' => 'A Categoria Mercado Livre é obrigatória.',
             'brand.max' => 'A Marca não pode ter mais de 100 caracteres.',
             'image.image' => 'O campo Imagem deve ser uma imagem válida.',
-            'ean.required' => 'O código EAN é obrigatório.',
-            'ean.numeric' => 'O campo EAN deve ser numérico.',
+            'gtin.required' => 'O código EAN é obrigatório.',
+            'gtin.numeric' => 'O campo EAN deve ser numérico.',
             'tipo_anuncio.required' => 'O Tipo de Anúncio é obrigatório.',
             'pricePromotion.numeric' => 'O campo Preço Promocional deve ser numérico.',
             'termometro.numeric' => 'O campo Termômetro deve ser numérico.',
-            'fee.required' => 'O campo Taxa é obrigatório.',
-            'fee.numeric' => 'O campo Taxa deve ser numérico.',
-            'fee.gt' => 'O campo Taxa deve ser maior que 0.',
             'taxaFee.required' => 'O campo Taxa Fee é obrigatório.',
-            'PriceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
+            'priceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
             'height.required' => 'O campo Altura é obrigatório.',
             'width.required' => 'O campo Largura é obrigatório.',
             'length.required' => 'O campo Comprimento é obrigatório.',
             'price.required' => 'O campo Preço é obrigatório.',
+            'priceKit.required' => 'O campo Preço Kit é obrigatório.',
+            'priceKit.numeric' => 'O campo Preço Kit deve ser numérico.',
+            'priceKit.gt' => 'O campo Preço Kit deve ser maior que 0.',
             'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
+            'valorProdFornecedor.required' => "O campo acressímo é obrigatório",
+            'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico"
         ]);
 
         $produto = Products::findOrFail($id);
@@ -1534,18 +1540,27 @@ class productsController extends Controller
     }
 
 
-    public function fotoPreview(Request $request){
+    public function fotoPreview(Request $request)
+    {
         $imageUrls = [];
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
+                // Salva o arquivo e obtém o caminho
                 $path = $file->store('uploads', 'public');
-                $imageUrls[] = asset('storage/' . $path);
+
+                // Adiciona as informações no array, incluindo o nome original
+                $imageUrls[] = [
+                    'index' => count($imageUrls), // Índice atual
+                    'url' => asset('storage/' . $path), // URL da imagem
+                    'originalName' => $file->getClientOriginalName(), // Nome original do arquivo
+                ];
             }
         }
 
         return response()->json($imageUrls);
     }
+
 
     public function getVisits(Request $request){
 
