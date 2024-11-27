@@ -53,6 +53,120 @@
             border-radius: 5px;
         }
     </style>
+
+    <script>
+           $(document).on('click', '#searchItemButton', function() {
+            const itemId = $('#searchItemInput').val().trim();
+
+            if (itemId === '') {
+                alert('Por favor, insira um ID de item.');
+                return;
+            }
+
+            // URL base da API do Mercado Livre
+            const apiBaseUrl = 'https://api.mercadolibre.com/items/';
+
+            // Função genérica para fazer a requisição AJAX
+            function fetchData(url, successCallback, errorMessage) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: successCallback,
+                    error: function() {
+                        $('#searchResult').html(
+                            `<p class="text-danger">${errorMessage}</p>`);
+                    }
+                });
+            }
+
+            // Requisição para os dados do item
+            fetchData(
+                `${apiBaseUrl}${itemId}`,
+                function(response) {
+
+                    $("#titulo").val(response.title);
+                    $("#precoNormal").val(response.price);
+                    $("#stock").val(response.initial_quantity);
+                    $("#id_categoria").val(response.category_id);
+
+                      // Itera sobre os atributos do item
+                    if (response.attributes && Array.isArray(response.attributes)) {
+                        response.attributes.forEach(attribute => {
+                            switch (attribute.id) {
+                                case 'BRAND':
+                                    $("#brand").val(attribute.value_name); // Marca
+                                    break;
+                                case 'GTIN':
+                                    $("#ean").val(attribute.value_name); // Código universal
+                                    break;
+                                case 'IS_KIT':
+                                    $("#isKit").val(attribute.value_name); // É kit
+                                    break;
+                                case 'NET_WEIGHT':
+                                    $("#netWeight").val(attribute.value_name); // Peso líquido
+                                    break;
+                                case 'PACKAGE_HEIGHT':
+                                    $("#packageHeight").val(attribute.value_name?.replace(" cm", "")); // Altura da embalagem
+                                    break;
+                                case 'PACKAGE_LENGTH':
+                                    $("#packageLength").val(attribute.value_name?.replace(" cm", "")); // Comprimento da embalagem
+                                    break;
+                                case 'PACKAGE_WEIGHT':
+                                    $("#packageWeight").val(attribute.value_name); // Peso da embalagem
+                                    break;
+                                case 'PACKAGE_WIDTH':
+                                    $("#packageWidth").val(attribute.value_name?.replace(" cm", "")); // Largura da embalagem
+                                    break;
+                                case 'ITEM_CONDITION':
+                                    $("#itemCondition").val(attribute.value_name); // Condição do item
+                                    break;
+                                case 'SALE_FORMAT':
+                                    $("#saleFormat").val(attribute.value_name); // Formato de venda
+                                    break;
+                                case 'SELLER_SKU':
+                                    $("#sellerSku").val(attribute.value_name); // SKU do vendedor
+                                    break;
+                                default:
+                                    console.log(`Atributo não mapeado: ${attribute.id}`);
+                            }
+                        });
+                    }
+                    // Requisição para os dados da categoria
+                    fetchData(
+                        `https://api.mercadolibre.com/categories/${response.category_id}`,
+                        function(categoryResponse) {
+                            $("#categoryName").val(categoryResponse.name);
+
+                            $("#id_categoria").val(categoryResponse.id);
+                            // Exibe o caminho da categoria (path_from_root)
+                            const pathList = categoryResponse.path_from_root.map((category,
+                                index, array) => {
+                                if (index === array.length - 1) {
+                                    return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
+                                } else {
+                                    return `<li class="list-group-item">${category.name}</li>`;
+                                }
+                            }).join('');
+                            $('.content_categorias').append(pathList);
+                        },
+                        'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
+                    );
+                },
+                'Erro ao buscar o item. Verifique o ID e tente novamente.'
+            );
+
+            // Requisição para a descrição do item
+            fetchData(
+                `${apiBaseUrl}${itemId}/description`,
+                function(descriptionResponse) {
+                    $("#description").val(descriptionResponse.plain_text);
+                },
+                'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
+            );
+
+
+        });
+    </script>
     <div class="card mb-4">
         <div class="card-header">
             Criar Produto
@@ -86,6 +200,10 @@
                         <div id="collapseBasicInfo" class="accordion-collapse collapse show"
                             aria-labelledby="headingBasicInfo" data-bs-parent="#productFormAccordion">
                             <div class="accordion-body">
+                                <div class="d-flex ms-auto">
+                                    <input type="text" id="searchItemInput" class="form-control me-2" placeholder="Anúncio Base" style="max-width: 300px;">
+                                    <button id="searchItemButton" class="btn btn-primary">importar <i class="bi bi-back"></i></button>
+                                </div>
                                 <div class="row mb-3">
                                     <div class="col">
                                         <label class="col-lg-2 col-md-4 col-sm-12 col-form-label">Imagem:</label>
@@ -99,6 +217,7 @@
 
                                         <div class="container mt-4">
                                             <div id="imagePreview" class="image-container-preview"></div>
+                                            <div id="imagePreviewHidden"></div>
                                         </div>
                                         <div id="image-count mt-4"></div>
                                     </div>
@@ -120,13 +239,13 @@
 
                                 <div class="row mb-3">
                                     <div class="col">
-                                        <label for="name" class="form-label">Nome:</label>
-                                        <input name="name" type="text" value="{{ old('name') }}"
+                                        <label for="name" class="form-label">Titulo:</label>
+                                        <input name="name" id="titulo" type="text" value="{{ old('name') }}"
                                             class="form-control" required>
                                     </div>
                                     <div class="col-lg-4">
                                         <label for="brand" class="form-label">Marca:</label>
-                                        <input name="brand" type="text" value="{{ old('brand') }}"
+                                        <input name="brand" id="brand" type="text" value="{{ old('brand') }}"
                                             class="form-control" required>
                                     </div>
                                 </div>
@@ -156,11 +275,11 @@
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="pricePromotion">Preço Promocional:</label>
-                                        <input name="pricePromotion" type="text" class="form-control">
+                                        <input name="pricePromotion" type="text" value="0" class="form-control">
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="stock">Estoque:</label>
-                                        <input name="stock" type="number" value="{{ old('stock') }}"
+                                        <input name="stock" id="stock" type="number" value="{{ old('stock') }}"
                                             class="form-control" required>
                                     </div>
                                 </div>
@@ -183,7 +302,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Descrição:</label>
-                                    <textarea required class="form-control" name="description"
+                                    <textarea required class="form-control" id="description" name="description"
                                         rows="3">{{ old('description') }}</textarea>
                                 </div>
 
@@ -191,27 +310,27 @@
                                     <div class="col-lg-2">
                                         <label for="termometro">Valor Termômetro:</label>
                                         <input type="number" name="termometro" id="termometro"
-                                            value="{{ old('termometro') }}" min="0" max="150"
+                                            value="100" min="0" max="150"
                                             class="form-control">
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="ean">GTIN / EAN:</label>
-                                        <input name="ean" value="{{ old('ean') }}" class="form-control" required>
+                                        <input name="ean" value="{{ old('ean') }}" id="ean" class="form-control" required>
                                     </div>
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-lg-2">
                                         <label for="width">Largura:</label>
-                                        <input name="width" value="{{ old('width') }}" class="form-control" required>
+                                        <input name="width" id="packageWidth" value="{{ old('width') }}" class="form-control" required>
                                     </div>
                                     <div class="col-lg-2">
                                         <label for="height">Altura:</label>
-                                        <input name="height" value="{{ old('height') }}" class="form-control" required>
+                                        <input name="height" id="packageHeight" value="{{ old('height') }}" class="form-control" required>
                                     </div>
                                     <div class="col-lg-2">
                                         <label for="length">Comprimento:</label>
-                                        <input name="length" value="{{ old('length') }}" class="form-control" required>
+                                        <input name="length" id="packageLength" value="{{ old('length') }}" class="form-control" required>
                                     </div>
                                 </div>
 
@@ -325,13 +444,13 @@
                                         <div class="mb-3 row">
                                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
                                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input name="price" id="precoFinal" value="{{ old('price') }}"
+                                                <input name="priceBruto" id="precoFinal" value="{{ old('price') }}"
                                                     type="text" class="form-control">
                                             </div>
 
                                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
                                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input name="fee" value="{{ old('fee') }}" id="precoLiquido" type="text" class="form-control">
+                                                <input name="fee" value="{{ old('fee') }}" id="precoLiquido" type="text" class="form-control" required>
                                             </div>
                                         </div>
 
@@ -343,14 +462,14 @@
                                                     </label>
                                                     <div class="col-lg-2 col-md-6 col-sm-12">
                                                         <input name="taxaFee" id="taxaFee" type="text"
-                                                            value="4.99" class="form-control">
+                                                            value="4.99" class="form-control" readonly>
                                                     </div>
 
                                                     <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                     </label>
                                                     <div class="col-lg-2 col-md-6 col-sm-12">
                                                         <input name="PriceWithFee" id="PriceWithFee" type="text"
-                                                            class="form-control"  value="{{ old('PriceWithFee') }}">
+                                                            class="form-control"  value="{{ old('PriceWithFee') }}" required>
                                                     </div>
 
                                                     <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Preço Kit:
@@ -378,6 +497,8 @@
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
             <script>
+
+
                 // Certifique-se de que esta função esteja no escopo global
                 function removeImage(index) {
                     $('#imagePreview .image-item').eq(index).remove();
@@ -430,9 +551,9 @@
                         }
                     });
 
-                    $('input[name="price"]').mask('000.000.000,00', {
-                        reverse: true
-                    });
+                    // $('input[name="price"]').mask('000.000.000,00', {
+                    //     reverse: true
+                    // });
                     $('input[name="acressimoR"]').mask('000.000.000,00', {
                         reverse: true
                     });
@@ -609,6 +730,8 @@
                                 $('#image-count').text('Total de fotos: ' + data.length);
 
                                 $.each(data, function(index, imageUrl) {
+
+                                    console.log(imageUrl);
                                     var mainLabel = index === 0 ?
                                         '<span class="main-image-label">Imagem Principal</span>' :
                                         '';
@@ -620,7 +743,7 @@
                                     $('#imagePreview').append(
                                         '<div class="image-item position-relative">' +
                                         mainLabel +
-                                        '<img src="' + imageUrl + '" class="img-fluid">' +
+                                        '<img src="' + imageUrl.url + '" class="img-fluid">' +
                                         deleteButton +
                                         '</div>'
                                     );
@@ -809,6 +932,9 @@
 
                             // valor com as taxas calculo final
                             valorProduto = (parseFloat($("#precoFinal").val()) / 0.951);
+
+                            valorKit = (parseFloat(total) / 0.90);
+                            $("#priceKit").val(parseFloat(valorKit).toFixed(2));
                             // claculo do valor liquido
                             totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
                             // preço liquido final

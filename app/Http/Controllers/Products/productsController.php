@@ -137,21 +137,64 @@ class productsController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5',
             'price' => 'required|numeric|min:1',
-            "stock" => "required|numeric",
+            'stock' => 'required|numeric',
             'description' => 'required',
             'brand' => 'required|min:1',
             'ean' => 'required',
             'termometro' => 'numeric',
-            'fee' => "required|numeric|gt:0",
-            'taxaFee' => "required|numeric|gt:0",
-            'PriceWithFee' =>  "required|numeric|gt:0",
-            'height' =>  "required|numeric|gt:0",
-            'width' =>  "required|numeric|gt:0",
-            'length' =>  "required|numeric|gt:0",
-            'photos' => "required",
-            'id_categoria' => "required",
-            'priceKit' => "required|numeric|gt:0"
+            'fee' => 'required|numeric|gt:0',
+            'taxaFee' => 'required|numeric|gt:0',
+            'PriceWithFee' => 'required|numeric|gt:0',
+            'height' => 'required|numeric|gt:0',
+            'width' => 'required|numeric|gt:0',
+            'length' => 'required|numeric|gt:0',
+            'photos' => 'required',
+            'id_categoria' => 'required',
+            'priceKit' => 'required|numeric|gt:0',
+        ], [
+            // Mensagens personalizadas
+            'name.required' => 'O campo Nome é obrigatório.',
+            'name.min' => 'O campo Nome deve ter no mínimo 5 caracteres.',
+            'price.required' => 'O campo Preço é obrigatório.',
+            'price.numeric' => 'O campo Preço deve ser numérico.',
+            'price.min' => 'O campo Preço deve ser maior que zero.',
+            'stock.required' => 'O campo Estoque é obrigatório.',
+            'stock.numeric' => 'O campo Estoque deve ser numérico.',
+            'description.required' => 'O campo Descrição é obrigatório.',
+            'brand.required' => 'O campo Marca é obrigatório.',
+            'brand.min' => 'O campo Marca deve ter no mínimo 1 caractere.',
+            'ean.required' => 'O campo EAN é obrigatório.',
+            'termometro.numeric' => 'O campo Termômetro deve ser numérico.',
+            'fee.required' => 'O campo Taxa é obrigatório.',
+            'fee.numeric' => 'O campo Taxa deve ser numérica.',
+            'fee.gt' => 'O campo Taxa deve ser maior que zero.',
+            'taxaFee.required' => 'O campo Taxa de Comissão é obrigatório.',
+            'taxaFee.numeric' => 'O campo Taxa de Comissão deve ser numérica.',
+            'taxaFee.gt' => 'O campo Taxa de Comissão deve ser maior que zero.',
+            'PriceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
+            'PriceWithFee.numeric' => 'O campo Preço com Taxa deve ser numérico.',
+            'PriceWithFee.gt' => 'O campo Preço com Taxa deve ser maior que zero.',
+            'height.required' => 'O campo Altura é obrigatório.',
+            'height.numeric' => 'O campo Altura deve ser numérico.',
+            'height.gt' => 'O campo Altura deve ser maior que zero.',
+            'width.required' => 'O campo Largura é obrigatório.',
+            'width.numeric' => 'O campo Largura deve ser numérica.',
+            'width.gt' => 'O campo Largura deve ser maior que zero.',
+            'length.required' => 'O campo Comprimento é obrigatório.',
+            'length.numeric' => 'O campo Comprimento deve ser numérico.',
+            'length.gt' => 'O campo Comprimento deve ser maior que zero.',
+            'photos.required' => 'É necessário adicionar pelo menos uma foto.',
+            'id_categoria.required' => 'O campo Categoria é obrigatório.',
+            'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
+            'priceKit.numeric' => 'O campo Preço do Kit deve ser numérico.',
+            'priceKit.gt' => 'O campo Preço do Kit deve ser maior que zero.',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         if ($validator->fails()) {
             return redirect()->back()

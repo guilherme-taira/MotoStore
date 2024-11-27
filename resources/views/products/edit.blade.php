@@ -647,7 +647,7 @@
                                             </div>
                                         </label>
                                         <div class="input-group">
-                                            <select id="fornecedor-select" name="fornecedor" class="form-select"
+                                            <select id="fornecedor-select" name="fornecedor_id" class="form-select"
                                                 style="max-width: 240px;">
                                                 <option value="">Selecione..</option>
                                                 @foreach ($viewData['fornecedor'] as $fornecedor)
