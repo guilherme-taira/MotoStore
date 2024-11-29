@@ -743,40 +743,40 @@ class productsController extends Controller
         }
 
 
-        // $products = $request->input('products');
+        $products = $request->input('products');
 
-        // if ($products) {
-        //     $kitId = $id; // ID do kit
+        if ($products) {
+            $kitId = $id; // ID do kit
 
-        //    // Obtem os IDs dos produtos enviados no array
-        //     $productIds = array_column($products, 'id');
+           // Obtem os IDs dos produtos enviados no array
+            $productIds = array_column($products, 'id');
 
-        //     // Busca os produtos existentes no kit na tabela 'kits'
-        //     $existingProducts = DB::table('kit')
-        //         ->where('product_id', $kitId)
-        //         ->pluck('id_product_kit')
-        //         ->toArray();
+            // Busca os produtos existentes no kit na tabela 'kits'
+            $existingProducts = DB::table('kit')
+                ->where('product_id', $kitId)
+                ->pluck('id_product_kit')
+                ->toArray();
 
-        //     // Identifica os produtos que estão no kit, mas não foram enviados
-        //     $productsNotSent = array_diff($existingProducts, $productIds);
+            // Identifica os produtos que estão no kit, mas não foram enviados
+            $productsNotSent = array_diff($existingProducts, $productIds);
 
-        //     $removedProducts = [];
-        //     if (!empty($productsNotSent)) {
-        //         DB::table('kit')
-        //             ->where('product_id', $kitId)
-        //             ->whereIn('id_product_kit', $productsNotSent)
-        //             ->delete();
-        //     }
-        //     $produto->save();
-        //     // Redireciona de volta com mensagens de sucesso
-        //     return redirect()->back()->with([
-        //         'message' => 'Kit atual com sucesso.',
-        //         'removed_products' => $removedProducts,
-        //     ]);
-        // }
+            $removedProducts = [];
+            if (!empty($productsNotSent)) {
+                DB::table('kit')
+                    ->where('product_id', $kitId)
+                    ->whereIn('id_product_kit', $productsNotSent)
+                    ->delete();
+            }
+            $produto->save();
+            // Redireciona de volta com mensagens de sucesso
+            return redirect()->back()->with([
+                'message' => 'Kit atual com sucesso.',
+                'removed_products' => $removedProducts,
+            ]);
+        }
 
-        // $produto->save();
-        // return redirect()->back()->with('success', 'Atualizado com sucesso!');
+        $produto->save();
+        return redirect()->back()->with('success', 'Atualizado com sucesso!');
 
     }
 
