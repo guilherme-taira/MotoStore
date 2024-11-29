@@ -28,14 +28,18 @@ use App\Models\Products;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
+use App\Notifications\notificaUserOrder;
 use AWS\CRT\Log;
 use Aws\Token\Token as TokenToken;
 use Carbon\Carbon;
 use DateTime;
+use App\Models\User;
+use App\Notifications\notificaSellerOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Log as FacadesLog;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
@@ -85,7 +89,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -129,7 +133,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         if ($getLink->comunicando == 1 && $dados['transportadora'] == NULL) {
 
                             if (ShippingUpdate::ifExist($json->id)) {
-                                $redisKey = 'shipping_update_' . $json->id;
+                                $redisKey = 'shipping_update' . $json->id;
 
                                 // Usar SETNX para garantir que não haja concorrência
                                 $isLocked = Redis::setnx($redisKey, true);
@@ -172,7 +176,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             }
                         }
                      }
-                    } catch (\Throwable $th) {
+                    } catch (\Exception $th) {
                         // Em caso de erro, remover a chave Redis para permitir nova tentativa no futuro
                         Redis::del($redisKey);
 
@@ -221,10 +225,18 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
+                                $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
+                                $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
+                                if ($fornecedor) {
+                                    // NOTIFICA O FORNECEDOR
+                                    Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                    // NOTIFICA O VENDEDOR
+                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point']));
+                                }
+
                                 // $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
 
-
-                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                 // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
 
