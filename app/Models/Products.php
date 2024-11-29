@@ -357,6 +357,8 @@ class Products extends Model
             $query->where('subcategoria', '=', $request->categoria);
         }
 
+        $query->orderBy('id', 'desc');
+
         return $query->paginate(10);
     }
 

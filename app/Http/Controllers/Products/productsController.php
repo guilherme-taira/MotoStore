@@ -1456,7 +1456,9 @@ class productsController extends Controller
     public function todosProdutos()
     {
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('fornecedor_id', Auth::user()->id)->paginate(10);
+        $data = Products::where('fornecedor_id', Auth::user()->id)
+        ->orderBy('id', 'desc') // Ordena pelo ID do produto, se ele for incremental
+        ->paginate(10);
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";

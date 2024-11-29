@@ -100,8 +100,8 @@
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <label for="exampleFormControlTextarea1">Descrição do Anúncio</label>
-                                                    <textarea name="editor" id="editor" value="ds" rows="3"></textarea>
+                                                    <label for="editor">Descrição do Anúncio</label>
+                                                    <textarea name="editor" id="editor" rows="5" class="form-control"></textarea>
                                                 </div>
                                             </div>
 
@@ -479,8 +479,22 @@
 
             $("section#linhasProduct").click(function() {
 
-                var id_produto = $(this).find("span:eq(0)")
-                    .text(); // Supondo que a segunda célula da linha contenha um texto específico
+                var id_produto = $(this).find("span:eq(0)").text(); // Obtém o ID do produto
+
+                // Garante que o editor não tenha conteúdo antigo no DOM
+                $('#editor').html(''); // Limpa o conteúdo antigo
+
+                        // LIMPA O HISTÓRICO e os campos do formulário
+                $('#id_prodenv').val(''); // Limpa o campo de ID
+                $('#name').val(''); // Limpa o campo de Nome
+                $('#precoFinal').val(''); // Limpa o campo de Preço
+                $('#category_id').val(''); // Limpa o campo de Categoria
+                $(".img_integracao_foto").attr('src', ''); // Remove a imagem
+                $(".img_integracao_title").empty(); // Limpa o título
+                $(".img_integracao_ean").empty(); // Limpa o EAN
+                $(".img_integracao_price").empty(); // Limpa o Preço
+                $(".content_categorias").empty(); // Limpa a lista de categorias
+                $('#editor').val(''); // Limpa o editor
 
                 // LIMPA O HISTORICO
                 $('.adicionarHistorico').empty();
@@ -502,18 +516,9 @@
                             $(".img_integracao_title").append(response.title);
                             $(".img_integracao_ean").append("EAN : " + response.ean);
                             $(".img_integracao_price").append("Preço: " + response.priceWithFee);
-                            ClassicEditor
-                                .create(document.querySelector('#editor'))
-                                .then(editor => {
-                                    editor.ui.view.editable.element.style.height = '250px';
-                                    editor.setData(response.description);
-                                })
-                                .catch(error => {
-                                    console.error('Houve um erro ao inicializar o editor:',
-                                        error);
-                                });
-                        }
-                    },
+                             // Atualiza o textarea com a descrição
+                            $('#editor').val(response.description);
+                    }},
                     error: function(error) {
                         $('#result').html(
                             '<option> Produto Digitado Não Existe! </option>'
