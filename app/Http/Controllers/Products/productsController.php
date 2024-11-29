@@ -720,52 +720,63 @@ class productsController extends Controller
         $produto->save();
 
         try {
-            if ($request->hasFile('image')) {
-                 $request->image->storeAs('produtos/' . $produto->getId(), $request->image->getClientOriginalName(), 's3');
+            if ($request->hasFile('photos')) {
 
-                $image = new images();
-                $image->url = $request->image->getClientOriginalName();
-                $image->product_id = $produto->getId();
-                $image->save();
+                print_r($request->file('photos'));
+                foreach ($request->file('photos') as $photo) {
+                    // Salvar a foto no S3
+                    $photo->storeAs(
+                        'produtos/' . $produto->getId(),
+                         $photo->getClientOriginalName(),
+                        's3'
+                    );
+
+                    // Criar uma instância de imagem e salvar no banco de dados
+                    $image = new Images();
+                    $image->url = $photo->getClientOriginalName();
+                    $image->product_id = $produto->getId();
+                    $image->save();
+                }
             }
         } catch (\Exception $th) {
-           echo $th->getMessage();
+            echo $th->getMessage();
         }
 
-        $products = $request->input('products');
 
-        if ($products) {
-            $kitId = $id; // ID do kit
+        // $products = $request->input('products');
 
-           // Obtem os IDs dos produtos enviados no array
-            $productIds = array_column($products, 'id');
+        // if ($products) {
+        //     $kitId = $id; // ID do kit
 
-            // Busca os produtos existentes no kit na tabela 'kits'
-            $existingProducts = DB::table('kit')
-                ->where('product_id', $kitId)
-                ->pluck('id_product_kit')
-                ->toArray();
+        //    // Obtem os IDs dos produtos enviados no array
+        //     $productIds = array_column($products, 'id');
 
-            // Identifica os produtos que estão no kit, mas não foram enviados
-            $productsNotSent = array_diff($existingProducts, $productIds);
+        //     // Busca os produtos existentes no kit na tabela 'kits'
+        //     $existingProducts = DB::table('kit')
+        //         ->where('product_id', $kitId)
+        //         ->pluck('id_product_kit')
+        //         ->toArray();
 
-            $removedProducts = [];
-            if (!empty($productsNotSent)) {
-                DB::table('kit')
-                    ->where('product_id', $kitId)
-                    ->whereIn('id_product_kit', $productsNotSent)
-                    ->delete();
-            }
-            $produto->save();
-            // Redireciona de volta com mensagens de sucesso
-            return redirect()->back()->with([
-                'message' => 'Kit atual com sucesso.',
-                'removed_products' => $removedProducts,
-            ]);
-        }
+        //     // Identifica os produtos que estão no kit, mas não foram enviados
+        //     $productsNotSent = array_diff($existingProducts, $productIds);
 
-        $produto->save();
-        return redirect()->back()->with('success', 'Atualizado com sucesso!');
+        //     $removedProducts = [];
+        //     if (!empty($productsNotSent)) {
+        //         DB::table('kit')
+        //             ->where('product_id', $kitId)
+        //             ->whereIn('id_product_kit', $productsNotSent)
+        //             ->delete();
+        //     }
+        //     $produto->save();
+        //     // Redireciona de volta com mensagens de sucesso
+        //     return redirect()->back()->with([
+        //         'message' => 'Kit atual com sucesso.',
+        //         'removed_products' => $removedProducts,
+        //     ]);
+        // }
+
+        // $produto->save();
+        // return redirect()->back()->with('success', 'Atualizado com sucesso!');
 
     }
 
