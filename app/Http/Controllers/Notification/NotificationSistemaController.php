@@ -11,8 +11,13 @@ class NotificationSistemaController extends Controller
     public function index()
     {
         // Obtém todas as notificações do usuário autenticado
-        $notificacoes = Auth::user()->notifications;
+        $user = Auth::user();
 
+        // Marcar todas as notificações como lidas
+        $user->unreadNotifications->markAsRead();
+
+        // Recuperar todas as notificações (lidas e não lidas)
+        $notificacoes = $user->notifications;
         // Retorna a view com as notificações
         return view('notificacoes.index', compact('notificacoes'));
     }

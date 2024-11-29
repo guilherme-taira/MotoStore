@@ -228,6 +228,22 @@
                                         </div>
                                     </a>
                                 @else
+                                    @if (isset($notification->data['link']))
+                                    <a class="dropdown-item notification-item" href="{{ $notification->data['link'] }}">
+                                        <div class="notification-content mt-2">
+                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
+                                            <div class="notification-text">
+                                                <span class="notification-title">Você Vendeu!  <i class="bi bi-bag-plus-fill"></i></span>
+                                                <span class="notification-details">{{ $notification->data['mensagem'] }}</span>
+                                                <span class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }} </span>
+                                                <span class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais  </span>
+                                                <span class="notification-date text-muted d-block mt-1" style="font-size: 0.85em;">
+                                                    {{ $notification->created_at->format('d/m/Y H:i') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    @else
                                     <a class="dropdown-item notification-item" href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}">
                                         <div class="notification-content mt-2">
                                             <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
@@ -242,6 +258,7 @@
                                             </div>
                                         </div>
                                     </a>
+                                    @endif
                                 @endif
                             </li>
                         @endforeach
@@ -328,7 +345,7 @@
                                     data-bs-parent="#sidenavAccordionPages">
                                     <nav class="sb-sidenav-menu-nested nav">
                                         <a class="nav-link" href="{{ route('integracaoml') }}">Mercado Livre</a>
-                                        <a class="nav-link" href="register.html">Shopee</a>
+                                        <a class="nav-link" href="">Shopee</a>
                                         <a class="nav-link" href="{{route('shopify.create')}}">Shopify</a>
                                     </nav>
                                 </div>
