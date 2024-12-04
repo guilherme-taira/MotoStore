@@ -115,8 +115,6 @@ class MercadoPagoNotification extends Controller
 
     public function notification(Request $request){
 
-
-        Log::critical($request->all());
         // GET TOKEN
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
 
@@ -149,6 +147,12 @@ class MercadoPagoNotification extends Controller
             }
 
 
+        }
+
+        public function notificationBling(Request $request){
+
+            // GET TOKEN
+            Log::critical($request->all());
         }
     // }
 }

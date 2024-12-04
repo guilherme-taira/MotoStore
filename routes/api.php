@@ -37,6 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
+    Route::post('/notificationBling',[MercadoPagoNotification::class,'notificationBling']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);
     Route::post('/notificationShopify',[MercadoPagoNotification::class,'notificationShopify']);
