@@ -17,7 +17,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // Agendar o comando para rodar a cada 5 minutos
-         $schedule->command('processar:pedidos-sem-rastreio')->everyFiveMinutes();
+        //  $schedule->command('processar:pedidos-sem-rastreio')->everyFiveMinutes();
+        // Executar o Job a cada minuto
+         $schedule->job(new \App\Jobs\UpdateBlingToken)->everyMinute();
     }
 
     /**

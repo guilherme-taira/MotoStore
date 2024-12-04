@@ -7,7 +7,9 @@ use App\Http\Controllers\Ajax\getProductsData;
 use App\Http\Controllers\Ajax\getUserInfoController;
 use App\Http\Controllers\aliexpress\AlieExpressController;
 use App\Http\Controllers\aliexpress\implementadorAuthController;
+use App\Http\Controllers\ApiBlingProductsController;
 use App\Http\Controllers\Bancario\BancarioController;
+use App\Http\Controllers\BlingController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\categoriaFornecedor\categoriasFornecedor;
 use App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor;
@@ -15,6 +17,7 @@ use App\Http\Controllers\Configuracao\configuracaoController;
 use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\IntegracaoBlingController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
 use App\Http\Controllers\kitsController;
 use App\Http\Controllers\Logo\logoController;
@@ -93,6 +96,7 @@ Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirE
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 
+
 // Rota para listar todas as notificações
 Route::get('/vernotificacoes', [NotificationSistemaController::class, 'index'])->name('notifications');
 // NOTIFICAO MARCAR LIDO
@@ -145,7 +149,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 Route::middleware('auth')->group(function () {
 Route::middleware('admin')->group(function () {
     Route::middleware('admin_msg')->group(function () {
-
+        Route::post('/storeBling', [ApiBlingProductsController::class, 'storeBling'])->name('storeBling');
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
         Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
@@ -161,7 +165,8 @@ Route::middleware('admin')->group(function () {
         Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
         Route::get('/getTokenAliexpress',[AlieExpressController::class,'getToken']);
-
+        Route::resource('bling', IntegracaoBlingController::class);
+        Route::get('/blingAutenticate', [BlingController::class, 'authenticate'])->name('blingAutenticate');
         Route::resource('fretes','App\Http\Controllers\SaiuPraEntrega\SaiuPraEntregaMainController')->names('fretes');
         Route::resource('shopify','App\Http\Controllers\ShopifyController')->names('shopify');
         Route::resource('store', 'App\Http\Controllers\Store\StoreController')->names('stores');
