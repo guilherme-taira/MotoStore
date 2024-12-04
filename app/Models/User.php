@@ -31,6 +31,12 @@ class User extends Authenticatable
         return $this->hasOne(Shopify::class);
     }
 
+    public function integracaoBling()
+    {
+        return $this->hasOne(IntegracaoBling::class);
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

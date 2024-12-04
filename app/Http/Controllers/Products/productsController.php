@@ -267,6 +267,7 @@ class productsController extends Controller
         return response()->json($produtos);
     }
 
+
     public function tradeCategoria(Request $request){
         return $this->getAttributesTrade($request);
     }
@@ -722,7 +723,6 @@ class productsController extends Controller
         try {
             if ($request->hasFile('photos')) {
 
-                print_r($request->file('photos'));
                 foreach ($request->file('photos') as $photo) {
                     // Salvar a foto no S3
                     $photo->storeAs(
@@ -1464,8 +1464,9 @@ class productsController extends Controller
     }
 
 
-    public function todosProdutos()
+    public function todosProdutos(Request $request)
     {
+
         // PRODUTOS EM PROMOÇÂO
         $data = Products::where('fornecedor_id', Auth::user()->id)
         ->orderBy('id', 'desc') // Ordena pelo ID do produto, se ele for incremental

@@ -1,6 +1,7 @@
 <?php
 
 use App\Events\sendProduct;
+use App\Http\Controllers\ApiBlingProductsController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
@@ -26,13 +27,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
 Route::prefix('v1')->group(function () {
     // GET ROUTES
     route::post('updateItem/{id}',function($id){
         broadcast(new sendProduct($id));
     });
-
-
+    Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
+    Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);

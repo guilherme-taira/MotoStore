@@ -347,6 +347,7 @@
                                         <a class="nav-link" href="{{ route('integracaoml') }}">Mercado Livre</a>
                                         <a class="nav-link" href="">Shopee</a>
                                         <a class="nav-link" href="{{route('shopify.create')}}">Shopify</a>
+                                        <a class="nav-link" href="{{route('bling.index')}}">Bling</a>
                                     </nav>
                                 </div>
                                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
