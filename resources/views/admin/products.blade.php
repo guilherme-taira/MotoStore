@@ -425,7 +425,7 @@
                                                         <div
                                                             class="col-md-6 col-lg-3 col-xl-3 border-sm-start-none border-start">
                                                             <div class="d-flex flex-row align-items-center mb-1">
-                                                                <h4 class="mb-1 me-1">R$:
+                                                                <h4 class="mb-1 me-1">R$
                                                                     {{ number_format($product->priceWithFee, 2) }}</h4>
                                                                 {{-- <span class="text-danger"><s>$20.99</s></span> --}}
                                                             </div>

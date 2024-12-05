@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class handlerDresses extends BaseHandler{
 

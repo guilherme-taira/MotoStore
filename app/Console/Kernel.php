@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\UpdateMercadoLivreTokens;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -20,6 +21,8 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('processar:pedidos-sem-rastreio')->everyFiveMinutes();
         // Executar o Job a cada minuto
          $schedule->job(new \App\Jobs\UpdateBlingToken)->everyMinute();
+         // Executar o Job de atualização de tokens do Mercado Livre a cada 1 minuto
+         $schedule->job(new UpdateMercadoLivreTokens)->everyMinute();
     }
 
     /**

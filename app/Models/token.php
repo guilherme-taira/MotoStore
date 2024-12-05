@@ -12,6 +12,15 @@ class token extends Model
 
     protected $table = 'token';
 
+    // Campos que podem ser atualizados em massa
+    protected $fillable = [
+        'access_token',
+        'datamodify',
+        'user_id_mercadolivre',
+        'refresh_token',
+        'type',
+        'user_id',
+    ];
 
     public static function getId($sellerId){
         $data = DB::table('token')

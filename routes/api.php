@@ -27,13 +27,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-
 Route::prefix('v1')->group(function () {
     // GET ROUTES
     route::post('updateItem/{id}',function($id){
         broadcast(new sendProduct($id));
     });
+
+
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);

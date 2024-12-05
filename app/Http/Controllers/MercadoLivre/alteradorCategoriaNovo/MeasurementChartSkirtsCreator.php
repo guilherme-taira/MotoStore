@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MeasurementChartSkirtsCreator extends Controller
 {
@@ -62,9 +63,15 @@ class MeasurementChartSkirtsCreator extends Controller
                             ]
                         ],
                         [
-                            "id" => "CHEST_CIRCUMFERENCE_FROM",
+                            "id" => "HIP_CIRCUMFERENCE_FROM",
                             "values" => [
-                                ["name" => "85 cm"]
+                                ["name" => "80 cm"]
+                            ]
+                        ],
+                        [
+                            "id" => "HIP_CIRCUMFERENCE_TO",
+                            "values" => [
+                                ["name" => "88 cm"]
                             ]
                         ]
                     ]
