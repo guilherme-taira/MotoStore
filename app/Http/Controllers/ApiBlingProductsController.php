@@ -112,6 +112,65 @@ class ApiBlingProductsController extends Controller
             return redirect()->route('allProductsByFornecedor')->with('success', 'Produto importado com sucesso!');
     }
 
+    public function createOrder(Request $request){
+
+        // Validação básica
+        $validatedData = $request->validate([
+            'numeroLoja' => 'required|string',
+            'itens' => 'required|array|min:1',
+            'contato.id' => 'required|integer',
+            'contato.numeroDocumento' => 'required|string',
+            'contato.tipoPessoa' => 'nullable|string|in:F,J', // F para física, J para jurídica
+        ]);
+
+        // Verificar integração do usuário
+        $integracao = IntegracaoBling::where('user_id', $request->user_id)->first();
+
+        if (!$integracao) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Integração não encontrada para o usuário informado.',
+            ], 404);
+        }
+
+        $url = 'https://api.bling.com.br/Api/v3/pedidos/vendas';
+
+        // Montar o payload
+        $payload = [
+            "numeroLoja" => $validatedData['numeroLoja'],
+            "data" => now()->format('Y-m-d'),
+            "itens" => $validatedData['itens'],
+            "contato" => [
+                "id" => $validatedData['contato']['id'],
+                "tipoPessoa" => $validatedData['contato']['tipoPessoa'] ?? 'J',
+                "numeroDocumento" => $validatedData['contato']['numeroDocumento'],
+            ],
+        ];
+
+        Log::alert(json_encode($payload));
+         // Fazer a requisição à API do Bling
+         $response = Http::withHeaders([
+            'Authorization' => "Bearer {$integracao->access_token}",
+            'Accept' => 'application/json',
+        ])->post($url, [
+            'json' => $payload,
+        ]);
+
+        // Verificar a resposta da API
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pedido criado com sucesso no Bling!',
+                'data' => $response->json(),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar o pedido no Bling.',
+                'error' => $response->json(),
+            ], $response->status());
+        }
+    }
 
     public function getProdutosPaginados(Request $request){
         $produtos = Products::where('isKit','=','0')
@@ -124,83 +183,5 @@ class ApiBlingProductsController extends Controller
         return response()->json($produtos);
     }
 
-    public function createOrder(Request $request)
-{
-    // Validação dos dados recebidos
-    $validatedData = $request->validate([
-        'numero' => 'required|integer',
-        'numeroLoja' => 'required|string',
-        'data' => 'required|date',
-        'dataSaida' => 'nullable|date',
-        'dataPrevista' => 'nullable|date',
-        'contato' => 'required|array',
-        'itens' => 'required|array|min:1',
-        'parcelas' => 'nullable|array',
-        'transporte' => 'nullable|array',
-    ]);
 
-    // Busque a integração do usuário autenticado
-    $integracao = IntegracaoBling::where('user_id', $request->user_id)->first();
-
-    if (!$integracao) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Integração não encontrada para o usuário informado.',
-        ], 404);
-    }
-
-    // Obtenha o token de API do Bling
-    $apiKey = $integracao->access_token;
-
-    // Montar a URL do Bling
-    $url = 'https://api.bling.com.br/Api/v3/pedidos/vendas';
-
-    // Dados do pedido (com os dados recebidos do request)
-    $payload = [
-        "numero" => $validatedData['numero'],
-        "numeroLoja" => $validatedData['numeroLoja'],
-        "data" => $validatedData['data'],
-        "dataSaida" => $validatedData['dataSaida'] ?? null,
-        "dataPrevista" => $validatedData['dataPrevista'] ?? null,
-        "contato" => $validatedData['contato'],
-        "loja" => $request->loja ?? null,
-        "numeroPedidoCompra" => $request->numeroPedidoCompra ?? null,
-        "outrasDespesas" => $request->outrasDespesas ?? 0,
-        "observacoes" => $request->observacoes ?? '',
-        "observacoesInternas" => $request->observacoesInternas ?? '',
-        "desconto" => $request->desconto ?? null,
-        "categoria" => $request->categoria ?? null,
-        "tributacao" => $request->tributacao ?? null,
-        "itens" => $validatedData['itens'],
-        "parcelas" => $validatedData['parcelas'] ?? [],
-        "transporte" => $validatedData['transporte'] ?? [],
-        "vendedor" => $request->vendedor ?? null,
-        "intermediador" => $request->intermediador ?? null,
-        "taxas" => $request->taxas ?? null,
-    ];
-
-    // Enviar o pedido para o Bling
-    $response = Http::withHeaders([
-        'accept' => 'application/json',
-        'Content-Type' => 'application/json',
-    ])->post($url, [
-        'apikey' => $apiKey,
-        'json' => $payload,
-    ]);
-
-    // Verificar a resposta da API
-    if ($response->successful()) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Pedido criado com sucesso no Bling!',
-            'data' => $response->json(),
-        ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro ao criar o pedido no Bling.',
-            'error' => $response->json(),
-        ], $response->status());
-    }
-}
 }

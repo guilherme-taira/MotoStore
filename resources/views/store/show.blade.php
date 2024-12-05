@@ -289,7 +289,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h2 class="text-success margin-negative-maior">
-                                        R$: {{ number_format($viewData['product']->getPrice(), 2, ',', '.') }}</h2>
+                                        R$ {{ number_format($viewData['product']->getPriceWithFeeMktplace(), 2, ',', '.') }}</h2>
                                 </div>
                             @endif
                         </div>

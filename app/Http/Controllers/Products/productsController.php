@@ -309,6 +309,7 @@ class productsController extends Controller
              $grid = $handler->Manipular($obj);
 
 
+             Log::alert(json_encode($request->all()));
             if($request->moda){
                     $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $grid]);
             }else{
@@ -319,9 +320,6 @@ class productsController extends Controller
                     $try = TRUE;
                 }
             }
-
-
-            Log::alert($data_json);
 
             $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
 

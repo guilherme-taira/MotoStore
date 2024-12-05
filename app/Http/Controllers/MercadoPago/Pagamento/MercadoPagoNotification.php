@@ -9,12 +9,14 @@ use App\Http\Controllers\SaiuPraEntrega\SaiuPraEntregaService;
 use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\SaiuPraEntrega\TypeMessageController;
 use App\Http\Controllers\Shopify\ShippingController;
+use App\Models\IntegracaoBling;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class MercadoPagoNotification extends Controller
@@ -104,6 +106,9 @@ class MercadoPagoNotification extends Controller
 
         return response()->json("ok",200);
     }
+
+
+
 
     function getFirstNumber($string) {
         // Usa expressão regular para encontrar o primeiro número na string

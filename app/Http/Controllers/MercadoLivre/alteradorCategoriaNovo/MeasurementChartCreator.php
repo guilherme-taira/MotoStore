@@ -115,7 +115,7 @@ class MeasurementChartCreator
                 "value_name" => $result['rows'][0]['id']
             ]
             ];
-           return array_merge($this->requestMain->data,$grid);
 
+           return array_merge($this->requestMain->data,$grid);
     }
 }

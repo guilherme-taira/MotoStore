@@ -329,7 +329,7 @@
                 { "domain_id": "MLB-DRESSES" },
                 // { "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES" },
                 // { "domain_id": "MLB-BLOUSES" },
-                // { "domain_id": "MLB-SHIRTS" },
+                { "domain_id": "MLB-SHIRTS" },
                 // { "domain_id": "MLB-PAJAMAS" },
                 // { "domain_id": "MLB-PANTS_TEST" },
                 { "domain_id": "MLB-PANTS" },
@@ -374,7 +374,7 @@
                 // { "domain_id": "MLB-BRAS" },
                 // { "domain_id": "MLB-UNDERPANTS" },
                 // { "domain_id": "MLB-PANTIES" },
-                // { "domain_id": "MLB-SKIRTS" },
+                { "domain_id": "MLB-SKIRTS" },
                 // { "domain_id": "MLB-SPORT_SKIRTS" },
                 // { "domain_id": "MLB-TUTUS" },
                 // { "domain_id": "MLB-SNEAKERS_TEST" }
@@ -534,6 +534,7 @@
                     console.log("BASE VAZIA");
                     // Exemplo de uso
                     const domain = $("#domain").val();
+                    console.log(domain);
                     if (checkDomainId(domain)) {
                         $("li#ids_li").each(function(index, element) {
                         pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData,true,domain);
