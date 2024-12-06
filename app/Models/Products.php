@@ -33,7 +33,8 @@ class Products extends Model
         'valorProdFornecedor',
         'termometro',
         'fornecedor_id',
-        'stock'
+        'stock',
+        'title'
     ];
 
     protected $table = "products";
