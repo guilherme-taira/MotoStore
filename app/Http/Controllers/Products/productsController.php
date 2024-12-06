@@ -46,6 +46,7 @@ use App\Http\Controllers\MercadoLivre\ProdutoConcreto;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
+use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Models\kit;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
@@ -131,8 +132,6 @@ class productsController extends Controller
      */
     public function store(Request $request)
     {
-        // SERVICE TRATA PREÇO
-        $TrataPreco = new ServicesController();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|min:5',
@@ -309,7 +308,6 @@ class productsController extends Controller
              $grid = $handler->Manipular($obj);
 
 
-             Log::alert(json_encode($request->all()));
             if($request->moda){
                     $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $grid]);
             }else{
@@ -718,6 +716,10 @@ class productsController extends Controller
         $produto->fill($request->except('products')); // Preenche os dados do produto
         $produto->save();
 
+
+        $precoNew = new ManipuladorProdutosIntegrados($id,$request->priceWithFee);
+        $precoNew->manipular();
+
         try {
             if ($request->hasFile('photos')) {
 
@@ -742,6 +744,8 @@ class productsController extends Controller
 
 
         $products = $request->input('products');
+
+
 
         if ($products) {
             $kitId = $id; // ID do kit
@@ -1488,7 +1492,6 @@ class productsController extends Controller
 
     public function getProducts(Request $request){
 
-        Log::info(json_encode($request->all()));
         try {
             $token = token::where('user_id_mercadolivre', $request->user)->first();
         // ENDPOINT PARA REQUISICAO

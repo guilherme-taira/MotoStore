@@ -2,8 +2,39 @@
 @section('title', $viewData['title'])
 @section('conteudo')
 
+
+
+
     <div class="container-fluid px-4">
         <h2 class="mt-4">Dashboard</h2>
+
+
+        <div aria-live="polite" aria-atomic="true" class="position-relative">
+            <div class="toast-container position-absolute top-50 end-0 translate-middle-y p-3">
+                <!-- Toast de Sucesso -->
+                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Conta Integrada com Sucesso!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                <!-- Toast de Erro -->
+                <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Erro ao integrar a conta!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
         <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item badge bg-success">Bem-vindo a Afilidrop {{ Auth::user()->name }}</li>
         </ol>
@@ -141,6 +172,57 @@
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+
+        // Função para exibir o toast
+        function showToast(toastId) {
+            var toastElement = document.getElementById(toastId);
+            var toast = new bootstrap.Toast(toastElement, { autohide: false }); // Garante que o autohide está desativado
+            toast.show();
+        }
+
+
+            var getUrlParameter = function getUrlParameter(sParam) {
+                    var sPageURL = window.location.search.substring(1),
+                        sURLVariables = sPageURL.split('&'),
+                        sParameterName,
+                        i;
+
+                    for (i = 0; i < sURLVariables.length; i++) {
+                        sParameterName = sURLVariables[i].split('=');
+
+                        if (sParameterName[0] === sParam) {
+                            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                        }
+                    }
+                    return false;
+                };
+
+
+                var code = getUrlParameter('code');
+                if (code) {
+                    var id = $('#id_user').val();
+                    $.ajax({
+                        url: "/api/v1/code",
+                        type: "POST",
+                        data: {
+                            code: code,
+                            id: id,
+                        },
+                        success: function(response) {
+                            if (response) {
+                                if (response.dados.status == 400) {
+                                    showToast('errorToast'); // Mostra o toast de erro
+                                } else {
+                                    showToast('successToast'); // Mostra o toast de sucesso
+                                }
+                            }
+                        },
+                        error: function(error) {
+                            showToast('errorToast'); // Mostra o toast de erro
+                        }
+                    });
+                }
+
             var canvas = document.getElementById('salesChart');
             canvas.width = 3000;
             canvas.height = 1000;
