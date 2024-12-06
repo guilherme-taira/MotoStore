@@ -7,6 +7,7 @@ use App\Models\token;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class GetCodeController extends RequestCodeMercadoLivre
 {
@@ -34,6 +35,7 @@ class GetCodeController extends RequestCodeMercadoLivre
 
         $data_json = json_encode($dataToPost);
 
+        Log::alert($data_json);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $endpoint);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'content-type:application/x-www-form-urlencoded'));
@@ -44,6 +46,7 @@ class GetCodeController extends RequestCodeMercadoLivre
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($ch);
+        Log::alert($response);
         curl_close($ch);
         $dados = json_decode($response);
         // if (!isset($dados->status)) {
