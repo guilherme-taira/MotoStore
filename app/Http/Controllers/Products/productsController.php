@@ -712,76 +712,73 @@ class productsController extends Controller
             'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico"
         ]);
 
-        echo "<pre>";
-        print_r($request->all());
-
-        // $produto = Products::findOrFail($id);
-        // $produto->fill($request->except('products')); // Preenche os dados do produto
-        // $produto->save();
+        $produto = Products::findOrFail($id);
+        $produto->fill($request->except('products')); // Preenche os dados do produto
+        $produto->save();
 
 
-        // $precoNew = new ManipuladorProdutosIntegrados($id,$request->priceWithFee);
-        // $precoNew->manipular();
+        $precoNew = new ManipuladorProdutosIntegrados($id,$request->priceWithFee);
+        $precoNew->manipular();
 
-        // try {
-        //     if ($request->hasFile('photos')) {
+        try {
+            if ($request->hasFile('photos')) {
 
-        //         foreach ($request->file('photos') as $photo) {
-        //             // Salvar a foto no S3
-        //             $photo->storeAs(
-        //                 'produtos/' . $produto->getId(),
-        //                  $photo->getClientOriginalName(),
-        //                 's3'
-        //             );
+                foreach ($request->file('photos') as $photo) {
+                    // Salvar a foto no S3
+                    $photo->storeAs(
+                        'produtos/' . $produto->getId(),
+                         $photo->getClientOriginalName(),
+                        's3'
+                    );
 
-        //             // Criar uma instância de imagem e salvar no banco de dados
-        //             $image = new Images();
-        //             $image->url = $photo->getClientOriginalName();
-        //             $image->product_id = $produto->getId();
-        //             $image->save();
-        //         }
-        //     }
-        // } catch (\Exception $th) {
-        //     echo $th->getMessage();
-        // }
+                    // Criar uma instância de imagem e salvar no banco de dados
+                    $image = new Images();
+                    $image->url = $photo->getClientOriginalName();
+                    $image->product_id = $produto->getId();
+                    $image->save();
+                }
+            }
+        } catch (\Exception $th) {
+            echo $th->getMessage();
+        }
 
 
-        // $products = $request->input('products');
+        $products = $request->input('products');
 
 
 
-        // if ($products) {
-        //     $kitId = $id; // ID do kit
+        if ($products) {
+            $kitId = $id; // ID do kit
 
-        //    // Obtem os IDs dos produtos enviados no array
-        //     $productIds = array_column($products, 'id');
+           // Obtem os IDs dos produtos enviados no array
+            $productIds = array_column($products, 'id');
 
-        //     // Busca os produtos existentes no kit na tabela 'kits'
-        //     $existingProducts = DB::table('kit')
-        //         ->where('product_id', $kitId)
-        //         ->pluck('id_product_kit')
-        //         ->toArray();
+            // Busca os produtos existentes no kit na tabela 'kits'
+            $existingProducts = DB::table('kit')
+                ->where('product_id', $kitId)
+                ->pluck('id_product_kit')
+                ->toArray();
 
-        //     // Identifica os produtos que estão no kit, mas não foram enviados
-        //     $productsNotSent = array_diff($existingProducts, $productIds);
+            // Identifica os produtos que estão no kit, mas não foram enviados
+            $productsNotSent = array_diff($existingProducts, $productIds);
 
-        //     $removedProducts = [];
-        //     if (!empty($productsNotSent)) {
-        //         DB::table('kit')
-        //             ->where('product_id', $kitId)
-        //             ->whereIn('id_product_kit', $productsNotSent)
-        //             ->delete();
-        //     }
-        //     $produto->save();
-        //     // Redireciona de volta com mensagens de sucesso
-        //     return redirect()->back()->with([
-        //         'message' => 'Kit atual com sucesso.',
-        //         'removed_products' => $removedProducts,
-        //     ]);
-        // }
+            $removedProducts = [];
+            if (!empty($productsNotSent)) {
+                DB::table('kit')
+                    ->where('product_id', $kitId)
+                    ->whereIn('id_product_kit', $productsNotSent)
+                    ->delete();
+            }
+            $produto->save();
+            // Redireciona de volta com mensagens de sucesso
+            return redirect()->back()->with([
+                'message' => 'Kit atual com sucesso.',
+                'removed_products' => $removedProducts,
+            ]);
+        }
 
-        // $produto->save();
-        // return redirect()->back()->with('success', 'Atualizado com sucesso!');
+        $produto->save();
+        return redirect()->back()->with('success', 'Atualizado com sucesso!');
 
     }
 
