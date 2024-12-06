@@ -165,6 +165,13 @@
                                                             <input name="price" id="precoFinal" type="text"
                                                                 class="form-control">
                                                         </div>
+
+                                                        <label
+                                                        class="col-lg-2 col-md-6 col-sm-12 col-form-label">Valor Livre de Taxas:</label>
+                                                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                                                <input name="valorSemTaxa" id="valorSemTaxa" type="text"
+                                                                    class="form-control" disabled>
+                                                            </div>
                                                     </div>
                                                 </div>
                                             </div>

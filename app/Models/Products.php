@@ -32,7 +32,8 @@ class Products extends Model
         'fee',
         'valorProdFornecedor',
         'termometro',
-        'fornecedor_id'
+        'fornecedor_id',
+        'stock'
     ];
 
     protected $table = "products";
