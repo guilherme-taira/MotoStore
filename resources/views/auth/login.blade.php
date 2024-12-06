@@ -76,7 +76,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="row mb-0 d-flex justify-content-center mt-2">
+                            {{-- <div class="row mb-0 d-flex justify-content-center mt-2">
                                 <div class="container my-3">
                                     <div class="col-md-12 text-center">
                                         <h5>{{ __('Não tem um cadastro?') }}</h5>
@@ -86,7 +86,7 @@
                                     </div>
                                 </div>
 
-                            </div>
+                            </div> --}}
                         </form>
                     </div>
                 </div>
