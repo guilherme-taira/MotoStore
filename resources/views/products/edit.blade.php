@@ -557,8 +557,8 @@
                                         <input name="pricePromotion" value="0" type="text" class="form-control">
                                     </div>
                                     <div class="col-lg-3">
-                                        <label for="stock">Estoque:</label>
-                                        <input name="stock" type="number"
+                                        <label for="available_quantity">Estoque:</label>
+                                        <input name="available_quantity" type="number"
                                             value="{{ $viewData['product']->available_quantity }}" class="form-control"
                                             required>
                                     </div>
