@@ -161,7 +161,7 @@ class StoreController extends Controller
 
     public function getCode(Request $request)
     {
-        $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://afilidrop.com.br/thankspage", $request->id);
+        $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://afilidrop.com.br/home", $request->id);
         $data = $getNewCode->resource();
         return response()->json(["dados" => $data]);
     }

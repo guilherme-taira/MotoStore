@@ -159,7 +159,8 @@
             </div>
         </div>
 
-        <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
+          <!-- Hero Start -->
+        <input type="hidden" name="id_user" id="id_user" value="{{Auth::user()->id}}">
 
         <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
         <!-- jQuery -->
