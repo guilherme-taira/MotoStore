@@ -144,7 +144,6 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 // ROTAS AUTENTICADAS
 });
 
-
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware('auth')->group(function () {
 Route::middleware('admin')->group(function () {
@@ -178,7 +177,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
         // Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id'])->middleware('checkCadastro/{id}');
-                Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
+        Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
         Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
         Route::resource('user', 'App\Http\Controllers\User\UserController')->names('user')->parameters(['user' => 'id']);
         Route::resource('dashboard', 'App\Http\Controllers\admin\dashbordController')->names('panel')->parameters(['dashboard' => 'id']);
