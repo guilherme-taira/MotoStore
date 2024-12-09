@@ -27,6 +27,8 @@
                 // Envia o formulário vazio
                 form.submit();
             }
+
+
     </script>
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
@@ -170,13 +172,24 @@
                                                         class="col-lg-2 col-md-6 col-sm-12 col-form-label">Valor Livre de Taxas:</label>
                                                             <div class="col-lg-3 col-md-6 col-sm-12">
                                                                 <input name="valorSemTaxa" id="valorSemTaxa" type="text"
-                                                                    class="form-control" disabled>
+                                                                    class="form-control">
                                                             </div>
+
+                                                    </div>
+
+                                                    <div class="col">
+
+                                                    <label
+                                                    class="col-lg-2 col-md-6 col-sm-12 col-form-label">Total</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                                        <input name="totalInformado" id="totalInformado" type="text"
+                                                            class="form-control">
+                                                    </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 mt-4">
                                                 <div class="col">
                                                     <div class="mb-3 row">
                                                         <div class="col-lg-8 col-md-6 col-sm-12">
@@ -473,6 +486,22 @@
         var valorProduto = 0;
         var i = 0;
         $(document).ready(function() {
+
+            // Função para calcular o total
+            function calcularTotal() {
+                // Capturar os valores dos campos
+                let preco = parseFloat($('#precoFinal').val()) || 0;
+                let valorSemTaxa = parseFloat($('#valorSemTaxa').val()) || 0;
+
+                // Calcular a soma e dividir por 95.01
+                let total = (preco + valorSemTaxa) / 0.9501;
+
+                // Exibir o resultado no campo totalInformado
+                $('#totalInformado').val(total.toFixed(2));
+            }
+
+            // Adicionar eventos para recalcular o total quando os campos forem alterados
+            $('#precoFinal, #valorSemTaxa').on('input', calcularTotal);
 
 
             $('input[name="preco"]').mask('000.000.000,00', {reverse: true});

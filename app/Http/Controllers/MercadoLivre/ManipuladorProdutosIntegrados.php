@@ -41,7 +41,7 @@ class ManipuladorProdutosIntegrados extends Controller
             try {
                 $token = token::where('user_id','=',$produtoIntegrado->user_id)->first();
                 // Aqui chamamos a classe responsável pela atualização do produto
-                \App\Jobs\UpdateMercadoLivrePrice::dispatch($produtoIntegrado->id_mercadolivre,$this->price,$token->access_token);
+                \App\Jobs\UpdateMercadoLivrePrice::dispatch($produtoIntegrado->id_mercadolivre,$this->price,$token->access_token,$produtoIntegrado->priceNotFee);
 
                 Log::info("Produto integrado atualizado com sucesso: ID {$produtoIntegrado->id}");
             } catch (\Exception $e) {

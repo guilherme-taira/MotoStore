@@ -37,6 +37,7 @@
                         <th scope="col">Integrações</th>
                         <th scope="col">ID LOJA</th>
                         <th scope="col">Criado</th>
+                        <th scope="col">Valor Agregado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +50,7 @@
                             <td><span class="badge bg-success">{{ $product->id_mercadolivre }}</span></td>
                             <td>{{ $product->product_id }}</td>
                             <td>{{ $product->created_at }}</td>
+                            <td>{{ $product->priceNotFee}}</td>
                         </tr>
                     @endforeach
                 </tbody>

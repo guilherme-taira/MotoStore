@@ -23,8 +23,10 @@ class ProdutoConcreto implements Produto
     private String $name;
     private String $tipo_anuncio;
     private ?array $opcionais;
+    private float $valorSemTaxa;
+    private float $totalInformado;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
@@ -33,6 +35,8 @@ class ProdutoConcreto implements Produto
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
         $this->opcionais = $opcionais;
+        $this->valorSemTaxa = $valorSemTaxa;
+        $this->totalInformado = $totalInformado;
     }
 
     public function integrar($descricao,$id_prod)
@@ -49,7 +53,7 @@ class ProdutoConcreto implements Produto
         if ($this->getProduto()) {
             $data['title'] = $this->getName();
             $data['category_id'] = $this->getCategoria();
-            $data['price'] = $this->getPrice();
+            $data['price'] = $this->getTotalInformado();
             $data['currency_id'] = $this->getProduto()->currency_id;
             $data['available_quantity'] = $this->produto->available_quantity;
             $data['buying_mode'] = $this->getProduto()->buying_mode;
@@ -174,6 +178,7 @@ class ProdutoConcreto implements Produto
                 $mercado_livre_history->id_ml = $json->id;
                 $mercado_livre_history->id_user = Auth::user()->id;
                 $mercado_livre_history->product_id = $this->getProduto()->id;
+                $mercado_livre_history->priceNotFee = $this->getValorSemTaxa();
                 $mercado_livre_history->save();
             }
         }
@@ -310,5 +315,21 @@ class ProdutoConcreto implements Produto
     public function getOpcionais(): ?array
     {
         return $this->opcionais;
+    }
+
+    /**
+     * Get the value of valorSemTaxa
+     */
+    public function getValorSemTaxa(): float
+    {
+        return $this->valorSemTaxa;
+    }
+
+    /**
+     * Get the value of totalInformado
+     */
+    public function getTotalInformado(): float
+    {
+        return $this->totalInformado;
     }
 }

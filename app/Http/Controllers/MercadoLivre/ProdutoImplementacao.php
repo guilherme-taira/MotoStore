@@ -19,10 +19,10 @@ class ProdutoImplementacao extends criadorDeProduto
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
 
         $dataAtual = new DateTime();
-        $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
-        $newToken->resource();
+        // $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
+        // $newToken->resource();
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ATUALIZADO
-        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados());
+        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado());
         $data = $produto->integrar($this->getDescricao(),$this->getIdProduct());
         if ($data) {
             return ['error_data' => $data];
