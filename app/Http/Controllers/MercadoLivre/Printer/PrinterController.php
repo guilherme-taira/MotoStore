@@ -53,7 +53,7 @@ class PrinterController implements ClienteController
     $response = curl_exec($ch);  // Armazena o conteúdo da resposta
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    Log::critical($response);
+
     if ($httpCode == 400) {
         // Trata o caso de erro e exibe o conteúdo da resposta (JSON com erro)
         $errorResponse = json_decode($response, true);  // Decodifica o JSON da resposta

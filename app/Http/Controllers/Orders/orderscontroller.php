@@ -201,7 +201,10 @@ class orderscontroller extends Controller
     public function ImprimirEtiqueta(Request $request)
     {
         $user = financeiro::where('shipping_id',$request->shipping_id)->first();
-        $token = token::where('user_id', $user->user_id)->first(); // CHAMANDO ANTIGO
+
+        $payer = json_decode($user->detalhes_transacao);
+        $token = token::where('user_id_mercadolivre', $payer->payer->id)->first(); // CHAMANDO ANTIGO
+
         // IMPRIME ETIQUETA
         $data = new PrinterController($request->shipping_id, $token->access_token);
         $dados = $data->resource();
