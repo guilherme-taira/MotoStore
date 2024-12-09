@@ -230,14 +230,16 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 if ($fornecedor) {
                                     // NOTIFICA O FORNECEDOR
                                     Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                    // new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id);
                                     // NOTIFICA O VENDEDOR
+                                    // new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point']);
                                     Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point']));
                                 }
 
-                                // $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
+                                    // $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
 
-                                financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                                // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                    financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                    // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);

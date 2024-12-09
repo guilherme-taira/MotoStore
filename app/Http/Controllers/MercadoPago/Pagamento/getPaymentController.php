@@ -51,13 +51,13 @@ class getPaymentController extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         curl_close($ch);
-
+        Log::critical($response);
        try {
         if($httpCode == '400'){
             order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
-                $userML = token::where('user_id_mercadolivre',$res->payer_id)->first();
+                $userML = token::where('user_id_mercadolivre',$res->payer->id)->first();
                 // INSERE A NOTIFICAÇÃO
                 $user = User::find($userML->user_id);
                 $orderId = order_site::where('external_reference',$res->external_reference)->first();
