@@ -244,6 +244,7 @@
                                         </div>
                                     </a>
                                     @else
+                                    @if(isset($notification->data['orderid']))
                                     <a class="dropdown-item notification-item" href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}">
                                         <div class="notification-content mt-2">
                                             <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image" style="width: 30%">
@@ -258,6 +259,7 @@
                                             </div>
                                         </div>
                                     </a>
+                                    @endif
                                     @endif
                                 @endif
                             </li>
