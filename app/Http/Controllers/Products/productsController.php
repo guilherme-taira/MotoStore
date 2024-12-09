@@ -1264,7 +1264,7 @@ class productsController extends Controller
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
             'price' => 'required',
-            //'id_categoria' => 'required|max:10'
+            'valorSemTaxa' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -1273,12 +1273,15 @@ class productsController extends Controller
                 ->withInput();
         }
 
+
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
         $price = $request->price;
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;
+        $valorSemTaxa = $request->valorSemTaxa;
+        $totalInformado = $request->totalInformado;
 
         if($request->category_default && !isset($request->id_categoria)){
             $id_categoria = $request->category_id;
@@ -1295,8 +1298,7 @@ class productsController extends Controller
             }
         }
 
-
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array);
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array,$valorSemTaxa,$totalInformado);
         $data = $factory->getProduto();
         if ($data) {
             return redirect()->back()->withErrors($data);

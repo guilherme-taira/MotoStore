@@ -18,8 +18,10 @@ abstract class criadorDeProduto
     private String $id;
     private ?String $descricao;
     private array $dados;
+    private float $valorSemTaxa;
+    private float $totalInformado;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -29,6 +31,8 @@ abstract class criadorDeProduto
         $this->id = $id;
         $this->descricao = $descricao;
         $this->dados = $dados;
+        $this->valorSemTaxa = $valorSemTaxa;
+        $this->totalInformado = $totalInformado;
     }
 
 
@@ -197,5 +201,21 @@ abstract class criadorDeProduto
     public function getDados(): array
     {
         return $this->dados;
+    }
+
+    /**
+     * Get the value of valorSemTaxa
+     */
+    public function getValorSemTaxa(): float
+    {
+        return $this->valorSemTaxa;
+    }
+
+    /**
+     * Get the value of totalInformado
+     */
+    public function getTotalInformado(): float
+    {
+        return $this->totalInformado;
     }
 }

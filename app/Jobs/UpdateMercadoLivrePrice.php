@@ -19,17 +19,19 @@ class UpdateMercadoLivrePrice implements ShouldQueue
     protected $productId;
     protected $newPrice;
     protected $accessToken;
+    protected $agregado;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($productId, $newPrice, $accessToken)
+    public function __construct($productId, $newPrice, $accessToken,$agregado)
     {
         $this->productId = $productId;
         $this->newPrice = $newPrice;
         $this->accessToken = $accessToken;
+        $this->agregado = $agregado;
     }
 
     /**
@@ -39,9 +41,11 @@ class UpdateMercadoLivrePrice implements ShouldQueue
      */
     public function handle()
     {
+
+        $valor = $this->newPrice +  $this->agregado;
         $endpoint = "https://api.mercadolibre.com/items/{$this->productId}";
         $payload = [
-            'price' => $this->newPrice,
+            'price' => $valor,
         ];
 
         try {

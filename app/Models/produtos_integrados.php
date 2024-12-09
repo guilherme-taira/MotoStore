@@ -16,7 +16,7 @@ class produtos_integrados extends Model
     public static function getProdutos($user){
         $data = DB::table('products')
         ->join('produtos_integrados', 'products.id', '=', 'produtos_integrados.product_id')
-        ->select('produtos_integrados.id_mercadolivre','produtos_integrados.name','produtos_integrados.product_id','products.image','produtos_integrados.id','produtos_integrados.created_at')
+        ->select('produtos_integrados.id_mercadolivre','produtos_integrados.name','produtos_integrados.product_id','products.image','produtos_integrados.id','produtos_integrados.created_at','produtos_integrados.priceNotFee')
         ->where('user_id', $user)->paginate(10);
     return $data;
     }
