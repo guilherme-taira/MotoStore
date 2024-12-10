@@ -157,7 +157,7 @@ class ProdutoConcreto implements Produto
             curl_close($ch);
             $json = json_decode($reponse);
 
-            // Log::emergency($reponse);
+            Log::emergency($this->getValorSemTaxa());
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
@@ -172,7 +172,7 @@ class ProdutoConcreto implements Produto
 
                 $this->CreateDescription($data,$json->id);
                 // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id);
+                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa());
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;
