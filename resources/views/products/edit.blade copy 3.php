@@ -1,37 +1,18 @@
 @extends('layouts.app')
 @section('conteudo')
 <style>
+
 #imagePreview {
-    display: flex;
-    flex-wrap: nowrap; /* Permite apenas rolagem horizontal */
-    gap: 10px;
-    overflow-x: auto; /* Scroll horizontal */
-    overflow-y: hidden; /* Remove o scroll vertical */
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-
-#imagePreview .image-item {
-    flex: 0 0 auto;
-    width: 120px; /* Largura fixa */
-    height: 120px; /* Altura fixa */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Esconde partes que ultrapassam o contêiner */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    position: relative; /* Necessário para rótulos e botões */
-    background-color: #fff;
-}
-
-#imagePreview .image-item img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover; /* Mantém as proporções da imagem */
-    border-radius: 5px;
+    display: flex; /* Alinha os itens em linha */
+    flex-wrap: nowrap; /* Impede que as imagens quebrem para a próxima linha */
+    gap: 10px; /* Espaçamento entre as imagens */
+    overflow-x: auto; /* Ativa apenas o scroll horizontal */
+    overflow-y: hidden; /* Desativa o scroll vertical */
+    white-space: nowrap; /* Garante que os itens permaneçam em linha */
+    padding: 10px; /* Espaçamento interno para melhor estética */
+    border: 1px solid #ddd; /* Borda para delimitar o contêiner */
+    border-radius: 5px; /* Bordas arredondadas */
+    background-color: #f9f9f9; /* Fundo claro */
 }
 
 #imagePreview::-webkit-scrollbar {
@@ -47,33 +28,106 @@
     background-color: #999; /* Cor ao passar o mouse */
 }
 
+.imageCs .image-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 200px; /* Define um tamanho consistente */
+    height: auto;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+}
+
+.imageCs .img-fluid {
+    width: 100%;
+    max-height: 150px; /* Altura máxima para evitar distorções */
+    border-radius: 5px;
+    object-fit: cover; /* Mantém proporções */
+}
+
+
+.container #imagePreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.container .image-item {
+    width: 150px; /* Largura fixa para alinhar as imagens */
+}
+
+.highlighted-category {
+    color: red;
+    /* Cor para destacar */
+    font-weight: bold;
+}
+
 .main-image-label {
     position: absolute;
-    bottom: 0px; /* Ajuste fino para o rótulo */
-    left: 50%;
     text-align: center;
     width: 100%;
+    top: -20px; /* Ajuste a posição se necessário */
+    left: 50%;
     transform: translateX(-50%);
     background-color: #007bff;
     color: #fff;
-    padding: 3px 8px;
-    font-size: 10px;
-    z-index: 10;
-}
-
-.delete-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    padding: 5px;
+    padding: 5px 10px;
     font-size: 12px;
-    border-radius: 50%;
-    cursor: pointer;
+    border-radius: 5px;
+    z-index: 10; /* Garante que o rótulo fique acima da imagem */
+    display: inline-block; /* Certifica-se de que seja exibido */
 }
 
+.image-item {
+    position: relative; /* Necessário para que o `label` seja posicionado corretamente */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 200px; /* Define uma largura consistente */
+    height: auto;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+    .delete-button {
+        display: block;
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 5px;
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .image-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: red;
+        color: #fff;
+        padding: 2px 6px;
+        font-size: 12px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    .img-fluid {
+        width: 100px;
+        height: auto;
+        border-radius: 5px;
+    }
 </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="auth-user-id" content="{{ Auth::user()->id }}">
@@ -482,7 +536,7 @@
 
                                     <!-- Campo oculto para enviar a imagem principal -->
                                     <div class="col-lg-12">
-                                        <input type="hidden" id="image" name="image" value="{{ $viewData['product']->image }}">
+                                        <input type="text" id="image" name="image" value="{{ $viewData['product']->image }}">
                                     </div>
 
                                     <!-- Container para exibir imagens -->
@@ -962,27 +1016,24 @@
         Array.from(files).forEach((file) => {
             const reader = new FileReader();
             reader.onload = function (event) {
-                addImageToPreview(event.target.result, file.name, false); // Passa o nome real do arquivo
+                addImageToPreview(event.target.result, false, false); // Adiciona como nova imagem
             };
             reader.readAsDataURL(file);
         });
     });
 
     // Função para adicionar imagens ao preview
-    function addImageToPreview(imageUrl, fileName, isExisting = false) {
-        const mainLabel = `<span class="main-image-label d-none">Imagem Principal</span>`;
-    const deleteButton = `
-        <span class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle">
-            <i class="fas fa-trash-alt text-danger"></i>
-        </span>`;
+    function addImageToPreview(imageUrl, isMain = false, isExisting = false) {
+        const mainLabel = isMain ? '<span class="main-image-label">Imagem Principal</span>' : '';
+        const deleteButton = `<button type="button" class="delete-button btn btn-danger btn-sm mt-1" onclick="removeImage(this)">Excluir</button>`;
 
-    $('#imagePreview').append(`
-        <div class="image-item position-relative" data-url="${fileName}" data-existing="${isExisting}">
-            <img src="${imageUrl}" class="img-fluid">
-            ${mainLabel}
-            ${deleteButton}
-        </div>
-    `);
+        $('#imagePreview').append(`
+            <div class="col-md-3 image-item position-relative" data-url="${imageUrl}" data-existing="${isExisting}">
+                <img src="${imageUrl}" class="img-fluid">
+                ${mainLabel}
+                ${deleteButton}
+            </div>
+        `);
 
         updateImageCount();
         updateMainImageLabel();
