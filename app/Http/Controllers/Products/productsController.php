@@ -622,14 +622,24 @@ class productsController extends Controller
         EventoNavegacao::dispatch($produto);
         $fotos = images::where('product_id', $id)->get();
         $photos = [];
-        foreach ($fotos as $foto) {
-            array_push($photos,"https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url);
-        }
-
         $viewData = [];
+
+        foreach ($fotos as $foto) {
+            $photoUrl = "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url;
+            // Verifica se é a imagem principal
+            $isMain = $foto->url === $produto->image;
+
+            array_push($photos, [
+                'url' => $photoUrl,
+                'isMain' => $isMain // Adiciona flag para identificar a imagem principal
+            ]);
+        }
+        $viewData['photos'] = $photos;
+
+
+
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
-        $viewData['photos'] = $photos;
         $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);
         $viewData['kitProducts'] = kit::getProductsByKit($produto->id);
 
@@ -668,7 +678,7 @@ class productsController extends Controller
             "category_id" => "required|max:20",
             'subcategoria' => "required",
             "brand" => "max:100",
-            'image' => 'image',
+            'image' => 'required',
             "gtin" => "required|numeric",
             "tipo_anuncio" => "required|max:50",
             'pricePromotion' => 'numeric',
@@ -692,7 +702,7 @@ class productsController extends Controller
             'available_quantity.gt' => 'O campo Estoque deve ser maior que 0.',
             'category_id.required' => 'A Categoria Mercado Livre é obrigatória.',
             'brand.max' => 'A Marca não pode ter mais de 100 caracteres.',
-            'image.image' => 'O campo Imagem deve ser uma imagem válida.',
+            'image.required' => 'O campo Imagem deve ser uma imagem válida.',
             'gtin.required' => 'O código EAN é obrigatório.',
             'gtin.numeric' => 'O campo EAN deve ser numérico.',
             'tipo_anuncio.required' => 'O Tipo de Anúncio é obrigatório.',

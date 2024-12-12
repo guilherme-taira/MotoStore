@@ -91,6 +91,7 @@
                             </div>
                         </a>
                     @else
+                        @if(isset($notification->data['orderid']))
                         <a href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}" class="notification-link">
                             <div class="notification-content d-flex">
                                 <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image">
@@ -105,6 +106,20 @@
                                 </div>
                             </div>
                         </a>
+                        @else
+                        <div class="notification-content d-flex">
+                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image">
+                            <div class="notification-text">
+                                <div class="d-flex justify-content-between">
+                                    <span class="notification-title">Você Vendeu! <i class="bi bi-bag-plus-fill"></i></span>
+                                    <span class="notification-date">{{ $notification->created_at->format('d/m/Y H:i') }}</span>
+                                </div>
+                                <p class="notification-details">{{ $notification->data['mensagem'] }}</p>
+                                <p class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }}</p>
+                                <p class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais</p>
+                            </div>
+                        </div>
+                        @endif
                     @endif
                 </li>
             @endforeach
