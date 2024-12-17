@@ -134,7 +134,7 @@ class ManipuladorProdutosIntegrados extends Controller
             $valor = max($valor, 0);
 
             // Aqui chamamos a classe responsável pela atualização do produto
-            \App\Jobs\UpdateMercadoLivrePrice::dispatch($produtoIntegrado->id_mercadolivre,$valor,$token->access_token,$valor);
+            \App\Jobs\UpdateMercadoLivrePrice::dispatch($produtoIntegrado->id_mercadolivre,$valor,$token->access_token,number_format($valor,2));
 
             // Log::info("Produto integrado atualizado com sucesso: ID {$produtoIntegrado->id}");
         } catch (\Exception $e) {
