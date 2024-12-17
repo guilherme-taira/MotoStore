@@ -55,6 +55,7 @@ class kitsController extends Controller
         $viewData['title'] = "Kits de Produtos";
         $viewData['subtitle'] = "Kits";
 
+
         $categorias = [];
         foreach (categorias::all() as $value) {
             $categorias[$value->id] = [
@@ -339,44 +340,77 @@ class kitsController extends Controller
                 return response()->json(['error' => 'Nenhum produto foi enviado.'], 400);
             }
 
-            $produtos = $request->session()->get('produtos', []); // Produtos existentes na sessão
+            $produtosSessao = $request->session()->get('produtos', []); // Produtos existentes na sessão
+            $produtosInvalidos = []; // Para armazenar produtos com fornecedores diferentes
+            $produtosValidos = []; // Produtos válidos enviados na requisição
+
+            // Obtém todos os fornecedores únicos dos produtos na sessão
+            $fornecedoresSessao = array_unique(array_map(function ($produto) {
+                return $produto['fornecedor'] ?? null;
+            }, $produtosSessao));
 
             foreach ($products as $product) {
                 $id = $product['id'];
                 $stock = $product['stock'];
+                $fornecedorAtual = $product['fornecedor'];
+
+                // Verifica se o fornecedor atual está na lista de fornecedores da sessão
+                if (!empty($fornecedoresSessao) && !in_array($fornecedorAtual, $fornecedoresSessao)) {
+                    $produtosInvalidos[] = $product['nome'] ?? "Produto ID $id";
+                    continue; // Ignora o produto
+                }
 
                 // Verifica o estoque disponível
                 $availableStock = $this->getStock($id);
-
                 $quantidadeAdicionada = min($stock, $availableStock); // Adiciona o máximo permitido pelo estoque
 
-                // Verifica se o produto já está na sessão
-                if (isset($produtos[$id])) {
+                // Adiciona ou atualiza o produto na sessão
+                if (isset($produtosSessao[$id])) {
                     // Atualiza a quantidade do produto existente
-                    $produtos[$id]['quantidade'] = $quantidadeAdicionada;
-                    $produtos[$id]['price'] = $this->getPriceKit($id) * $quantidadeAdicionada;
+                    $produtosSessao[$id]['quantidade'] = $quantidadeAdicionada;
+                    $produtosSessao[$id]['price'] = $this->getPriceKit($id) * $quantidadeAdicionada;
                 } else {
                     // Adiciona o novo produto
-                    $produtos[$id] = [
+                    $produtosSessao[$id] = [
                         'id' => $id,
-                        'nome' => $this->getTitle($id),
+                        'nome' => $product['nome'],
                         'imagem' => $this->getImageByUrl($id),
                         'price' => $this->getPriceKit($id) * $quantidadeAdicionada,
                         'quantidade' => $quantidadeAdicionada,
-                        'available_quantity' => $availableStock
+                        'available_quantity' => $availableStock,
+                        'fornecedor' => $fornecedorAtual
                     ];
                 }
+
+                // Adiciona o produto aos válidos
+                $produtosValidos[] = $product['nome'] ?? "Produto ID $id";
             }
 
-            // Atualiza a sessão com os produtos
-            $request->session()->put('produtos', $produtos);
+            // Atualiza a sessão com os produtos válidos
+            $request->session()->put('produtos', $produtosSessao);
 
-            return response()->json(['success' => true, 'message' => 'Produtos adicionados com sucesso!']);
+            // Exemplo para mensagens de sucesso
+            if (!empty($produtosValidos)) {
+                session()->flash('success', 'Produtos válidos adicionados com sucesso!');
+            }
+
+
+            // Exemplo para mensagens de erro
+            if (!empty($produtosInvalidos)) {
+
+                session()->flash('error', 'Os seguintes produtos foram removidos: ' . implode(', ', $produtosInvalidos));
+            }
+
+            // Redireciona de volta para a página
+            return redirect()->back();
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return response()->json(['error' => 'Ocorreu um erro ao adicionar os produtos.'], 500);
+            return redirect()->back()->with('error', 'Ocorreu um erro ao adicionar os produtos.');
         }
+
+
+
 }
 
 

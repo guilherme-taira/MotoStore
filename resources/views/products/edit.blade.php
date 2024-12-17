@@ -672,7 +672,7 @@
                                     <div class="col-lg-2">
                                         <label for="termometro">Valor Termômetro:</label>
                                         <input type="number" name="termometro" id="termometro"
-                                            value="{{ $viewData['product']->termometro }}" min="0" max="150"
+                                            value="100" min="0" max="150"
                                             class="form-control">
                                     </div>
                                     <div class="col-lg-3">
