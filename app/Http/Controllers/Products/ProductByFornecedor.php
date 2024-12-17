@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
 use App\Models\logo;
+use App\Models\produtos_integrados;
 use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProductByFornecedor extends Controller
 {
@@ -53,4 +56,69 @@ class ProductByFornecedor extends Controller
        return view('store.index')->with('viewData', $viewData);
 
     }
+
+
+    public function update(Request $request)
+    {
+        try {
+            // Validação dos dados
+            $validated = $request->validate([
+                'id' => 'required',
+                'valor_tipo' => 'nullable|in:acrescimo_reais,acrescimo_porcentagem,desconto_reais,desconto_porcentagem',
+                'isPorcem' => 'required',
+                'valor_agregado' => 'numeric',
+                'precoFixo' => 'nullable',
+            ]);
+
+
+
+            // // Encontra o produto pelo ID
+            $product = produtos_integrados::findOrFail($validated['id']);
+            $product->isPorcem = $validated['isPorcem'];
+
+            if($request->filled('valor_tipo')){
+                // Atualiza os campos conforme a regra de negócio
+                if ($validated['valor_tipo'] == 'acrescimo_reais') {
+                    $product->acrescimo_reais = $validated['valor_agregado'];
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                } elseif ($validated['valor_tipo'] == 'acrescimo_porcentagem') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = $validated['valor_agregado'];
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                } elseif ($validated['valor_tipo'] == 'desconto_reais') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = $validated['valor_agregado'];
+                    $product->desconto_porcentagem = null;
+                } elseif ($validated['valor_tipo'] == 'desconto_porcentagem') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = $validated['valor_agregado'];
+                }
+            }
+                if ($request->filled('precoFixo')) {
+                    $product->precofixo = $request->precoFixo;
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                }
+
+                $product->save();
+
+                $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
+                $precoNew->atualizarOnlyProduct();
+
+            return redirect()->back()->with('msg', 'Produto atualizado com sucesso!');
+        } catch (\Exception $e) {
+            print_r($e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao atualizar o produto: ' . $e->getMessage());
+        }
+    }
+
+
 }

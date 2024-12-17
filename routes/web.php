@@ -152,6 +152,7 @@ Route::middleware('admin')->group(function () {
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
         Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
+        Route::post('/productIntegrado',[ProductByFornecedor::class,'update'])->name('productIntegrado');
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get("/categorias2",[CategoryTest::class,'categoria']);
@@ -193,6 +194,12 @@ Route::middleware('admin')->group(function () {
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
     });
 });
+
+Route::post('/clear-session-messages', function () {
+    session()->forget('success');
+    session()->forget('error');
+    return response()->json(['message' => 'Mensagens removidas com sucesso']);
+})->name('clear.session.messages');
 
  Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 });

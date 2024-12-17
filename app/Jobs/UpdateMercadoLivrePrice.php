@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\MercadoLivre\MercadoLivrePriceUpdater;
+use App\Models\produtos_integrados;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,7 +43,7 @@ class UpdateMercadoLivrePrice implements ShouldQueue
     public function handle()
     {
 
-        $valor = $this->newPrice +  $this->agregado;
+        $valor = $this->agregado;
         $endpoint = "https://api.mercadolibre.com/items/{$this->productId}";
         $payload = [
             'price' => $valor,

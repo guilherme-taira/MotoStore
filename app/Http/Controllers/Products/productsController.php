@@ -634,10 +634,8 @@ class productsController extends Controller
                 'isMain' => $isMain // Adiciona flag para identificar a imagem principal
             ]);
         }
+
         $viewData['photos'] = $photos;
-
-
-
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
         $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);

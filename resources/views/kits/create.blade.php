@@ -101,6 +101,7 @@
             const productId = $(this).val();
             const stockValue = $(`#stock-${productId}`).val(); // Obtém o valor do estoque
             const nome = $(`#title-${productId}`).val(); // Obtém o nome do produto
+            const fornecedor = $(`#fornecedor-${productId}`).val(); // Obtém o nome do produto
 
             if ($(this).is(':checked')) {
                 // Verifica se o produto já está no array
@@ -112,6 +113,7 @@
                         id: productId,
                         stock: stockValue,
                         nome: nome,
+                        fornecedor: fornecedor
                     });
                 }
             } else {
@@ -150,6 +152,7 @@
                         <div class="mt-2">
                             <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
                              <input type="hidden" id="title-${product.id}" value="${product.title}">
+                             <input type="hidden" id="fornecedor-${product.id}" value="${product.fornecedor_id}">
                         </div>
                     </div>
                 </li>
@@ -183,6 +186,30 @@
             });
         }
     </script>
+
+
+
+<div class="container mt-3">
+    <!-- Mensagem de sucesso -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Mensagem de erro -->
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+</div>
+
+
+
+
 
     <!-- Modal de Progresso -->
     <div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
@@ -516,6 +543,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 <script>
     $(document).ready(function() {
+
+          // Faz uma requisição POST para apagar as mensagens da sessão
+          fetch("{{ route('clear.session.messages') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }).then(response => response.json())
+          .then(data => console.log(data.message)) // Exibe a mensagem no console
+          .catch(error => console.error('Erro ao limpar a sessão:', error));
 
         // Função para resetar o conteúdo
         $('#resetButton').on('click', function() {

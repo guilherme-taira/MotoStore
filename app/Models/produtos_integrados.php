@@ -13,10 +13,13 @@ class produtos_integrados extends Model
 
     protected $table = 'produtos_integrados';
 
+    protected $fillable = ['priceNotFee', 'acrescimo_reais', 'acrescimo_porcentagem','desconto_reais','desconto_porcentagem','isPorcem','precofixo'];
+
     public static function getProdutos($user){
         $data = DB::table('products')
         ->join('produtos_integrados', 'products.id', '=', 'produtos_integrados.product_id')
-        ->select('produtos_integrados.id_mercadolivre','produtos_integrados.name','produtos_integrados.product_id','products.image','produtos_integrados.id','produtos_integrados.created_at','produtos_integrados.priceNotFee')
+        ->select('produtos_integrados.id_mercadolivre','produtos_integrados.name','produtos_integrados.product_id','products.image','produtos_integrados.id','produtos_integrados.created_at',
+        'produtos_integrados.priceNotFee','produtos_integrados.acrescimo_reais','produtos_integrados.acrescimo_porcentagem','produtos_integrados.desconto_reais','produtos_integrados.desconto_porcentagem','produtos_integrados.isPorcem','produtos_integrados.precofixo')
         ->where('user_id', $user)->paginate(10);
     return $data;
     }
@@ -38,6 +41,66 @@ class produtos_integrados extends Model
             Products::where('id',$data->product_id)->update([
                 'available_quantity' => $novoEstoque
             ]);
+        }
+    }
+
+    // Mutator para acrescimo_reais
+    public function setAcrescimoReaisAttribute($value)
+    {
+        $this->attributes['acrescimo_reais'] = $value;
+        if ($value) {
+            $this->attributes['acrescimo_porcentagem'] = null;
+            $this->attributes['desconto_reais'] = null;
+            $this->attributes['desconto_porcentagem'] = null;
+            $this->attributes['precofixo'] = null; // Zera precofixo
+        }
+    }
+
+    // Mutator para acrescimo_porcentagem
+    public function setAcrescimoPorcentagemAttribute($value)
+    {
+        $this->attributes['acrescimo_porcentagem'] = $value;
+        if ($value) {
+            $this->attributes['acrescimo_reais'] = null;
+            $this->attributes['desconto_reais'] = null;
+            $this->attributes['desconto_porcentagem'] = null;
+            $this->attributes['precofixo'] = null; // Zera precofixo
+        }
+    }
+
+    // Mutator para desconto_reais
+    public function setDescontoReaisAttribute($value)
+    {
+        $this->attributes['desconto_reais'] = $value;
+        if ($value) {
+            $this->attributes['acrescimo_reais'] = null;
+            $this->attributes['acrescimo_porcentagem'] = null;
+            $this->attributes['desconto_porcentagem'] = null;
+            $this->attributes['precofixo'] = null; // Zera precofixo
+        }
+    }
+
+    // Mutator para desconto_porcentagem
+    public function setDescontoPorcentagemAttribute($value)
+    {
+        $this->attributes['desconto_porcentagem'] = $value;
+        if ($value) {
+            $this->attributes['acrescimo_reais'] = null;
+            $this->attributes['acrescimo_porcentagem'] = null;
+            $this->attributes['desconto_reais'] = null;
+            $this->attributes['precofixo'] = null; // Zera precofixo
+        }
+    }
+
+    // Mutator para precofixo
+    public function setPrecofixoAttribute($value)
+    {
+        $this->attributes['precofixo'] = $value;
+        if ($value) {
+            $this->attributes['acrescimo_reais'] = null;
+            $this->attributes['acrescimo_porcentagem'] = null;
+            $this->attributes['desconto_reais'] = null;
+            $this->attributes['desconto_porcentagem'] = null;
         }
     }
 
