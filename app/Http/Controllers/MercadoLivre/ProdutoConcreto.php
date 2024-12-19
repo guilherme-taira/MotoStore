@@ -25,8 +25,9 @@ class ProdutoConcreto implements Produto
     private ?array $opcionais;
     private float $valorSemTaxa;
     private float $totalInformado;
+    private $dadosIntegrado;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
@@ -37,11 +38,11 @@ class ProdutoConcreto implements Produto
         $this->opcionais = $opcionais;
         $this->valorSemTaxa = $valorSemTaxa;
         $this->totalInformado = $totalInformado;
+        $this->dadosIntegrado = $dadosIntegrado;
     }
 
     public function integrar($descricao,$id_prod)
     {
-
         $error_message = [];
         $success_data = [];
         $fotos = images::where('product_id', $this->getProduto()->id)->get();
@@ -53,7 +54,7 @@ class ProdutoConcreto implements Produto
         if ($this->getProduto()) {
             $data['title'] = $this->getName();
             $data['category_id'] = $this->getCategoria();
-            $data['price'] = $this->getTotalInformado();
+            $data['price'] = $this->getPrice();
             $data['currency_id'] = $this->getProduto()->currency_id;
             $data['available_quantity'] = $this->produto->available_quantity;
             $data['buying_mode'] = $this->getProduto()->buying_mode;
@@ -141,7 +142,6 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -172,7 +172,7 @@ class ProdutoConcreto implements Produto
 
                 $this->CreateDescription($data,$json->id);
                 // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa());
+                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;
@@ -331,5 +331,13 @@ class ProdutoConcreto implements Produto
     public function getTotalInformado(): float
     {
         return $this->totalInformado;
+    }
+
+    /**
+     * Get the value of dadosIntegrado
+     */
+    public function getDadosIntegrado()
+    {
+        return $this->dadosIntegrado;
     }
 }

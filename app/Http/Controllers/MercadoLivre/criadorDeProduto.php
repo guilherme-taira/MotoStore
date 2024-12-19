@@ -20,8 +20,9 @@ abstract class criadorDeProduto
     private array $dados;
     private float $valorSemTaxa;
     private float $totalInformado;
+    private $dadosIntegrado; // DADOS PARA GUARDAR DEPOIS DE INTEGRAR
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -33,6 +34,7 @@ abstract class criadorDeProduto
         $this->dados = $dados;
         $this->valorSemTaxa = $valorSemTaxa;
         $this->totalInformado = $totalInformado;
+        $this->dadosIntegrado = $dadosIntegrado;
     }
 
 
@@ -217,5 +219,13 @@ abstract class criadorDeProduto
     public function getTotalInformado(): float
     {
         return $this->totalInformado;
+    }
+
+    /**
+     * Get the value of dadosIntegrado
+     */
+    public function getDadosIntegrado()
+    {
+        return $this->dadosIntegrado;
     }
 }

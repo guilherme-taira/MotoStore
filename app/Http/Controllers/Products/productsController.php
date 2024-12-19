@@ -1272,7 +1272,6 @@ class productsController extends Controller
             'name' => 'required|min:5|max:60',
             'tipo_anuncio' => 'required',
             'price' => 'required',
-            'valorSemTaxa' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -1282,19 +1281,29 @@ class productsController extends Controller
         }
 
 
+        $dadosIntegrado = [];
+        if (isset($request->precoFixo)) {
+            // Mantém o valor fixo se estiver preenchido
+            $dadosIntegrado['precofixo'] = $request->precoFixo;
+        } else {
+            $dadosIntegrado['valor_tipo'] = $request->valor_tipo;
+            $dadosIntegrado['isPorcem'] = $request->isPorcem;
+            $dadosIntegrado['valor'] = $request->valor_agregado;
+        }
+
+
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
-        $price = $request->price;
+        $price = str_replace(',', '.', $request->input('totalInformado'));
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;
-        $valorSemTaxa = $request->valorSemTaxa;
-        $totalInformado = $request->totalInformado;
+        $valorSemTaxa = 0;
+        $totalInformado = 0;
 
         if($request->category_default && !isset($request->id_categoria)){
             $id_categoria = $request->category_id;
         }
-
 
         $array = [];
         // Itera sobre os dados recebidos
@@ -1306,8 +1315,9 @@ class productsController extends Controller
             }
         }
 
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array,$valorSemTaxa,$totalInformado);
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado);
         $data = $factory->getProduto();
+
         if ($data) {
             return redirect()->back()->withErrors($data);
         }

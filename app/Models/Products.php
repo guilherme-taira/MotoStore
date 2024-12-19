@@ -361,7 +361,7 @@ class Products extends Model
 
         $query->orderBy('id', 'desc');
 
-        return $query->paginate(10);
+        return $query->paginate(15);
     }
 
 }
