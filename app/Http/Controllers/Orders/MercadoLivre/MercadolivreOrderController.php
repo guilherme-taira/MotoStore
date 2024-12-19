@@ -196,7 +196,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                             if($produto->isKit){
                                 $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->priceKit);
                             }else{
-                                $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->price);
+                                $item = new MercadoPagoItem($items->item->seller_sku,$items->item->title,intVal($items->quantity),"BRL",$produto->priceWithFee);
                             }
 
                             $carrinhoCesta->addProdutos($item);
@@ -219,7 +219,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(isset($produto)){
 
-                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id);
+                                $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id,$json->id);
                                 $preference = $prefence->resource();
 
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);

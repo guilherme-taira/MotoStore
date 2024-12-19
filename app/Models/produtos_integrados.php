@@ -11,6 +11,10 @@ class produtos_integrados extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'dados' => 'array',
+    ];
+
     protected $table = 'produtos_integrados';
 
     protected $fillable = ['priceNotFee', 'acrescimo_reais', 'acrescimo_porcentagem','desconto_reais','desconto_porcentagem','isPorcem','precofixo'];

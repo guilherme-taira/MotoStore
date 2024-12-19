@@ -2,51 +2,6 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <style>
-            /* Card Principal */
-    .product-form-card {
-        background-color: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-    }
-
-    /* Labels */
-    .form-label {
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* Inputs e Selects */
-    .form-control, .form-select {
-        border-radius: 6px;
-        box-shadow: none;
-        border-color: #ccc;
-    }
-
-    /* Seções do Formulário */
-    .form-section {
-        border-top: 1px solid #ddd;
-        margin-top: 20px;
-        padding-top: 20px;
-    }
-
-    /* Botão Principal */
-    .btn-success {
-        border-radius: 6px;
-        font-weight: bold;
-    }
-
-    /* Loading Spinner */
-    .loading-integracao {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
-
-    /* Ajuste para Alinhamento */
-    .row .col {
-        padding-bottom: 15px;
-    }
            .product-title {
         display: -webkit-box;
         -webkit-line-clamp: 2; /* Limita a 2 linhas */
@@ -218,64 +173,52 @@
 
                             <div id="flush-collapseOne" class="accordion-collapse collapse"
                                 aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-
                                 <div class="accordion-body">
-                                    <form method="POST" action="{{ route('IntegrarProduto') }}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('IntegrarProduto') }}"
+                                        enctype="multipart/form-data">
                                         @csrf
 
-                                        <!-- Card do Produto -->
-                                        <div class="card mb-4 product-form-card">
+
+                                        <div class="card mb-3" style="max-width: 540px;">
                                             <div class="row g-0">
-                                                <!-- Imagem do Produto -->
-                                                <div class="col-md-4 text-center">
-                                                    <img class="img-fluid rounded-start img_integracao_foto" alt="Produto">
+                                                <div class="col-md-4">
+                                                    <img class="img-fluid rounded-start img_integracao_foto">
                                                 </div>
-                                                <!-- Informações do Produto -->
                                                 <div class="col-md-8">
                                                     <div class="card-body">
-                                                        <h5 class="card-title img_integracao_title">Nome do Produto</h5>
-                                                        <p class="card-text img_integracao_ean">EAN: 123456789</p>
-                                                        <p class="card-text img_integracao_price">Preço: R$ 0,00</p>
+                                                        <h5 class="card-title img_integracao_title"></h5>
+                                                        <p class="card-text img_integracao_ean"></p>
+                                                        <p class="card-text img_integracao_price"></p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <input type="hidden" class="form-control" name="id_prodenv" id="id_prodenv">
-                                        <!-- Campo Nome -->
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <label class="form-label" for="name">Nome:</label>
-                                                <input name="name" id="name" type="text" class="form-control" placeholder="Digite o nome do produto">
-                                            </div>
-                                        </div>
 
-                                        <!-- Campo Descrição -->
-                                        <div class="row form-section">
-                                            <div class="col-md-12">
-                                                <label class="form-label" for="editor">Descrição do Anúncio</label>
-                                                <textarea name="editor" id="editor" rows="4" class="form-control" placeholder="Digite a descrição"></textarea>
-                                            </div>
-                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Nome:</label>
+                                                        <div class="col-lg-10 col-md-6 col-sm-12">
+                                                            <input name="name" id="name" type="text"
+                                                                class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-md-6">
-                                            <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <select name="tipo_anuncio" class="form-control"
-                                                        aria-label=".form-select-sm example" required>
-                                                        <option value="gold_special">Clássico</option>
-                                                        <option value="gold_pro">Premium</option>
-                                                    </select>
+                                                <div class="form-group">
+                                                    <label for="editor">Descrição do Anúncio</label>
+                                                    <textarea name="editor" id="editor" rows="5" class="form-control"></textarea>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Valor Agregado -->
-                                        <div class="row form-section">
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="editValorAgregado">Valor Agregado</label>
-                                                <select id="editValorAgregado" class="form-select" name="valor_tipo" required>
+                                            <!-- Select para Valor Agregado -->
+                                            <div class="mb-3">
+                                                <label for="editValorAgregado" class="form-label">Valor Agregado</label>
+                                                <select id="editValorAgregado" class="form-select" name="valor_tipo">
                                                     <option value="">Selecione uma opção</option>
                                                     <option value="acrescimo_reais">Acréscimo R$</option>
                                                     <option value="acrescimo_porcentagem">Acréscimo %</option>
@@ -283,73 +226,117 @@
                                                     <option value="desconto_porcentagem">Desconto %</option>
                                                 </select>
                                             </div>
+
+                                            <!-- Input para o valor agregado -->
+                                            <div class="mb-3">
+                                                <label for="valorAgregadoInput" class="form-label">Valor</label>
+                                                <input type="text" class="form-control" id="valorAgregadoInput"
+                                                    name="valor_agregado" placeholder="Digite o valor" value="0">
+                                            </div>
+
                                             <div class="col-md-6">
-                                                <label class="form-label" for="valorAgregadoInput">Valor</label>
-                                                <input type="text" class="form-control" id="valorAgregadoInput" name="valor_agregado" value="0" required>
-                                            </div>
-                                        </div>
-
-                                        <!-- Checkbox para preço fixo -->
-                                        <div class="row form-section">
-                                            <div class="row-md-2">
-                                                <input type="checkbox" class="form-check-input" id="precoFixoCheckbox" name="precoFixo">
-                                                <label class="form-check-label" for="precoFixoCheckbox">Ativar Preço Fixo</label>
-                                                <small id="precoFixoCheckbox" class="form-text text-muted">Não use virgula no preço, coloque ponto ex: 35.90.</small>
-                                            </div>
-
-                                            <!-- Input para Preço Fixo -->
-                                            <div class="col-md-3">
-                                                <label for="precoFixoInput" class="form-label">Preço Fixo</label>
-                                                <input type="text" class="form-control" id="precoFixoInput" name="precoFixo"
-                                                    placeholder="Digite o preço fixo" required disabled>
-                                            </div>
-
-                                            <!-- Hidden input para isPorcem -->
-                                            <input type="hidden" id="isPorcem" name="isPorcem" value="0">
-                                        </div>
-                                        <!-- Preço e Total -->
-                                        <div class="row form-section">
-                                            <div class="col-md-4">
-                                                <label class="form-label" for="precoFinal">Preço:</label>
-                                                <input name="price" id="precoFinal" type="text" class="form-control">
-                                            </div>
-
-                                            <div class="col-md-4">
-                                                <label class="form-label" for="valorProdutoDisplay">Total:</label>
-                                                <input name="totalInformado" id="valorProdutoDisplay" type="text" class="form-control">
-                                            </div>
-                                        </div>
-
-                                        <!-- Categoria -->
-                                        <div class="row form-section">
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input type="hidden" name="category_id" id="category_id">
-                                                    <input class="form-check-input" type="checkbox" name="category_default" id="flexCheckChecked" checked>
-                                                    <label class="form-check-label" for="flexCheckChecked">
-                                                        Usar Categoria Padrão Selecionada
-                                                    </label>
+                                                <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <select name="tipo_anuncio" class="form-control"
+                                                            aria-label=".form-select-sm example" required>
+                                                            <option value="gold_special">Clássico</option>
+                                                            <option value="gold_pro">Premium</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-md-12">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço:</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-12">
+                                                            <input name="price" id="precoFinal" type="text"
+                                                                class="form-control">
+                                                        </div>
+
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Valor
+                                                            Livre de Taxas:</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-12">
+                                                            <input name="valorSemTaxa" id="valorSemTaxa" type="text"
+                                                                class="form-control">
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col">
+
+                                                        <label
+                                                            class="col-lg-2 col-md-6 col-sm-12 col-form-label">Total</label>
+                                                        <div class="col-lg-3 col-md-6 col-sm-12">
+                                                            <input name="totalInformado" id="totalInformado"
+                                                                type="text" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 mt-4">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                                            <div class="form-check">
+                                                                <input type="hidden" class="form-control"
+                                                                    name="category_id" id="category_id">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="category_default" id="flexCheckChecked" checked>
+                                                                <label class="form-check-label" for="flexCheckChecked">
+                                                                    Usar Categoria Padrão Selecionada
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div class="col-md-6">
-                                                <label class="form-label" for="categorias">Categorias:</label>
-                                                <select class="form-select" id="categorias">
-                                                    <option selected disabled>Selecionar</option>
-                                                </select>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label
+                                                            class="col-lg-2 col-md-12 col-sm-12 col-form-label">Categorias:</label>
+                                                        <div class="col-lg-8 col-md-12 col-sm-12">
+                                                            <select class="form-select" id="categorias"
+                                                                aria-label="Default select example">
+                                                                <option selected disabled>Selecionar</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <ol class="list-group list-group-numbered content_categorias">
+                                                        </ol>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Spinner e Botão -->
-                                        <div class="row form-section">
-                                            <div class="col-md-12 text-end">
-                                                <div class="spinner-border text-success loading-integracao d-none" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div>
-                                                <button type="submit" class="btn btn-success botao_integracao">Finalizar Integração</button>
-                                            </div>
+
+                                        <div id="formContainer"></div>
+
+                                        <input type="hidden" class="form-control" name="id_categoria"
+                                            id="id_categoria">
+
+                                        <div class="clearfix spinner-border text-success float-end d-none loading-integracao mt-4"
+                                            style="width: 3rem; height: 3rem;" role="status">
+                                            <span class="visually-hidden">Loading...</span>
                                         </div>
+
+                                        <button type="submit" class="btn btn-success mt-4 botao_integracao">Finalizar
+                                            Integração</button>
                                     </form>
                                 </div>
+
                                 <!--- HISTORICO DO PRODUTO --->
 
                                 <ul class="list-group ">
@@ -495,15 +482,13 @@
                 <div class="container mt-4">
                     <div class="row">
                         @foreach ($viewData['products'] as $product)
-                        <section class="col-md-3 mb-4" id="linhasProduct">
+                        <section id="linhasProduct">
                         <span class="d-none id_product">{{ $product->getId() }}</span>
-                        <div>
+                        <div class="col-md-3 mb-4">
                             <div class="product-card position-relative">
                                 <!-- Badge de desconto ou novo -->
-                                {{-- <div class="badge-discount">-{{ $product->discount }}%</div> --}}
-                                @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
-                                    <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Novo</div>
-                                @endif
+                                <div class="badge-discount">-{{ $product->discount }}%</div>
+                                <div class="badge-new">NEW</div>
 
                                 <!-- Imagem -->
                                 <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}"
@@ -516,7 +501,7 @@
                                 <!-- Preço -->
                                 <div>
                                     <span class="product-price">R$ {{ number_format($product->priceWithFee, 2) }}</span>
-                                    {{-- <span class="product-price-old">R$ {{ number_format($product->originalPrice, 2) }}</span> --}}
+                                    <span class="product-price-old">R$ {{ number_format($product->originalPrice, 2) }}</span>
                                 </div>
 
                                 <!-- Avaliação -->
@@ -562,99 +547,24 @@
     <script>
         var valorProduto = 0;
         var i = 0;
-        document.addEventListener('DOMContentLoaded', function() {
-        // Função para atualizar o valor exibido
-            const isPorcemInput = document.getElementById('isPorcem');
-            const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
-            const valorAgregadoInput = document.getElementById('valorAgregadoInput');
-            const valorAgregadoSelect = document.getElementById('editValorAgregado');
+        $(document).ready(function() {
 
-            // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
-            precoFixoCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    // Ativa o campo Preço Fixo
-                    precoFixoInput.disabled = false;
+            // Função para calcular o total
+            function calcularTotal() {
+                // Capturar os valores dos campos
+                let preco = parseFloat($('#precoFinal').val()) || 0;
+                let valorSemTaxa = parseFloat($('#valorSemTaxa').val()) || 0;
 
-                    // Desativa campos de Valor Agregado
-                    valorAgregadoInput.value = ''; // Limpa o valor
-                    valorAgregadoInput.disabled = true;
-                    valorAgregadoSelect.disabled = true;
-                    isPorcemInput.value = '0'; // Garante que isPorcem seja false
-                } else {
-                    // Desativa o campo Preço Fixo
-                    precoFixoInput.disabled = true;
-                    precoFixoInput.value = ''; // Limpa o valor
+                // Calcular a soma e dividir por 95.01
+                let total = (preco + valorSemTaxa) / 0.9501;
 
-                    // Reativa campos de Valor Agregado
-                    valorAgregadoInput.disabled = false;
-                    valorAgregadoSelect.disabled = false;
-                }
-            });
-
-            // Atualiza o placeholder dinamicamente conforme a seleção do select
-            valorAgregadoSelect.addEventListener('change', function() {
-                const selectedOption = valorAgregadoSelect.value;
-
-                switch (selectedOption) {
-                    case 'acrescimo_reais':
-                        valorAgregadoInput.placeholder = 'Digite o acréscimo em R$';
-                        break;
-                    case 'acrescimo_porcentagem':
-                        valorAgregadoInput.placeholder = 'Digite o acréscimo em %';
-                        isPorcemInput.value = '1';
-                        break;
-                    case 'desconto_reais':
-                        valorAgregadoInput.placeholder = 'Digite o desconto em R$';
-                        break;
-                    case 'desconto_porcentagem':
-                        valorAgregadoInput.placeholder = 'Digite o desconto em %';
-                        isPorcemInput.value = '1';
-                        break;
-                    default:
-                        valorAgregadoInput.placeholder = 'Digite o valor';
-                        isPorcemInput.value = '0';
-                        break;
-                }
-            });
-
-
-            function atualizarValorProduto() {
-
-            const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
-            const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
-            const precoFixo = parseFloat($("#precoFixoInput").val()) || 0;
-            basePrice = parseFloat($('#precoFinal').val()) || 0; // Preço base do produto
-
-            let novoValor = basePrice; // Começa com o preço base
-
-            // Prioridade para preço fixo
-            if (precoFixo > 0) {
-                novoValor = precoFixo;
-            } else {
-                // Aplica o cálculo com base no tipo selecionado
-                if (tipoAgregado === 'acrescimo_reais') {
-                    novoValor = basePrice + valorAgregado;
-                } else if (tipoAgregado === 'acrescimo_porcentagem') {
-                    novoValor = basePrice + (basePrice * (valorAgregado / 100));
-                } else if (tipoAgregado === 'desconto_reais') {
-                    novoValor = basePrice - valorAgregado;
-                } else if (tipoAgregado === 'desconto_porcentagem') {
-                    novoValor = basePrice - (basePrice * (valorAgregado / 100));
-                }
-
+                // Exibir o resultado no campo totalInformado
+                $('#totalInformado').val(total.toFixed(2));
             }
-           // Garante que o valor não seja negativo
-           if (novoValor < 0) novoValor = 0;
-           // Atualiza o display do valor
-           $("#valorProdutoDisplay").val(novoValor.toFixed(2).replace('.', ','));
 
+            // Adicionar eventos para recalcular o total quando os campos forem alterados
+            $('#precoFinal, #valorSemTaxa').on('input', calcularTotal);
 
-        }
-
-            // Eventos
-            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
-            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
-            precoFixoInput.addEventListener('input', atualizarValorProduto);
 
             $('input[name="preco"]').mask('000.000.000,00', {
                 reverse: true

@@ -361,6 +361,7 @@
             });
 
 
+
       // Função para atualizar o valor exibido
     function atualizarValorProduto() {
         const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)

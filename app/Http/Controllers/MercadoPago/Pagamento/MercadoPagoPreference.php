@@ -18,13 +18,12 @@ class MercadoPagoPreference extends Controller
     private $userid;
 
 
-    public function __construct(MercadoPagoCesta $itens,$notificationUrl,$userid)
+    public function __construct(MercadoPagoCesta $itens,$notificationUrl,$userid,$externalPreference)
     {
-
-        $this->externalPreference = uniqid('afilidrop');
         $this->itens = $itens;
         $this->notificationUrl = $notificationUrl;
         $this->userid = $userid;
+        $this->externalPreference = $externalPreference;
     }
 
       /**
@@ -144,4 +143,5 @@ class MercadoPagoPreference extends Controller
         // return response()->json($e->getMessage());
     }
     }
+
 }
