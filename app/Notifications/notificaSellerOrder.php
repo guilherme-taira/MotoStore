@@ -18,13 +18,14 @@ class notificaSellerOrder extends Notification
     private $Orderid;
     private $numeroPedido;
     private $linkPagamento;
+    private $image;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(User $usuario, $order,Products $produto,$Orderid = null, $numeroPedido = null,$linkPagamento)
+    public function __construct(User $usuario, $order,Products $produto,$Orderid = null, $numeroPedido = null,$linkPagamento,$image = null)
     {
         $this->usuario = $usuario;
         $this->order = $order;
@@ -32,6 +33,7 @@ class notificaSellerOrder extends Notification
         $this->Orderid = $Orderid;
         $this->numeroPedido = $numeroPedido;
         $this->linkPagamento = $linkPagamento;
+        $this->image = $image;
     }
 
     /**
@@ -71,7 +73,7 @@ class notificaSellerOrder extends Notification
             'mensagem' => "Olá ".$this->usuario->name ."Faça o pagamento para que o fornecedor envio o mais rápido possivel! para evitar atrasos.",
              $this->usuario,
             'id' => $this->produto->getId(),
-            'image' => $this->produto->getImage(),
+            'image' => $this->image,
             'orderid' => $this->Orderid,
             'ml_id' => $this->numeroPedido,
             'link' => $this->linkPagamento

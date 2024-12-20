@@ -94,7 +94,11 @@
                         @if(isset($notification->data['orderid']))
                         <a href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}" class="notification-link">
                             <div class="notification-content d-flex">
-                                <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image">
+                                @if (isset($notification->data['image']))
+                                    <img src="{{$notification->data['image']}}" alt="Produto" class="notification-image">
+                                @else
+                                    <img src="#" alt="Produto" class="notification-image">
+                                @endif
                                 <div class="notification-text">
                                     <div class="d-flex justify-content-between">
                                         <span class="notification-title">Você Vendeu! <i class="bi bi-bag-plus-fill"></i></span>
