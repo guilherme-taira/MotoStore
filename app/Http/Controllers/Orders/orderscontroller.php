@@ -202,8 +202,9 @@ class orderscontroller extends Controller
     {
         $user = financeiro::where('shipping_id',$request->shipping_id)->first();
 
-        $payer = json_decode($user->detalhes_transacao);
-        $token = token::where('user_id_mercadolivre', $payer->payer->id)->first(); // CHAMANDO ANTIGO
+        $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
+        ->join('token', 'pivot_site.id_user', 'token.user_id')
+        ->where('shipping_id',$request->shipping_id)->first();
 
         // IMPRIME ETIQUETA
         $data = new PrinterController($request->shipping_id, $token->access_token);

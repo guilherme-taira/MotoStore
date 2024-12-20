@@ -38,6 +38,7 @@ use App\Notifications\notificaSellerOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
@@ -219,6 +220,15 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if(isset($produto)){
 
+                                $image = "";
+                                $url = "https://api.mercadolibre.com/items/{$items->item->id}";
+                                // Envia a requisição GET
+                                $response = Http::get($url);
+                                // Verifica se a requisição foi bem-sucedida
+                                if ($response->successful()) {
+                                    $image = $response->json()['thumbnail'];
+                                }
+
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id,$json->id);
                                 $preference = $prefence->resource();
 
@@ -230,21 +240,15 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 if ($fornecedor) {
                                     // NOTIFICA O FORNECEDOR
                                     Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                    // new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id);
                                     // NOTIFICA O VENDEDOR
-                                    // new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point']);
-                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point']));
+                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
                                 }
-
-                                    // $token = token::where('user_id_mercadolivre',$this->getSellerId())->first();
-
                                     financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                     // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
-
-                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
-                                $cliente->resource();
-                                $id_order = $cliente->saveClient($json,$this->getSellerId());
+                                    $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
+                                    $cliente->resource();
+                                    $id_order = $cliente->saveClient($json,$this->getSellerId());
                             }
 
                         }
