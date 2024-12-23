@@ -323,20 +323,34 @@
                                         <!-- Categoria -->
                                         <div class="row form-section">
                                             <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input type="hidden" name="category_id" id="category_id">
-                                                    <input class="form-check-input" type="checkbox" name="category_default" id="flexCheckChecked" checked>
-                                                    <label class="form-check-label" for="flexCheckChecked">
-                                                        Usar Categoria Padrão Selecionada
-                                                    </label>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label class="col-lg-2 col-md-12 col-sm-12 col-form-label">Categorias:</label>
+                                                        <div class="col-lg-8 col-md-12 col-sm-12">
+                                                            <select class="form-select" id="categorias" aria-label="Default select example">
+                                                                <option selected disabled>Selecionar</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="categorias">Categorias:</label>
-                                                <select class="form-select" id="categorias">
-                                                    <option selected disabled>Selecionar</option>
-                                                </select>
-                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <ol class="list-group list-group-numbered content_categorias">
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                        </div>
+
+
+                                        <div id="formContainer"></div>
+
+                                        <input type="hidden" class="form-control" name="id_categoria"
+                                            id="id_categoria">
+
+
                                         </div>
 
                                         <!-- Spinner e Botão -->
