@@ -184,10 +184,30 @@
                             placeholder="Digite o preço fixo" disabled>
                     </div>
 
+
+                    <!-- Outros campos do formulário -->
+
+                    <div class="row">
+                        <!-- Select para o campo 'active' -->
+                        <div class="col-md-6">
+                            <label for="active" class="form-label">Status do Produto</label>
+                            <select id="active" name="active" class="form-select">
+                                <option value="1">Ativo</option>
+                                <option value="0">Inativo</option>
+                            </select>
+                        </div>
+
+                        <!-- Input para o campo 'estoque_minimo' -->
+                        <div class="col-md-6">
+                            <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
+                            <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control" placeholder="Digite o estoque mínimo" min="0" value="0">
+                        </div>
+                    </div>
+
                     <!-- Hidden input para isPorcem -->
                     <input type="hidden" id="isPorcem" name="isPorcem" value="0">
 
-                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                    <button type="submit" class="btn btn-success mt-4">Salvar Alterações</button>
                 </form>
 
             </div>
@@ -227,6 +247,7 @@
                                     <td>{{ $product->product_id }}</td>
                                     <td>{{ $product->created_at }}</td>
                                     <td>
+
                                         <button class="btn btn-sm btn-outline-primary edit-btn"
                                             data-id="{{ $product->id }}" data-name="{{ $product->name }}"
                                             data-price="{{ $product->priceNotFee }}"
@@ -238,7 +259,9 @@
                                             data-acrescimo-porcentagem="{{ $product->acrescimo_porcentagem ?? '' }}"
                                             data-desconto-reais="{{ $product->desconto_reais ?? '' }}"
                                             data-desconto-porcentagem="{{ $product->desconto_porcentagem ?? '' }}"
-                                            data-precofixo="{{ $product->precofixo ?? '' }}">
+                                            data-active="{{ $product->active }}"
+                                            data-precofixo="{{ $product->precofixo ?? '' }}"
+                                            data-estoque_minimo="{{ $product->estoque_minimo }}">
                                             <i class="fas fa-edit"></i> Editar
                                         </button>
                                     </td>
@@ -338,6 +361,9 @@
                     const descontoReais = button.getAttribute('data-desconto-reais');
                     const descontoPorcentagem = button.getAttribute('data-desconto-porcentagem');
                     const precoFixo = button.getAttribute('data-precofixo');
+                    const activeStatus = this.getAttribute('data-active');
+                    const estoqueMinimo = this.getAttribute('data-estoque_minimo');
+
                     basePrice = parseFloat(button.getAttribute('data-price')) || 0; // Preço base do produto
                     // Preenchendo os campos do modal
 
@@ -354,6 +380,10 @@
                     document.getElementById('editDescontoPorcentagem').value =
                         descontoPorcentagem || '0.00';
                     document.getElementById('editPrecoFixo').value = precoFixo || '0.00';
+                    // Define o valor do campo 'active'
+                    document.getElementById('active').value = activeStatus;
+                    document.getElementById('estoque_minimo').value = estoqueMinimo;
+
                     // Abre o modal
                     const editModal = new bootstrap.Offcanvas(document.getElementById('editModal'));
                     editModal.show();

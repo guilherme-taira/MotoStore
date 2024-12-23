@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
+use App\Http\Controllers\MercadoLivreStockController;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
 use App\Models\logo;
+use App\Models\Products;
 use App\Models\produtos_integrados;
 use App\Models\sub_categoria_fornecedor;
 use App\Models\sub_category;
@@ -68,8 +70,9 @@ class ProductByFornecedor extends Controller
                 'isPorcem' => 'required',
                 'valor_agregado' => 'numeric',
                 'precoFixo' => 'nullable',
+                'active' => 'nullable',
+                'estoque_minimo' => 'nullable'
             ]);
-
 
 
             // // Encontra o produto pelo ID
@@ -108,14 +111,21 @@ class ProductByFornecedor extends Controller
                     $product->desconto_porcentagem = null;
                 }
 
+                $product->active = $validated['active'];
+                $product->estoque_minimo = $validated['estoque_minimo'];
+
                 $product->save();
 
                 $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
                 $precoNew->atualizarOnlyProduct();
 
+                $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
+                $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->available_quantity,$validated['active'],$validated['estoque_minimo'],$product->user_id);
+                $estoqueNew->updateStock();
+
             return redirect()->back()->with('msg', 'Produto atualizado com sucesso!');
         } catch (\Exception $e) {
-            print_r($e->getMessage());
+            Log::alert($e->getMessage());
             return redirect()->back()->with('error', 'Erro ao atualizar o produto: ' . $e->getMessage());
         }
     }
