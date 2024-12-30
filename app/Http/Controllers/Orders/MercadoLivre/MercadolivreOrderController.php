@@ -12,6 +12,7 @@ use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoItem;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoPreference;
+use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Shopify\LineItem;
 use App\Jobs\putDraftShopifyOrder;
 use App\Http\Controllers\Shopify\Order;
@@ -192,6 +193,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                         foreach ($json->order_items as $items) {
                         // PEGA O VALOR DO PRODUTO
                         $produto = Products::where('id',$items->item->seller_sku)->first();
+
                         // COLOCA O PRODUTO EM CESTA
                         if(isset($produto)){
                             if($produto->isKit){
@@ -238,6 +240,23 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
                                 $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
                                 if ($fornecedor) {
+
+                                    try {
+                                        // Dados para enviar no corpo da requisição
+                                        $data = [
+                                            "order_site_id" => $id_order,
+                                            "product_id" => $produto['id'],
+                                            "integrated_product_id" => $response->json()['id'],
+                                            "quantity_sold" => intVal($items->quantity),
+                                        ];
+
+                                        $retirarEstoque = new SalesReportController();
+                                        $retirarEstoque->processSale($data);
+
+                                    } catch (\Throwable $th) {
+                                        FacadesLog::alert($th->getMessage());
+                                    }
+
                                     // NOTIFICA O FORNECEDOR
                                     Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
                                     // NOTIFICA O VENDEDOR

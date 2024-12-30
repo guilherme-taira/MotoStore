@@ -615,40 +615,95 @@
                         </div>
                     @endif
 
-                    <!-- Preço e Estoque -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingPricing">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapsePricing" aria-expanded="false" aria-controls="collapsePricing">
-                                Preço e Estoque
-                            </button>
-                        </h2>
-                        <div id="collapsePricing" class="accordion-collapse collapse" aria-labelledby="headingPricing"
-                            data-bs-parent="#productFormAccordion">
-                            <div class="accordion-body">
-                                <div class="row mb-3">
-                                    <div class="col-lg-3">
-                                        <label for="precoNormal">Preço R$:</label>
-                                        <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}"
-                                            type="text" class="form-control" required>
-                                        @error('price')
-                                            <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <label for="pricePromotion">Preço Promocional:</label>
-                                        <input name="pricePromotion" value="0" type="text" class="form-control">
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <label for="available_quantity">Estoque:</label>
-                                        <input name="available_quantity" type="number"
-                                            value="{{ $viewData['product']->available_quantity }}" class="form-control"
-                                            required>
-                                    </div>
+                 <!-- Preço e Estoque -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingPricing">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapsePricing" aria-expanded="false" aria-controls="collapsePricing">
+                            Preço e Estoque
+                        </button>
+                    </h2>
+                    <div id="collapsePricing" class="accordion-collapse collapse" aria-labelledby="headingPricing"
+                        data-bs-parent="#productFormAccordion">
+                        <div class="accordion-body">
+                            <div class="row mb-3">
+                                <!-- Preço R$ -->
+                                <div class="col-lg-3">
+                                    <label for="precoNormal">Preço R$:</label>
+                                    <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}" type="text"
+                                        class="form-control" required>
+                                    @error('price')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <!-- Preço Promocional -->
+                                <div class="col-lg-3">
+                                    <label for="pricePromotion">Preço Promocional:</label>
+                                    <input name="pricePromotion" value="0" type="text" class="form-control">
+                                </div>
+
+                                <!-- Estoque -->
+                                <div class="col-lg-3">
+                                    <label for="available_quantity">Estoque:</label>
+                                    <input name="available_quantity" type="number" value="{{ $viewData['product']->available_quantity }}"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <!-- Estoque Mínimo Afiliado -->
+                                <div class="col-lg-3">
+                                    <label for="estoque_minimo_afiliado">Estoque Mínimo Afiliado:</label>
+                                    <input name="estoque_minimo_afiliado" id="estoque_minimo_afiliado" value="{{ $viewData['product']->estoque_minimo_afiliado }}" type="number"
+                                        class="form-control">
+                                </div>
+
+                                <!-- Percentual de Estoque -->
+                                <div class="col-lg-3">
+                                    <label for="percentual_estoque">Percentual de Estoque:</label>
+                                    <input name="percentual_estoque" id="percentual_estoque" value="{{ $viewData['product']->percentual_estoque }}" type="text" class="form-control">
+                                </div>
+
+                                <!-- Estoque do Afiliado -->
+                                <div class="col-lg-3">
+                                    <label for="estoque_afiliado">Estoque do Afiliado:</label>
+                                    <input name="estoque_afiliado" id="estoque_afiliado" value="{{ $viewData['product']->estoque_afiliado }}" type="number" class="form-control" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <!-- Mínimo de Unidades no Kit -->
+                                <div class="col-lg-3">
+                                    <label for="min_unidades_kit">Mínimo de Unidades no Kit:</label>
+                                    <input name="min_unidades_kit" id="min_unidades_kit" value="{{ $viewData['product']->min_unidades_kit }}" type="number" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                               <!-- Botões de Ação -->
+                                <div class="col-lg-6">
+                                    <label for="acao" class="form-label">Ação:</label>
+                                    <select id="acao" name="acao" class="form-select">
+                                        <option value="">Selecione uma ação</option>
+                                        <option value="notificar" {{ old('acao', $viewData['product']->acao) == 'notificar' ? 'selected' : '' }}>
+                                            Notificação Vendedor
+                                        </option>
+                                        <option value="pausar" {{ old('acao', $viewData['product']->acao) == 'pausar' ? 'selected' : '' }}>
+                                            Pausar Anúncio
+                                        </option>
+                                    </select>
+                                </div>
+
+
+                                <div class="col-lg-6">
+                                    <button type="button" class="btn btn-primary">Mostrar Anúncios Afetados</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
 
                     <!-- Atributos -->
                     <div class="accordion-item">
@@ -877,7 +932,7 @@
                     </div>
 
                     <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Cadastrar <i class="bi bi-hdd"></i></button>
+                        <button type="submit" class="btn btn-primary">Atualizar <i class="bi bi-hdd"></i></button>
                     </div>
             </form>
 
@@ -930,6 +985,38 @@
 
     <script>
     $(document).ready(function() {
+
+          // Quando o estoque é alterado
+          $('input[name="available_quantity"]').on('input', function () {
+            // Pega o valor do estoque atual
+            const availableQuantity = parseFloat($(this).val()) || 0;
+
+            // Pega o percentual do estoque
+            const percentualEstoque = parseFloat($('#percentual_estoque').val()) || 0;
+
+            // Calcula o estoque do afiliado
+            const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
+
+            // Atualiza o campo de estoque do afiliado
+            $('#estoque_afiliado').val(estoqueAfiliado);
+
+        });
+
+        // Quando o percentual do estoque é alterado
+        $('#percentual_estoque').on('input', function () {
+            // Pega o valor do percentual
+            const percentualEstoque = parseFloat($(this).val()) || 0;
+
+            // Pega o valor do estoque atual
+            const availableQuantity = parseFloat($('input[name="available_quantity"]').val()) || 0;
+
+            // Calcula o estoque do afiliado
+            const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
+
+            // Atualiza o campo de estoque do afiliado
+            $('#estoque_afiliado').val(estoqueAfiliado);
+        });
+
 
     const form = document.querySelector('form'); // Seleciona o formulário
     const hiddenInput = document.getElementById('image'); // Campo hidden para a imagem principal

@@ -72,60 +72,60 @@
     <ul class="notification-list list-unstyled">
         @if(isset(Auth::user()->notifications))
             @foreach (Auth::user()->notifications as $notification)
-                <li class="notification-item">
-                    @if (isset($notification->data['type']) &&  $notification->data['type'] == "produto")
-                        <a onclick="marcarComoLido('{{ $notification->id }}')" class="notification-link">
-                            <div class="notification-content d-flex">
-                                <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['imagem']) !!}" alt="Produto" class="notification-image">
-                                <div class="notification-text">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="notification-title">Produto Atualizado <i class="bi bi-chat-left-text-fill"></i></span>
-                                        <span class="notification-date">{{ $notification->created_at->format('d/m/Y H:i') }}</span>
-                                    </div>
-                                    <p class="notification-details">{{ $notification->data['mensagem'] }}</p>
-                                    <p class="notification-subtitle">Seu ID na Plataforma - {{ $notification->data['ml_id'] }}</p>
-                                    <p class="notification-subtitle bg-dark text-white px-2">
-                                        <i class="bi bi-coin"></i> Desatualizado R${{ $notification->data['oldPrice'] }} ~ Novo: R${{ $notification->data['newPrice'] }}
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    @else
-                        @if(isset($notification->data['orderid']))
-                        <a href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}" class="notification-link">
-                            <div class="notification-content d-flex">
-                                @if (isset($notification->data['image']))
-                                    <img src="{{$notification->data['image']}}" alt="Produto" class="notification-image">
-                                @else
-                                    <img src="#" alt="Produto" class="notification-image">
-                                @endif
-                                <div class="notification-text">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="notification-title">Você Vendeu! <i class="bi bi-bag-plus-fill"></i></span>
-                                        <span class="notification-date">{{ $notification->created_at->format('d/m/Y H:i') }}</span>
-                                    </div>
-                                    <p class="notification-details">{{ $notification->data['mensagem'] }}</p>
-                                    <p class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }}</p>
-                                    <p class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais</p>
-                                </div>
-                            </div>
-                        </a>
-                        @else
-                        <div class="notification-content d-flex">
-                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}" alt="Produto" class="notification-image">
-                            <div class="notification-text">
-                                <div class="d-flex justify-content-between">
-                                    <span class="notification-title">Você Vendeu! <i class="bi bi-bag-plus-fill"></i></span>
-                                    <span class="notification-date">{{ $notification->created_at->format('d/m/Y H:i') }}</span>
-                                </div>
-                                <p class="notification-details">{{ $notification->data['mensagem'] }}</p>
-                                <p class="notification-subtitle">ID da Venda na Plataforma - {{ $notification->data['ml_id'] }}</p>
-                                <p class="notification-subtitle bg-dark text-white px-2"><i class="bi bi-cart4"></i> Ver Mais</p>
-                            </div>
+            <li>
+                <a class="dropdown-item notification-item"
+                   @if(isset($notification->data['link'])) href="{{ $notification->data['link'] }}"
+                   @elseif(isset($notification->data['orderid'])) href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}"
+                   @else onclick="marcarComoLido('{{ $notification->id }}')"
+                   @endif>
+                    <div class="notification-content mt-2">
+                        @if(isset($notification->data['id']) && isset($notification->data['image']))
+                        <div class="notification-image-container" style="width: 150px; height: 150px; overflow: hidden; border-radius: 5px;">
+                            <img src="{!! Storage::disk('s3')->url('produtos/' . $notification->data['id'] . '/' . $notification->data['image']) !!}"
+                                 alt="Produto"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
+                        @else
+                            <div class="notification-image-container" style="width: 50px; height: 50px; overflow: hidden; border-radius: 5px;">
+                                <img src="https://img.icons8.com/clouds/100/000000/rocket.png"
+                                    alt="Imagem Padrão"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                         @endif
-                    @endif
-                </li>
+
+
+                        <div class="notification-text">
+                            <span class="notification-title">
+                                @if(isset($notification->data['type']) && $notification->data['type'] == "produto")
+                                    Produto Atualizado <i class="bi bi-chat-left-text-fill"></i>
+                                @else
+                                    Notificação Geral <i class="bi bi-bell-fill"></i>
+                                @endif
+                            </span>
+
+                            <span class="notification-details">
+                                {{ $notification->data['mensagem'] ?? 'Detalhes não disponíveis.' }}
+                            </span>
+
+                            @if(isset($notification->data['ml_id']))
+                                <span class="notification-subtitle">
+                                    ID da Plataforma - {{ $notification->data['ml_id'] }}
+                                </span>
+                            @endif
+
+                            @if(isset($notification->data['oldPrice']) && isset($notification->data['newPrice']))
+                                <span class="notification-subtitle bg-dark text-white px-2">
+                                    <i class="bi bi-coin"></i> De: R${{ $notification->data['oldPrice'] }} ~ Para: R${{ $notification->data['newPrice'] }}
+                                </span>
+                            @endif
+
+                            <span class="notification-date text-muted d-block mt-1" style="font-size: 0.85em;">
+                                {{ $notification->created_at->format('d/m/Y H:i') }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </li>
             @endforeach
         @else
             <p>Nenhuma notificação encontrada.</p>

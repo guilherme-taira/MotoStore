@@ -77,7 +77,7 @@ class ManipuladorProdutosIntegrados extends Controller
                 // Aqui chamamos a classe responsável pela atualização do produto
                 \App\Jobs\UpdateMercadoLivrePrice::dispatch($produtoIntegrado->id_mercadolivre,$this->price,$token->access_token,$valor);
 
-                Log::info("Produto integrado atualizado com sucesso: ID {$produtoIntegrado->id}");
+                // Log::info("Produto integrado atualizado com sucesso: ID {$produtoIntegrado->id}");
             } catch (\Exception $e) {
                 Log::error("Erro ao atualizar produto integrado ID {$produtoIntegrado->id}: " . $e->getMessage());
             }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
 use App\Http\Controllers\Products\productsController;
+use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Usuarios\FornecedorController;
 use App\Models\Products;
@@ -33,7 +34,7 @@ Route::prefix('v1')->group(function () {
         broadcast(new sendProduct($id));
     });
 
-
+    Route::post('/process-sale', [SalesReportController::class, 'processSale'])->name('sales.process');
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
