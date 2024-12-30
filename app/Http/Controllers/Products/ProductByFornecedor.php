@@ -117,11 +117,11 @@ class ProductByFornecedor extends Controller
                 $product->save();
 
                 $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
-                $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$validated['active'],$validated['estoque_minimo'],$product->user_id);
+                $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$validated['active'],$validated['estoque_minimo'],$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
                 $estoqueNew->updateStock();
 
-                $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
-                $precoNew->atualizarOnlyProduct();
+                // $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
+                // $precoNew->atualizarOnlyProduct();
 
 
 

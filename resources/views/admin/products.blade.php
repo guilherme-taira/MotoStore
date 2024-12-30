@@ -320,6 +320,23 @@
                                             </div>
                                         </div>
 
+                                        <div class="col-md-6 mt-4">
+                                            <div class="col">
+                                                <div class="mb-3 row">
+                                                    <div class="col-lg-8 col-md-6 col-sm-12">
+                                                        <div class="form-check">
+                                                            <input type="hidden" class="form-control" name="category_id" id="category_id">
+                                                            <input class="form-check-input" type="checkbox" name="category_default" id="flexCheckChecked"
+                                                                checked>
+                                                            <label class="form-check-label" for="flexCheckChecked">
+                                                                Usar Categoria Padrão Selecionada
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <!-- Categoria -->
                                         <div class="row form-section">
                                             <div class="col-md-6">
@@ -349,8 +366,6 @@
 
                                         <input type="hidden" class="form-control" name="id_categoria"
                                             id="id_categoria">
-
-
                                         </div>
 
                                         <!-- Spinner e Botão -->
