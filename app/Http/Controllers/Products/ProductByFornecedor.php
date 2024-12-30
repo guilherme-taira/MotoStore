@@ -120,8 +120,8 @@ class ProductByFornecedor extends Controller
                 $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$validated['active'],$validated['estoque_minimo'],$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
                 $estoqueNew->updateStock();
 
-                // $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
-                // $precoNew->atualizarOnlyProduct();
+                $precoNew = new ManipuladorProdutosIntegrados($validated['id'],0);
+                $precoNew->atualizarOnlyProduct();
 
 
 
