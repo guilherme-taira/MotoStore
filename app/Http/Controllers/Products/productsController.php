@@ -47,6 +47,7 @@ use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
+use App\Jobs\UpdateStockJob;
 use App\Models\kit;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
@@ -688,7 +689,14 @@ class productsController extends Controller
             'length' =>  "required|numeric|gt:0",
             'price' => "required|numeric|gt:0",
             'priceKit' => "required|numeric|gt:0",
-            'valorProdFornecedor' => "required|numeric"
+            'valorProdFornecedor' => "required|numeric",
+
+            // Novos Campos
+            'estoque_minimo_afiliado' => "required|numeric|gte:0",
+            'percentual_estoque' => "required|numeric|between:0,100",
+            'estoque_afiliado' => "required|numeric|gte:0",
+            'min_unidades_kit' => "required|numeric|gte:0",
+            'acao' => "nullable|string|max:50"
         ], [
             'subcategoria.required' => "O campo Categoria é obrigatório",
             'isPublic.required' => "O campo ativo é obrigatório.",
@@ -717,16 +725,37 @@ class productsController extends Controller
             'priceKit.gt' => 'O campo Preço Kit deve ser maior que 0.',
             'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
             'valorProdFornecedor.required' => "O campo acressímo é obrigatório",
-            'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico"
+            'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico",
+             // Mensagens dos Novos Campos
+            'estoque_minimo_afiliado.required' => 'O campo Estoque Mínimo Afiliado é obrigatório.',
+            'estoque_minimo_afiliado.numeric' => 'O campo Estoque Mínimo Afiliado deve ser um número.',
+            'estoque_minimo_afiliado.gte' => 'O campo Estoque Mínimo Afiliado deve ser maior ou igual a 0.',
+            'percentual_estoque.required' => 'O campo Percentual de Estoque é obrigatório.',
+            'percentual_estoque.numeric' => 'O campo Percentual de Estoque deve ser numérico.',
+            'percentual_estoque.between' => 'O campo Percentual de Estoque deve estar entre 0 e 100.',
+            'estoque_afiliado.required' => 'O campo Estoque do Afiliado é obrigatório.',
+            'estoque_afiliado.numeric' => 'O campo Estoque do Afiliado deve ser numérico.',
+            'estoque_afiliado.gte' => 'O campo Estoque do Afiliado deve ser maior ou igual a 0.',
+            'min_unidades_kit.required' => 'O campo Mínimo de Unidades no Kit é obrigatório.',
+            'min_unidades_kit.numeric' => 'O campo Mínimo de Unidades no Kit deve ser numérico.',
+            'min_unidades_kit.gte' => 'O campo Mínimo de Unidades no Kit deve ser maior ou igual a 0.',
+            'acao.string' => 'O campo Ação deve ser um texto.',
+            'acao.max' => 'O campo Ação não pode ter mais de 50 caracteres.',
         ]);
 
         $produto = Products::findOrFail($id);
         $produto->fill($request->except('products')); // Preenche os dados do produto
         $produto->save();
 
-
-        $precoNew = new ManipuladorProdutosIntegrados($id,$request->priceWithFee);
+        // MANIPULA O PREÇO DAS INTEGRAÇÔES
+        $precoNew = new ManipuladorProdutosIntegrados($id,number_format($request->priceWithFee,2));
         $precoNew->manipular();
+
+        // Disparando o Job
+        UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
+
+        // MANIPULA O ESTOQUE DAS INTEGRAÇÔES
+
 
         try {
             if ($request->hasFile('photos')) {

@@ -34,7 +34,12 @@ class Products extends Model
         'termometro',
         'fornecedor_id',
         'stock',
-        'title'
+        'title',
+        'estoque_minimo_afiliado',
+        'percentual_estoque',
+        'estoque_afiliado',
+        'min_unidades_kit',
+        'acao'
     ];
 
     protected $table = "products";
