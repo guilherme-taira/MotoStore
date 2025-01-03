@@ -158,7 +158,7 @@ class MercadoPagoNotification extends Controller
         public function notificationBling(Request $request){
 
             // GET TOKEN
-            Log::critical($request->all());
+            Log::critical($request->all()['data']);
         }
     // }
 }

@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\IntegracaoBling;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class IntegracaoBlingController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      *
@@ -120,11 +123,13 @@ class IntegracaoBlingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(IntegracaoBling $integracaoBling)
+    public function destroy($id)
     {
-        $this->authorize('delete', $integracaoBling); // Garantir que o usuário pode deletar
+        // Encontra o registro pelo ID
+        $integracaoBling = IntegracaoBling::findOrFail($id);
+        // Deleta o registro
         $integracaoBling->delete();
-
+        // Redireciona com mensagem de sucesso
         return redirect()->route('bling.index')->with('success', 'Integração excluída com sucesso!');
     }
 }

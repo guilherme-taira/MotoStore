@@ -5,6 +5,7 @@ namespace App\Policies;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use App\Models\IntegracaoBling;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class IntegracaoBlingPolicy
 {
@@ -67,7 +68,8 @@ class IntegracaoBlingPolicy
      */
     public function delete(User $user, IntegracaoBling $integracaoBling)
     {
-        //
+        Log::alert($user->id . " -- " . $integracaoBling->user_id);
+        return $user->id === $integracaoBling->user_id; // Exemplo: somente o criador pode excluir
     }
 
     /**

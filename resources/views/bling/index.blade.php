@@ -4,20 +4,28 @@
 
     <h1>Integrações Bling</h1>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-absolute top-50 end-0 translate-middle-y p-3">
+            <!-- Toast de Sucesso -->
+            <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ session('success') ?? 'Operação realizada com sucesso!' }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            <!-- Toast de Erro -->
+            <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ session('error') ?? 'Ocorreu um erro durante a operação.' }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
         </div>
-    @endif
-
-
-    @if(session('error'))
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-   @endif
 
     <a href="{{ route('bling.create') }}" class="btn btn-primary">Adicionar Integração</a>
     <table class="table table-striped mt-3">
@@ -57,4 +65,45 @@
         </tbody>
     </table>
 </div>
+
+  <!-- Hero Start -->
+  <input type="hidden" name="id_user" id="id_user" value="{{Auth::user()->id}}">
+
+  <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- DateRangePicker JS -->
+  <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Função para exibir o toast
+function showToast(toastId) {
+     var toastElement = document.getElementById(toastId);
+     var toast = new bootstrap.Toast(toastElement, { autohide: false }); // Garante que o autohide está desativado
+     toast.show();
+ }
+
+ document.addEventListener('DOMContentLoaded', function () {
+    // Verifica se há uma mensagem de sucesso na sessão
+    @if (session('success'))
+        showToast('successToast');
+    @endif
+
+    // Verifica se há uma mensagem de erro na sessão
+    @if (session('error'))
+        showToast('errorToast');
+    @endif
+});
+
+
+
+</script>
+
+
 @endsection
+

@@ -47,6 +47,7 @@ class PrinterController implements ClienteController
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Captura o retorno da requisição como string
+    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     $response = curl_exec($ch);  // Armazena o conteúdo da resposta
@@ -67,9 +68,9 @@ class PrinterController implements ClienteController
         // Somente grava no arquivo PDF se o status for 200
         fwrite($fp, $response); // Salva o conteúdo no arquivo PDF
         fclose($fp);
-        $this->setIsReady($this->getShippingId());
-        return $this->TransformaPDF($this->getShippingId());
 
+        $this->TransformaPDF($this->getShippingId());
+        $this->setIsReady($this->getShippingId());
     }
 }
 
@@ -118,12 +119,11 @@ class PrinterController implements ClienteController
 
         $filename = dirname(__FILE__) . '/'.$path.'.pdf';
         // Header content type
-        // header("Content-type: application/pdf");
-        // header("Content-Length: " . filesize($filename));
-        // // // Send the file to the browser.
-        // readfile($filename);
-        return $filename;
-        // unlink($filename);
+        header("Content-type: application/pdf");
+        header("Content-Length: " . filesize($filename));
+        // Send the file to the browser.
+        readfile($filename);
+        unlink($filename);
     }
 
     public function setIsReady($id){

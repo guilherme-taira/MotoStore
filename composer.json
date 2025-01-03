@@ -14,6 +14,8 @@
         "fruitcake/laravel-cors": "^2.0",
         "google/cloud-translate": "^1.19",
         "guzzlehttp/guzzle": "^7.0.1",
+        "iio/libmergepdf": "^4.0",
+        "karriere/pdf-merge": "^3.2",
         "laravel/framework": "^8.75",
         "laravel/horizon": "^5.22",
         "laravel/sanctum": "^2.11",
