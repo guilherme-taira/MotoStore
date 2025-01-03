@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Orders;
-
 use App\Events\sendProduct;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\controlerMercadoLivreItems;
@@ -15,11 +14,15 @@ use App\Models\Orders;
 use App\Models\Products;
 use App\Models\token;
 use DateTime;
+use Exception;
+use iio\libmergepdf\Merger;
+use iio\libmergepdf\Pages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Log;
+use Karriere\PdfMerge\PdfMerge;
 
 class orderscontroller extends Controller
 {
@@ -200,7 +203,6 @@ class orderscontroller extends Controller
 
     public function ImprimirEtiqueta(Request $request)
     {
-        $user = financeiro::where('shipping_id',$request->shipping_id)->first();
 
         $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
         ->join('token', 'pivot_site.id_user', 'token.user_id')
@@ -215,6 +217,53 @@ class orderscontroller extends Controller
             return back()->with('error', $dados['error']);
         }
 
+    }
+
+    public function mergeLabels(Request $request)
+    {
+        $pdfLinks = $request->input('pdf_links');
+
+        Log::alert(json_encode($pdfLinks));
+        if (empty($pdfLinks)) {
+            return response()->json(['error' => 'Nenhum link foi enviado.'], 400);
+        }
+
+        $mergedPdf = new Merger();
+        // Caminho base onde os PDFs estão sendo salvos
+        $pdfPath = dirname(__FILE__) . '/Printer/';
+
+        try {
+            foreach ($pdfLinks as $link) {
+                // Obter o token para a etiqueta com base no shipping_id
+                $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
+                ->join('token', 'pivot_site.id_user', 'token.user_id')
+                ->where('shipping_id', $link)
+                ->first();
+
+            if (!$token) {
+                throw new Exception("Token não encontrado para o shipping_id: $link");
+            }
+
+                // Gera a etiqueta usando o token
+                $data = new PrinterController($link, $token->access_token);
+                $dados = $data->resource();
+                $pdfContent = file_get_contents($dados);
+                // Adiciona apenas a primeira página ao Merger
+                $mergedPdf->addRaw($pdfContent, new Pages('1-2')); // Captura apenas a primeira página
+                unlink($dados);
+            }
+
+           // Mescla todos os PDFs
+           $output = $mergedPdf->merge();
+
+            // Retorna o PDF unificado como resposta
+            return response($output, 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="etiquetas_unificadas.pdf"');
+        } catch (Exception $e) {
+            Log::error('Erro ao mesclar PDFs: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao mesclar os PDFs.'], 500);
+        }
     }
 
     public function UpdateNewPayment(Request $request)
