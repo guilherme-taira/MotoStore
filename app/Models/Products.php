@@ -39,7 +39,8 @@ class Products extends Model
         'percentual_estoque',
         'estoque_afiliado',
         'min_unidades_kit',
-        'acao'
+        'acao',
+        'id_bling'
     ];
 
     protected $table = "products";

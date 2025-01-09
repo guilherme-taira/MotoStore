@@ -230,7 +230,6 @@ class orderscontroller extends Controller
 
         $mergedPdf = new Merger();
         // Caminho base onde os PDFs estão sendo salvos
-        $pdfPath = dirname(__FILE__) . '/Printer/';
 
         try {
             foreach ($pdfLinks as $link) {

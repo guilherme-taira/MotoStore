@@ -626,7 +626,8 @@ class productsController extends Controller
         $viewData = [];
 
         foreach ($fotos as $foto) {
-            $photoUrl = "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url;
+
+            $photoUrl = "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url;
             // Verifica se é a imagem principal
             $isMain = $foto->url === $produto->image;
 

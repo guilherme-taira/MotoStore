@@ -651,7 +651,8 @@
 
             const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
             const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
-            const precoFixo = parseFloat($("#precoFixoInput").val()) || 0;
+            const precoFixo = parseFloat($("#precoFixoInput").val().replace(',', '.')) || 0;
+
             basePrice = parseFloat($('#precoFinal').val()) || 0; // Preço base do produto
 
             let novoValor = basePrice; // Começa com o preço base

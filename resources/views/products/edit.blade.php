@@ -522,9 +522,14 @@
                                         <option value="0" selected>NÃO</option>
                                     </select>
                                     </div>
+                                    <div class="col mb-3">
+                                        <label for="title" class="form-label">Informações Adicionais:</label>
+                                        <input name="title" type="text" value="{{ $viewData['product']->info }}"
+                                            class="form-control" required>
+                                    </div>
                                 </div>
 
-                                <div class="row mb-3">
+                                <div class="row">
                                     <div class="col">
                                         <label for="title" class="form-label">Nome:</label>
                                         <input name="title" type="text" value="{{ $viewData['product']->title }}"
@@ -680,7 +685,19 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="col-lg-4">
+                                <label for="id_bling" class="form-label font-weight-bold">ID Bling (Obrigatório):</label>
+                                <input name="id_bling" id="id_bling"
+                                    value="{{ $viewData['product']->id_bling ?? old('id_bling') }}" type="text"
+                                    class="form-control border-danger text-danger bg-light font-weight-bold" required
+                                    style="border-width: 2px; font-size: 1.2rem; box-shadow: 0px 0px 10px rgba(255,0,0,0.5);">
+                                @error('id_bling')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+
+                            <div class="row mb-3 mt-2">
                                <!-- Botões de Ação -->
                                 <div class="col-lg-6">
                                     <label for="acao" class="form-label">Ação:</label>
@@ -697,7 +714,7 @@
 
 
                                 <div class="col-lg-6">
-                                    <button type="button" class="btn btn-primary">Mostrar Anúncios Afetados</button>
+                                    <button type="button" disabled class="btn btn-primary">Mostrar Anúncios Afetados</button>
                                 </div>
                             </div>
                         </div>
@@ -984,6 +1001,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 
     <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const idBlingInput = document.getElementById('id_bling');
+
+        idBlingInput.addEventListener('input', function () {
+            if (idBlingInput.value.trim() !== '') {
+                // Quando preenchido, aplica estilo verde
+                idBlingInput.classList.remove('border-danger', 'text-danger');
+                idBlingInput.classList.add('border-success', 'text-success');
+                idBlingInput.style.boxShadow = '0px 0px 10px rgba(0, 255, 0, 0.5)';
+            } else {
+                // Quando vazio, volta ao estilo vermelho
+                idBlingInput.classList.remove('border-success', 'text-success');
+                idBlingInput.classList.add('border-danger', 'text-danger');
+                idBlingInput.style.boxShadow = '0px 0px 10px rgba(255, 0, 0, 0.5)';
+            }
+        });
+    });
+
     $(document).ready(function() {
 
           // Quando o estoque é alterado

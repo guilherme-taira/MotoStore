@@ -26,6 +26,7 @@ use App\Notifications\PushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class testController extends Controller
 {
@@ -66,17 +67,26 @@ class testController extends Controller
 
 
     public function teste(Request $request){
+        try {
+            // Salvar o arquivo no bucket S3
+            $path = Storage::disk('s3')->put(
+                'produtos/340/example.jpg', // Caminho do arquivo no bucket
+                file_get_contents('https://www.trapp.com.br/uploads/conteudo/images/gerbera-8212_960_720.jpg') // Conteúdo do arquivo
+            );
 
-        // Atualizando um registro existente
-        $shippingUpdate = ShippingUpdate::find(537); // Substitua 1 pelo ID do registro que você deseja atualizar
-        $shippingUpdate->was_delivered = 1;  // Atualize um campo diferente para 1
-        $shippingUpdate->save();
+            // Obter a URL do arquivo armazenado
+            $url = Storage::disk('s3')->url($path);
 
-        // $data = (new SaiuPraEntregaService())->createPackage($object);
-        \App\Jobs\sendRastreioSaiuPraEnrega::dispatch("NM573812471BR");
-        // $shipping = ShippingUpdate::where('id_mercadoLivre','2000008848830650')->first();
-        // $notify = new SendNotificationPraEntregaController($shipping->traking,"Olá Querido Cliente seu Rastreio ".$shipping->rastreio,$shipping->id_mercadoLivre,$shipping->id_user,$shipping->id_vendedor);
-        // $notify->save();
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
 }

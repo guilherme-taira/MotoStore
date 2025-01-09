@@ -28,6 +28,7 @@
     </div>
 
     <a href="{{ route('bling.create') }}" class="btn btn-primary">Adicionar Integração</a>
+    <a href="{{ route('contatos.create') }}" class="btn btn-secondary">Adicionar Contato</a>
     <table class="table table-striped mt-3">
         <thead>
             <tr>
@@ -55,6 +56,48 @@
                         @endif
                         <a href="{{ route('bling.edit', $integracao->id) }}" class="btn btn-warning btn-sm">Editar</a>
                         <form action="{{ route('bling.destroy', $integracao->id) }}" method="POST" style="display:inline-block;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta integração?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <hr>
+    <h2>Informações do afiliado</h2>
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Integrado</th>
+                <th>Nome</th>
+                <th>Documento</th>
+                <th>ID INTEGRAÇÃO</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($contatos as $contato)
+                <tr>
+                    <td>{{ $contato->id }}</td>
+                    @if (!$integracao->bling_id)
+                         <td><span class="badge text-bg-success">SIM</span></td>
+                    @else
+                    <td><span class="badge text-bg-warning">NÃO</span></td>
+                    @endif
+                    <td>{{ $contato->nome }}</td>
+                    <td>{{ $contato->numeroDocumento }}</td>
+                    <td>{{ $contato->bling_id}}</td>
+                    <td>
+                        @if(!$contato->bling_id)
+                        <a href="{{ $integracao->link }}" class="btn btn-success btn-sm">Integrar</a>
+                        @endif
+                        <a href="{{ route('contatos.edit', $contato->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ route('bling.destroy', $contato->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta integração?')">Excluir</button>

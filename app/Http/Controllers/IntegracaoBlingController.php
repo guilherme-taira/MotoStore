@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contato;
 use App\Models\IntegracaoBling;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -20,7 +21,9 @@ class IntegracaoBlingController extends Controller
     public function index()
     {
         $integracoes = IntegracaoBling::where('user_id', Auth::id())->get();
-        return view('bling.index', compact('integracoes'));
+        $contatos = Contato::whereIn('integracao_bling_id', $integracoes->pluck('id'))->get();
+
+        return view('bling.index', compact(['integracoes', 'contatos']));
     }
 
     /**

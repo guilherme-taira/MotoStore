@@ -40,18 +40,18 @@ class CadastroIntegrado
         if (isset($event->dados['valor_tipo']) && $event->dados['valor_tipo']) {
             // Atualiza os campos conforme a regra de negócio
             if ($event->dados['valor_tipo'] == 'acrescimo_reais') {
-                $prod->acrescimo_reais = $event->dados['valor'];
+                $prod->acrescimo_reais = str_replace(',', '.', $event->dados['valor']);
             } elseif ($event->dados['valor_tipo'] == 'acrescimo_porcentagem') {
-                $prod->acrescimo_porcentagem = $event->dados['valor'];
+                $prod->acrescimo_porcentagem = str_replace(',', '.', $event->dados['valor']);
             } elseif ($event->dados['valor_tipo'] == 'desconto_reais') {
-                $prod->desconto_reais = $event->dados['valor'];
+                $prod->desconto_reais = str_replace(',', '.',  $event->dados['valor']);
             } elseif ($event->dados['valor_tipo'] == 'desconto_porcentagem') {
-                $prod->desconto_porcentagem = $event->dados['valor'];
+                $prod->desconto_porcentagem = str_replace(',', '.',$event->dados['valor']);
             }
         }
 
         if (isset($event->dados['precofixo']) && $event->dados['precofixo']) {
-            $prod->precofixo = $event->dados['precofixo'];
+            $prod->precofixo =  str_replace(',', '.', $event->dados['precofixo']);;
         }
 
         if (isset($event->dados['isPorcem']) && $event->dados['isPorcem']) {

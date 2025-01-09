@@ -14,6 +14,7 @@ use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\categoriaFornecedor\categoriasFornecedor;
 use App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor;
 use App\Http\Controllers\Configuracao\configuracaoController;
+use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\HomeController;
@@ -177,6 +178,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('bancario','App\Http\Controllers\Bancario\BancarioController')->names('bancario')->parameters(['bancario' => 'id']);
         Route::resource('subcategoria','App\Http\Controllers\subcategoria\SubCategoriaController')->names('subcategorias')->parameters(['subcategorium' => 'id']);
         Route::resource('categorias', 'App\Http\Controllers\Categorias\categorias')->names('categorias')->parameters(['categorias' => 'id']);
+        Route::resource('contatos','App\Http\Controllers\ContatoController')->names('contatos')->parameters(['contatos' => 'id']);
         // Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id'])->middleware('checkCadastro/{id}');
         Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
         Route::resource('admin', 'App\Http\Controllers\admin\adminController')->names('admin')->parameters(['admin' => 'id']);
