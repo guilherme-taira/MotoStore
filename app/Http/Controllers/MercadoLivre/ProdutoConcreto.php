@@ -48,7 +48,7 @@ class ProdutoConcreto implements Produto
         $fotos = images::where('product_id', $this->getProduto()->id)->get();
         $photos = [];
         foreach ($fotos as $foto) {
-            array_push($photos, ["source" => "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
+            array_push($photos, ["source" => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
         }
         $data = [];
         if ($this->getProduto()) {

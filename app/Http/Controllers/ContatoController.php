@@ -133,30 +133,96 @@ class ContatoController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validar os dados
-        $validated = $request->validate([
-            'nome' => 'sometimes|string|max:255',
-            'tipo' => 'sometimes|string|in:F,J',
-            'situacao' => 'sometimes|string|in:A,I',
-            'rg' => 'nullable|string|max:20',
-            'cep' => 'sometimes|string|max:10',
-            'endereco' => 'sometimes|string|max:255',
-            'bairro' => 'sometimes|string|max:255',
-            'municipio' => 'sometimes|string|max:255',
-            'uf' => 'sometimes|string|max:2',
-            'numero' => 'sometimes|string|max:20',
-            'complemento' => 'nullable|string|max:255',
-        ]);
+      // Validar os dados
+      $validated = $request->validate([
+        'nome' => 'required|string|max:255',
+        'email' => 'nullable|email|max:255',
+        'celular' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}[-\s]?\d{4}$/',
+        'numeroDocumento' => 'nullable|string|max:20',
+        'tipo' => 'required|string|in:F,J',
+        'situacao' => 'required|string|in:A,I',
+        'rg' => 'nullable|string|max:20',
+        'cep' => 'required|string|max:10',
+        'endereco' => 'required|string|max:255',
+        'bairro' => 'required|string|max:255',
+        'municipio' => 'required|string|max:255',
+        'uf' => 'required|string|max:2',
+        'numero' => 'required|string|max:20',
+        'complemento' => 'nullable|string|max:255',
+    ], [
+        // Mensagens personalizadas para cada campo
+        'nome.required' => 'O campo Nome é obrigatório.',
+        'nome.string' => 'O campo Nome deve ser uma string.',
+        'nome.max' => 'O campo Nome não pode ter mais que 255 caracteres.',
+        'email.email' => 'O campo E-mail deve conter um endereço de e-mail válido.',
+        'email.max' => 'O campo E-mail não pode ter mais que 255 caracteres.',
+        'celular.regex' => 'O campo Celular deve estar no formato (XX) XXXXX-XXXX.',
+        'celular.max' => 'O campo Celular não pode ter mais que 20 caracteres.',
+        'numeroDocumento.max' => 'O campo Número do Documento não pode ter mais que 20 caracteres.',
+        'tipo.required' => 'O campo Tipo é obrigatório.',
+        'tipo.in' => 'O campo Tipo deve ser F (Física) ou J (Jurídica).',
+        'situacao.required' => 'O campo Situação é obrigatório.',
+        'situacao.in' => 'O campo Situação deve ser A (Ativo) ou I (Inativo).',
+        'rg.max' => 'O campo RG não pode ter mais que 20 caracteres.',
+        'cep.required' => 'O campo CEP é obrigatório.',
+        'cep.max' => 'O campo CEP não pode ter mais que 10 caracteres.',
+        'endereco.required' => 'O campo Endereço é obrigatório.',
+        'endereco.max' => 'O campo Endereço não pode ter mais que 255 caracteres.',
+        'bairro.required' => 'O campo Bairro é obrigatório.',
+        'bairro.max' => 'O campo Bairro não pode ter mais que 255 caracteres.',
+        'municipio.required' => 'O campo Município é obrigatório.',
+        'municipio.max' => 'O campo Município não pode ter mais que 255 caracteres.',
+        'uf.required' => 'O campo UF é obrigatório.',
+        'uf.max' => 'O campo UF não pode ter mais que 2 caracteres.',
+        'numero.required' => 'O campo Número é obrigatório.',
+        'numero.max' => 'O campo Número não pode ter mais que 20 caracteres.',
+        'complemento.max' => 'O campo Complemento não pode ter mais que 255 caracteres.',
+    ]);
+
+
+
+        // Dados para o Bling
+        $blingData = [
+           'nome' => $validated['nome'],
+           'tipo' => $validated['tipo'],
+           'numeroDocumento' => $validated['numeroDocumento'],
+           'situacao' => $validated['situacao'],
+           'celular' => $validated['celular'],
+           'email' => $validated['email'],
+           'rg' => $validated['rg'] ?? null,
+           'endereco' => [
+               'geral' => [
+                   'endereco' => $validated['endereco'],
+                   'cep' => $validated['cep'],
+                   'bairro' => $validated['bairro'],
+                   'municipio' => $validated['municipio'],
+                   'uf' => $validated['uf'],
+                   'numero' => $validated['numero'],
+                   'complemento' => $validated['complemento'] ?? null,
+               ],
+           ],
+       ];
 
         // Atualizar o contato
         $contato = Contato::findOrFail($id);
         $contato->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Contato atualizado com sucesso!',
-            'data' => $contato,
-        ]);
+          // // Enviar para o Bling
+        try {
+
+            $tokens = IntegracaoBling::all();
+
+            foreach ($tokens as $key => $token) {
+                $blingResponse = new BlingContatos($token->access_token,$contato['id'],'PUT');
+                $blingResponse->atualizarContato($blingData,$contato->bling_id);
+            }
+
+
+        } catch (\Exception $e) {
+            return redirect('/bling')->with('error', $e->getMessage());
+        }
+
+        return redirect('/bling')->with('success', 'Contato atualizado com sucesso!');
     }
 
     public function destroy($id)
@@ -165,9 +231,6 @@ class ContatoController extends Controller
         $contato = Contato::findOrFail($id);
         $contato->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Contato excluído com sucesso!',
-        ]);
+        return redirect('/bling')->with('success', 'Contato apagado com sucesso!');
     }
 }

@@ -124,6 +124,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+
+ $('#telefone').mask('(00) 00000-0000');
 // Função para exibir o toast
 function showToast(toastId) {
      var toastElement = document.getElementById(toastId);

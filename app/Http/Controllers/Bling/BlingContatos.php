@@ -13,12 +13,14 @@ class BlingContatos extends Controller
     private $apiUrl;
     private $authorization;
     private $id;
+    private $method;
 
-    public function __construct($authorization,$id)
+    public function __construct($authorization,$id,$method = "POST")
     {
         $this->apiUrl = 'https://api.bling.com.br/Api/v3/contatos';
         $this->authorization = $authorization; // Substitua pelo token real
         $this->id = $id;
+        $this->method = $method;
     }
 
     /**
@@ -37,7 +39,7 @@ class BlingContatos extends Controller
             'Authorization: Bearer ' . $this->authorization,
             'Content-Type: application/json',
         ]);
-
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,$this->method); // Método HTTP PUT
         // Configurar o corpo da requisição
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -46,6 +48,7 @@ class BlingContatos extends Controller
         // Executar a requisição
         $response = curl_exec($ch);
 
+        Log::alert($response);
         $res = json_decode($response);
         // Obter o código HTTP da resposta
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -60,12 +63,46 @@ class BlingContatos extends Controller
             // Verificar se o contato existe
             $contato = Contato::find($this->id);
 
-        Log::alert($contato);
             // Atualizar o campo bling_id
             $contato->update([
                 'bling_id' => $res->data->id
             ]);
         }
+
+        // Retornar a resposta decodificada
+        return json_decode($response, true);
+
+    }
+
+    /**
+     * Envia os dados do contato para a API do Bling.
+     *
+     * @param array $data
+     * @return array
+     * @throws \Exception
+     */
+    public function atualizarContato(array $data,$id)
+    {
+        $ch = curl_init();
+        // Configurar a URL e os cabeçalhos
+        curl_setopt($ch, CURLOPT_URL, $this->apiUrl."/".$id);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->authorization,
+            'Content-Type: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,$this->method); // Método HTTP PUT
+        // Configurar o corpo da requisição
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Executar a requisição
+        $response = curl_exec($ch);
+
+        Log::alert($response);
+        $res = json_decode($response);
+        // Obter o código HTTP da resposta
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         // Retornar a resposta decodificada
         return json_decode($response, true);
