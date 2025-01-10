@@ -12,6 +12,25 @@
     @endif
 
 
+        <!-- Mensagens de Sucesso -->
+        @if(session('successMessage'))
+        <div class="alert alert-success">
+            {{ session('successMessage') }}
+        </div>
+        @endif
+
+        <!-- Mensagens de Erro -->
+        @if(session('errorMessages'))
+        <div class="alert alert-danger">
+            <ul>
+                @foreach(session('errorMessages') as $errorMessage)
+                    <li>{{ $errorMessage }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+
     <div class="container my-4">
         <!-- Exibir Mensagem de Sucesso -->
         @if (session('success'))
@@ -173,11 +192,9 @@
         <!-- Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            $('#cep').mask('00000-000');
-            $('#celular').mask('(00) 00000-0000');
-       </script>
+                $('#cep').mask('00000-000');
+                $('#celular').mask('(00) 00000-0000');
+        </script>
     </div>
 @endsection

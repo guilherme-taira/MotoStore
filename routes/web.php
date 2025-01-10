@@ -17,6 +17,7 @@ use App\Http\Controllers\Configuracao\configuracaoController;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\email\sendEmail;
 use App\Http\Controllers\Fornecedor\fornecedorController;
+use App\Http\Controllers\GlobalMessageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IntegracaoBlingController;
 use App\Http\Controllers\Kits\kitsController as KitsKitsController;
@@ -193,6 +194,7 @@ Route::middleware('admin')->group(function () {
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
         Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');
         Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
+        Route::resource('global_messages', 'App\Http\Controllers\GlobalMessageController')->names('global_messages')->parameters(['global_messages' => 'id']);
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
     });
 });

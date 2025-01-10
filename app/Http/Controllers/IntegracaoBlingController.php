@@ -21,7 +21,8 @@ class IntegracaoBlingController extends Controller
     public function index()
     {
         $integracoes = IntegracaoBling::where('user_id', Auth::id())->get();
-        $contatos = Contato::whereIn('integracao_bling_id', $integracoes->pluck('id'))->get();
+        $contatos = Contato::where('integracao_bling_id', Auth::user()->id)->get();
+
 
         return view('bling.index', compact(['integracoes', 'contatos']));
     }

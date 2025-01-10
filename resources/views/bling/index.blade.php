@@ -73,10 +73,8 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Integrado</th>
                 <th>Nome</th>
                 <th>Documento</th>
-                <th>ID INTEGRAÇÃO</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -84,18 +82,9 @@
             @foreach ($contatos as $contato)
                 <tr>
                     <td>{{ $contato->id }}</td>
-                    @if (!$integracao->bling_id)
-                         <td><span class="badge text-bg-success">SIM</span></td>
-                    @else
-                    <td><span class="badge text-bg-warning">NÃO</span></td>
-                    @endif
                     <td>{{ $contato->nome }}</td>
                     <td>{{ $contato->numeroDocumento }}</td>
-                    <td>{{ $contato->bling_id}}</td>
                     <td>
-                        @if(!$contato->bling_id)
-                        <a href="{{ $integracao->link }}" class="btn btn-success btn-sm">Integrar</a>
-                        @endif
                         <a href="{{ route('contatos.edit', $contato->id) }}" class="btn btn-warning btn-sm">Editar</a>
                         <form action="{{ route('bling.destroy', $contato->id) }}" method="POST" style="display:inline-block;">
                             @csrf

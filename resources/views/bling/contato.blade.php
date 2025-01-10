@@ -38,7 +38,7 @@
                 <form action="{{route('contatos.store')}}" method="POST" id="contactForm">
                     <!-- CSRF Token -->
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="text" name="integracao_bling_id" value={{$viewData['integracao_bling']}}>
+                    <input type="hidden" name="integracao_bling_id" value="{{Auth::user()->id}}">
                     <!-- Nome -->
                     <div class="row mb-3">
                         <div class="col-md-12">
@@ -175,8 +175,6 @@
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
              $('#cep').mask('00000-000');

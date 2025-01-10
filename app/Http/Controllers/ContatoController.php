@@ -22,9 +22,9 @@ class ContatoController extends Controller
     {
     // Obter integrações disponíveis para associar a um novo contato
 
-        $data = IntegracaoBling::where('user_id',Auth::user()->id)->first();
+        // $data = IntegracaoBling::where('user_id',Auth::user()->id)->first();
         $viewData = [];
-        $viewData['integracao_bling'] = $data->id;
+        // $viewData['integracao_bling'] = $data->id;
         return view('bling.contato',[
             'viewData' => $viewData
         ]);
@@ -81,43 +81,38 @@ class ContatoController extends Controller
             'complemento.max' => 'O campo Complemento não pode ter mais que 255 caracteres.',
         ]);
 
+        $contatoCreted = Contato::create($validated);
+        // $token = IntegracaoBling::where('id',$validated['integracao_bling_id'])->first();
+        //  // Dados para o Bling
+        //  $blingData = [
+        //     'nome' => $validated['nome'],
+        //     'tipo' => $validated['tipo'],
+        //     'numeroDocumento' => $validated['numeroDocumento'],
+        //     'situacao' => $validated['situacao'],
+        //     'celular' => $validated['celular'],
+        //     'email' => $validated['email'],
+        //     'rg' => $validated['rg'] ?? null,
+        //     'endereco' => [
+        //         'geral' => [
+        //             'endereco' => $validated['endereco'],
+        //             'cep' => $validated['cep'],
+        //             'bairro' => $validated['bairro'],
+        //             'municipio' => $validated['municipio'],
+        //             'uf' => $validated['uf'],
+        //             'numero' => $validated['numero'],
+        //             'complemento' => $validated['complemento'] ?? null,
+        //         ],
+        //     ],
+        // ];
 
+        // // // Enviar para o Bling
+        // try {
+        //     $blingResponse = new BlingContatos($token->access_token,$validated);
+        //     $blingResponse->enviarContato($blingData);
 
-        // Criar o contato
-        $contato = Contato::create($validated);
-
-        $token = IntegracaoBling::where('id',$validated['integracao_bling_id'])->first();
-         // Dados para o Bling
-         $blingData = [
-            'nome' => $validated['nome'],
-            'tipo' => $validated['tipo'],
-            'numeroDocumento' => $validated['numeroDocumento'],
-            'situacao' => $validated['situacao'],
-            'celular' => $validated['celular'],
-            'email' => $validated['email'],
-            'rg' => $validated['rg'] ?? null,
-            'endereco' => [
-                'geral' => [
-                    'endereco' => $validated['endereco'],
-                    'cep' => $validated['cep'],
-                    'bairro' => $validated['bairro'],
-                    'municipio' => $validated['municipio'],
-                    'uf' => $validated['uf'],
-                    'numero' => $validated['numero'],
-                    'complemento' => $validated['complemento'] ?? null,
-                ],
-            ],
-        ];
-
-        // // Enviar para o Bling
-        try {
-            $blingResponse = new BlingContatos($token->access_token,$contato['id']);
-            $blingResponse->enviarContato($blingData);
-
-        } catch (\Exception $e) {
-            return redirect('/bling')->with('error', $e->getMessage());
-        }
-
+        // } catch (\Exception $e) {
+        //     return redirect('/bling')->with('error', $e->getMessage());
+        // }
         return redirect('/bling')->with('success', 'Contato criado e enviado para o Bling com sucesso!');
     }
 
@@ -214,12 +209,13 @@ class ContatoController extends Controller
 
             foreach ($tokens as $key => $token) {
                 $blingResponse = new BlingContatos($token->access_token,$contato['id'],'PUT');
-                $blingResponse->atualizarContato($blingData,$contato->bling_id);
+                $res = $blingResponse->atualizarContato($blingData,$contato->bling_id);
             }
 
+            return $res;
 
         } catch (\Exception $e) {
-            return redirect('/bling')->with('error', $e->getMessage());
+            // return redirect('/bling')->with('error', $e->getMessage());
         }
 
         return redirect('/bling')->with('success', 'Contato atualizado com sucesso!');

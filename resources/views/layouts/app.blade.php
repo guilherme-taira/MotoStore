@@ -397,6 +397,23 @@
         <div id="layoutSidenav_content">
             <main>
 
+                @php
+                    use App\Models\GlobalMessage;
+                    $activeMessages = GlobalMessage::where('start_at', '<=', now())
+                                                ->where('end_at', '>=', now())
+                                                ->get();
+                @endphp
+
+                @if($activeMessages->isNotEmpty())
+                    @foreach($activeMessages as $message)
+                        <div class="alert alert-info text-center">
+                            <strong>{{ $message->title }}</strong><br>
+                            {{ $message->content }}
+                        </div>
+                    @endforeach
+                @endif
+
+
                 {{-- CONTEUDO DO SITE  --}}
                 @yield('conteudo')
 

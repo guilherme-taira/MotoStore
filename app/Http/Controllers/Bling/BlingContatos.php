@@ -59,9 +59,11 @@ class BlingContatos extends Controller
         Log::alert($response);
         // Verificar se a requisição falhou
         if ($httpCode == 201) {
+            // Criar o contato
+            $contatoCreted = Contato::create($this->id);
 
             // Verificar se o contato existe
-            $contato = Contato::find($this->id);
+            $contato = Contato::find($contatoCreted->id);
 
             // Atualizar o campo bling_id
             $contato->update([
@@ -98,14 +100,34 @@ class BlingContatos extends Controller
 
         // Executar a requisição
         $response = curl_exec($ch);
-
-        Log::alert($response);
-        $res = json_decode($response);
         // Obter o código HTTP da resposta
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        // Retornar a resposta decodificada
-        return json_decode($response, true);
+        log::alert($response);
+
+        if ($httpCode == 400) {
+            $res = json_decode($response, true); // Decodifica o JSON em um array associativo
+
+            $errorMessages = [];
+
+            // Verifica se existem campos com erros na resposta
+            if (isset($res['error']['fields']) && is_array($res['error']['fields'])) {
+                foreach ($res['error']['fields'] as $field) {
+                    $errorMessages[] = $field['msg']; // Coleta as mensagens de erro
+                }
+            } else {
+                // Mensagem genérica caso os campos não estejam definidos
+                $errorMessages[] = $res['error']['message'] ?? 'Erro desconhecido.';
+            }
+
+            // Redireciona de volta com as mensagens de erro
+            return redirect()->back()->with('errorMessages', $errorMessages);
+        } elseif ($httpCode == 204) {
+            return redirect()->back()->with('successMessage', 'Atualizado com sucesso!');
+        } else {
+            return redirect()->back()->with('successMessage','Atualizado com sucesso!');
+        }
+
 
     }
 }
