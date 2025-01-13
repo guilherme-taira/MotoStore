@@ -162,26 +162,18 @@ class MercadoPagoNotification extends Controller
         public function notificationBling(Request $request){
 
         // GET TOKEN
-        // Tente decodificar o JSON diretamente, se for uma string
-        $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
 
-        Log::alert($data);
-        // Verifica se $data contém o índice 'retorno'
-        if (!isset($data['retorno'])) {
+        $data = $request->data;
+
+        // Verifica se o retorno contém informações relevantes
+        if (!$request->all()) {
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
         }
 
-        // Decodifique o campo 'retorno' (presume-se que seja JSON)
-        $retorno = json_decode($data['retorno'], true);
+        $retorno = json_decode($data['retorno'],true);
 
-        // Verifica se $retorno é válido
-        if (!is_array($retorno)) {
-            return response()->json(['error' => 'Formato de retorno inválido.'], 400);
-        }
-
-        Log::critical(json_encode($retorno));
-        $type = array_key_first($retorno); // Obtém a primeira chave do array
-
+        Log::critical($retorno);
+        $type = array_key_first($retorno);
 
         // Executa o comportamento com base no tipo
         switch ($type) {
