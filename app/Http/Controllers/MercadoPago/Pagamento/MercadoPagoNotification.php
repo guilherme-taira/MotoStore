@@ -170,7 +170,7 @@ class MercadoPagoNotification extends Controller
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
         }
 
-        Log::critical(json_encode($data['data']));
+        // Log::critical(json_encode($data['data']));
         $type = array_key_first(json_decode($data['retorno']));
 
         // Executa o comportamento com base no tipo
