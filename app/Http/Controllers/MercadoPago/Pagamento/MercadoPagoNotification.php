@@ -163,15 +163,15 @@ class MercadoPagoNotification extends Controller
 
         // GET TOKEN
 
-        $data = $request->all();
+        $data = json_decode($request['data']);
 
         // Verifica se o retorno contém informações relevantes
         if (!$request->all()) {
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
         }
 
-        Log::critical($data['data']);
-        $type = array_key_first($data['data']['retorno']);
+        Log::critical(json_encode($data['data']));
+        $type = array_key_first(json_decode($data['retorno']));
 
         // Executa o comportamento com base no tipo
         switch ($type) {
