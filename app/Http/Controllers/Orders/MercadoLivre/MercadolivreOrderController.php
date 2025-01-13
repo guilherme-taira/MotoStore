@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Orders\MercadoLivre;
 
+use App\Http\Controllers\Bling\BlingContatos;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
 use App\Http\Controllers\MercadoLivre\Cliente\implementacaoCliente;
@@ -21,7 +22,10 @@ use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
 use App\Http\Controllers\Yapay\GeradorPagamento;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
+use App\Models\BlingCreateUserByFornecedor;
+use App\Models\Contato;
 use App\Models\financeiro;
+use App\Models\IntegracaoBling;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
@@ -253,6 +257,44 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         $retirarEstoque = new SalesReportController();
                                         $retirarEstoque->processSale($data);
 
+                                    } catch (\Throwable $th) {
+                                        FacadesLog::alert($th->getMessage());
+                                    }
+
+                                    // ENVIAR VENDA BLING
+                                    try {
+                                        $contato = Contato::where('integracao_bling_id',59)->first();
+                                        $auth = IntegracaoBling::where('user_id',16)->first();
+                                        $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor(16,$contato->id);
+
+
+                                        if($contatoEfornecedor){
+
+                                        }else{
+                                            $blingData = [
+                                                'nome' => $contato['nome'],
+                                                'tipo' => $contato['tipo'],
+                                                'numeroDocumento' => $contato['numeroDocumento'],
+                                                'situacao' => $contato['situacao'],
+                                                'celular' => $contato['celular'],
+                                                'email' => $contato['email'],
+                                                'rg' => $contato['rg'] ?? null,
+                                                'endereco' => [
+                                                    'geral' => [
+                                                        'endereco' => $contato['endereco'],
+                                                        'cep' => $contato['cep'],
+                                                        'bairro' => $contato['bairro'],
+                                                        'municipio' => $contato['municipio'],
+                                                        'uf' => $contato['uf'],
+                                                        'numero' => $contato['numero'],
+                                                        'complemento' => $contato['complemento'] ?? null,
+                                                    ],
+                                                ],
+                                            ];
+
+                                            $BlingContatos = new BlingContatos($auth->access_token,$contato->id,16);
+                                            $BlingContatos->enviarContato($blingData);
+                                        }
                                     } catch (\Throwable $th) {
                                         FacadesLog::alert($th->getMessage());
                                     }

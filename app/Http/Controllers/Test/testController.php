@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Test;
 
+use App\Http\Controllers\Bling\BlingContatos;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Generatecharts;
 use App\Http\Controllers\MercadoLivre\GeneratechartsSneakers;
@@ -17,6 +18,9 @@ use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
+use App\Models\BlingCreateUserByFornecedor;
+use App\Models\Contato;
+use App\Models\IntegracaoBling;
 use App\Models\order_site;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
@@ -67,25 +71,43 @@ class testController extends Controller
 
 
     public function teste(Request $request){
-        try {
-            // Salvar o arquivo no bucket S3
-            $path = Storage::disk('s3')->put(
-                'produtos/340/example.jpg', // Caminho do arquivo no bucket
-                file_get_contents('https://www.trapp.com.br/uploads/conteudo/images/gerbera-8212_960_720.jpg') // Conteúdo do arquivo
-            );
+           // ENVIAR VENDA BLING
+           try {
+            $contato = Contato::where('integracao_bling_id',59)->first();
+            $auth = IntegracaoBling::where('user_id',16)->first();
+            $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor(16,$contato->id);
 
-            // Obter a URL do arquivo armazenado
-            $url = Storage::disk('s3')->url($path);
+            echo "<pre>";
+            if($contatoEfornecedor){
 
-            return response()->json([
-                'success' => true,
-                'url' => $url,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            }else{
+                  $blingData = [
+                    'nome' => $contato['nome'],
+                    'tipo' => $contato['tipo'],
+                    'numeroDocumento' => $contato['numeroDocumento'],
+                    'situacao' => $contato['situacao'],
+                    'celular' => $contato['celular'],
+                    'email' => $contato['email'],
+                    'rg' => $contato['rg'] ?? null,
+                    'endereco' => [
+                        'geral' => [
+                            'endereco' => $contato['endereco'],
+                            'cep' => $contato['cep'],
+                            'bairro' => $contato['bairro'],
+                            'municipio' => $contato['municipio'],
+                            'uf' => $contato['uf'],
+                            'numero' => $contato['numero'],
+                            'complemento' => $contato['complemento'] ?? null,
+                        ],
+                    ],
+                ];
+
+                $BlingContatos = new BlingContatos($auth->access_token,$contato->id,16);
+                $BlingContatos->enviarContato($blingData);
+            }
+
+        } catch (\Throwable $th) {
+            Log::alert($th->getMessage());
         }
     }
 

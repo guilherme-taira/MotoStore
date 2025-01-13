@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Bling;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -13,13 +14,15 @@ class BlingContatos extends Controller
     private $apiUrl;
     private $authorization;
     private $id;
+    private $forncedor;
     private $method;
 
-    public function __construct($authorization,$id,$method = "POST")
+    public function __construct($authorization,$id,$forncedor,$method = "POST")
     {
         $this->apiUrl = 'https://api.bling.com.br/Api/v3/contatos';
         $this->authorization = $authorization; // Substitua pelo token real
         $this->id = $id;
+        $this->forncedor = $forncedor;
         $this->method = $method;
     }
 
@@ -59,15 +62,11 @@ class BlingContatos extends Controller
         Log::alert($response);
         // Verificar se a requisição falhou
         if ($httpCode == 201) {
-            // Criar o contato
-            $contatoCreted = Contato::create($this->id);
 
-            // Verificar se o contato existe
-            $contato = Contato::find($contatoCreted->id);
-
-            // Atualizar o campo bling_id
-            $contato->update([
-                'bling_id' => $res->data->id
+            BlingCreateUserByFornecedor::create([
+                'contato_id' => $this->id,
+                'fornecedor_id' => $this->forncedor,
+                'bling_id' =>  $res->data->id
             ]);
         }
 
@@ -129,5 +128,13 @@ class BlingContatos extends Controller
         }
 
 
+    }
+
+    /**
+     * Get the value of forncedor
+     */
+    public function getForncedor()
+    {
+        return $this->forncedor;
     }
 }

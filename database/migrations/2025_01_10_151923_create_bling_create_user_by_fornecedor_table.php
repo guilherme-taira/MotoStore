@@ -11,11 +11,15 @@ class CreateBlingCreateUserByFornecedorTable extends Migration
         Schema::create('bling_create_user_by_fornecedor', function (Blueprint $table) {
             $table->id(); // ID da tabela
             $table->unsignedBigInteger('contato_id'); // ID da tabela contatos
+            $table->unsignedBigInteger('fornecedor_id'); // ID do fornecedor
             $table->string('bling_id'); // ID do Bling
             $table->timestamps(); // Campos created_at e updated_at
 
             // Chave estrangeira para a tabela contatos
             $table->foreign('contato_id')->references('id')->on('contatos')->onDelete('cascade');
+
+            // Chave estrangeira para a tabela fornecedores (se existir)
+            $table->foreign('fornecedor_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
