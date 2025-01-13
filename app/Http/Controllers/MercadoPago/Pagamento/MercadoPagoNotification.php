@@ -171,12 +171,8 @@ class MercadoPagoNotification extends Controller
         }
 
         // Decodifique o campo 'retorno' (presume-se que seja JSON)
-        $retorno = json_decode($data['retorno'], true);
+        $retorno = $data['retorno'];
 
-        // Verifica se $retorno é válido
-        if (!is_array($retorno)) {
-            return response()->json(['error' => 'Formato de retorno inválido.'], 400);
-        }
 
         Log::critical(json_encode($retorno));
         $type = array_key_first($retorno); // Obtém a primeira chave do array
