@@ -162,7 +162,7 @@ class MercadoPagoNotification extends Controller
         public function notificationBling(Request $request){
 
         // GET TOKEN
-        Log::critical($request->all());
+
         $data = $request->all();
 
         // Verifica se o retorno contém informações relevantes
@@ -170,7 +170,8 @@ class MercadoPagoNotification extends Controller
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
         }
 
-        $type = array_key_first($data['retorno']);
+        Log::critical($data['data']);
+        $type = array_key_first($data['data']['retorno']);
 
         // Executa o comportamento com base no tipo
         switch ($type) {
