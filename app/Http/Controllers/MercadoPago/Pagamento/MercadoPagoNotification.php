@@ -173,8 +173,10 @@ class MercadoPagoNotification extends Controller
 
 
         $retorno = json_decode($data['retorno'],true);
+
+        Log::critical(json_encode($retorno));
         $type = array_key_first($retorno);
-        Log::critical($type);
+
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
