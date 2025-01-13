@@ -165,6 +165,7 @@ class MercadoPagoNotification extends Controller
         // Tente decodificar o JSON diretamente, se for uma string
         $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
 
+        Log::alert($data);
         // Verifica se $data contém o índice 'retorno'
         if (!isset($data['retorno'])) {
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
