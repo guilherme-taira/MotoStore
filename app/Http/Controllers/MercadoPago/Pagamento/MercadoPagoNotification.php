@@ -187,6 +187,7 @@ class MercadoPagoNotification extends Controller
                         $estoqueAtual = $estoque['estoque']['estoqueAtual'];
                         $id_bling = $estoque['estoque']['id'];
                         $produto = Products::where('id_bling',$id_bling)->first();
+                        Log::debug($produto);
                          // Busca os produtos no banco
                         $product = Products::findOrFail($produto->id);
                         // Atualiza o estoque do produto
