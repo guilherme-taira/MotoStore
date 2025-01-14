@@ -2,6 +2,27 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <style>
+
+.product-marquee {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+    .lock-overlay {
+    background-color: rgba(157, 157, 157, 0.6); /* Fundo branco com transparência */
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.product-img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
             /* Card Principal */
     .product-form-card {
         background-color: #fff;
@@ -118,7 +139,7 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        background-color: #FF9800;
+        background-color: #10a1c9;
         color: white;
         font-size: 0.8rem;
         border-radius: 4px;
@@ -435,7 +456,7 @@
 
     <div class="container-fluid px-4">
 
-        <h2 class="mt-4">Gerenciador de Produtos</h2>
+        <h2 class="mt-4">Produtos Exclusivos</h2>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
             <a href="{{ route('products.create') }}"><button class="btn btn-success me-md-2" type="button">Novo Produto
@@ -525,57 +546,59 @@
                     <div class="row">
                         @foreach ($viewData['products'] as $product)
                         <section class="col-md-3 mb-4" id="linhasProduct">
-                        <span class="d-none id_product">{{ $product->getId() }}</span>
-                        <div>
-                            <div class="product-card position-relative">
-                                <!-- Badge de desconto ou novo -->
-                                {{-- <div class="badge-discount">-{{ $product->discount }}%</div> --}}
-                                @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
-                                    <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Novo</div>
-                                @endif
+                            <span class="d-none id_product">{{ $product->getId() }}</span>
+                            <div>
+                                <div class="product-card position-relative">
+                                    <!-- Badge de desconto ou novo -->
+                                    {{-- @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20))) --}}
+                                        <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Exclusivos</div>
+                                    {{-- @endif --}}
 
-                                <!-- Imagem -->
-                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}"
-                                     alt="{{ $product->getName() }}" class="product-img">
+                                    <!-- Imagem com opacidade e cadeado -->
+                                    <div class="position-relative">
+                                        <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}"
+                                             alt="{{ $product->getName() }}" class="product-img" style="opacity: 0.2;">
 
-                                <!-- Estoque e Nome -->
-                                <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">Estoque {{ $product->available_quantity }}</p>
-                                <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
+                                        <!-- Ícone de cadeado -->
+                                        <div class="lock-overlay position-absolute top-50 start-50 translate-middle text-center">
+                                            <i class="bi bi-lock-fill" style="font-size: 3rem; color: #333;"></i>
+                                        </div>
+                                    </div>
 
-                                <!-- Preço -->
-                                <div>
-                                    <span class="product-price">R$ {{ number_format($product->priceWithFee, 2) }}</span>
-                                    {{-- <span class="product-price-old">R$ {{ number_format($product->originalPrice, 2) }}</span> --}}
-                                </div>
+                                    <!-- Estoque e Nome -->
+                                    <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">Estoque {{ $product->available_quantity }}</p>
+                                    <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
 
-                                <!-- Avaliação -->
-                                <div class="product-rating mt-2">
-                                    ★★★★★
-                                </div>
+                                    <!-- Letreiro com texto Lançamento -->
+                                    <div class="product-marquee mt-2">
+                                        <marquee behavior="scroll" direction="left" style="font-size: 1.2rem; font-weight: bold; color: #ff0000;">
+                                            🚀 Lançamento Afilidrop 🚀 Lançamento Afilidrop 🚀
+                                        </marquee>
+                                    </div>
 
-                             <!-- Ações -->
-                                <div class="product-actions mt-3 d-flex justify-content-between">
-                                    <!-- Botão Ver Mais -->
-                                    <a href="{{ route('products.show', ['id' => $product->getId()]) }}" class="btn btn-primary btn-sm" style="border-radius: 20px;">
-                                        Ver Mais
-                                    </a>
 
-                                    <!-- Botão Integrar -->
-                                    <button class="btn btn-success btn-sm" style="border-radius: 20px;" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
-                                        Integrar
-                                    </button>
+                                    <!-- Avaliação -->
+                                    <div class="product-rating mt-2">
+                                        ★★★★★
+                                    </div>
+
+                                    <!-- Ações -->
+                                    <div class="product-actions mt-3 d-flex justify-content-between">
+                                        <!-- Botão Integrar -->
+                                        <button class="btn btn-danger btn-sm" style="border-radius: 20px;">
+                                            Em Breve Disponível
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </section>
-                    @endforeach
-                    <div class="d-flex justify-content-center mt-4">
-                        {!! $viewData['products']->links() !!}
+                        @endforeach
+
+                        <div class="d-flex justify-content-center mt-4">
+                            {!! $viewData['products']->links() !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            </div>
-        </div>
 
 
         <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">

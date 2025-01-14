@@ -340,8 +340,8 @@ class Products extends Model
 
     public static function getResults(Request $request) {
         $query = Products::query();
-        $query->where('isPublic', 1);
-
+        $query->where('isPublic','=',1);
+        $query->where('isExclusivo','=', 0);
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {
             $query->where('title', 'like', '%' . $request->nome . '%');
