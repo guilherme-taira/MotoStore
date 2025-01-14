@@ -315,6 +315,7 @@
                             data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="{{ route('products.index') }}">Produtos Disponíveis</a>
+                                <a class="nav-link" href="{{ route('products.exclusivos') }}">Produtos Exclusivos
                                 <a class="nav-link" href="{{ route('allProductsByFornecedor') }}">Meus Produtos</a>
                                 <a class="nav-link" href="{{ route('kits.index') }}">Kits</a>
                                 <a class="nav-link" href="{{ route('categorias.index') }}">Categorias</a>

@@ -40,7 +40,8 @@ class Products extends Model
         'estoque_afiliado',
         'min_unidades_kit',
         'acao',
-        'id_bling'
+        'id_bling',
+        'isExclusivo'
     ];
 
     protected $table = "products";
@@ -340,6 +341,41 @@ class Products extends Model
     public static function getResults(Request $request) {
         $query = Products::query();
         $query->where('isPublic', 1);
+
+        // Verifica se o filtro 'nome' está preenchido
+        if ($request->filled('nome')) {
+            $query->where('title', 'like', '%' . $request->nome . '%');
+        }
+
+        // Verifica se o filtro 'preco' está preenchido
+        if ($request->filled('preco')) {
+            $query->where('price', $request->preco_condicao, $request->preco);
+        }
+
+        // Verifica o filtro de 'estoque', incluindo o caso nulo
+        if ($request->filled('estoque') || is_null($request->estoque)) {
+            if (is_null($request->estoque)) {
+                $query->where('available_quantity', '>=', 0);
+            } else {
+                $query->where('available_quantity', '>=', $request->estoque);
+            }
+        }
+
+        // Verifica se o filtro 'categoria' está preenchido
+        if ($request->filled('categoria')) {
+            $query->where('subcategoria', '=', $request->categoria);
+        }
+
+        $query->orderBy('id', 'desc');
+
+        return $query->paginate(15);
+    }
+
+
+    public static function getResultsExclusive(Request $request) {
+        $query = Products::query();
+        $query->where('isPublic', 1);
+        $query->where('isExclusivo', 1);
 
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {

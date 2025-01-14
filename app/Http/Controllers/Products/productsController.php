@@ -1781,4 +1781,38 @@ class productsController extends Controller
             'viewData' => $viewData
         ]);
     }
+
+
+    public function exclusivos(Request $request)
+    {
+        $viewData = [];
+        $viewData['title'] = "Produtos Exclusivos";
+        $categoriaKeyCache = 'categoriasProdutos';
+
+        // Tempo em minutos que o cache será mantido
+        $cacheTime = 5;
+
+        $viewData['products'] = Products::getResultsExclusive($request);
+
+        $data = [];
+        $categorias = [];
+       foreach (categorias::all() as $value) {
+           $categorias[$value->id] = [
+               "nome" => $value->name,
+               "subcategory" => sub_category::getAllCategory($value->id),
+           ];
+       }
+
+        // Verifique se já existe um cache
+        if (Cache::has($categoriaKeyCache)) {
+        // Se existir, recupere o resultado do cache
+             $viewData['categorias'] = Cache::get($categoriaKeyCache);
+        }else{
+            $viewData['categorias'] = $categorias;
+            Cache::put($categoriaKeyCache, $viewData['categorias'], now()->addMinutes($cacheTime));
+        }
+
+        $viewData['filtro'] = $request->all();
+        return view('admin.exclusivos', compact('viewData'));
+    }
 }

@@ -522,10 +522,17 @@
                                         <option value="0" selected>NÃO</option>
                                     </select>
                                     </div>
+                                    <div class="col">
+                                        <label for="isExclusivo">Exclusivo</label>
+                                        <select name="isExclusivo" class="form-control" required>
+                                            <option value="1" {{ $viewData['product']->isExclusivo == 1 ? 'selected' : '' }}>SIM</option>
+                                            <option value="0" {{ $viewData['product']->isExclusivo == 0 ? 'selected' : '' }}>NÃO</option>
+                                        </select>
+                                        </div>
                                     <div class="col mb-3">
                                         <label for="title" class="form-label">Informações Adicionais:</label>
                                         <input name="title" type="text" value="{{ $viewData['product']->info }}"
-                                            class="form-control" required>
+                                            class="form-control" disabled>
                                     </div>
                                 </div>
 

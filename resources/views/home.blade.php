@@ -3,7 +3,12 @@
 @section('conteudo')
 
 
-
+    @if (session('error'))
+        <div class="alert alert-warningd alert-dismissible fade show text-center" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="container-fluid px-4">
         <h2 class="mt-4">Dashboard</h2>

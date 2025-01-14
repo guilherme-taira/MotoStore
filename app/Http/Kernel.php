@@ -20,6 +20,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
     ];
 
     /**
@@ -66,5 +67,6 @@ class Kernel extends HttpKernel
         'admin_msg' => \App\Http\Middleware\ifAuthMsg::class,
         'check_fornecedor' => \App\Http\Middleware\CheckFornercedor::class,
         'checkCadastro/{id}' => \App\Http\Middleware\verificaCadastro::class,
+        'restrict.route' => \App\Http\Middleware\RestrictRouteToUser::class,
     ];
 }

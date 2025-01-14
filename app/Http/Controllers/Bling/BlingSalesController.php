@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bling;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class BlingSalesController extends Controller
 {
@@ -22,7 +23,7 @@ class BlingSalesController extends Controller
         try {
 
             $response = $this->blingService->sendSale($this->data);
-
+            Log::alert($response);
              // Verificar se a resposta da API é bem-sucedida
              if (isset($response['status']) && $response['status'] === 'success') {
                 // Lógica para sucesso

@@ -98,7 +98,7 @@ Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirE
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 Route::post('/merge-pdfs', [orderscontroller::class, 'mergeLabels'])->name('merge.pdfs');
-
+Route::get('/exclusivos',[productsController::class,'exclusivos'])->name('products.exclusivos')->middleware('restrict.route');
 // Rota para listar todas as notificações
 Route::get('/vernotificacoes', [NotificationSistemaController::class, 'index'])->name('notifications');
 // NOTIFICAO MARCAR LIDO

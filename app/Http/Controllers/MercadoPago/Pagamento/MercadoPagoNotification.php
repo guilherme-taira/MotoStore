@@ -128,7 +128,6 @@ class MercadoPagoNotification extends Controller
         $userML = token::where('user_id_mercadolivre', $request->user_id)->first();
 
         // if(isset($request->_id)){
-
             // Verifica se é 'topic' ou 'type' e atribui à variável $eventType
             $eventType = $request->topic ?? $request->type;
 
@@ -187,7 +186,6 @@ class MercadoPagoNotification extends Controller
                         $estoqueAtual = $estoque['estoque']['estoqueAtual'];
                         $id_bling = $estoque['estoque']['id'];
                         $produto = Products::where('id_bling',$id_bling)->first();
-                        Log::alert($produto->id);
                          // Busca os produtos no banco
                         $product = Products::findOrFail($produto->id);
                         // Atualiza o estoque do produto

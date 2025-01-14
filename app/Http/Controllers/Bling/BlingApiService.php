@@ -12,10 +12,10 @@ class BlingApiService extends Controller
     private $endpoint;
     private $authorization;
 
-    public function __construct()
+    public function __construct($authorization)
     {
         $this->endpoint = "https://api.bling.com.br/Api/v3/pedidos/vendas";
-        $this->authorization = "Bearer 169052d521f717d4cbdcb72c9668e55085664653";
+        $this->authorization = $authorization;
     }
 
     /**
@@ -28,7 +28,7 @@ class BlingApiService extends Controller
     public function sendSale(array $data)
     {
         $response = Http::withHeaders([
-            'Authorization' => $this->authorization,
+            'Authorization' =>'Bearer '.$this->authorization,
             'Content-Type' => 'application/json',
         ])->post($this->endpoint, $data);
 

@@ -172,59 +172,65 @@
                                 <h5 class="card-title">Clientes / Fornecedores</h5>
                                 <form id="merge-labels-form" class="mb-5">
                                     @foreach ($viewData['orders'] as $order)
-                                        <div class="card mt-4 shadow-lg border-0">
-                                            <div class="card-header bg-primary text-white">
-                                                <h5 class="mb-0">Venda Nº: {{ $order->id }}</h5>
+                                    <div class="card mt-4 shadow-lg border-0">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="mb-0">Venda Nº: {{ $order->id }}</h5>
+                                        </div>
+                                        <div class="card-body bg-light">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">
+                                                        <strong>Cliente:</strong> {{ $order->cliente }}
+                                                    </h6>
+                                                    <p class="mb-0 text-muted">
+                                                        <strong>Data da Venda:</strong> {{ $order->dataVenda }}<br>
+                                                        <strong>Data de Criação:</strong> {{ $order->created_at }}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1 text-end">
+                                                        <strong>Afiliado :</strong> {{ $order->name }}
+                                                    </h6>
+                                                </div>
                                             </div>
-                                            <div class="card-body bg-light">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-1">
-                                                            <strong>Cliente:</strong> {{ $order->cliente }}
-                                                        </h6>
-                                                        <p class="mb-0 text-muted">
-                                                            <strong>Data da Venda:</strong> {{ $order->dataVenda }}<br>
-                                                            <strong>Data de Criação:</strong> {{ $order->created_at }}
-                                                        </p>
-                                                    </div>
-                                                    @if ($order->statusf == 3)
-                                                        <span class="badge bg-danger p-2">Aguardando Pagamento</span>
+                                            <hr>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                @if ($order->statusf == 3)
+                                                    <span class="badge bg-danger p-2">Aguardando Pagamento</span>
+                                                @endif
+                                                @if ($order->statusf == 4)
+                                                    @if ($order->isPrinted == 0 && $order->statusf == 4)
+                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input pdf-checkbox"
+                                                                   type="checkbox" value="{{ $order->shipping_id }}"
+                                                                   id="checkbox-{{ $order->id }}">
+                                                            <label class="form-check-label"
+                                                                   for="checkbox-{{ $order->id }}">
+                                                                Etiqueta para o pedido {{ $order->order_id }}
+                                                            </label>
+                                                        </div>
+                                                    @else
+                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input bg-warning pdf-checkbox"
+                                                                   type="checkbox" value="{{ $order->shipping_id }}"
+                                                                   id="checkbox-{{ $order->id }}">
+                                                            <label class="form-check-label"
+                                                                   for="checkbox-{{ $order->id }}">
+                                                                Etiqueta Já Impressa data: {{ $order->updated_at }}
+                                                            </label>
+                                                        </div>
                                                     @endif
-                                                </div>
-                                                <hr>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    @if ($order->statusf == 4)
-                                                        @if ($order->isPrinted == 0 && $order->statusf == 4)
-                                                            <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input pdf-checkbox"
-                                                                    type="checkbox" value="{{ $order->shipping_id }}"
-                                                                    id="checkbox-{{ $order->id }}">
-                                                                <label class="form-check-label"
-                                                                    for="checkbox-{{ $order->id }}">
-                                                                    Etiqueta para o pedido {{ $order->order_id }}
-                                                                </label>
-                                                            </div>
-                                                        @else
-                                                            <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input bg-warning pdf-checkbox"
-                                                                    type="checkbox" value="{{ $order->shipping_id }}"
-                                                                    id="checkbox-{{ $order->id }}">
-                                                                <label class="form-check-label"
-                                                                    for="checkbox-{{ $order->id }}">
-                                                                    Etiqueta Já Impressa data: {{ $order->updated_at }}
-                                                                </label>
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                    <a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
-                                                        class="btn btn-outline-primary btn-sm">
-                                                        <i class="bi bi-eye"></i> Ver Detalhes
-                                                    </a>
-                                                </div>
+                                                @endif
+                                                <a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye"></i> Ver Detalhes
+                                                </a>
                                             </div>
                                         </div>
+                                    </div>
+
                                     @endforeach
                                 </form>
 

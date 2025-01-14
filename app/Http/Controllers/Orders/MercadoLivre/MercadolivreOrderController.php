@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Orders\MercadoLivre;
 
+use App\Http\Controllers\Bling\BlingApiService;
 use App\Http\Controllers\Bling\BlingContatos;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Cliente\getDataShippingController;
@@ -263,12 +264,36 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                                     // ENVIAR VENDA BLING
                                     try {
-                                        $contato = Contato::where('integracao_bling_id',59)->first();
-                                        $auth = IntegracaoBling::where('user_id',16)->first();
-                                        $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor(16,$contato->id);
-
+                                        $contato = Contato::where('integracao_bling_id',$user->user_id)->first();
+                                        $auth = IntegracaoBling::where('user_id',$fornecedor->id)->first();
+                                        $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor($fornecedor->id,$contato->id);
 
                                         if($contatoEfornecedor){
+
+                                            $data = [
+                                                "data" => date('Y-m-d'),
+                                                "numeroPedidoCompra" => $json->id,
+                                                "contato" => [
+                                                    "id" => $contatoEfornecedor->bling_id
+                                                ],
+                                                "loja" => [
+                                                    "id" => 205242863
+                                                ],
+                                                "itens" => [
+                                                    [
+                                                        "quantidade" => intVal($items->quantity),
+                                                        "valor" => $produto->priceWithFee,
+                                                        "produto" => [
+                                                            "id" => $produto->id_bling
+                                                        ]
+                                                    ]
+                                                ],
+                                            ];
+
+                                            FacadesLog::critical(json_encode($data));
+                                            // PEGA O SERVIÇO BLING
+                                            $BlingApiService = new BlingApiService($auth->access_token);
+                                            $BlingApiService->sendSale($data);
 
                                         }else{
                                             $blingData = [
