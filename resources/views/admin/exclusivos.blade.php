@@ -2,6 +2,50 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <style>
+
+    .neon-border {
+    border: 2px solid transparent; /* Define bordas transparentes inicialmente */
+    border-radius: 15px; /* Borda arredondada */
+    padding: 1px;
+    position: relative;
+    z-index: 0;
+    animation: neon-laser 3s linear infinite; /* Animação contínua */
+  }
+
+.neon-border::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    z-index: -1;
+    border-radius: 15px;
+    background: linear-gradient(25deg, #ff00ff, #00ffff, #ff00ff);
+    background-size: 100% 100%;
+    animation: neon-glow 6s linear infinite;
+    filter: blur(5px); /* Efeito de brilho */
+}
+
+@keyframes neon-glow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes neon-laser {
+    0%, 100% {
+        box-shadow: 0 0 5px #ff00ff, 0 0 15px #ff00ff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    }
+    50% {
+        box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #00ffff, 0 0 50px #00ffff;
+    }
             /* Card Principal */
     .product-form-card {
         background-color: #fff;
@@ -11,6 +55,7 @@
         padding: 15px;
     }
 
+}
     /* Labels */
     .form-label {
         font-weight: bold;
@@ -435,7 +480,7 @@
 
     <div class="container-fluid px-4">
 
-        <h2 class="mt-4">Gerenciador de Produtos</h2>
+        <h2 class="mt-4">Produtos Exclusivos</h2>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
             <a href="{{ route('products.create') }}"><button class="btn btn-success me-md-2" type="button">Novo Produto
@@ -526,7 +571,7 @@
                         @foreach ($viewData['products'] as $product)
                         <section class="col-md-3 mb-4" id="linhasProduct">
                         <span class="d-none id_product">{{ $product->getId() }}</span>
-                        <div>
+                        <div  class="product-card neon-border position-relative">
                             <div class="product-card position-relative">
                                 <!-- Badge de desconto ou novo -->
                                 {{-- <div class="badge-discount">-{{ $product->discount }}%</div> --}}
