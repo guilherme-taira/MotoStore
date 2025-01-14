@@ -375,7 +375,12 @@ class Products extends Model
     public static function getResultsExclusive(Request $request) {
         $query = Products::query();
         $query->where('isPublic', 1);
-        $query->where('isExclusivo', 1);
+
+        // Filtrar produtos com `isExclusivo = 1` ou `isExclusivo = 0`
+        $query->where(function ($subquery) {
+            $subquery->where('isExclusivo', 1)
+                    ->orWhere('isExclusivo', 0);
+        });
 
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {
