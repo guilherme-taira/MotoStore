@@ -4,7 +4,7 @@
 
 
     @if (session('error'))
-        <div class="alert alert-warningd alert-dismissible fade show text-center" role="alert">
+        <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
             {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
