@@ -1698,7 +1698,7 @@ class productsController extends Controller
     public function destroyFotoS3(Request $request){{
         try {
                // // Parte da URL que você deseja remover
-               $parteRemover = "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/";
+               $parteRemover = "https://afilidrop2.s3.us-east-1.amazonaws.com/";
                // // Remove a parte da URL
                $urlSemParte = str_replace($parteRemover, "", $request->imagem);
                $apagarImagem = images::where('url',basename($urlSemParte))->delete();

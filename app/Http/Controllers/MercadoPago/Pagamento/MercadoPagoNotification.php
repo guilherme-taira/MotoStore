@@ -141,7 +141,6 @@ class MercadoPagoNotification extends Controller
 
                 switch ($eventType){
                     case 'payment':
-
                         \App\Jobs\MercadoPagoPagamentos::dispatch($request->data['id'],$request->all());
                         break;
                         case 'orders_v2':

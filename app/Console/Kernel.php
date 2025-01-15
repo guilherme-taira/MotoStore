@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
          $schedule->job(new \App\Jobs\UpdateBlingToken)->everyMinute();
          // Executar o Job de atualização de tokens do Mercado Livre a cada 1 minuto
          $schedule->job(new UpdateMercadoLivreTokens)->everyMinute();
-        //  $schedule->job(new \App\Jobs\ProcessTarefasJob)->everyMinute();
+         $schedule->job(new \App\Jobs\ProcessTarefasJob)->everyMinute();
     }
 
     /**

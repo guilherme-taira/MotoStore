@@ -57,7 +57,9 @@ class getPaymentController extends Controller
             order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
-                Log::critical($res->external_reference);
+
+
+                // Log::critical($res->external_reference);
                 // $userML = token::where('user_id_mercadolivre',$res->payer->id)->first();
                 // // INSERE A NOTIFICAÇÃO
                 // $user = User::find($userML->user_id);

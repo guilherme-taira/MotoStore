@@ -124,6 +124,10 @@ class order_site extends Model
     }
 
 
+    public static function getUserByOrder($orderid)`{
+
+    }
+
     public static function Ordersjoin($user_id, Request $request) {
 
         $data = DB::table('pivot_site')

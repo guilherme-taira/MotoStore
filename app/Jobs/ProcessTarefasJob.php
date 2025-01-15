@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Http\Controllers\MercadoPago\Pagamento\getPaymentController;
 use App\Models\Tarefa;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -38,9 +39,11 @@ class ProcessTarefasJob implements ShouldQueue
             try {
                 // Lógica de processamento da tarefa
                 $dados = json_decode($tarefa->notificacao, true);
-                Log::alert($tarefa->notificacao);
+
                 // Simulação de processamento (substitua pela lógica real)
                 if ($dados) {
+                    $data = new getPaymentController($tarefa->pagamento_id);
+                    $data->resource();
                     $tarefa->update(['finalizado' => 1]);
                 }
             } catch (\Exception $e) {
