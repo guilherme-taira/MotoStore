@@ -114,6 +114,11 @@ Route::post('/notificacao/marcar-como-lida/{id}', function($id) {
 });
 
 
+// PAGINA DE DISPONIVEL EM BREVE
+Route::get('/breve', function () {
+    return view('admin.breve');
+})->name('breve');
+
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware('auth')->group(function () {
 Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');

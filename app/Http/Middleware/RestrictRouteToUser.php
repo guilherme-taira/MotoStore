@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Auth;
         }
 
         // Bloqueia o acesso
-        return redirect()->route('home')->with('error', 'Página em breve disponivel..');
+        return redirect()->route('breve')->with('error', 'Página em breve disponivel..');
 
     }
 }
