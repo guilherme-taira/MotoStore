@@ -30,7 +30,7 @@
 
     <style>
         body {
-            padding: 20px;
+            /* padding: 20px; */
         }
 
         .imagemCs {
@@ -394,10 +394,8 @@
             </nav>
         </div>
 
-
         <div id="layoutSidenav_content">
             <main>
-
                 @php
                     use App\Models\GlobalMessage;
                     $activeMessages = GlobalMessage::where('start_at', '<=', now())
@@ -413,21 +411,18 @@
                         </div>
                     @endforeach
                 @endif
-
-
                 {{-- CONTEUDO DO SITE  --}}
                 @yield('conteudo')
-
             </main>
             <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
+                <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Your Website 2023</div>
-                        <div>
+                        <div class="text-muted text-center">Copyright &copy; Afilidrop {{date('Y')}}</div>
+                        {{-- <div>
                             <a href="#">Privacy Policy</a>
                             &middot;
                             <a href="#">Terms &amp; Conditions</a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </footer>
