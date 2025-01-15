@@ -174,7 +174,7 @@
                                     @foreach ($viewData['orders'] as $order)
                                     <div class="card mt-4 shadow-lg border-0">
                                         <div class="card-header bg-primary text-white">
-                                            <h5 class="mb-0">Venda Nº: {{ $order->id }}</h5>
+                                            <h5 class="mb-0">Venda Nº: {{ $order->id_venda }}</h5>
                                         </div>
                                         <div class="card-body bg-light">
                                             <div class="d-flex justify-content-between align-items-center">
