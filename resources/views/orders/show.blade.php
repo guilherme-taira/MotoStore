@@ -19,7 +19,7 @@
                         @foreach ($viewData['dados']->order_items as $key => $product)
                         <div>
                             <h6 class="mb-0">{{$viewData['order'][0]->cliente}}</h6>
-                            <small class="text-muted">{{ $viewData['order'][0]->cliente }} | {{$viewData['dados']->buyer->first_name}} </small>
+                            <small class="text-muted">{{ $viewData['order'][0]->cliente }} | {{ $viewData['order'][0]->cliente }} </small>
                         </div>
                     </div>
                     <hr>

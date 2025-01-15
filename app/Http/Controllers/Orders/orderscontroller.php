@@ -106,6 +106,7 @@ class orderscontroller extends Controller
         $viewData['shipping_cost'] = 0;
         $viewData['shipping'] = [];
 
+
         if(isset($data->shipping)){
             $shipping = (new controlerMercadoLivreItems("shipments/".$data->shipping->id,$userML->access_token))->resource();
             $viewData['shipping'] = $shipping;
