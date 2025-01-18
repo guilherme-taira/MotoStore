@@ -1,9 +1,6 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class UpdatePriceNotFeeDefaultInMercadoLivreHistory extends Migration
 {
@@ -14,8 +11,10 @@ class UpdatePriceNotFeeDefaultInMercadoLivreHistory extends Migration
      */
     public function up()
     {
-        // Alteração direta no banco de dados
-        DB::statement("ALTER TABLE mercado_livre_history MODIFY priceNotFee DOUBLE(8,2) DEFAULT 0");
+        // Alterar o tipo e adicionar um valor padrão no PostgreSQL
+        DB::statement('ALTER TABLE mercado_livre_history ALTER COLUMN "priceNotFee" TYPE DOUBLE PRECISION');
+        DB::statement('ALTER TABLE mercado_livre_history ALTER COLUMN "priceNotFee" SET DEFAULT 0');
+
     }
 
     /**
@@ -25,6 +24,7 @@ class UpdatePriceNotFeeDefaultInMercadoLivreHistory extends Migration
      */
     public function down()
     {
-        DB::statement("ALTER TABLE mercado_livre_history MODIFY priceNotFee DOUBLE(8,2) NULL");
+       // Reverter a alteração
+       DB::statement('ALTER TABLE mercado_livre_history ALTER COLUMN "priceNotFee" DROP DEFAULT');
     }
 }

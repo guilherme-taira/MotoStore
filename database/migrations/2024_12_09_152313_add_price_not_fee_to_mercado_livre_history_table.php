@@ -14,7 +14,9 @@ class AddPriceNotFeeToMercadoLivreHistoryTable extends Migration
     public function up()
     {
         Schema::table('mercado_livre_history', function (Blueprint $table) {
-            $table->double('priceNotFee', 8, 2)->nullable();
+            // $table->double('priceNotFee', 8, 2)->nullable();
+             // Para PostgreSQL, substitua a linha acima por:
+            $table->float('priceNotFee')->nullable();
         });
     }
 

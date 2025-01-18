@@ -38,6 +38,7 @@ class UpdateMercadoLivreTokens implements ShouldQueue
        $tokens = token::whereNotNull('user_id_mercadolivre')->get();
 
        foreach ($tokens as $acesso) {
+        Log::alert("acesso " . $acesso->user_id_mercadolivre);
         // Verificar se faltam menos de 10 minutos para expirar o token
         $expirationTime = Carbon::parse($acesso->datamodify);
         $currentTime = now();

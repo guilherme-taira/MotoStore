@@ -13,10 +13,22 @@ class CreateGlobalMessagesTable extends Migration
      */
     public function up()
     {
+        // mysql
+        // Schema::create('global_messages', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('title')->collation('utf8mb4_unicode_ci'); // Atualiza para suportar emojis
+        //     $table->text('content')->collation('utf8mb4_unicode_ci'); // Atualiza para suportar emojis
+        //     $table->timestamp('start_at')->nullable(); // Permitir nulo para evitar erro
+        //     $table->timestamp('end_at')->nullable(); // Permitir nulo para evitar erro
+        //     $table->timestamps(); // Campos created_at e updated_at
+        // });
+
+        // postgree
+
         Schema::create('global_messages', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->collation('utf8mb4_unicode_ci'); // Atualiza para suportar emojis
-            $table->text('content')->collation('utf8mb4_unicode_ci'); // Atualiza para suportar emojis
+            $table->string('title'); // Remove o collation incompatível
+            $table->text('content'); // Remove o collation incompatível
             $table->timestamp('start_at')->nullable(); // Permitir nulo para evitar erro
             $table->timestamp('end_at')->nullable(); // Permitir nulo para evitar erro
             $table->timestamps(); // Campos created_at e updated_at

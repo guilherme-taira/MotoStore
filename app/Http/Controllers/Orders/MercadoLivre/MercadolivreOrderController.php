@@ -130,7 +130,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
 
-                    // FacadesLog::debug(json_encode($dados));
+                    FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
@@ -194,6 +194,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     }
                     // FIM -*************
 
+
                     foreach ($json->payments as $payments) {
                         foreach ($json->order_items as $items) {
                         // PEGA O VALOR DO PRODUTO
@@ -216,6 +217,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                          * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
                          * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
                          */
+
                             if (order_site::VerificarVenda($json->id) == false) {
 
                                   // * FORMA DE PAGAMENTO NOVA *//

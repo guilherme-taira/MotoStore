@@ -13,7 +13,7 @@ class CreateShippingUpdateTable extends Migration
      */
     public function up()
     {
-        Schema::create('shipping_update', function (Blueprint $table) {
+        Schema::create('shipping_updates', function (Blueprint $table) {
                 $table->id();
                 $table->string('id_shopify')->nullable();
                 $table->string('rastreio')->nullable();

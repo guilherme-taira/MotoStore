@@ -33,6 +33,7 @@ class ProcessTarefasJob implements ShouldQueue
      */
     public function handle()
     {
+
         $tarefasPendentes = Tarefa::where('finalizado', 0)->get();
 
         foreach ($tarefasPendentes as $tarefa) {
