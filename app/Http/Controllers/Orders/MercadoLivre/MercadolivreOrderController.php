@@ -143,7 +143,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $redisKey = 'shipping_update' . $json->id;
 
                                 // Usar SETNX para garantir que não haja concorrência
-                                $isLocked = Redis::setnx($redisKey, true);
+                                $isLocked = Redis::setnx($redisKey, false);
 
                                 if ($isLocked) {
                                     // Define o tempo de expiração de 5 horas (18.000 segundos)
@@ -334,9 +334,16 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                     financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                                     // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
-                                    $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
-                                    $cliente->resource();
-                                    $id_order = $cliente->saveClient($json,$this->getSellerId());
+
+                                    FacadesLog::debug("Gravando no Banco pedido: " . $json->id);
+                                    try {
+                                        $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
+                                        $cliente->resource();
+                                        $id_order = $cliente->saveClient($json,$this->getSellerId());
+                                    } catch (\Exception $th) {
+                                        $th->getMessage();
+                                    }
+
                             }
 
                         }

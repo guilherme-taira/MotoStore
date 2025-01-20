@@ -94,7 +94,7 @@ class SendOrder extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $res = json_decode($response);
         // Log::critical( $query);
-        Log::alert($response);
+        // Log::alert($response);
         return $res;
     }
 

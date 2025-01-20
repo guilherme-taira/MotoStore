@@ -56,6 +56,7 @@ class InterfaceClienteController implements ClienteController
         curl_close($ch);
         $json = json_decode($reponse);
         //print_r($json);
+        Log::alert($reponse);
     }
 
     public function resource()
@@ -121,6 +122,7 @@ class InterfaceClienteController implements ClienteController
                 $pedidos->buyer = $this->getComprador();
                 $pedidos->save();
 
+                Log::alert($pedidos->id);
                 foreach ($result->order_items as $pedido) {
                     if (product_site::getVerifyProduct($pedido->item->seller_sku) == true) {
                         // PEDIDO NOVO
