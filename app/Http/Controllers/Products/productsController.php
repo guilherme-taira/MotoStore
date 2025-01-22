@@ -756,8 +756,6 @@ class productsController extends Controller
         UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
 
         // MANIPULA O ESTOQUE DAS INTEGRAÇÔES
-
-
         try {
             if ($request->hasFile('photos')) {
 

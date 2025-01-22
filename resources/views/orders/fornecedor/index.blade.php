@@ -212,7 +212,7 @@
                                                                     </h6>
                                                                     <p class="mb-0 text-muted">
                                                                         <strong>SKU:</strong> {{ $order->codigo }}<br>
-                                                                        <strong>Quantidde:</strong> {{ $order->quantidade }}
+                                                                        <strong>Quantidade:</strong> {{ $order->quantidade }}
                                                                     </p>
                                                                 </div>
                                                             </div>

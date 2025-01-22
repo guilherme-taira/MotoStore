@@ -71,7 +71,7 @@ class BlingContatos extends Controller
         }
 
         // Retornar a resposta decodificada
-        return json_decode($response, true);
+        return $res->data->id;
 
     }
 

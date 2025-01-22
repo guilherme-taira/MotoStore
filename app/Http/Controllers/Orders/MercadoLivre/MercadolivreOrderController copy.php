@@ -277,6 +277,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                                 "contato" => [
                                                     "id" => $contatoEfornecedor->bling_id
                                                 ],
+                                                "loja" => [
+                                                    "id" => 205242863
+                                                ],
                                                 "itens" => [
                                                     [
                                                         "quantidade" => intVal($items->quantity),
@@ -316,29 +319,8 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                                 ],
                                             ];
 
-                                            $BlingContatos = new BlingContatos($auth->access_token,$contato->id,$fornecedor->id);
-                                            $id = $BlingContatos->enviarContato($blingData);
-
-                                            $data = [
-                                                "data" => date('Y-m-d'),
-                                                "numeroPedidoCompra" => $json->id,
-                                                "contato" => [
-                                                    "id" => $id
-                                                ],
-                                                "itens" => [
-                                                    [
-                                                        "quantidade" => intVal($items->quantity),
-                                                        "valor" => $produto->priceWithFee,
-                                                        "produto" => [
-                                                            "id" => $produto->id_bling
-                                                        ]
-                                                    ]
-                                                ],
-                                            ];
-
-                                            // PEGA O SERVIÇO BLING
-                                            $BlingApiService = new BlingApiService($auth->access_token);
-                                            $BlingApiService->sendSale($data);
+                                            $BlingContatos = new BlingContatos($auth->access_token,$contato->id,16);
+                                            $BlingContatos->enviarContato($blingData);
                                         }
                                     } catch (\Throwable $th) {
                                         FacadesLog::alert($th->getMessage());
@@ -346,7 +328,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                                     // NOTIFICA O FORNECEDOR
                                     Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                    // // NOTIFICA O VENDEDOR
+                                    // NOTIFICA O VENDEDOR
                                     Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
                                 }
                                     financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
