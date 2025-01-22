@@ -131,7 +131,7 @@ class MercadoPagoNotification extends Controller
         // if(isset($request->_id)){
             // Verifica se é 'topic' ou 'type' e atribui à variável $eventType
             $eventType = $request->topic ?? $request->type;
-
+            Log::debug(json_encode($request->all()));
             if($userML){
                 $dataAtual = new DateTime();
                 // GET NEW TOKEN
