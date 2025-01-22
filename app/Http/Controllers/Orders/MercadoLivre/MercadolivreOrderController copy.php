@@ -96,7 +96,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -149,7 +149,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                     // Define o tempo de expiração de 5 horas (18.000 segundos)
                                     Redis::expire($redisKey, 18000);
 
-                                    FacadesLog::debug("Processando pedido: " . $json->id);
+                                    // FacadesLog::debug("Processando pedido: " . $json->id);
 
                                     // Processar o pedido
                                     $this->storeShipping("D", $json->id, $json->buyer->id, $json->seller->id);
