@@ -162,7 +162,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         $dados['country_code'], $dados['province_code'], $dados['cpf']
                                     );
 
-                                    $nota = $json->id . " - " . isset($json->buyer->nickname) ? $json->buyer->nickname : "-";
+                                    $nota = $json->id . " - " . $json->buyer->nickname;
                                     $order = new Order($line_item, "paid", "BRL", $shipping_address, $nota,
                                                        isset($getLink->email) ? $getLink->email : uniqid("cliente") . "@gmail.com");
 

@@ -35,6 +35,64 @@
                             <small class="text-muted">{{$product->quantity}} Unidade(s)</small>
                         </div>
                     </div>
+
+                    <!-- Detalhes do Produto -->
+                    @if(isset($viewData['contato']))
+                    <div class="media-body">
+                        <div class="mt-3">
+                            <table class="table table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th colspan="2" class="text-center">Dados para Nota Fiscal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <td>{{ $viewData['contato']['nome'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ $viewData['contato']['email'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Celular</th>
+                                        <td>{{ $viewData['contato']['celular'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Documento (CPF / CNPJ)</th>
+                                        <td>{{ $viewData['contato']['numeroDocumento'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Documento (RG)</th>
+                                        <td>{{ $viewData['contato']['rg'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Endereço</th>
+                                        <td>{{ $viewData['contato']['endereco'] }}, {{ $viewData['contato']['numero'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Bairro</th>
+                                        <td>{{ $viewData['contato']['bairro'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Município</th>
+                                        <td>{{ $viewData['contato']['municipio'] }} - {{ $viewData['contato']['uf'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Complemento</th>
+                                        <td>{{ $viewData['contato']['complemento'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>CEP</th>
+                                        <td>{{ $viewData['contato']['cep'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    @endif
+
                     <hr>
 
                     <div class="alert alert-info" role="alert">

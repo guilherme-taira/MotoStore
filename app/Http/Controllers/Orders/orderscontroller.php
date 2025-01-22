@@ -7,6 +7,7 @@ use App\Http\Controllers\MercadoLivre\controlerMercadoLivreItems;
 use App\Http\Controllers\MercadoLivre\Printer\PrinterController;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\Yapay\Pagamentos\RenovacaoController;
+use App\Models\Contato;
 use App\Models\financeiro;
 use App\Models\Items;
 use App\Models\order_site;
@@ -96,7 +97,6 @@ class orderscontroller extends Controller
         $userML = token::where('user_id_mercadolivre', $userML->user_id_mercadolivre)->first();
         $data = (new controlerMercadoLivreItems("orders/".$order[0]->numeropedido,$userML->access_token))->resource();
 
-
         $viewData = [];
         $viewData['title'] = "Pedido";
         $viewData['subtitle'] = "$id";
@@ -106,6 +106,11 @@ class orderscontroller extends Controller
         $viewData['shipping_cost'] = 0;
         $viewData['shipping'] = [];
 
+
+        $contato = Contato::where('integracao_bling_id','=',$order[0]->id_user)->first();
+        if(isset($contato)){
+            $viewData['contato'] = $contato;
+        }
 
         if(isset($data->shipping)){
             $shipping = (new controlerMercadoLivreItems("shipments/".$data->shipping->id,$userML->access_token))->resource();
