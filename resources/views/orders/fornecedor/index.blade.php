@@ -171,7 +171,6 @@
                             <div class="card-body">
                                 <h5 class="card-title">Clientes / Fornecedores</h5>
                                 <form id="merge-labels-form" class="mb-5">
-                                    @foreach ($viewData['orders'] as $order)
                                     <div class="container">
                                         <div class="card">
                                             <div class="card-header">{{ $viewData['subtitle'] }}</div>
@@ -179,92 +178,141 @@
                                                 <h5 class="card-title">Clientes / Fornecedores</h5>
                                                 <form id="merge-labels-form" class="mb-5">
                                                     @foreach ($viewData['orders'] as $order)
-                                                    <div class="card mt-4 shadow-lg border-0">
-                                                        <div class="card-header bg-primary text-white">
-                                                            <h5 class="mb-0">Venda Nº: {{ $order->id_venda }}</h5>
-                                                        </div>
-                                                        <div class="card-body bg-light">
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <div>
-                                                                    <h6 class="mb-1">
-                                                                        <strong>Cliente:</strong> {{ $order->cliente }}
-                                                                    </h6>
-                                                                    <p class="mb-0 text-muted">
-                                                                        <strong>Data da Venda:</strong> {{ $order->dataVenda }}<br>
-                                                                    </p>
+
+                                                        <div class="card mt-4 shadow-lg border-0">
+                                                            <div
+                                                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                                <h5 class="mb-0">Venda Nº: {{ $order->id_venda }}</h5>
+                                                                <!-- Botão no canto superior direito -->
+                                                                <button class="btn btn-light btn-sm text-primary"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#trackingModal-{{ $order->id }}">
+                                                                <i class="bi bi-truck"></i> Rastrear
+                                                                </button>
+                                                                <div class="card shadow-sm border-0 rounded" style="background-color: #56caff; padding: 3px;">
+                                                                    <div class="d-flex justify-content-between align-items-center">
+                                                                        <!-- Badge com Ícone -->
+                                                                        <span class="badge bg-primary text-white d-flex align-items-center" style="font-size: 0.9rem; padding: 5px 10px;">
+                                                                            <i class="fas fa-truck me-2"></i> Status
+
+                                                                        <!-- Status mais recente -->
+                                                                        <div class="latest-status fw-bold text-white" style="font-size: 0.9rem;"> Carregando...</div>
+                                                                      </span>
+                                                                    </div>
+                                                                    <input type="hidden" class="shipping-id" value="{{ $order->shipping_id }}">
+                                                                    <div class="modal-tracking-details text-muted mt-2" style="display: none;"></div>
                                                                 </div>
-                                                                <div>
-                                                                    <h6 class="mb-1 text-end">
-                                                                        <strong>Afiliado :</strong> {{ $order->name }}
-                                                                    </h6>
-                                                                </div>
+
+
                                                             </div>
-
-                                                            <!-- Imagem e detalhes do produto -->
-                                                            <div class="d-flex align-items-center my-3">
-                                                                <div>
-                                                                    <!-- Imagem do produto -->
-                                                                    <img src="{{ $order->image }}" alt="Imagem do Produto" class="img-thumbnail" style="width: 70px; height: auto;">
+                                                            <div class="card-body bg-light">
+                                                                <div
+                                                                    class="d-flex justify-content-between align-items-center">
+                                                                    <div>
+                                                                        <h6 class="mb-1">
+                                                                            <strong>Cliente:</strong> {{ $order->cliente }}
+                                                                        </h6>
+                                                                        <p class="mb-0 text-muted">
+                                                                            <strong>Data da Venda:</strong>
+                                                                            {{ $order->dataVenda }}<br>
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h6 class="mb-1 text-end">
+                                                                            <strong>Afiliado :</strong> {{ $order->name }}
+                                                                        </h6>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="ms-3">
-                                                                    <h6 class="mb-1">
-                                                                        <strong>Produto:</strong> {{ $order->nome }}
-                                                                    </h6>
-                                                                    <p class="mb-0 text-muted">
-                                                                        <strong>SKU:</strong> {{ $order->codigo }}<br>
-                                                                        <strong>Quantidade:</strong> {{ $order->quantidade }}
-                                                                    </p>
+
+                                                                <!-- Imagem e detalhes do produto -->
+                                                                <div class="d-flex align-items-center my-3">
+                                                                    <div>
+                                                                        <!-- Imagem do produto -->
+                                                                        <img src="{{ $order->image }}"
+                                                                            alt="Imagem do Produto" class="img-thumbnail"
+                                                                            style="width: 70px; height: auto;">
+                                                                    </div>
+                                                                    <div class="ms-3">
+                                                                        <h6 class="mb-1">
+                                                                            <strong>Produto:</strong> {{ $order->nome }}
+                                                                        </h6>
+                                                                        <p class="mb-0 text-muted">
+                                                                            <strong>SKU:</strong> {{ $order->codigo }}<br>
+                                                                            <strong>Quantidade:</strong>
+                                                                            {{ $order->quantidade }}
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <hr>
+                                                                <hr>
 
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                @if ($order->statusf == 3)
-                                                                    <span class="badge bg-danger p-2">Aguardando Pagamento</span>
-                                                                @endif
-                                                                @if ($order->statusf == 4)
-                                                                    @if ($order->isPrinted == 0 && $order->statusf == 4)
-                                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input pdf-checkbox"
-                                                                                   type="checkbox" value="{{ $order->shipping_id }}"
-                                                                                   id="checkbox-{{ $order->id }}">
-                                                                            <label class="form-check-label"
-                                                                                   for="checkbox-{{ $order->id }}">
-                                                                                Etiqueta para o pedido {{ $order->order_id }}
-                                                                            </label>
-                                                                        </div>
-                                                                    @else
-                                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input bg-warning pdf-checkbox"
-                                                                                   type="checkbox" value="{{ $order->shipping_id }}"
-                                                                                   id="checkbox-{{ $order->id }}">
-                                                                            <label class="form-check-label"
-                                                                                   for="checkbox-{{ $order->id }}">
-                                                                                Etiqueta Já Impressa data: {{ $order->updated_at }}
-                                                                            </label>
-                                                                        </div>
+                                                                <div
+                                                                    class="d-flex justify-content-between align-items-center">
+                                                                    @if ($order->statusf == 3)
+                                                                        <span class="badge bg-danger p-2">Aguardando
+                                                                            Pagamento</span>
                                                                     @endif
-                                                                @endif
-                                                                <a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
-                                                                   class="btn btn-outline-primary btn-sm">
-                                                                    <i class="bi bi-eye"></i> Ver Detalhes
-                                                                </a>
+                                                                    @if ($order->statusf == 4)
+                                                                        @if ($order->isPrinted == 0 && $order->statusf == 4)
+                                                                            <span class="badge bg-success p-2">Pagamento
+                                                                                Realizado</span>
+                                                                            <div class="form-check">
+                                                                                <input
+                                                                                    class="form-check-input pdf-checkbox"
+                                                                                    type="checkbox"
+                                                                                    value="{{ $order->shipping_id }}"
+                                                                                    id="checkbox-{{ $order->id }}">
+                                                                                <label class="form-check-label"
+                                                                                    for="checkbox-{{ $order->id }}">
+                                                                                    Etiqueta para o pedido
+                                                                                    {{ $order->order_id }}
+                                                                                </label>
+                                                                            </div>
+                                                                        @else
+                                                                            <span class="badge bg-success p-2">Pagamento
+                                                                                Realizado</span>
+                                                                            <div class="form-check">
+                                                                                <input
+                                                                                    class="form-check-input bg-warning pdf-checkbox"
+                                                                                    type="checkbox"
+                                                                                    value="{{ $order->shipping_id }}"
+                                                                                    id="checkbox-{{ $order->id }}">
+                                                                                <label class="form-check-label"
+                                                                                    for="checkbox-{{ $order->id }}">
+                                                                                    Etiqueta Já Impressa data:
+                                                                                    {{ $order->updated_at }}
+                                                                                </label>
+                                                                            </div>
+                                                                        @endif
+                                                                    @endif
+                                                                    <a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
+                                                                        class="btn btn-outline-primary btn-sm">
+                                                                        <i class="bi bi-eye"></i> Ver Detalhes
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+
+                                                         <!-- Modal -->
+                                                        <div class="modal fade" id="trackingModal-{{ $order->id }}" tabindex="-1" aria-labelledby="trackingModalLabel-{{ $order->id }}" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-right">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="trackingModalLabel-{{ $order->id }}">Detalhes do Rastreio</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body modal-tracking-details-{{$order->shipping_id}}">
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     @endforeach
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-
-
-                                    @endforeach
                                 </form>
-
                             </div>
                         </div>
                     </div>
@@ -276,6 +324,62 @@
         </div>
 
         <script>
+
+            $(document).ready(function () {
+                $(".shipping-id").each(function () {
+                    const shippingId = $(this).val();
+                    const cardElement = $(this).closest(".card"); // Salva o elemento do card associado
+                    const apiUrl = `api/v1/get-shipping-status/${shippingId}`;
+
+                    $.ajax({
+                        url: apiUrl,
+                        method: "GET",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                const latestStatus = data[data.length - 1].substatus;
+
+                                // Atualiza o status mais recente no card correspondente
+                                cardElement.find(".latest-status").text(": "+ latestStatus);
+
+                                data.forEach((item) => {
+                                const cardHtml = `
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border-0">
+                                            <div class="card-header bg-primary text-white">
+                                                <strong>Rastreio ID: ${item.shipping_id}</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <p><strong>Status: </strong> ${item.substatus}</p>
+                                                <p><strong>Código de Rastreio :</strong> ${item.tracking_number}</p>
+                                                <p><strong>Transportadora :</strong> ${item.tracking_method}</p>
+                                                <p><strong>Entrega estimada :</strong> ${item.estimated_delivery_extended}</p>
+                                                <p><strong>última atualização:</strong> ${item.updated_at}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+                                $(`.modal-tracking-details-${item.shipping_id}`).append(cardHtml);
+                            });
+                            } else {
+                                cardElement.find(".latest-status").text(": Sem atualiação.");
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(`Erro ao carregar status para shipping_id ${shippingId}:`, error);
+                        },
+                    });
+                });
+            });
+
+
+            document.querySelectorAll('button[data-bs-toggle="modal"]').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault(); // Previne a atualização da página
+                    // Lógica adicional pode ser adicionada aqui
+                });
+            });
+
             document.getElementById('merge-labels-button').addEventListener('click', function() {
                 const selectedCheckboxes = document.querySelectorAll('.pdf-checkbox:checked');
                 const pdfLinks = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);

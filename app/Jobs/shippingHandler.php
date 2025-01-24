@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Http\Controllers\ShippingNotificationController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,7 +39,8 @@ class shippingHandler implements ShouldQueue
      */
     public function handle()
     {
-        //
+        $shipping = new ShippingNotificationController($this->getResource(),$this->getTopic(),$this->getIdMercadolivre(), $this->getAccessToken());
+        $shipping->createShippingNotification();
     }
 
     /**

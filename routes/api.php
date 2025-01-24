@@ -14,7 +14,9 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Usuarios\FornecedorController;
 use App\Models\Products;
+use App\Models\ShippingNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +34,12 @@ Route::prefix('v1')->group(function () {
     route::post('updateItem/{id}',function($id){
         broadcast(new sendProduct($id));
     });
+
+    Route::get('/get-shipping-status/{shipping_id}', function ($shipping_id) {
+
+        return ShippingNotification::where('shipping_id', $shipping_id)->get();
+    });
+
 
     Route::post('/process-sale', [SalesReportController::class, 'processSale'])->name('sales.process');
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');

@@ -147,8 +147,8 @@ class MercadoPagoNotification extends Controller
                         case 'orders_v2':
                             \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
                             break;
-                        case 'flex-handshakes':
-                                Log::debug($request->all());
+                        case 'shipments':
+                              \App\Jobs\shippingHandler::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
                             break;
                             case 'items':
                             //    \App\Jobs\productMercadoLivreController::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token);
