@@ -260,7 +260,7 @@ class productsController extends Controller
         $produtos = Products::where('isKit','=','0')
         ->orderBy('created_at','desc')
         ->where('isPublic','=',1)
-        ->paginate(10);
+        ->paginate(20);
         // Adiciona o URL completo da imagem para cada produto
         foreach ($produtos as $produto) {
             $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
