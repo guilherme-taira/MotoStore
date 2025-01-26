@@ -258,6 +258,7 @@ class productsController extends Controller
 
     public function getProdutosPaginados(Request $request){
         $produtos = Products::where('isKit','=','0')
+        ->orderBy('created_at','desc')
         ->where('isPublic','=',1)
         ->paginate(10);
         // Adiciona o URL completo da imagem para cada produto
