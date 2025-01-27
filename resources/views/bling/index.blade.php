@@ -86,7 +86,7 @@
                     <td>{{ $contato->numeroDocumento }}</td>
                     <td>
                         <a href="{{ route('contatos.edit', $contato->id) }}" class="btn btn-warning btn-sm">Editar</a>
-                        <form action="{{ route('bling.destroy', $contato->id) }}" method="POST" style="display:inline-block;">
+                        <form action="{{ route('contatos.destroy', ['id' => $contato->id]) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta integração?')">Excluir</button>

@@ -33,7 +33,8 @@ class financeiro extends Model
             ->join('pivot_site','order_site.id', '=', 'pivot_site.order_id')
             ->join('users','pivot_site.id_user','=','users.id')
             ->join('product_site','pivot_site.product_id','=','product_site.id')
-            ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*')
+            ->join('products','product_site.codigo','=','products.id')
+            ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional')
             ->where('financeiro.user_id', $user)
             ->orderBy('financeiro.id','desc')->paginate(10);
         return $data;

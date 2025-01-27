@@ -221,6 +221,12 @@
                                                                         <h6 class="mb-1 text-end">
                                                                             <strong>Afiliado :</strong> {{ $order->name }}
                                                                         </h6>
+                                                                        @if($order->informacaoadicional)
+                                                                        <hr>
+                                                                        <h6 class="mb-1 text-end">
+                                                                            <span class="badge text-bg-warning"><strong>Observacão :{{ $order->informacaoadicional }}</strong></span>
+                                                                        </h6>
+                                                                        @endif
                                                                     </div>
                                                                 </div>
 
@@ -362,7 +368,7 @@
                                 $(`.modal-tracking-details-${item.shipping_id}`).append(cardHtml);
                             });
                             } else {
-                                cardElement.find(".latest-status").text(": Sem atualiação.");
+                                cardElement.find(".latest-status").text(": Sem atualização.");
                             }
                         },
                         error: function (xhr, status, error) {
