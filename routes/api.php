@@ -85,6 +85,8 @@ Route::prefix('v1')->group(function () {
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
     Route::get('/produtos', [productsController::class, 'getProdutosPaginados']);
+    // ROTAS DE API PARA O APLICATIVO
+    Route::post('integrarProdutoviaApi',[productsController::class,'integrarProdutoviaApi']);
 
 });
 

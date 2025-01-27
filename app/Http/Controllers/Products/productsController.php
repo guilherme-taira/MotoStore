@@ -1815,4 +1815,12 @@ class productsController extends Controller
         $viewData['filtro'] = $request->all();
         return view('admin.exclusivos', compact('viewData'));
     }
+
+
+    public function integrarProdutoviaApi(Request $request){
+        return response()->json([
+            'mensagem' => 'Produto integrado com sucesso!',
+            'dados' => $request->all(),
+        ]);
+    }
 }
