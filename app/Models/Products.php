@@ -41,7 +41,8 @@ class Products extends Model
         'min_unidades_kit',
         'acao',
         'id_bling',
-        'isExclusivo'
+        'isExclusivo',
+        'informacaoadicional'
     ];
 
     protected $table = "products";

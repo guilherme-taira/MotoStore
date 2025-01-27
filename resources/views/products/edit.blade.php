@@ -530,9 +530,8 @@
                                         </select>
                                         </div>
                                     <div class="col mb-3">
-                                        <label for="title" class="form-label">Informações Adicionais:</label>
-                                        <input name="title" type="text" value="{{ $viewData['product']->info }}"
-                                            class="form-control" disabled>
+                                        <label for="informacaoadicionais" class="form-label">Informações Adicionais:</label>
+                                        <input name="informacaoadicionais" type="text" value="{{ $viewData['product']->informacoesadicionais }}" class="form-control">
                                     </div>
                                 </div>
 

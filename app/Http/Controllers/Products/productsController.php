@@ -693,6 +693,7 @@ class productsController extends Controller
             'priceKit' => "required|numeric|gt:0",
             'valorProdFornecedor' => "required|numeric",
 
+
             // Novos Campos
             'estoque_minimo_afiliado' => "required|numeric|gte:0",
             'percentual_estoque' => "required|numeric|between:0,100",

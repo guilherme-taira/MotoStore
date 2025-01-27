@@ -90,17 +90,17 @@
                         <div class="col-md-4">
                             <label for="rg" class="form-label">IE</label>
                             <input type="text" class="form-control" id="ie" name="ie" maxlength="20"
-                                   value="{{ old('ie', $viewData['contato']->ie) }}">
+                                   value="{{ old('ie') }}">
                         </div>
                         <div class="col-md-4">
                             <label for="rg" class="form-label">RG</label>
                             <input type="text" class="form-control" id="rg" name="rg" maxlength="20"
-                                   value="{{ old('rg', $viewData['contato']->rg) }}">
+                                   value="{{ old('rg') }}">
                         </div>
                         <div class="col-md-4">
                             <label for="numeroDocumento" class="form-label">Número do Documento</label>
                             <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" maxlength="20"
-                                   value="{{ old('numeroDocumento', $viewData['contato']->numeroDocumento) }}">
+                                   value="{{ old('numeroDocumento') }}">
                         </div>
                     </div>
 
