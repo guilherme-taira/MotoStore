@@ -47,6 +47,7 @@ use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
+use App\Http\Controllers\MercadoLivreStockController;
 use App\Jobs\UpdateStockJob;
 use App\Models\kit;
 use App\Models\order_site;
@@ -1818,9 +1819,139 @@ class productsController extends Controller
 
 
     public function integrarProdutoviaApi(Request $request){
+        Log::alert(($request->all()));
+
+
+        $isporcem = [2,4];
+
+        $tabela = [
+            '1' => 'acrescimo_reais',
+            '2' => 'acrescimo_porcentagem',
+            '3' => 'desconto_reais',
+            '4' => 'desconto_porcentagem'
+        ];
+
+        $dadosIntegrado = [];
+        if (isset($request->precoFixo)) {
+            // Mantém o valor fixo se estiver preenchido
+            $dadosIntegrado['precofixo'] = $request->precoFixo;
+        } else {
+            $dadosIntegrado['valor_tipo'] = $tabela[$request->agregado];
+            $dadosIntegrado['isPorcem'] = in_array($request->agregado,$isporcem) ? 1 : 0;
+            $dadosIntegrado['valor'] = $request->valor_agregado;
+        }
+
+        $name = $request->title;
+        $tipo_anuncio = $request->tipo_anuncio;
+        $price = $request->input('preco');
+        $id_categoria = $request->id_categoria;
+        $id_product = $request->id_prodenv;
+        $descricao = $request->editor;
+        $valorSemTaxa = 0;
+        $totalInformado = 0;
+
+        if($request->category_default && !isset($request->id_categoria)){
+            $id_categoria = $request->category_id;
+        }
+
+        $array = [];
+        // Itera sobre os dados recebidos
+        foreach ($request->all() as $key => $value) {
+            // Verifica se a chave possui letras maiúsculas
+            if (preg_match('/[A-Z]/', $key)) {
+                // Adiciona o parâmetro ao array de parâmetros com letras maiúsculas
+                array_push($array,["id" => $key,"value" => $value, "values" => [["id" => $value,"struct" => "null"]]]);
+            }
+        }
+
+        //** MUDAR O 2 DO USUARIO PARA TESTE  */
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, 1,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado);
+        $data = $factory->getProdutoByApi();
+
+        if ($data) {
+            return response()->json([
+                'errors' => $data
+            ]);
+        }
         return response()->json([
-            'mensagem' => 'Produto integrado com sucesso!',
-            'dados' => $request->all(),
+            'message' => 'Produto Cadstrado com Sucesso!'
         ]);
+    }
+
+
+    public function produtosIntegradosMLApi(Request $request){
+        Log::alert($request->all());
+        $data = produtos_integrados::getProdutosByApi($request->user_id);
+        return response()->json([
+            'response' => $data
+        ]);
+    }
+
+
+    public function EnviarDadosIntegradosMLApi(Request $request){
+
+        $isporcem = [2,4];
+
+        try{
+        $tabela = [
+            '1' => 'acrescimo_reais',
+            '2' => 'acrescimo_porcentagem',
+            '3' => 'desconto_reais',
+            '4' => 'desconto_porcentagem'
+        ];
+
+            // Encontra o produto pelo ID
+            $product = produtos_integrados::findOrFail($request->id);
+            $product->isPorcem = in_array($request->valor_tipo,$isporcem) ? 1 : 0;
+
+            if($request->filled('valor_tipo')){
+                // Atualiza os campos conforme a regra de negócio
+                if ($tabela[$request->valor_tipo] == 'acrescimo_reais') {
+                    $product->acrescimo_reais = $request->valor_agregado;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                } elseif ($tabela[$request->valor_tipo] == 'acrescimo_porcentagem') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = $request->valor_agregado;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                } elseif ($tabela[$request->valor_tipo] == 'desconto_reais') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = $request->valor_agregado;
+                    $product->desconto_porcentagem = null;
+                } elseif ($tabela[$request->valor_tipo] == 'desconto_porcentagem') {
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = $request->valor_agregado;
+                }
+             }
+
+                if ($request->filled('precoFixo')) {
+                    $product->precofixo = $request->precoFixo;
+                    $product->acrescimo_reais = null;
+                    $product->acrescimo_porcentagem = null;
+                    $product->desconto_reais = null;
+                    $product->desconto_porcentagem = null;
+                }
+
+                $product->active = $request->active;
+                $product->estoque_minimo = $request->estoque_minimo;
+
+                $product->save();
+                $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
+                $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$request->active,$request->estoque_minimo,$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
+                $estoqueNew->updateStock();
+
+                $precoNew = new ManipuladorProdutosIntegrados($request->id,0);
+                $precoNew->atualizarOnlyProduct();
+
+                return response()->json([],200);
+        } catch (\Exception $e) {
+            Log::alert($e->getMessage());
+            return response()->json(['message' => $e->getMessage()],400);
+        }
     }
 }

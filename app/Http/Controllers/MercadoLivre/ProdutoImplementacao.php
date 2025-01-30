@@ -17,9 +17,9 @@ class ProdutoImplementacao extends criadorDeProduto
     {
 
         $products = Products::where('id', $this->getIdProduct())->first();
-        $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
+        // $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
 
-        $dataAtual = new DateTime();
+        // $dataAtual = new DateTime();
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ATUALIZADO
         $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado());
         $data = $produto->integrar($this->getDescricao(),$this->getIdProduct());
@@ -27,6 +27,21 @@ class ProdutoImplementacao extends criadorDeProduto
             return ['error_data' => $data];
         } else {
             session('msg_success', 'Produto Cadastrado Com Sucesso!');
+            EventoAfiliado::dispatch($products);
+            return "";
+        }
+    }
+
+    public function getProdutoByApi()
+    {
+
+        $products = Products::where('id', $this->getIdProduct())->first();
+        $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
+        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado());
+        $data = $produto->integrarViaApi($this->getDescricao(),$this->getIdProduct());
+        if ($data) {
+            return ['error_data' => $data];
+        } else {
             EventoAfiliado::dispatch($products);
             return "";
         }

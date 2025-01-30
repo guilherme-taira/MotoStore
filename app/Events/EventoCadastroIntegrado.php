@@ -21,14 +21,16 @@ class EventoCadastroIntegrado
     public $product_id;
     public $priceNotFee;
     public $dados;
+    public $user_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($name,$image,$id_mercadolivre,$product_id,$priceNotFee,$dados = [])
+    public function __construct($user_id = null,$name,$image,$id_mercadolivre,$product_id,$priceNotFee,$dados = [])
     {
+        $this->user_id = $user_id;
         $this->name = $name;
         $this->image = $image;
         $this->id_mercadolivre = $id_mercadolivre;

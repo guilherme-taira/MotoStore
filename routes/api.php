@@ -1,7 +1,9 @@
 <?php
 
 use App\Events\sendProduct;
+use App\Http\Controllers\aliexpress\authController;
 use App\Http\Controllers\ApiBlingProductsController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
@@ -87,6 +89,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/produtos', [productsController::class, 'getProdutosPaginados']);
     // ROTAS DE API PARA O APLICATIVO
     Route::post('integrarProdutoviaApi',[productsController::class,'integrarProdutoviaApi']);
+    Route::post('produtosIntegradosViaApi',[productsController::class,'produtosIntegradosViaApi']);
+    Route::post('produtosIntegradosMLApi',[productsController::class,'produtosIntegradosMLApi']);
+    Route::post('EnviarDadosIntegradosMLApi',[productsController::class,'EnviarDadosIntegradosMLApi']);
+    Route::post('/loginApi', [LoginController::class, 'loginApi']);
 
 });
 

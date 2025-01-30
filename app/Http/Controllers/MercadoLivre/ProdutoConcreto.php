@@ -185,6 +185,150 @@ class ProdutoConcreto implements Produto
     }
 
 
+    public function integrarViaApi($descricao,$id_prod)
+    {
+        $error_message = [];
+        $success_data = [];
+        $fotos = images::where('product_id', $this->getProduto()->id)->get();
+        $photos = [];
+        foreach ($fotos as $foto) {
+            array_push($photos, ["source" => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
+        }
+        $data = [];
+        if ($this->getProduto()) {
+            $data['title'] = $this->getName();
+            $data['category_id'] = $this->getCategoria();
+            $data['price'] = $this->getPrice();
+            $data['currency_id'] = $this->getProduto()->currency_id;
+            $data['available_quantity'] = $this->produto->available_quantity;
+            $data['buying_mode'] = $this->getProduto()->buying_mode;
+            $data['listing_type_id'] = $this->getTipoAnuncio();
+            $data['condition'] = $this->getProduto()->condition;
+            $data['description'] =  [
+                "plain_text" => $this->getProduto()->description
+            ];
+            $data['tags'] = [
+                "immediate_payment",
+            ];
+            $data['attributes'] = [
+                [
+                    "id" => "SELLER_SKU",
+                    "value_name" =>  $this->getProduto()->id
+                ],
+                [
+                    "id" => "BRAND",
+                    "value_name" => $this->getProduto()->brand,
+                ],
+                [
+                    "id" => "GTIN",
+                    "value_name" => $this->getProduto()->gtin
+                ],
+                [
+                    "id" => "MODEL",
+                    "value_name" => 'GENERIC'
+                ],
+                [
+                    "id" => "HEIGHT",
+                    "name" => "Altura",
+                    "value_id" => null,
+                    "value_name" => "{$this->getProduto()->height} cm",
+                    "values" => [
+                          [
+                             "id" => null,
+                             "name" => "{$this->getProduto()->height} cm",
+                             "struct" => [
+                                "number" => $this->getProduto()->height,
+                                "unit" => "cm"
+                             ]
+                          ]
+                       ],
+                    "value_type" => "number_unit"
+                ],
+                [
+                    "id" => "LENGTH",
+                    "name" => "Comprimento",
+                    "value_id" => null,
+                    "value_name" => "{$this->getProduto()->length} cm",
+                    "values" => [
+                          [
+                             "id" => null,
+                             "name" => "{$this->getProduto()->length} cm",
+                             "struct" => [
+                                "number" => $this->getProduto()->length,
+                                "unit" => "cm"
+                             ]
+                          ]
+                       ],
+                    "value_type" => "number_unit"
+                ],
+            ];
+
+            if(count($this->getOpcionais()) >= 1){
+                foreach ($this->getOpcionais() as $key => $dados) {
+                    array_push($data['attributes'],$dados);
+               }
+            }
+
+            if ($this->getPrice() > 79.99) {
+                $data['shipping'] = [
+                    "mode" => "me2",
+                    "free_shipping" => "true",
+                ];
+            }
+
+            if ($photos) {
+                $data['pictures'] = $photos;
+            } else {
+                $data['pictures'] = [[
+                    "source" =>
+                    "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $this->getProduto()->id . "/" . $this->getProduto()->image
+                ]];
+            }
+
+            $data_json = json_encode($data);
+            // GET TOKEN
+            $token = json_decode($this->getUserId())->access_token;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token}"]);
+            $reponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $json = json_decode($reponse);
+
+            Log::emergency($this->getValorSemTaxa());
+            if ($httpCode == 400) {
+                if (empty($json->cause)) {
+                    $error_message = $json->message;
+
+                } else {
+                    foreach ($json->cause as $erros) {
+                        array_push($error_message, $erros->message);
+                    }
+                }
+                return $error_message;
+            } else if ($httpCode == 201) {
+
+                $this->CreateDescription($data,$json->id);
+                // evento cadastra produto no historico
+                EventoCadastroIntegrado::dispatch(1,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
+                $mercado_livre_history = new mercado_livre_history();
+                $mercado_livre_history->name = $json->title;
+                $mercado_livre_history->id_ml = $json->id;
+                $mercado_livre_history->id_user = 1;
+                $mercado_livre_history->product_id = $this->getProduto()->id;
+                $mercado_livre_history->priceNotFee = $this->getValorSemTaxa();
+                $mercado_livre_history->save();
+            }
+        }
+    }
+
+
     public function CreateDescription($data,$id){
 
         $token = json_decode($this->getUserId())->access_token;

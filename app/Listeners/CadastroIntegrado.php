@@ -34,7 +34,7 @@ class CadastroIntegrado
         $prod->image = $event->image;
         $prod->id_mercadolivre = $event->id_mercadolivre;
         $prod->product_id = $event->product_id;
-        $prod->user_id = Auth::user()->id;
+        $prod->user_id = isset(Auth::user()->id) ? Auth::user()->id : $event->user_id;
         $prod->priceNotFee = $event->priceNotFee;
 
         if (isset($event->dados['valor_tipo']) && $event->dados['valor_tipo']) {

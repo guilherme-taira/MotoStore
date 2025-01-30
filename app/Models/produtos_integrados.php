@@ -28,6 +28,17 @@ class produtos_integrados extends Model
     return $data;
     }
 
+    public static function getProdutosByApi($user){
+        $data = DB::table('products')
+        ->join('produtos_integrados', 'products.id', '=', 'produtos_integrados.product_id')
+        ->select('produtos_integrados.id_mercadolivre','produtos_integrados.name','produtos_integrados.product_id','products.image','produtos_integrados.id','produtos_integrados.created_at',
+        'produtos_integrados.priceNotFee','produtos_integrados.acrescimo_reais','produtos_integrados.acrescimo_porcentagem','produtos_integrados.desconto_reais','produtos_integrados.desconto_porcentagem','produtos_integrados.isPorcem','produtos_integrados.precofixo','produtos_integrados.active','produtos_integrados.estoque_minimo','produtos_integrados.created_at')
+        ->where('user_id', $user)
+        ->orderBy('produtos_integrados.created_at','desc')
+        ->paginate(10);
+    return $data;
+    }
+
     public static function cadastrar($name,$image,$id_prod){
         $integrado = new produtos_integrados();
         $integrado->name = $name;
