@@ -11,6 +11,7 @@ use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
+use App\Http\Controllers\Orders\orderscontroller;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Store\StoreController;
@@ -92,6 +93,7 @@ Route::prefix('v1')->group(function () {
     Route::post('produtosIntegradosViaApi',[productsController::class,'produtosIntegradosViaApi']);
     Route::post('produtosIntegradosMLApi',[productsController::class,'produtosIntegradosMLApi']);
     Route::post('EnviarDadosIntegradosMLApi',[productsController::class,'EnviarDadosIntegradosMLApi']);
+    Route::get('getVendasApi',[orderscontroller::class,'getVendasApi']);
     Route::post('/loginApi', [LoginController::class, 'loginApi']);
 
 });

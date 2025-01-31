@@ -79,26 +79,43 @@ class productsController extends Controller
 
         $viewData['products'] = Products::getResults($request);
 
+        $images = [];
+        foreach ($viewData['products'] as $produto) {
+            // Busca todas as imagens do produto
+            $fotos = Images::where('product_id', $produto->id)->get();
 
-        $data = [];
+            // Inicializa um array para armazenar as fotos do produto
+            $images[$produto->id] = [
+                'fotos' => [] // Definimos um array interno para as fotos
+            ];
+
+            foreach ($fotos as $foto) {
+                $images[$produto->id]['fotos'][] = [
+                    'id' => $foto->id,
+                    'foto' => $produto->id . "/" . $foto->url
+                ];
+            }
+        }
+
         $categorias = [];
-       foreach (categorias::all() as $value) {
-           $categorias[$value->id] = [
-               "nome" => $value->name,
-               "subcategory" => sub_category::getAllCategory($value->id),
-           ];
-       }
+        foreach (categorias::all() as $value) {
+            $categorias[$value->id] = [
+                "nome" => $value->name,
+                "subcategory" => sub_category::getAllCategory($value->id),
+            ];
+        }
 
         // Verifique se já existe um cache
         if (Cache::has($categoriaKeyCache)) {
-        // Se existir, recupere o resultado do cache
-             $viewData['categorias'] = Cache::get($categoriaKeyCache);
-        }else{
+            $viewData['categorias'] = Cache::get($categoriaKeyCache);
+        } else {
             $viewData['categorias'] = $categorias;
             Cache::put($categoriaKeyCache, $viewData['categorias'], now()->addMinutes($cacheTime));
         }
 
+        $viewData['images'] = $images;
         $viewData['filtro'] = $request->all();
+
         return view('admin.products', compact('viewData'));
     }
 

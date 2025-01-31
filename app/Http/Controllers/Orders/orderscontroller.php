@@ -311,4 +311,12 @@ class orderscontroller extends Controller
         print_r($data);
         echo "<hr>merchant_order_id : $data->merchant_order_id , external_reference: $data->external_reference , payment_id : $data->payment_id ";
     }
+
+
+    public function getVendasApi(Request $request){
+        Log::alert($request->all());
+
+        $orders = order_site::getOrderjoinApi($request->userId,$request);
+        return response()->json($orders);
+    }
 }

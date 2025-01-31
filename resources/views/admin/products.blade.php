@@ -525,48 +525,66 @@
                     <div class="row">
                         @foreach ($viewData['products'] as $product)
                         <section class="col-md-3 mb-4" id="linhasProduct">
-                        <span class="d-none id_product">{{ $product->getId() }}</span>
-                        <div>
-                            <div class="product-card position-relative">
-                                <!-- Badge de desconto ou novo -->
-                                {{-- <div class="badge-discount">-{{ $product->discount }}%</div> --}}
-                                @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
-                                    <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Novo</div>
-                                @endif
+                            <span class="d-none id_product">{{ $product->getId() }}</span>
+                            <div>
+                                <div class="product-card position-relative">
+                                    <!-- Badge de desconto ou novo -->
+                                    @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
+                                        <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Novo</div>
+                                    @endif
 
-                                <!-- Imagem -->
-                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->getId() . '/' . $product->getImage()) !!}"
-                                     alt="{{ $product->getName() }}" class="product-img">
+                                    <!-- Carrossel de Imagens -->
+                                    @php
+                                        $fotos = $viewData['images'][$product->getId()]['fotos'] ?? [];
+                                    @endphp
 
-                                <!-- Estoque e Nome -->
-                                <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">Estoque {{ $product->available_quantity }}</p>
-                                <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
+                                    @if (!empty($fotos))
+                                      <div id="carousel{{ $product->getId() }}" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
+                                            <div class="carousel-inner">
+                                                @foreach ($fotos as $index => $foto)
+                                                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                                        <img src="{!! Storage::disk('s3')->url('produtos/'.$foto['foto']) !!}"
+                                                             alt="{{ $product->getName() }}" class="product-img d-block w-100">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            <!-- Controles do carrossel -->
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $product->getId() }}" data-bs-slide="prev" style="filter: invert(1);">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Anterior</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ $product->getId() }}" data-bs-slide="next" style="filter: invert(1);">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Próximo</span>
+                                            </button>
+                                        </div>
+                                    @endif
 
-                                <!-- Preço -->
-                                <div>
-                                    <span class="product-price">R$ {{ number_format($product->priceWithFee, 2) }}</span>
-                                    {{-- <span class="product-price-old">R$ {{ number_format($product->originalPrice, 2) }}</span> --}}
-                                </div>
+                                    <!-- Estoque e Nome -->
+                                    <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">Estoque {{ $product->available_quantity }}</p>
+                                    <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
 
-                                <!-- Avaliação -->
-                                <div class="product-rating mt-2">
-                                    ★★★★★
-                                </div>
+                                    <!-- Preço -->
+                                    <div>
+                                        <span class="product-price">R$ {{ number_format($product->priceWithFee, 2) }}</span>
+                                    </div>
 
-                             <!-- Ações -->
-                                <div class="product-actions mt-3 d-flex justify-content-between">
-                                    <!-- Botão Ver Mais -->
-                                    <a href="{{ route('products.show', ['id' => $product->getId()]) }}" class="btn btn-primary btn-sm" style="border-radius: 20px;">
-                                        Ver Mais
-                                    </a>
+                                    <!-- Avaliação -->
+                                    <div class="product-rating mt-2">
+                                        ★★★★★
+                                    </div>
 
-                                    <!-- Botão Integrar -->
-                                    <button class="btn btn-success btn-sm" style="border-radius: 20px;" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
-                                        Integrar
-                                    </button>
+                                    <!-- Ações -->
+                                    <div class="product-actions mt-3 d-flex justify-content-between">
+                                        <a href="{{ route('products.show', ['id' => $product->getId()]) }}" class="btn btn-primary btn-sm" style="border-radius: 20px;">
+                                            Ver Mais
+                                        </a>
+                                        <button class="btn btn-success btn-sm" style="border-radius: 20px;" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
+                                            Integrar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </section>
                     @endforeach
                     <div class="d-flex justify-content-center mt-4">
