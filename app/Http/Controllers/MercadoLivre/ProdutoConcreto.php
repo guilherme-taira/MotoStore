@@ -142,7 +142,8 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-            // GET TOKEN
+
+        //     // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
@@ -157,7 +158,6 @@ class ProdutoConcreto implements Produto
             curl_close($ch);
             $json = json_decode($reponse);
 
-            Log::emergency($this->getValorSemTaxa());
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
@@ -171,8 +171,8 @@ class ProdutoConcreto implements Produto
             } else if ($httpCode == 201) {
 
                 $this->CreateDescription($data,$json->id);
-                // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch($json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
+                // // evento cadastra produto no historico
+                EventoCadastroIntegrado::dispatch(Auth::user()->id,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;
