@@ -82,7 +82,7 @@ class productsController extends Controller
         $images = [];
         foreach ($viewData['products'] as $produto) {
             // Busca todas as imagens do produto
-            $fotos = Images::where('product_id', $produto->id)->get();
+            $fotos = Images::where('product_id', $produto->id)->OrderBy('position','asc')->get();
 
             // Inicializa um array para armazenar as fotos do produto
             $images[$produto->id] = [
@@ -640,7 +640,10 @@ class productsController extends Controller
 
         $produto = Products::where('id', $id)->first();
         EventoNavegacao::dispatch($produto);
-        $fotos = images::where('product_id', $id)->get();
+        $fotos = Images::where('product_id', $id)
+        ->orderBy('position', 'asc') // Ordena pela posição em ordem crescente
+        ->get();
+
         $photos = [];
         $viewData = [];
 
@@ -651,6 +654,7 @@ class productsController extends Controller
             $isMain = $foto->url === $produto->image;
 
             array_push($photos, [
+                'id' => $foto->id,
                 'url' => $photoUrl,
                 'isMain' => $isMain // Adiciona flag para identificar a imagem principal
             ]);
@@ -688,6 +692,7 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
+
 
         $request->validate([
             'isPublic' => "required",
@@ -766,7 +771,7 @@ class productsController extends Controller
 
         $produto = Products::findOrFail($id);
         $produto->fill($request->except('products')); // Preenche os dados do produto
-        $produto->save();
+
 
         // MANIPULA O PREÇO DAS INTEGRAÇÔES
         $precoNew = new ManipuladorProdutosIntegrados($id,number_format($request->priceWithFee,2));
@@ -775,37 +780,64 @@ class productsController extends Controller
         // Disparando o Job
         UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
 
-        // MANIPULA O ESTOQUE DAS INTEGRAÇÔES
-        try {
-            if ($request->hasFile('photos')) {
+      // MANIPULA O ESTOQUE DAS INTEGRAÇÕES
+try {
+    if ($request->hasFile('photos')) {
+        $firstImage = true; // Flag para identificar a primeira imagem nova
 
-                foreach ($request->file('photos') as $photo) {
-                    // Salvar a foto no S3
-                    $photo->storeAs(
-                        'produtos/' . $produto->getId(),
-                         $photo->getClientOriginalName(),
-                        's3'
-                    );
+        // Obtém a última posição registrada para este produto
+        $lastPosition = Images::where('product_id', $produto->getId())
+            ->max('position'); // Pega a maior posição existente
 
-                    // Criar uma instância de imagem e salvar no banco de dados
-                    $image = new Images();
-                    $image->url = $photo->getClientOriginalName();
-                    $image->product_id = $produto->getId();
-                    $image->save();
-                }
+        $newPosition = ($lastPosition !== null) ? $lastPosition + 1 : 1; // Se não houver imagens, começa do 1
+
+        foreach ($request->file('photos') as $photo) {
+            $fileName = $photo->getClientOriginalName();
+
+            // Salvar a foto no S3
+            $photo->storeAs(
+                'produtos/' . $produto->getId(),
+                $fileName,
+                's3'
+            );
+
+            // Se for a primeira imagem enviada, define como imagem principal do produto
+            if ($firstImage) {
+                $produto->image = $fileName;
+                $firstImage = false;
             }
-        } catch (\Exception $th) {
-            echo $th->getMessage();
-        }
 
+            // Criar uma instância de imagem e salvar no banco de dados
+            $image = new Images();
+            $image->url = $fileName;
+            $image->product_id = $produto->getId();
+            $image->position = $newPosition; // Salva na posição correta
+            $image->save();
+
+            $newPosition++; // Incrementa para a próxima imagem
+        }
+    } else {
+        // Nenhuma nova imagem foi enviada, verificar se a ordem foi alterada
+        $existingImages = Images::where('product_id', $produto->id)
+            ->orderBy('position', 'asc')
+            ->first(); // Pega a primeira imagem da nova ordem
+
+        if ($existingImages) {
+            $produto->image = $existingImages->url; // Atualiza o campo `image` com a primeira da lista
+        } else {
+            $produto->image = null; // Se todas as imagens forem removidas, limpa o campo `image`
+        }
+    }
+
+    $produto->save();
+} catch (\Exception $th) {
+    echo $th->getMessage();
+}
 
         $products = $request->input('products');
 
-
-
         if ($products) {
             $kitId = $id; // ID do kit
-
            // Obtem os IDs dos produtos enviados no array
             $productIds = array_column($products, 'id');
 
@@ -1269,6 +1301,7 @@ class productsController extends Controller
             $data['condition'] = $product->condition;
             $data['description'] = $product->description;
             $data['priceWithFee'] = $product->priceWithFee;
+            $data['link'] = $product->link;
             $data['ean'] = $product->gtin;
             $data['tags'] = [
                 "immediate_payment",
@@ -1619,6 +1652,47 @@ class productsController extends Controller
         }
 
     }
+
+    public function getPedidos()
+{
+    $startDate = Carbon::now()->subDays(6)->startOfDay(); // Começa há 6 dias atrás para incluir hoje
+    $endDate = Carbon::now()->endOfDay(); // Hoje como último dia
+
+    // Cria um array com os últimos 7 dias formatados
+    $days = collect();
+    for ($i = 0; $i < 7; $i++) {
+        $days->push([
+            'dataVenda' => Carbon::now()->subDays(6 - $i)->format('d/m'), // Exemplo: 10/01
+            'valorTotal' => 'R$ 0,00'
+        ]);
+    }
+
+    // Busca as vendas dos últimos 7 dias agrupadas por data
+    $pedidos = order_site::select(
+            DB::raw("DATE(dataVenda) as data"),
+            DB::raw("SUM(valorVenda) as valorTotal")
+        )
+        ->whereBetween('dataVenda', [$startDate, $endDate])
+        ->groupBy('data')
+        ->orderBy('data', 'asc')
+        ->get()
+        ->keyBy(function ($item) {
+            return Carbon::parse($item->data)->format('d/m');
+        });
+
+    // Substitui os valores padrão pelos reais, se houver vendas
+    $days = $days->map(function ($day) use ($pedidos) {
+        if ($pedidos->has($day['dataVenda'])) {
+            $day['valorTotal'] = 'R$ ' . number_format($pedidos[$day['dataVenda']]->valorTotal, 2, ',', '.');
+        }
+        return $day;
+    });
+
+    return response()->json([
+        'data' => $days
+    ]);
+}
+
 
 
     public function getSalesData(Request $request)
@@ -1971,4 +2045,16 @@ class productsController extends Controller
             return response()->json(['message' => $e->getMessage()],400);
         }
     }
-}
+
+    public function salvarOrdem(Request $request)
+    {
+
+        $images = $request->input('images');
+
+        foreach ($images as $image) {
+
+            Images::where('id', $image['id'])->update(['position' => $image['position']]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Ordem atualizada com sucesso!']);
+    }}

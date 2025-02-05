@@ -150,11 +150,11 @@
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">{{ __('Login') }}</button>
 
-                        @if (Route::has('password.request'))
+                        {{-- @if (Route::has('password.request'))
                             <a class="btn btn-link text-primary" href="{{ route('password.request') }}">
                                 {{ __('Esqueci a Senha') }}
                             </a>
-                        @endif
+                        @endif --}}
                     </div>
                 </form>
             </div>

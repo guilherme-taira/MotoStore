@@ -212,6 +212,20 @@ class order_site extends Model
             return $data;
     }
 
+    public static function getOrderjoinApi5orders($id)
+    {
+     $data = DB::table('pivot_site')
+                ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
+                ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+                ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+                // ->join('products', 'product_site.seller_sku', '=', 'products.id')
+                ->select('*')
+                ->where('pivot_site.id_user', $id)
+                ->orderBy('pivot_site.created_at','desc')
+                ->limit(5)->get();
+            return $data;
+    }
+
     public static function getOrderjoinComplete($id)
     {
         $data = DB::table('pivot_site')

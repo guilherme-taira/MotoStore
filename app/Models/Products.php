@@ -42,7 +42,8 @@ class Products extends Model
         'acao',
         'id_bling',
         'isExclusivo',
-        'informacaoadicional'
+        'informacaoadicional',
+        'link'
     ];
 
     protected $table = "products";

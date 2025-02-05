@@ -1,85 +1,177 @@
 @extends('layouts.app')
 @section('conteudo')
-<style>
-#imagePreview {
-    display: flex;
-    flex-wrap: nowrap; /* Permite apenas rolagem horizontal */
-    gap: 10px;
-    overflow-x: auto; /* Scroll horizontal */
-    overflow-y: hidden; /* Remove o scroll vertical */
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
+    <style>
+        #loading-api {
+            /* Garante que o loading fique oculto ao carregar a página */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* Opacidade para escurecer o fundo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            /* Mantém sobre todos os elementos */
+        }
 
-#imagePreview .image-item {
-    flex: 0 0 auto;
-    width: 120px; /* Largura fixa */
-    height: 120px; /* Altura fixa */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Esconde partes que ultrapassam o contêiner */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    position: relative; /* Necessário para rótulos e botões */
-    background-color: #fff;
-}
+        /* Estilização da Galeria */
+        .gallery-container {
+            display: flex;
+            flex-wrap: nowrap;
+            /* Impede que os itens quebrem para a próxima linha */
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+            overflow-x: auto;
+            /* Adiciona a rolagem horizontal */
+            white-space: nowrap;
+            /* Mantém os itens na mesma linha */
+            scrollbar-width: thin;
+            /* Para Firefox */
+            scrollbar-color: #888 #f1f1f1;
+            /* Personaliza a cor da barra de rolagem */
+        }
 
-#imagePreview .image-item img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover; /* Mantém as proporções da imagem */
-    border-radius: 5px;
-}
 
-#imagePreview::-webkit-scrollbar {
-    height: 8px; /* Largura da barra de rolagem horizontal */
-}
+        .gallery-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            cursor: grab;
+            transition: all 0.3s;
+        }
 
-#imagePreview::-webkit-scrollbar-thumb {
-    background-color: #bbb; /* Cor da barra de rolagem */
-    border-radius: 4px; /* Bordas arredondadas */
-}
+        .gallery-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
 
-#imagePreview::-webkit-scrollbar-thumb:hover {
-    background-color: #999; /* Cor ao passar o mouse */
-}
+        .gallery-item a {
+            position: absolute;
+            bottom: 5px;
+            background: red;
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
 
-.main-image-label {
-    position: absolute;
-    bottom: 0px; /* Ajuste fino para o rótulo */
-    left: 50%;
-    text-align: center;
-    width: 100%;
-    transform: translateX(-50%);
-    background-color: #007bff;
-    color: #fff;
-    padding: 3px 8px;
-    font-size: 10px;
-    z-index: 10;
-}
+        .dragging {
+            opacity: 0.5;
+        }
 
-.delete-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    padding: 5px;
-    font-size: 12px;
-    border-radius: 50%;
-    cursor: pointer;
-}
+        /* Rótulo "Imagem Principal" */
+        .main-image-label {
+            position: absolute;
+            top: -10px;
+            background: #007bff;
+            color: white;
+            padding: 3px 6px;
+            font-size: 14px;
+            border-radius: 3px;
+        }
 
-</style>
+
+        /* Placeholder visível para evitar "pulos" */
+        .sortable-placeholder {
+            border: 2px dashed #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            width: 120px;
+            height: 120px;
+            visibility: visible !important;
+        }
+
+        #imagePreview {
+            display: flex;
+            flex-wrap: nowrap;
+            /* Permite apenas rolagem horizontal */
+            gap: 10px;
+            overflow-x: auto;
+            /* Scroll horizontal */
+            overflow-y: hidden;
+            /* Remove o scroll vertical */
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        #imagePreview .image-item {
+            flex: 0 0 auto;
+            width: 120px;
+            /* Largura fixa */
+            height: 120px;
+            /* Altura fixa */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Esconde partes que ultrapassam o contêiner */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: relative;
+            /* Necessário para rótulos e botões */
+            background-color: #fff;
+        }
+
+        #imagePreview .image-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            /* Mantém as proporções da imagem */
+            border-radius: 5px;
+        }
+
+        #imagePreview::-webkit-scrollbar {
+            height: 8px;
+            /* Largura da barra de rolagem horizontal */
+        }
+
+        #imagePreview::-webkit-scrollbar-thumb {
+            background-color: #bbb;
+            /* Cor da barra de rolagem */
+            border-radius: 4px;
+            /* Bordas arredondadas */
+        }
+
+        #imagePreview::-webkit-scrollbar-thumb:hover {
+            background-color: #999;
+            /* Cor ao passar o mouse */
+        }
+
+        .delete-button {
+            position: absolute;
+            top: -10px;
+            right: 5px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px;
+            font-size: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="auth-user-id" content="{{ Auth::user()->id }}">
 
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput'); // Campo de pesquisa
             const searchButton = document.getElementById('searchButton'); // Botão de pesquisa
@@ -393,13 +485,15 @@
             }
         }
     </style>
+
+
     <div class="card mb-4">
         <div class="card-header">
             Editar Produto
         </div>
 
-            <div class="card-body">
-                @if ($errors->any())
+        <div class="card-body">
+            @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -471,71 +565,96 @@
                             <div class="accordion-body">
                                 <div class="row mb-3">
                                     <!-- Label e input para upload -->
+                                    <!-- Upload de imagem -->
                                     <div class="col-lg-12">
                                         <div class="mb-3 row">
-                                            <label for="file" class="col-lg-2 col-md-6 col-sm-12 col-form-label">Imagem:</label>
+                                            <label for="file"
+                                                class="col-lg-2 col-md-6 col-sm-12 col-form-label">Imagem:</label>
                                             <div class="col-lg-10 col-md-6 col-sm-12">
-                                                <input class="form-control" type="file" id="file" name="photos[]" multiple>
+                                                <input class="form-control" type="file" id="file" name="photos[]"
+                                                    multiple>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Campo oculto para enviar a imagem principal -->
-                                    <div class="col-lg-12">
-                                        <input type="hidden" id="image" name="image" value="{{ $viewData['product']->image }}">
-                                    </div>
+                                    <!-- Campo oculto para armazenar a imagem principal -->
+                                    <input type="hidden" id="image" name="image"
+                                        value="{{ $viewData['product']->image }}">
 
-                                    <!-- Container para exibir imagens -->
+                                    <!-- Contêiner para exibir imagens -->
                                     <div class="col-lg-12 mt-4">
-                                        <div id="imagePreview" class="d-flex flex-wrap gap-3 overflow-scroll">
-                                            @foreach ($viewData['photos'] as $foto)
-                                                <div class="image-item position-relative" data-url="{{ $foto['url'] }}">
-                                                    <img src="{{ $foto['url'] }}" alt="{{ $viewData['product']->getName() }}" class="img-fluid">
+                                        <ul class="gallery-container" id="gallery-container">
+                                            @foreach ($viewData['photos'] as $index => $foto)
+                                                <li class="gallery-item" data-url="{{ $foto['id'] }}">
 
-                                                    <!-- Rótulo para imagem principal -->
-                                                    <span class="main-image-label @if ($foto['isMain']) d-inline @else d-none @endif">
-                                                        Imagem Principal
-                                                    </span>
+                                                    <img src="{{ $foto['url'] }}"
+                                                        alt="{{ $viewData['product']->getName() }}">
 
-                                                    <span class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle">
-                                                        <i class="fas fa-trash-alt text-danger"></i>
-                                                    </span>
-                                                </div>
+                                                    <!-- Exibir "Foto Principal" apenas na primeira imagem -->
+                                                    @if ($index === 0)
+                                                        <span class="main-image-label">Foto Principal</span>
+                                                    @endif
+
+                                                    <a href="#"
+                                                        class="delete-btn delete-icon icone-lixeira">Excluir</a>
+                                                </li>
                                             @endforeach
-                                        </div>
-                                    </div>
+                                        </ul>
 
+                                        <!-- Loading Overlay -->
+                                        <div id="loading-api" class="d-none">
+                                            <div class="spinner-border text-light" role="status">
+                                                <span class="visually-hidden">Carregando...</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
+
 
                                 <div class="row mb-3">
                                     <div class="col">
-                                    <label for="isPublic">Ativo / Público:</label>
-                                    <select name="isPublic" class="form-control" required>
-                                        <option value="1" {{ $viewData['product']->isPublic == 1 ? 'selected' : '' }}>SIM</option>
-                                        <option value="0" {{ $viewData['product']->isPublic == 0 ? 'selected' : '' }}>NÃO</option>
-                                    </select>
+                                        <label for="isPublic">Ativo / Público:</label>
+                                        <select name="isPublic" class="form-control" required>
+                                            <option value="1"
+                                                {{ $viewData['product']->isPublic == 1 ? 'selected' : '' }}>SIM</option>
+                                            <option value="0"
+                                                {{ $viewData['product']->isPublic == 0 ? 'selected' : '' }}>NÃO</option>
+                                        </select>
                                     </div>
                                     <div class="col">
-                                    <label for="isNft">NFT:</label>
-                                    <select name="isNft" class="form-control" required>
-                                        <option value="1">SIM</option>
-                                        <option value="0" selected>NÃO</option>
-                                    </select>
+                                        <label for="isNft">NFT:</label>
+                                        <select name="isNft" class="form-control" required>
+                                            <option value="1">SIM</option>
+                                            <option value="0" selected>NÃO</option>
+                                        </select>
                                     </div>
                                     <div class="col">
                                         <label for="isExclusivo">Exclusivo</label>
                                         <select name="isExclusivo" class="form-control" required>
-                                            <option value="1" {{ $viewData['product']->isExclusivo == 1 ? 'selected' : '' }}>SIM</option>
-                                            <option value="0" {{ $viewData['product']->isExclusivo == 0 ? 'selected' : '' }}>NÃO</option>
+                                            <option value="1"
+                                                {{ $viewData['product']->isExclusivo == 1 ? 'selected' : '' }}>SIM</option>
+                                            <option value="0"
+                                                {{ $viewData['product']->isExclusivo == 0 ? 'selected' : '' }}>NÃO</option>
                                         </select>
-                                        </div>
+                                    </div>
                                     <div class="col mb-3">
-                                        <label for="informacaoadicional" class="form-label">Informações Adicionais:</label>
-                                        <input name="informacaoadicional" type="text" value="{{ $viewData['product']->informacaoadicional }}" class="form-control">
+                                        <label for="informacaoadicional" class="form-label">Informações
+                                            Adicionais:</label>
+                                        <input name="informacaoadicional" type="text"
+                                            value="{{ $viewData['product']->informacaoadicional }}" class="form-control">
                                     </div>
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="link" class="form-label">Link do Material:</label>
+                                        <input name="link" type="text"
+                                            value="{{ $viewData['product']->link }}" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
                                     <div class="col">
                                         <label for="title" class="form-label">Nome:</label>
                                         <input name="title" type="text" value="{{ $viewData['product']->title }}"
@@ -565,7 +684,7 @@
                             <div id="collapseKit" class="accordion-collapse collapse" aria-labelledby="headingKit"
                                 data-bs-parent="#productFormAccordion">
                                 <div class="accordion-body">
-                                     <!-- Botão para abrir o modal de adicionar produtos -->
+                                    <!-- Botão para abrir o modal de adicionar produtos -->
                                     <div class="mb-3 text-end">
                                         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#addProductModal">
@@ -626,106 +745,118 @@
                         </div>
                     @endif
 
-                 <!-- Preço e Estoque -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingPricing">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapsePricing" aria-expanded="false" aria-controls="collapsePricing">
-                            Preço e Estoque
-                        </button>
-                    </h2>
-                    <div id="collapsePricing" class="accordion-collapse collapse" aria-labelledby="headingPricing"
-                        data-bs-parent="#productFormAccordion">
-                        <div class="accordion-body">
-                            <div class="row mb-3">
-                                <!-- Preço R$ -->
-                                <div class="col-lg-3">
-                                    <label for="precoNormal">Preço R$:</label>
-                                    <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}" type="text"
-                                        class="form-control" required>
-                                    @error('price')
+                    <!-- Preço e Estoque -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingPricing">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapsePricing" aria-expanded="false" aria-controls="collapsePricing">
+                                Preço e Estoque
+                            </button>
+                        </h2>
+                        <div id="collapsePricing" class="accordion-collapse collapse" aria-labelledby="headingPricing"
+                            data-bs-parent="#productFormAccordion">
+                            <div class="accordion-body">
+                                <div class="row mb-3">
+                                    <!-- Preço R$ -->
+                                    <div class="col-lg-3">
+                                        <label for="precoNormal">Preço R$:</label>
+                                        <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}"
+                                            type="text" class="form-control" required>
+                                        @error('price')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Preço Promocional -->
+                                    <div class="col-lg-3">
+                                        <label for="pricePromotion">Preço Promocional:</label>
+                                        <input name="pricePromotion" value="0" type="text" class="form-control">
+                                    </div>
+
+                                    <!-- Estoque -->
+                                    <div class="col-lg-3">
+                                        <label for="available_quantity">Estoque:</label>
+                                        <input name="available_quantity" type="number"
+                                            value="{{ $viewData['product']->available_quantity }}" class="form-control"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <!-- Estoque Mínimo Afiliado -->
+                                    <div class="col-lg-3">
+                                        <label for="estoque_minimo_afiliado">Estoque Mínimo Afiliado:</label>
+                                        <input name="estoque_minimo_afiliado" id="estoque_minimo_afiliado"
+                                            value="{{ $viewData['product']->estoque_minimo_afiliado }}" type="number"
+                                            class="form-control">
+                                    </div>
+
+                                    <!-- Percentual de Estoque -->
+                                    <div class="col-lg-3">
+                                        <label for="percentual_estoque">Percentual de Estoque:</label>
+                                        <input name="percentual_estoque" id="percentual_estoque"
+                                            value="{{ $viewData['product']->percentual_estoque }}" type="text"
+                                            class="form-control">
+                                    </div>
+
+                                    <!-- Estoque do Afiliado -->
+                                    <div class="col-lg-3">
+                                        <label for="estoque_afiliado">Estoque do Afiliado:</label>
+                                        <input name="estoque_afiliado" id="estoque_afiliado"
+                                            value="{{ $viewData['product']->estoque_afiliado }}" type="number"
+                                            class="form-control" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <!-- Mínimo de Unidades no Kit -->
+                                    <div class="col-lg-3">
+                                        <label for="min_unidades_kit">Mínimo de Unidades no Kit:</label>
+                                        <input name="min_unidades_kit" id="min_unidades_kit"
+                                            value="{{ $viewData['product']->min_unidades_kit }}" type="number"
+                                            class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <label for="id_bling" class="form-label font-weight-bold">ID Bling
+                                        (Obrigatório):</label>
+                                    <input name="id_bling" id="id_bling"
+                                        value="{{ $viewData['product']->id_bling ?? old('id_bling') }}" type="text"
+                                        class="form-control border-danger text-danger bg-light font-weight-bold" required
+                                        style="border-width: 2px; font-size: 1.2rem; box-shadow: 0px 0px 10px rgba(255,0,0,0.5);">
+                                    @error('id_bling')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
 
-                                <!-- Preço Promocional -->
-                                <div class="col-lg-3">
-                                    <label for="pricePromotion">Preço Promocional:</label>
-                                    <input name="pricePromotion" value="0" type="text" class="form-control">
-                                </div>
 
-                                <!-- Estoque -->
-                                <div class="col-lg-3">
-                                    <label for="available_quantity">Estoque:</label>
-                                    <input name="available_quantity" type="number" value="{{ $viewData['product']->available_quantity }}"
-                                        class="form-control" required>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <!-- Estoque Mínimo Afiliado -->
-                                <div class="col-lg-3">
-                                    <label for="estoque_minimo_afiliado">Estoque Mínimo Afiliado:</label>
-                                    <input name="estoque_minimo_afiliado" id="estoque_minimo_afiliado" value="{{ $viewData['product']->estoque_minimo_afiliado }}" type="number"
-                                        class="form-control">
-                                </div>
-
-                                <!-- Percentual de Estoque -->
-                                <div class="col-lg-3">
-                                    <label for="percentual_estoque">Percentual de Estoque:</label>
-                                    <input name="percentual_estoque" id="percentual_estoque" value="{{ $viewData['product']->percentual_estoque }}" type="text" class="form-control">
-                                </div>
-
-                                <!-- Estoque do Afiliado -->
-                                <div class="col-lg-3">
-                                    <label for="estoque_afiliado">Estoque do Afiliado:</label>
-                                    <input name="estoque_afiliado" id="estoque_afiliado" value="{{ $viewData['product']->estoque_afiliado }}" type="number" class="form-control" readonly>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <!-- Mínimo de Unidades no Kit -->
-                                <div class="col-lg-3">
-                                    <label for="min_unidades_kit">Mínimo de Unidades no Kit:</label>
-                                    <input name="min_unidades_kit" id="min_unidades_kit" value="{{ $viewData['product']->min_unidades_kit }}" type="number" class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <label for="id_bling" class="form-label font-weight-bold">ID Bling (Obrigatório):</label>
-                                <input name="id_bling" id="id_bling"
-                                    value="{{ $viewData['product']->id_bling ?? old('id_bling') }}" type="text"
-                                    class="form-control border-danger text-danger bg-light font-weight-bold" required
-                                    style="border-width: 2px; font-size: 1.2rem; box-shadow: 0px 0px 10px rgba(255,0,0,0.5);">
-                                @error('id_bling')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                <div class="row mb-3 mt-2">
+                                    <!-- Botões de Ação -->
+                                    <div class="col-lg-6">
+                                        <label for="acao" class="form-label">Ação:</label>
+                                        <select id="acao" name="acao" class="form-select">
+                                            <option value="">Selecione uma ação</option>
+                                            <option value="notificar"
+                                                {{ old('acao', $viewData['product']->acao) == 'notificar' ? 'selected' : '' }}>
+                                                Notificação Vendedor
+                                            </option>
+                                            <option value="pausar"
+                                                {{ old('acao', $viewData['product']->acao) == 'pausar' ? 'selected' : '' }}>
+                                                Pausar Anúncio
+                                            </option>
+                                        </select>
+                                    </div>
 
 
-                            <div class="row mb-3 mt-2">
-                               <!-- Botões de Ação -->
-                                <div class="col-lg-6">
-                                    <label for="acao" class="form-label">Ação:</label>
-                                    <select id="acao" name="acao" class="form-select">
-                                        <option value="">Selecione uma ação</option>
-                                        <option value="notificar" {{ old('acao', $viewData['product']->acao) == 'notificar' ? 'selected' : '' }}>
-                                            Notificação Vendedor
-                                        </option>
-                                        <option value="pausar" {{ old('acao', $viewData['product']->acao) == 'pausar' ? 'selected' : '' }}>
-                                            Pausar Anúncio
-                                        </option>
-                                    </select>
-                                </div>
-
-
-                                <div class="col-lg-6">
-                                    <button type="button" disabled class="btn btn-primary">Mostrar Anúncios Afetados</button>
+                                    <div class="col-lg-6">
+                                        <button type="button" disabled class="btn btn-primary">Mostrar Anúncios
+                                            Afetados</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
                     <!-- Atributos -->
@@ -749,9 +880,8 @@
                                 <div class="row mb-3">
                                     <div class="col-lg-2">
                                         <label for="termometro">Valor Termômetro:</label>
-                                        <input type="number" name="termometro" id="termometro"
-                                            value="100" min="0" max="150"
-                                            class="form-control">
+                                        <input type="number" name="termometro" id="termometro" value="100"
+                                            min="0" max="150" class="form-control">
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="gtin">GTIN / EAN:</label>
@@ -880,8 +1010,9 @@
                     <!-- Taxas -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingFees">
-                            <button class="accordion-button collapsed" id="taxesTabButton" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseFees" aria-expanded="false" aria-controls="collapseFees">
+                            <button class="accordion-button collapsed" id="taxesTabButton" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapseFees" aria-expanded="false"
+                                aria-controls="collapseFees">
                                 Taxas
                             </button>
                         </h2>
@@ -895,8 +1026,8 @@
                                             <div class="mb-3 row">
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
                                                 <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoP" name="valorProdFornecedor" class="form-control porcem"
-                                                        value="{{ old('acressimoP') }}">
+                                                    <input id="acressimoP" name="valorProdFornecedor"
+                                                        class="form-control porcem" value="{{ old('acressimoP') }}">
                                                 </div>
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
                                                 <div class="col-lg-3 col-md-6 col-sm-6">
@@ -915,7 +1046,8 @@
                                             </div>
                                             <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
                                             <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input name="valorProdFornecedor" value="{{ $viewData['product']->valorProdFornecedor }}"
+                                                <input name="valorProdFornecedor"
+                                                    value="{{ $viewData['product']->valorProdFornecedor }}"
                                                     id="precoLiquido" type="text" class="form-control">
                                             </div>
                                         </div>
@@ -1007,158 +1139,208 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const idBlingInput = document.getElementById('id_bling');
 
-        idBlingInput.addEventListener('input', function () {
-            if (idBlingInput.value.trim() !== '') {
-                // Quando preenchido, aplica estilo verde
-                idBlingInput.classList.remove('border-danger', 'text-danger');
-                idBlingInput.classList.add('border-success', 'text-success');
-                idBlingInput.style.boxShadow = '0px 0px 10px rgba(0, 255, 0, 0.5)';
-            } else {
-                // Quando vazio, volta ao estilo vermelho
-                idBlingInput.classList.remove('border-success', 'text-success');
-                idBlingInput.classList.add('border-danger', 'text-danger');
-                idBlingInput.style.boxShadow = '0px 0px 10px rgba(255, 0, 0, 0.5)';
+
+            const idBlingInput = document.getElementById('id_bling');
+
+            idBlingInput.addEventListener('input', function() {
+                if (idBlingInput.value.trim() !== '') {
+                    // Quando preenchido, aplica estilo verde
+                    idBlingInput.classList.remove('border-danger', 'text-danger');
+                    idBlingInput.classList.add('border-success', 'text-success');
+                    idBlingInput.style.boxShadow = '0px 0px 10px rgba(0, 255, 0, 0.5)';
+                } else {
+                    // Quando vazio, volta ao estilo vermelho
+                    idBlingInput.classList.remove('border-success', 'text-success');
+                    idBlingInput.classList.add('border-danger', 'text-danger');
+                    idBlingInput.style.boxShadow = '0px 0px 10px rgba(255, 0, 0, 0.5)';
+                }
+            });
+        });
+
+        $(document).ready(function() {
+
+            // Quando o estoque é alterado
+            $('input[name="available_quantity"]').on('input', function() {
+                // Pega o valor do estoque atual
+                const availableQuantity = parseFloat($(this).val()) || 0;
+
+                // Pega o percentual do estoque
+                const percentualEstoque = parseFloat($('#percentual_estoque').val()) || 0;
+
+                // Calcula o estoque do afiliado
+                const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
+
+                // Atualiza o campo de estoque do afiliado
+                $('#estoque_afiliado').val(estoqueAfiliado);
+
+            });
+
+            // Quando o percentual do estoque é alterado
+            $('#percentual_estoque').on('input', function() {
+                // Pega o valor do percentual
+                const percentualEstoque = parseFloat($(this).val()) || 0;
+
+                // Pega o valor do estoque atual
+                const availableQuantity = parseFloat($('input[name="available_quantity"]').val()) || 0;
+
+                // Calcula o estoque do afiliado
+                const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
+
+                // Atualiza o campo de estoque do afiliado
+                $('#estoque_afiliado').val(estoqueAfiliado);
+            });
+
+
+            // const form = document.querySelector('form'); // Seleciona o formulário
+            // const hiddenInput = document.getElementById('image'); // Campo hidden para a imagem principal
+
+            // // Adiciona evento ao formulário para garantir que a imagem principal seja enviada
+            // form.addEventListener('submit', function() {
+            //     const mainLabel = document.querySelector('.main-image-label'); // Label visível
+            //     if (mainLabel) {
+            //         const imageItem = mainLabel.closest('.image-item'); // Container da imagem principal
+            //         if (imageItem) {
+            //             const imageUrl = imageItem.getAttribute(
+            //             'data-url'); // URL completo da imagem principal
+            //             const fileName = imageUrl.split('/').pop(); // Extrai apenas o nome do arquivo
+            //             hiddenInput.value = fileName; // Atualiza o campo hidden com o nome do arquivo
+            //         }
+            //     }
+            // });
+
+
+
+
+            // Adicionar evento para novas imagens no input
+            $('#file').on('change', function(e) {
+                const files = e.target.files;
+
+                Array.from(files).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        addImageToPreview(event.target.result, file.name,
+                            false); // Passa o nome real do arquivo
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Função para adicionar imagens ao preview
+            function addImageToPreview(imageUrl, fileName, isExisting = false) {
+                const mainLabel = `<span class="main-image-label d-none">Imagem Principal</span>`;
+                const deleteButton = `
+                <span class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle">
+                    <i class="fas fa-trash-alt text-danger"></i>
+                </span>`;
+
+                $('#imagePreview').append(`
+                <div class="image-item position-relative" data-url="${fileName}" data-existing="${isExisting}">
+                    <img src="${imageUrl}" class="img-fluid">
+                    ${mainLabel}
+                    ${deleteButton}
+                </div>
+            `);
+
+                updateImageCount();
+                updateMainImageLabel();
             }
-        });
-    });
 
-    $(document).ready(function() {
+            // Remover imagem
+            window.removeImage = function(button) {
+                const imageContainer = $(button).closest('.image-item');
+                const isExisting = imageContainer.data('existing');
 
-          // Quando o estoque é alterado
-          $('input[name="available_quantity"]').on('input', function () {
-            // Pega o valor do estoque atual
-            const availableQuantity = parseFloat($(this).val()) || 0;
+                if (isExisting) {
+                    console.log('Removendo imagem existente:', imageContainer.data(
+                        'url')); // Lógica para backend, se necessário
+                }
 
-            // Pega o percentual do estoque
-            const percentualEstoque = parseFloat($('#percentual_estoque').val()) || 0;
-
-            // Calcula o estoque do afiliado
-            const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
-
-            // Atualiza o campo de estoque do afiliado
-            $('#estoque_afiliado').val(estoqueAfiliado);
-
-        });
-
-        // Quando o percentual do estoque é alterado
-        $('#percentual_estoque').on('input', function () {
-            // Pega o valor do percentual
-            const percentualEstoque = parseFloat($(this).val()) || 0;
-
-            // Pega o valor do estoque atual
-            const availableQuantity = parseFloat($('input[name="available_quantity"]').val()) || 0;
-
-            // Calcula o estoque do afiliado
-            const estoqueAfiliado = Math.floor((availableQuantity * percentualEstoque) / 100);
-
-            // Atualiza o campo de estoque do afiliado
-            $('#estoque_afiliado').val(estoqueAfiliado);
-        });
-
-
-    const form = document.querySelector('form'); // Seleciona o formulário
-    const hiddenInput = document.getElementById('image'); // Campo hidden para a imagem principal
-
-    // Adiciona evento ao formulário para garantir que a imagem principal seja enviada
-    form.addEventListener('submit', function () {
-        const mainLabel = document.querySelector('.main-image-label'); // Label visível
-        if (mainLabel) {
-            const imageItem = mainLabel.closest('.image-item'); // Container da imagem principal
-            if (imageItem) {
-                const imageUrl = imageItem.getAttribute('data-url'); // URL completo da imagem principal
-                const fileName = imageUrl.split('/').pop(); // Extrai apenas o nome do arquivo
-                hiddenInput.value = fileName; // Atualiza o campo hidden com o nome do arquivo
-            }
-        }
-    });
-
-    // Tornar as imagens ordenáveis
-    $('#imagePreview').sortable({
-        update: function () {
-            updateMainImageLabel(); // Atualiza a etiqueta "Imagem Principal"
-        }
-    });
-
-
-    // Adicionar evento para novas imagens no input
-    $('#file').on('change', function (e) {
-        const files = e.target.files;
-
-        Array.from(files).forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                addImageToPreview(event.target.result, file.name, false); // Passa o nome real do arquivo
+                imageContainer.remove();
+                updateImageCount();
+                updateMainImageLabel();
             };
-            reader.readAsDataURL(file);
-        });
-    });
 
-    // Função para adicionar imagens ao preview
-    function addImageToPreview(imageUrl, fileName, isExisting = false) {
-        const mainLabel = `<span class="main-image-label d-none">Imagem Principal</span>`;
-    const deleteButton = `
-        <span class="icone-lixeira position-absolute top-0 end-0 m-2 p-2 bg-light rounded-circle">
-            <i class="fas fa-trash-alt text-danger"></i>
-        </span>`;
+            $("#gallery-container").sortable({
+                tolerance: "pointer", // Melhora a resposta ao arrastar
+                cursor: "move", // Muda o cursor para "mão de arrasto"
+                opacity: 0.8, // Reduz a opacidade do item enquanto é arrastado
+                revert: 200, // Animação suave ao soltar
+                axis: "x", // Restringe o movimento apenas na horizontal
+                scroll: false, // Evita que a página role enquanto arrasta
+                containment: "parent", // Evita que os itens saiam da galeria
+                helper: function(e, ui) {
+                    ui.clone().css("position", "absolute"); // Corrige o problema de subir para o topo
+                    return ui.clone();
+                },
+                zIndex: 9999, // Garante que o item fique no topo ao arrastar
+                placeholder: "sortable-placeholder", // Evita que os itens "pulem"
+                forceHelperSize: true, // Mantém o tamanho do item ao arrastar
+                forcePlaceholderSize: true, // Mantém espaço visível ao arrastar
+                distance: 5, // Evita que cliques acidentais ativem o sortable
+                stop: function() {
+                    saveImageOrder();
+                    updateMainImageLabel();
+                }
+            });
 
-    $('#imagePreview').append(`
-        <div class="image-item position-relative" data-url="${fileName}" data-existing="${isExisting}">
-            <img src="${imageUrl}" class="img-fluid">
-            ${mainLabel}
-            ${deleteButton}
-        </div>
-    `);
 
-        updateImageCount();
-        updateMainImageLabel();
-    }
+            // Excluir imagem ao clicar no botão
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                $(this).closest('.gallery-item').fadeOut(200, function() {
+                    $(this).remove();
+                    updateMainImageLabel();
+                });
+            });
 
-    // Remover imagem
-    window.removeImage = function (button) {
-        const imageContainer = $(button).closest('.image-item');
-        const isExisting = imageContainer.data('existing');
+            // Função para capturar e enviar a ordem das imagens ao backend
+            function saveImageOrder() {
+                let imageOrder = [];
+                $("#gallery-container .gallery-item").each(function(index) {
+                    let imageId = $(this).attr("data-url"); // Pegamos a URL como identificador
+                    imageOrder.push({
+                        id: imageId,
+                        position: index + 1
+                    }); // Criamos um array com a nova ordem
+                });
 
-        if (isExisting) {
-            console.log('Removendo imagem existente:', imageContainer.data('url')); // Lógica para backend, se necessário
-        }
-
-        imageContainer.remove();
-        updateImageCount();
-        updateMainImageLabel();
-    };
-
-    // Atualizar a etiqueta "Imagem Principal"
-    function updateMainImageLabel() {
-        $('#imagePreview .main-image-label').remove();
-        const firstItem = $('#imagePreview .image-item').first();
-        if (firstItem.length) {
-            firstItem.prepend('<span class="main-image-label">Imagem Principal</span>');
-        }
-
-        // Atualiza o campo hidden
-        const mainLabel = document.querySelector('.main-image-label'); // Label visível
-        if (mainLabel) {
-            const imageItem = mainLabel.closest('.image-item'); // Container da imagem principal
-            if (imageItem) {
-                const imageUrl = imageItem.getAttribute('data-url'); // URL completo da imagem principal
-                const fileName = imageUrl.split('/').pop(); // Extrai apenas o nome do arquivo
-                hiddenInput.value = fileName; // Atualiza o campo hidden com o nome do arquivo
+                // Enviar via AJAX para Laravel
+                $.ajax({
+                    url: "/salvar-ordem-imagens", // Rota Laravel para salvar
+                    type: "POST",
+                    data: {
+                        images: imageOrder
+                    },
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content") // CSRF Token Laravel
+                    },
+                    success: function(response) {
+                        console.log("Ordem salva com sucesso!", response);
+                    },
+                    error: function(error) {
+                        console.error("Erro ao salvar ordem!", error);
+                    }
+                });
             }
-        }
-    }
 
-    // Atualizar contagem de imagens#}
-    function updateImageCount() {
-        const count = $('#imagePreview .image-item').length;
-        $('#image-count').text('Total de fotos: ' + count);
-    }
+            function updateMainImageLabel() {
+                // Remove todos os rótulos antigos de "Foto Principal"
+                $('.main-image-label').remove();
 
-        // Ativar a função quando houver alteração no campo #precoNormal
-        $('#precoNormal').on('input', function () {
+                // Pega a primeira imagem da lista e adiciona o rótulo
+                let firstItem = $('#gallery-container .gallery-item').first();
+                if (firstItem.length) {
+                    firstItem.append('<span class="main-image-label">Foto Principal</span>');
+                }
+            }
+
+
+            updateMainImageLabel(); // Garante que o rótulo seja atualizado ao carregar a página
+            // Ativar a função quando houver alteração no campo #precoNormal
+            $('#precoNormal').on('input', function() {
                 const acressimoRField = $('#acressimoR'); // Campo que deve ser acionado
 
                 // Simula uma interação manual para ativar o evento keyup no campo #acressimoR
@@ -1406,14 +1588,16 @@
 
 
             $(".icone-lixeira").click(function(event) {
+                event.preventDefault(); // Previne comportamento padrão do link
 
                 if (confirm("Tem certeza que deseja apagar esta foto?")) {
-                    $(this).closest('.col').remove(); // Remove o contêiner da coluna que envolve a foto
-                    var urlImagem = $(this).siblings("img").attr("src");
+                    var button = $(this); // Botão de exclusão clicado
+                    var imageContainer = button.closest('.col'); // Container da imagem
+                    var urlImagem = button.siblings("img").attr("src");
 
                     $("#loading-api").removeClass('d-none');
 
-                    //APAGAR A FOTO ROTA POST /
+                    // Enviar requisição AJAX para excluir a imagem
                     $.ajax({
                         type: "POST",
                         url: "/api/v1/deleteFoto",
@@ -1421,41 +1605,39 @@
                             'imagem': urlImagem
                         },
                         success: function(response) {
-                            // Ação a ser realizada em caso de sucesso
+                            // Exibe alerta de sucesso
                             const alertPlaceholder = document.getElementById(
-                                'liveAlertPlaceholder')
+                                'liveAlertPlaceholder');
 
                             const alert = (message, type) => {
-                                const wrapper = document.createElement('div')
-                                wrapper.innerHTML = [
-                                    `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-                                    `   <div>${message}</div>`,
-                                    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-                                    '</div>'
-                                ].join('')
+                                const wrapper = document.createElement('div');
+                                wrapper.innerHTML = `
+                            <div class="alert alert-${type} alert-dismissible" role="alert">
+                                <div>${message}</div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
 
-                                $(event.target).fadeOut("slow", function() {
-                                    $(this).remove();
-                                });
-
-
-                                alertPlaceholder.append(wrapper)
-                            }
+                                alertPlaceholder.append(wrapper);
+                            };
 
                             alert(response.res, 'success');
-                            $("#loading-api").addClass('d-none');
+
+                            // Remove a imagem com efeito de desaparecimento
+                            imageContainer.fadeOut(500, function() {
+                                $(this).remove();
+                            });
+
                         },
                         error: function(xhr, status, error) {
-                            // Ação a ser realizada em caso de erro
-
                             console.error("Erro ao deletar a foto:", error);
+                        },
+                        complete: function() {
+                            $("#loading-api").addClass('d-none');
                         }
-                        // Aqui você obtém o src da foto
                     });
                 }
             });
-
-
 
 
             $('#feeClass').change(function() {

@@ -245,8 +245,12 @@
                                         <!-- Campo Nome -->
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <label class="form-label" for="name">Nome:</label>
-                                                <input name="name" id="name" type="text" class="form-control" placeholder="Digite o nome do produto">
+                                                Título do Anúncio: <div id="contador" class="text-end">0/60</div>
+                                                <input type="text" class="form-control" name="name" id="name" placeholder="Digite o nome do produto">
+                                                <div class="progress mt-2">
+                                                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"
+                                                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -258,18 +262,27 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
-                                            <div class="col">
-                                                <div class="mb-3 row">
-                                                    <select name="tipo_anuncio" class="form-control"
-                                                        aria-label=".form-select-sm example" required>
-                                                        <option value="gold_special">Clássico</option>
-                                                        <option value="gold_pro">Premium</option>
-                                                    </select>
+                                        <div class="row form-section gap-3">
+                                            <div class="col-md-6 mb-4">
+                                                <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <select name="tipo_anuncio" class="form-control" aria-label=".form-select-sm example" required>
+                                                            <option value="gold_special">Clássico</option>
+                                                            <option value="gold_pro">Premium</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-5 mb-4">
+                                                <p class="col-lg-4 col-md-12 col-sm-12 col-form-label">Material de Apoio</p>
+                                                <div class="col">
+                                                    <a class="linkMaterial btn btn-success" id="linkMaterial" target="_blank">Baixar Material de Apoio</a>
                                                 </div>
                                             </div>
                                         </div>
+
 
                                         <!-- Valor Agregado -->
                                         <div class="row form-section">
@@ -610,6 +623,25 @@
         var valorProduto = 0;
         var i = 0;
         document.addEventListener('DOMContentLoaded', function() {
+
+        function atualizarProgresso() {
+            var caracteresDigitados = $('#name').val().length;
+            $('#contador').text(caracteresDigitados + '/60');
+            var progresso = (caracteresDigitados / 60) * 100;
+            $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
+
+            if (caracteresDigitados > 60) {
+                $('#name').val($('#name').val().substr(0, 60));
+                $('#contador').text(60+'/60');
+                alert("O valor não pode exceder 60 caracteres.");
+            }
+        }
+
+        // Ativar a função quando o usuário digitar
+        $('#name').on('keyup', atualizarProgresso);
+
+
+
         // Função para atualizar o valor exibido
             const isPorcemInput = document.getElementById('isPorcem');
             const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
@@ -664,7 +696,6 @@
                 }
             });
 
-
             function atualizarValorProduto() {
 
             const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
@@ -709,7 +740,9 @@
             });
 
             $('.botao_integracao').click(function(event) {
+
                 $(".loading-integracao").removeClass('d-none');
+
                 // Obtém a posição do elemento de loading
                 // Altura da janela do navegador
             });
@@ -743,9 +776,12 @@
                     url: "/api/v1/product/" + id_produto,
                     type: "GET",
                     success: function(response) {
+
+
                         $("#loading-api").addClass('d-none');
                         if (response) {
                             valorProduto = response.priceWithFee;
+                            $("#linkMaterial").attr("href", response.link);
                             $("#total").val(response.priceWithFee);
                             $("#name").val(response.title);
                             $("#precoFinal").val(response.priceWithFee);
@@ -755,8 +791,10 @@
                             $(".img_integracao_ean").append("EAN : " + response.ean);
                             $(".img_integracao_price").append("Preço: " + response
                             .priceWithFee);
+
                             // Atualiza o textarea com a descrição
                             $('#editor').val(response.description);
+                            atualizarProgresso();
                         }
                     },
                     error: function(error) {
@@ -765,6 +803,8 @@
                         );
                     }
                 });
+
+
 
                 $.ajax({
                     url: "/api/v1/getHistoryById",

@@ -82,6 +82,7 @@ Route::prefix('v1')->group(function () {
     Route::post('deleteFoto',[productsController::class,'destroyFotoS3']);
     Route::post('code',[StoreController::class,'getCode']);
     Route::post('fotoPreview',[productsController::class,'fotoPreview']);
+    Route::get('getPedidos',[productsController::class,'getPedidos']);
     Route::post('dataHome',[productsController::class,'dataHome']);
     Route::get('/sales-data', [productsController::class, 'getSalesData']);
     Route::get('/teste2',[productsController::class,'teste']);

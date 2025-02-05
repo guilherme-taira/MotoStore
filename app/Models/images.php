@@ -9,5 +9,11 @@ class images extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'position',
+        'url',
+        'id'
+    ];
+
     protected $table = 'images';
 }

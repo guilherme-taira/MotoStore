@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'check_fornecedor' => \App\Http\Middleware\CheckFornercedor::class,
         'checkCadastro/{id}' => \App\Http\Middleware\verificaCadastro::class,
         'restrict.route' => \App\Http\Middleware\RestrictRouteToUser::class,
+        'check.profile' => \App\Http\Middleware\CheckProfileCompletion::class,
     ];
 }

@@ -316,7 +316,12 @@ class orderscontroller extends Controller
     public function getVendasApi(Request $request){
         Log::alert($request->all());
 
-        $orders = order_site::getOrderjoinApi($request->userId,$request);
+        if($request->filterOrder == 1){
+            $orders = ['data' => order_site::getOrderjoinApi5orders($request->userId)];
+        }else{
+            $orders = order_site::getOrderjoinApi($request->userId);
+        }
         return response()->json($orders);
     }
+
 }
