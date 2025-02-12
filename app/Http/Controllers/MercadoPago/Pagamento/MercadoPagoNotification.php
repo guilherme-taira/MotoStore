@@ -9,6 +9,7 @@ use App\Http\Controllers\SaiuPraEntrega\SaiuPraEntregaService;
 use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\SaiuPraEntrega\TypeMessageController;
 use App\Http\Controllers\Shopify\ShippingController;
+use App\Jobs\AtualizarStockBlingApi;
 use App\Jobs\UpdateStockJob;
 use App\Models\IntegracaoBling;
 use App\Models\Products;
@@ -162,89 +163,90 @@ class MercadoPagoNotification extends Controller
         }
 
         public function notificationBling(Request $request){
-
+        Log::alert(json_encode($request->all()));
         // GET TOKEN
         // Tente decodificar o JSON diretamente, se for uma string
-        $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
+        // $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
 
+        AtualizarStockBlingApi::dispatch($request);
         // Verifica se $data contém o índice 'retorno'
-        if (!isset($data['retorno'])) {
-            return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
-        }
+        // if (!isset($data['retorno'])) {
+        //     return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
+        // }
 
-        // Decodifique o campo 'retorno' (presume-se que seja JSON)
-        $retorno = $data['retorno'];
-
-
-        Log::critical(json_encode($retorno));
-        $type = array_key_first($retorno); // Obtém a primeira chave do array
+        // // Decodifique o campo 'retorno' (presume-se que seja JSON)
+        // $retorno = $data['retorno'];
 
 
-        // Executa o comportamento com base no tipo
-        switch ($type) {
-            case 'estoques':
-                    $estoques = $retorno['estoques'];
+        // Log::critical(json_encode($retorno));
+        // $type = array_key_first($retorno); // Obtém a primeira chave do array
 
-                    foreach ($estoques as $estoque) {
-                        $estoqueAtual = $estoque['estoque']['estoqueAtual'];
-                        $id_bling = $estoque['estoque']['id'];
-                        $produto = Products::where('id_bling',$id_bling)->first();
-                         // Busca os produtos no banco
-                        $product = Products::findOrFail($produto->id);
-                        // Atualiza o estoque do produto
-                        $product->available_quantity = $estoqueAtual;
-                        $product->save();
 
-                        // // Recalcula o estoque do afiliado baseado no percentual configurado no banco
-                        $percentualEstoque = $product->percentual_estoque; // Certifique-se de que este campo exista na tabela products
-                        $estoqueAfiliado = floor(($estoqueAtual * $percentualEstoque) / 100);
+        // // Executa o comportamento com base no tipo
+        // switch ($type) {
+        //     case 'estoques':
+        //             $estoques = $retorno['estoques'];
 
-                        // Atualiza o estoque do afiliado no banco
-                        $product->estoque_afiliado = $estoqueAfiliado;
-                        $product->save();
+        //             foreach ($estoques as $estoque) {
+        //                 $estoqueAtual = $estoque['estoque']['estoqueAtual'];
+        //                 $id_bling = $estoque['estoque']['id'];
+        //                 $produto = Products::where('id_bling',$id_bling)->first();
+        //                  // Busca os produtos no banco
+        //                 $product = Products::findOrFail($produto->id);
+        //                 // Atualiza o estoque do produto
+        //                 $product->available_quantity = $estoqueAtual;
+        //                 $product->save();
 
-                        // Disparando o Job
-                        UpdateStockJob::dispatch($produto->id,$estoqueAfiliado,$produto->estoque_minimo_afiliado);
+        //                 // // Recalcula o estoque do afiliado baseado no percentual configurado no banco
+        //                 $percentualEstoque = $product->percentual_estoque; // Certifique-se de que este campo exista na tabela products
+        //                 $estoqueAfiliado = floor(($estoqueAtual * $percentualEstoque) / 100);
 
-                        // Verifica se o estoque do afiliado atingiu o limite mínimo
-                        if ($estoqueAfiliado <= $product->estoque_minimo_afiliado) {
-                        // Envia a notificação para o usuário
-                        $users = $product->fornecedor_id; // Ajuste conforme a relação de usuários e produtos
-                        $user = User::find($users);
+        //                 // Atualiza o estoque do afiliado no banco
+        //                 $product->estoque_afiliado = $estoqueAfiliado;
+        //                 $product->save();
 
-                            // Verifica o campo `acao`
-                        if (is_null($product->acao)) {
-                            // Notifica o usuário caso `acao` seja null
-                            if ($user) {
-                                $user->notify(new StockMinimumReached($product, $user));
-                            }
-                        } elseif ($product->acao === 'pausar') {
-                            // Pausa todos os anúncios relacionados
-                            $this->pausarAnuncios($produto->id);
-                        }
+        //                 // Disparando o Job
+        //                 UpdateStockJob::dispatch($produto->id,$estoqueAfiliado,$produto->estoque_minimo_afiliado);
 
-                    }
-                }
+        //                 // Verifica se o estoque do afiliado atingiu o limite mínimo
+        //                 if ($estoqueAfiliado <= $product->estoque_minimo_afiliado) {
+        //                 // Envia a notificação para o usuário
+        //                 $users = $product->fornecedor_id; // Ajuste conforme a relação de usuários e produtos
+        //                 $user = User::find($users);
 
-            break;
+        //                     // Verifica o campo `acao`
+        //                 if (is_null($product->acao)) {
+        //                     // Notifica o usuário caso `acao` seja null
+        //                     if ($user) {
+        //                         $user->notify(new StockMinimumReached($product, $user));
+        //                     }
+        //                 } elseif ($product->acao === 'pausar') {
+        //                     // Pausa todos os anúncios relacionados
+        //                     $this->pausarAnuncios($produto->id);
+        //                 }
 
-            case 'nota fiscal':
-                if (isset($data['notas'])) {
-                    // Implemente a lógica para tratar os dados de nota fiscal
-                    $notas = $data['notas'];
+        //             }
+        //         }
 
-                    foreach ($notas as $notaItem) {
-                        // Exemplo: trate os dados da nota fiscal
-                        Log::info("Nota fiscal processada: " . json_encode($notaItem));
-                    }
+        //     break;
 
-                    return response()->json(['message' => 'Dados de nota fiscal processados com sucesso.']);
-                }
-                break;
+        //     case 'nota fiscal':
+        //         if (isset($data['notas'])) {
+        //             // Implemente a lógica para tratar os dados de nota fiscal
+        //             $notas = $data['notas'];
 
-            default:
-                return response()->json(['error' => 'Tipo inválido fornecido.'], 400);
-        }
+        //             foreach ($notas as $notaItem) {
+        //                 // Exemplo: trate os dados da nota fiscal
+        //                 Log::info("Nota fiscal processada: " . json_encode($notaItem));
+        //             }
+
+        //             return response()->json(['message' => 'Dados de nota fiscal processados com sucesso.']);
+        //         }
+        //         break;
+
+        //     default:
+        //         return response()->json(['error' => 'Tipo inválido fornecido.'], 400);
+        // }
 
         }
     // }
