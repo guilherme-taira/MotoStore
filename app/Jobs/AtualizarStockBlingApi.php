@@ -38,7 +38,7 @@ class AtualizarStockBlingApi implements ShouldQueue
      */
     public function handle()
     {
-
+        Log::critical("OLA GUILHERME 1");
         // Verifica se $data contém o índice 'retorno'
         if (!isset($data['retorno'])) {
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
@@ -46,10 +46,10 @@ class AtualizarStockBlingApi implements ShouldQueue
 
         // Decodifique o campo 'retorno' (presume-se que seja JSON)
         $retorno = $data['retorno'];
-
+        Log::emergency(json_encode($retorno));
         $type = array_key_first($retorno); // Obtém a primeira chave do array
 
-        Log::critical("OLA GUILHERME");
+        Log::critical("OLA GUILHERME 2");
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
