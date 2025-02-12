@@ -55,6 +55,7 @@ class AtualizarStockBlingApi implements ShouldQueue
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
+                Log::critical("ATUALIZOU ESTOQUE");
                     $estoques = $retorno['estoques'];
 
                     foreach ($estoques as $estoque) {
