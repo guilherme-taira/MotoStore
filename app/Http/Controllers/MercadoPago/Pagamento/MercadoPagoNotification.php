@@ -163,7 +163,7 @@ class MercadoPagoNotification extends Controller
         }
 
         public function notificationBling(Request $request){
-        Log::alert(json_encode($request->all()));
+        Log::alert($request);
         // GET TOKEN
         // Tente decodificar o JSON diretamente, se for uma string
         $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
