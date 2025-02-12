@@ -96,7 +96,7 @@ Route::prefix('v1')->group(function () {
     Route::post('EnviarDadosIntegradosMLApi',[productsController::class,'EnviarDadosIntegradosMLApi']);
     Route::get('getVendasApi',[orderscontroller::class,'getVendasApi']);
     Route::post('/loginApi', [LoginController::class, 'loginApi']);
-
+    Route::post('/financeiro/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

@@ -204,8 +204,8 @@ class order_site extends Model
                 ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
                 ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
                 ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
-                // ->join('products', 'product_site.seller_sku', '=', 'products.id')
-                ->select('*')
+                ->join('financeiro', 'order_site.id', '=', 'financeiro.order_id')
+                ->select('*','financeiro.id as finId')
                 ->where('pivot_site.id_user', $id)
                 ->orderBy('pivot_site.created_at','desc')
                 ->paginate(10);
@@ -218,8 +218,8 @@ class order_site extends Model
                 ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
                 ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
                 ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
-                // ->join('products', 'product_site.seller_sku', '=', 'products.id')
-                ->select('*')
+                ->join('financeiro', 'order_site.id', '=', 'financeiro.order_id')
+                ->select('*','financeiro.id as finId')
                 ->where('pivot_site.id_user', $id)
                 ->orderBy('pivot_site.created_at','desc')
                 ->limit(5)->get();

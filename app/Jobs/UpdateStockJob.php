@@ -56,7 +56,6 @@ class UpdateStockJob implements ShouldQueue
                 $product->user_id,
                 $product->estoque_minimo
             );
-
             // // Atualiza o estoque
             $estoqueNew->updateStockByDirectProduct();
         }

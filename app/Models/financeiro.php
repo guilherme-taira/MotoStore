@@ -34,7 +34,7 @@ class financeiro extends Model
             ->join('users','pivot_site.id_user','=','users.id')
             ->join('product_site','pivot_site.product_id','=','product_site.id')
             ->join('products','product_site.codigo','=','products.id')
-            ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional')
+            ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional','financeiro.id as financeiroId')
             ->where('financeiro.user_id', $user)
             ->orderBy('financeiro.id','desc')->paginate(10);
         return $data;
@@ -60,6 +60,19 @@ class financeiro extends Model
             ->join('order_site', 'pivot_site.order_id', '=', 'order_site.id')
             ->join('product_site', 'pivot_site.product_id', 'product_site.id')
             ->join('financeiro', 'financeiro.order_id', 'order_site.id')
+            ->where('pivot_site.order_id', $order_id)->first();
+        return $data;
+    }
+
+    public static function GetDataByUserApp($order_id)
+    {
+        $data = DB::table('pivot_site')
+            ->join('order_site', 'pivot_site.order_id', '=', 'order_site.id')
+            ->join('product_site', 'pivot_site.product_id', 'product_site.id')
+            ->join('financeiro', 'financeiro.order_id', 'order_site.id')
+            ->join('users','pivot_site.id_user','=','users.id')
+            ->join('status_app','financeiro.status_envio','=','status_app.id')
+            ->select('financeiro.*','product_site.nome as product_name','order_site.*','users.*')
             ->where('pivot_site.order_id', $order_id)->first();
         return $data;
     }

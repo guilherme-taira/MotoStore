@@ -58,7 +58,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
-ini_set('max_execution_time', 30); //300 seconds = 5 minutes
+set_time_limit(0);
 
 class productsController extends Controller
 {
@@ -880,6 +880,8 @@ try {
     {
         //
     }
+
+
 
     // ROUTES API
 

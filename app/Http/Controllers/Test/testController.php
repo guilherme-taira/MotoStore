@@ -29,8 +29,13 @@ use App\Models\User;
 use App\Notifications\PushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class testController extends Controller
 {
@@ -70,45 +75,27 @@ class testController extends Controller
     }
 
 
-    public function teste(Request $request){
-           // ENVIAR VENDA BLING
-           try {
-            $contato = Contato::where('integracao_bling_id',59)->first();
-            $auth = IntegracaoBling::where('user_id',16)->first();
-            $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor(16,$contato->id);
+        public function teste(Request $request) {
+            // Pegue o token do dispositivo para enviar a notificação
+            $token = "epf7FGyeQBiX8cpZO3TuQU:APA91bG8CzIPLNvd27JwpKxAtB7eSSDSmx6V57t_GUPeUW5qdFLjr6bcWsxz_iEfMGfjX0hART_BKp_lfkI-k-XzMA-9NYByF8chOyy6bM23vaE2muhGJOQ"; // Pegue do banco de dados ou passe no request
 
-            echo "<pre>";
-            if($contatoEfornecedor){
+            $factory = (new Factory)
+            ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
 
-            }else{
-                  $blingData = [
-                    'nome' => $contato['nome'],
-                    'tipo' => $contato['tipo'],
-                    'numeroDocumento' => $contato['numeroDocumento'],
-                    'situacao' => $contato['situacao'],
-                    'celular' => $contato['celular'],
-                    'email' => $contato['email'],
-                    'rg' => $contato['rg'] ?? null,
-                    'endereco' => [
-                        'geral' => [
-                            'endereco' => $contato['endereco'],
-                            'cep' => $contato['cep'],
-                            'bairro' => $contato['bairro'],
-                            'municipio' => $contato['municipio'],
-                            'uf' => $contato['uf'],
-                            'numero' => $contato['numero'],
-                            'complemento' => $contato['complemento'] ?? null,
-                        ],
-                    ],
-                ];
+            $messaging = $factory->createMessaging();
 
-                $BlingContatos = new BlingContatos($auth->access_token,$contato->id,16);
-                $BlingContatos->enviarContato($blingData);
-            }
+            $message = CloudMessage::withTarget('token', $token)
+                ->withNotification(Notification::create("Olá Você Vendeu!!", "Grelha 40x50 para churrasco inox"))
+                ->withData([
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    'title' => "Olá Você Vendeu!!", // Adicionando título nos dados
+                    'body' => "Grelha 40x50 para churrasco inox" // Adicionando corpo nos dados
+                ]);
 
-        } catch (\Throwable $th) {
-            Log::alert($th->getMessage());
-        }
+            $messaging->send($message);
+
+            print_r($messaging);
+            return response()->json(['success' => true, 'message' => 'Notificação enviada!']);
+
     }
-
 }

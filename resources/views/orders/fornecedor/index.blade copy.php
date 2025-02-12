@@ -24,118 +24,6 @@
             background-color: #218838;
             transform: scale(1.1);
         }
-
-        .card {
-        border: none;
-        border-radius: 15px;
-        background: linear-gradient(145deg, #f5f5f5, #ffffff);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .card:hover {
-        transform: translateY(-10px);
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .icon-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: rgba(0, 123, 255, 0.1);
-    }
-
-    .icon-container i {
-        font-size: 2rem;
-    }
-
-    h4, p {
-        margin: 0;
-    }
-
-    .count-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #343a40;
-    }
-
-    .seller-dashboard {
-        background: linear-gradient(135deg, #007bff, #00c6ff);
-        color: white;
-        padding: 20px 30px;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        animation: fadeInSlide 1s ease-out;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .seller-dashboard::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(45deg);
-        animation: moveBg 6s infinite linear;
-    }
-
-    @keyframes moveBg {
-        0% { transform: translateX(-50%) rotate(45deg); }
-        50% { transform: translateX(50%) rotate(45deg); }
-        100% { transform: translateX(-50%) rotate(45deg); }
-    }
-
-    @keyframes fadeInSlide {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .seller-dashboard h3 {
-        font-size: 2rem;
-        margin: 0;
-        font-weight: bold;
-        z-index: 1;
-    }
-
-    .seller-dashboard .bi-person-circle {
-        font-size: 3rem;
-        z-index: 1;
-    }
-
-    .seller-dashboard .highlight {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-weight: bold;
-    }
-
-    .accordion-button {
-        background: linear-gradient(145deg, #007bff, #0056b3);
-        color: white;
-        font-weight: bold;
-    }
-
-    .accordion-button:focus {
-        box-shadow: none;
-    }
     </style>
 
     <div class="container">
@@ -145,12 +33,7 @@
             <i class="bi bi-printer"></i> Unir Etiquetas Selecionadas
         </button>
 
-
-        <div class="container my-4">
-            <div class="seller-dashboard">
-                <h3><i class="bi bi-person-circle me-3"></i>Central do Vendedor: <span class="highlight">{{ Auth::user()->name }}</span></h3>
-            </div>
-        </div>
+        <h3>Central do Vendedor : {{ Auth::user()->name }}</h3>
 
 
         @if (session('error'))
@@ -174,128 +57,130 @@
         </div>
         <hr>
         {{-- START ACCORDION DATA --}}
-        <div class="container py-5">
-            <div class="row g-4">
-                <div class="col-xl-6 col-md-12">
-                    <div class="card shadow">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-container me-3">
-                                    <i class="bi bi-cart-check text-success"></i>
+        <div class="row">
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between p-md-1">
+                            <div class="d-flex flex-row">
+                                <div class="align-self-center">
+                                    <i class="bi-cart-check fa-3x me-4"
+                                        style="font-size: 2rem; color: rgb(2, 196, 76);"></i>
                                 </div>
                                 <div>
                                     <h4>Aguardando Pagamento</h4>
-                                    <p class="text-muted">Mês atual</p>
+                                    <p class="mb-0">Mês atual</p>
                                 </div>
                             </div>
-                            <div class="text-end">
-                                <div class="count-number" data-target="{{ $viewData['totalAguardando'] }}">R$: {{ $viewData['totalAguardando'] }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-6 col-md-12">
-                    <div class="card shadow">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-container me-3">
-                                    <i class="bi bi-cash-coin text-warning"></i>
-                                </div>
-                                <div>
-                                    <h4>Valor Pago Dia</h4>
-                                    <p class="text-muted">Total pago</p>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <div class="count-number" data-target="{{ $viewData['pago'] }}">R$: {{ $viewData['pago'] }}</div>
+                            <div class="align-self-center">
+                                <h2 class="h1 mb-0 valueMounth">R$: {{ $viewData['totalAguardando'] }}
+                                </h2>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="accordion mt-4" id="accordionExample">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Dashboard de Valores a Receber
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                        <div class="accordion-body">
-                            <div class="row g-4">
-                                <div class="col-xl-4 col-sm-6">
-                                    <div class="card shadow">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div class="icon-container bg-primary bg-opacity-25 me-3">
-                                                <i class="bi bi-bag-check text-primary"></i>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="count-number" data-target="{{ $viewData['haPagar'] }}">{{ $viewData['haPagar'] }}</div>
-                                                <p class="text-muted mb-0">Vendas</p>
-                                            </div>
-                                        </div>
-                                    </div>
+            <div class="col-xl-6 col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between p-md-1">
+                            <div class="d-flex flex-row">
+                                <div class="align-self-center">
+                                    <i class="bi bi-cash-coin fa-3x me-4"
+                                        style="font-size: 2rem; color: rgb(221, 245, 7);"></i>
                                 </div>
-
-                                <div class="col-xl-4 col-sm-6">
-                                    <div class="card shadow">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div class="icon-container bg-success bg-opacity-25 me-3">
-                                                <i class="bi bi-printer text-success"></i>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="count-number" data-target="{{ $viewData['contasDia'] }}">{{ $viewData['contasDia'] }}</div>
-                                                <p class="text-muted mb-0">A Imprimir</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div>
+                                    <h4>Valor Pago Dia</h4>
+                                    <p class="mb-0">total pago</p>
                                 </div>
-
-                                <div class="col-xl-4 col-sm-6">
-                                    <div class="card shadow">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div class="icon-container bg-warning bg-opacity-25 me-3">
-                                                <i class="bi bi-archive-fill text-warning"></i>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="count-number" data-target="{{ $viewData['contasAtrasada'] }}">{{ $viewData['contasAtrasada'] }}</div>
-                                                <p class="text-muted mb-0">Já Impressa</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> <!-- End Row -->
+                            </div>
+                            <div class="align-self-center">
+                                <h2 class="h1 mb-0 ">R$: {{ $viewData['pago'] }}
+                                </h2>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-mdb-toggle="collapse" data-mdb-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    Dashboard de Valores a Receber
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                data-mdb-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div class="col-xl-3 col-sm-6 col-12 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between px-md-1">
+                                        <div class="align-self-center">
+                                            <i class="fas bi-bag-check text-primary fa-3x"></i>
+                                        </div>
+                                        <div class="text-end">
+                                            <h3>{{ $viewData['haPagar'] }}</h3>
+                                            <p class="mb-0">Vendas
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-12 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between px-md-1">
+                                        <div class="align-self-center">
+                                            <i class="fas bi-printer text-success fa-3x"></i>
+                                        </div>
+                                        <div class="text-end">
+                                            <h3>{{ $viewData['contasDia'] }}</h3>
+                                            <p class="mb-0">A Imprimir
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-12 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between px-md-1">
+                                        <div class="align-self-center">
+                                            <i class="far bi-archive-fill text-warning fa-3x"></i>
+                                        </div>
+                                        <div class="text-end">
+                                            <h3>{{ $viewData['contasAtrasada'] }}</h3>
+                                            <p class="mb-0">Já Impressa</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {{-- END ACCORDION DATA --}}
-
+                    <div class="container">
                         <div class="card">
                             <div class="card-header">{{ $viewData['subtitle'] }}</div>
                             <div class="card-body">
                                 <h5 class="card-title">Clientes / Fornecedores</h5>
                                 <form id="merge-labels-form" class="mb-5">
                                     <div class="container">
+                                        <div class="card">
+                                            <div class="card-header">{{ $viewData['subtitle'] }}</div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">Clientes / Fornecedores</h5>
                                                 <form id="merge-labels-form" class="mb-5">
                                                     @foreach ($viewData['orders'] as $order)
-                                                      <!-- Definindo a cor do card com base no status_envio -->
-                                                        @php
-                                                        $cardColorClass = '';
-                                                        if ($order->status_envio == 1) {
-                                                            $cardColorClass = 'bg-warning';  // Laranja
-                                                        } elseif ($order->status_envio == 2) {
-                                                            $cardColorClass = 'bg-success';  // Verde
-                                                        }else{
-                                                            $cardColorClass = 'bg-primary';  // Verde
-                                                        }
-                                                        @endphp
-
-                                                            <div class="card mt-4 shadow-lg border-0 {{ $cardColorClass }}">
-                                                                <div class="card-header {{ $cardColorClass }} text-white d-flex justify-content-between align-items-center">
+                                                        <div class="card mt-4 shadow-lg border-0">
+                                                            <div
+                                                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                                                 <h5 class="mb-0">Venda Nº: {{ $order->id_venda }}</h5>
                                                                 <!-- Botão no canto superior direito -->
                                                                 <button class="btn btn-light btn-sm text-primary"
@@ -303,7 +188,8 @@
                                                                     data-bs-target="#trackingModal-{{ $order->id }}">
                                                                     <i class="bi bi-truck"></i> Rastrear
                                                                 </button>
-                                                                <div class="card shadow-sm border-0 rounded" >
+                                                                <div class="card shadow-sm border-0 rounded"
+                                                                    style="background-color: #56caff; padding: 3px;">
                                                                     <div
                                                                         class="d-flex justify-content-between align-items-center">
                                                                         <!-- Badge com Ícone -->
@@ -343,8 +229,7 @@
                                                                             <strong>Afiliado :</strong> {{ $order->name }}
                                                                             <select name="status_envio"
                                                                                 class="form-select form-select-sm mt-4 status-envio-select"
-                                                                                data-id="{{ $order->financeiroId }}"
-                                                                                data-shipping-id="{{ $order->shipping_id }}">
+                                                                                data-id="{{ $order->financeiroId }}">
                                                                                 <option value="">Selecione</option>
                                                                                 @foreach ($viewData['statusApp'] as $status)
                                                                                     <option value="{{ $status->id }}"
@@ -359,11 +244,8 @@
                                                                             <hr>
                                                                             <h6 class="mb-1 text-end">
                                                                                 <span
-                                                                                    class="badge text-bg-info"><strong>Observacão
+                                                                                    class="badge text-bg-warning"><strong>Observacão
                                                                                         :{{ $order->informacaoadicional }}</strong></span>
-
-                                                                                        <span class="badge text-bg-warning"><strong>Prazo de Envio:
-                                                                                            {{ $order->estimated_handling_limit }}</strong></span>
                                                                             </h6>
                                                                         @endif
                                                                     </div>
@@ -467,6 +349,9 @@
                                         </div>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                    </div>
                     <div class="d-flex">
                         {!! $viewData['orders']->links() !!}
                     </div>
@@ -476,28 +361,6 @@
 
         <script>
             $(document).ready(function() {
-
-              // Função para animar números do zero até o valor final
-    document.addEventListener('DOMContentLoaded', function() {
-        const counters = document.querySelectorAll('.count-number');
-
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                let count = +counter.innerText.replace(/\D/g, '');
-                const increment = target / 200;
-
-                if (count < target) {
-                    counter.innerText = 'R$: ' + (count + increment).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                    setTimeout(updateCount, 15);
-                } else {
-                    counter.innerText = 'R$: ' + target.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                }
-            };
-            updateCount();
-        });
-    });
-
 
                 $('.status-envio-select').on('change', function() {
                     const statusEnvio = $(this).val();
@@ -588,18 +451,7 @@
                     return;
                 }
 
-                // Itera sobre cada checkbox selecionado
-                selectedCheckboxes.forEach(checkbox => {
-                    const shippingId = checkbox.value;  // Valor do shipping_id associado ao checkbox
-
-                    // Encontra o select correspondente ao pedido
-                    const selectElement = document.querySelector(`.status-envio-select[data-shipping-id='${shippingId}']`);
-
-                    if (selectElement) {
-                        selectElement.value = '1';  // Altera para o valor correspondente a "Em preparação"
-                        selectElement.dispatchEvent(new Event('change'));  // Dispara o evento de mudança
-                    }
-                });
+                console.log(pdfLinks);
 
                 fetch('/merge-pdfs', {
                         method: 'POST',
@@ -632,30 +484,22 @@
                     });
             });
 
-            document.querySelectorAll('.status-envio-select').forEach(select => {
-                select.addEventListener('change', function () {
-                    const selectedValue = this.value;
 
-                    // Selecionar o card inteiro
+            document.querySelectorAll('.status-envio-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const selectedValue = this.value;
                     const card = this.closest('.card');
 
-                    // Selecionar o card-header
-                    const cardHeader = card.querySelector('.card-header');
-
-                    // Remover cores anteriores do card e do header
+                    // Remove cores anteriores
                     card.classList.remove('bg-warning', 'bg-success');
-                    cardHeader.classList.remove('bg-warning', 'bg-success');
 
-                    // Adicionar a nova cor com base no valor selecionado
+                    // Adiciona a nova cor com base no valor selecionado
                     if (selectedValue == 1) {
                         card.classList.add('bg-warning');
-                        cardHeader.classList.add('bg-warning');
                     } else if (selectedValue == 2) {
                         card.classList.add('bg-success');
-                        cardHeader.classList.add('bg-success');
                     }
                 });
             });
-
         </script>
     @endsection

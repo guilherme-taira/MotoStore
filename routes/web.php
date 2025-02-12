@@ -46,6 +46,7 @@ use App\Http\Controllers\Test\testController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Usuarios\FornecedorController as UsuariosFornecedorController;
 use App\Http\Middleware\AdminAccess;
+use App\Models\financeiro;
 use App\Models\Orders;
 use App\Models\Products;
 use Illuminate\Support\Facades\Auth;
@@ -156,6 +157,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function () {
     // Route::middleware('admin_msg')->group(function () {
+        Route::post('/financeiro/{id}/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
         Route::post('/storeBling', [ApiBlingProductsController::class, 'storeBling'])->name('storeBling');
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
         Route::get('/test',[testController::class,'teste']);
@@ -220,4 +222,4 @@ Route::post('/clear-session-messages', function () {
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Auth::routes();
+Auth::routes(['register' => false]);

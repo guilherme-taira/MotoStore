@@ -13,8 +13,10 @@ use App\Models\Items;
 use App\Models\order_site;
 use App\Models\Orders;
 use App\Models\Products;
+use App\Models\StatusApp;
 use App\Models\token;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use iio\libmergepdf\Merger;
 use iio\libmergepdf\Pages;
@@ -42,6 +44,7 @@ class orderscontroller extends Controller
 
         $orders = order_site::Ordersjoin(Auth::user()->id,$request);
         $viewData['orders'] = $orders;
+
 
         foreach ($orders as $order) {
             array_push($viewData['pedidos'], ['pedido' => $order, 'produtos' => order_site::getOrderjoin($order->id_site)]);
@@ -238,6 +241,7 @@ class orderscontroller extends Controller
         // Caminho base onde os PDFs estão sendo salvos
 
         try {
+
             foreach ($pdfLinks as $link) {
                 // Obter o token para a etiqueta com base no shipping_id
                 $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
@@ -245,9 +249,9 @@ class orderscontroller extends Controller
                 ->where('shipping_id', $link)
                 ->first();
 
-            if (!$token) {
-                throw new Exception("Token não encontrado para o shipping_id: $link");
-            }
+                if (!$token) {
+                    throw new Exception("Token não encontrado para o shipping_id: $link");
+                }
 
                 // Gera a etiqueta usando o token
                 $data = new PrinterController($link, $token->access_token);
@@ -322,6 +326,57 @@ class orderscontroller extends Controller
             $orders = order_site::getOrderjoinApi($request->userId);
         }
         return response()->json($orders);
+    }
+
+
+    public function getDataEnvio(Request $request){
+
+
+            // Obter o token para a etiqueta com base no shipping_id
+            $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
+            ->join('token', 'pivot_site.id_user', 'token.user_id')
+            ->where('shipping_id',$request->shipping_id)
+            ->first();
+
+            if (!$token) {
+                throw new Exception("Token não encontrado para o shipping_id: {$request->shipping_id}");
+            }
+
+         // URL da API com o ID do envio
+         $url = "https://api.mercadolibre.com/shipments/{$request->shipment_id}/lead_time";
+         // Inicializa o cURL
+         $ch = curl_init();
+
+         // Configurações do cURL
+         curl_setopt($ch, CURLOPT_URL, $url);
+         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Retorna o resultado como string
+         curl_setopt($ch, CURLOPT_HTTPHEADER, [
+             "Authorization: Bearer {$token->access_token}",
+             "x-format-new: true" // Cabeçalho adicional exigido pela API
+         ]);
+
+         // Executa a requisição
+         $response = curl_exec($ch);
+
+         // Verifica erros na requisição
+         if(curl_errno($ch)) {
+             echo 'Erro na requisição: ' . curl_error($ch);
+             curl_close($ch);
+             return false;
+         }
+         // Fecha a conexão cURL
+         curl_close($ch);
+         // Converte o JSON para array associativo
+         $data = json_decode($response, true);
+         // Cria um objeto DateTime a partir da string original
+         $data = new DateTime($data['estimated_handling_limit']['date']);
+
+         // Define o timezone para o Brasil, se necessário
+         $data->setTimezone(new DateTimeZone('America/Sao_Paulo'));
+         // Formata a data no padrão brasileiro (dia/mês/ano horas:minutos:segundos)
+         $dataFormatada = $data->format('d/m/Y');
+
+        return response()->json($dataFormatada);
     }
 
 }
