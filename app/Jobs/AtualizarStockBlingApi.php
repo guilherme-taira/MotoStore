@@ -51,11 +51,11 @@ class AtualizarStockBlingApi implements ShouldQueue
         Log::critical(json_encode($retorno));
         $type = array_key_first($retorno); // Obtém a primeira chave do array
 
-
+        Log::critical(json_encode($type));
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
-                Log::critical("ATUALIZOU ESTOQUE");
+
                     $estoques = $retorno['estoques'];
 
                     foreach ($estoques as $estoque) {
@@ -93,7 +93,7 @@ class AtualizarStockBlingApi implements ShouldQueue
                             }
                         } elseif ($product->acao === 'pausar') {
                             // Pausa todos os anúncios relacionados
-                            $this->pausarAnuncios($produto->id);
+                            // $this->pausarAnuncios($produto->id);
                         }
 
                     }
