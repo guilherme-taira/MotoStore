@@ -13,3 +13,5 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+storage/firebase/*.json
+/storage/firebase/afilidrop-33bcf-firebase-adminsdk-fbsvc-98c8be85ce.json
