@@ -166,9 +166,8 @@ class MercadoPagoNotification extends Controller
         Log::alert(json_encode($request->all()));
         // GET TOKEN
         // Tente decodificar o JSON diretamente, se for uma string
-        // $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
-
-        AtualizarStockBlingApi::dispatch($request);
+        $data = is_string($request->data) ? json_decode($request->data, true) : $request->data;
+        AtualizarStockBlingApi::dispatch($data);
         // Verifica se $data contém o índice 'retorno'
         // if (!isset($data['retorno'])) {
         //     return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);

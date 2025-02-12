@@ -18,7 +18,7 @@ class AtualizarStockBlingApi implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $request;
+    private $data;
 
     /**
      * Create a new job instance.
@@ -26,9 +26,9 @@ class AtualizarStockBlingApi implements ShouldQueue
      * @return void
      */
 
-    public function __construct($request)
+    public function __construct($data)
     {
-        $this->request = $request;
+        $this->data = $data;
     }
 
     /**
@@ -38,9 +38,6 @@ class AtualizarStockBlingApi implements ShouldQueue
      */
     public function handle()
     {
-         // GET TOKEN
-        // Tente decodificar o JSON diretamente, se for uma string
-        $data = is_string($this->request->data) ? json_decode($this->request->data, true) : $this->request->data;
 
         // Verifica se $data contém o índice 'retorno'
         if (!isset($data['retorno'])) {
