@@ -15,3 +15,4 @@ yarn-error.log
 /.vscode
 storage/firebase/*.json
 /storage/firebase/afilidrop-33bcf-firebase-adminsdk-fbsvc-98c8be85ce.json
+storage/firebase/afilidrop-33bcf-firebase-adminsdk-fbsvc-98c8be85ce.json
