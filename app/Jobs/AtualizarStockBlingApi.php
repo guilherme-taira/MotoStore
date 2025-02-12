@@ -39,13 +39,14 @@ class AtualizarStockBlingApi implements ShouldQueue
     public function handle()
     {
         Log::critical("OLA GUILHERME 1");
-        // Verifica se $data contém o índice 'retorno'
-        if (!isset($data['retorno'])) {
+
+        // Verifica se $this->data contém o índice 'retorno'
+        if (!isset($this->data['retorno'])) {
             return response()->json(['error' => 'Dados inválidos ou ausentes.'], 400);
         }
 
         // Decodifique o campo 'retorno' (presume-se que seja JSON)
-        $retorno = $data['retorno'];
+        $retorno = $this->data['retorno'];
         Log::notice(json_encode($retorno));
         $type = array_key_first($retorno); // Obtém a primeira chave do array
 
@@ -100,9 +101,9 @@ class AtualizarStockBlingApi implements ShouldQueue
             break;
 
             case 'nota fiscal':
-                if (isset($data['notas'])) {
+                if (isset($this->data['notas'])) {
                     // Implemente a lógica para tratar os dados de nota fiscal
-                    $notas = $data['notas'];
+                    $notas = $this->data['notas'];
 
                     foreach ($notas as $notaItem) {
                         // Exemplo: trate os dados da nota fiscal
