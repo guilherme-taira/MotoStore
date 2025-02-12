@@ -47,11 +47,9 @@ class AtualizarStockBlingApi implements ShouldQueue
         // Decodifique o campo 'retorno' (presume-se que seja JSON)
         $retorno = $data['retorno'];
 
-
-        Log::critical(json_encode($retorno));
         $type = array_key_first($retorno); // Obtém a primeira chave do array
 
-        Log::critical(json_encode($type));
+        Log::critical("OLA GUILHERME");
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
