@@ -2,6 +2,20 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <style>
+
+    .badge-new {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: orange;
+        color: white;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border-radius: 5px;
+        z-index:1000;
+    }
+
             /* Card Principal */
     .product-form-card {
         background-color: #fff;
@@ -156,22 +170,194 @@
         color: #FFD700;
         font-size: 0.9rem;
     }
+    /* Fundo escuro semi-transparente */
+    .message-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    /* Card com efeito tecnológico */
+    .message-card {
+        background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        animation: pulseNeonSuccess 1.5s infinite alternate;
+        max-width: 400px;
+        position: relative;
+    }
+
+    /* Título */
+    .message-content h3 {
+        color: #0ff;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    /* Texto da mensagem */
+    .message-content p {
+        color: #fff;
+        font-size: 16px;
+    }
+
+    /* Botão de fechar */
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        color: #0ff;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #fff;
+    }
+
+    /* Animação neon */
+    @keyframes pulseNeonSuccess {
+        from {
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+        to {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 1);
+        }
+    }
+
+    /* Fundo escuro semi-transparente */
+.error-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Card tecnológico de erro */
+.error-card {
+    background: linear-gradient(135deg, #FFB005FF 0%, #FFEE01FF 100%);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    animation: pulseNeon 1.5s infinite alternate;
+    max-width: 650px;
+    position: relative;
+}
+
+/* Título */
+.error-content h3 {
+    color: #000000FF;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Lista de erros */
+.error-content ul {
+    color: #000000;
+    font-size: 16px;
+    text-align: left;
+    list-style: none;
+    padding: 0;
+}
+
+.error-content li::before {
+    content: "⚠ ";
+    color: #EFD658FF;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Botão de fechar */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    color: #FF0000FF;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+/* Animação neon pulsante */
+@keyframes pulseNeon {
+    from {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+    }
+    to {
+        box-shadow: 0 0 30px rgba(255, 0, 0, 1);
+    }
+}
     </style>
 
-    @if ($errors->any())
-        <ul class="alert alert-danger list-unstyled">
-            @foreach ($errors->all() as $error)
-                <li>-> {{ $error }}</li>
-            @endforeach
-        </ul>
-    @endif
+@if ($errors->any())
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-content">
+                <span class="close-btn" onclick="closeError()">×</span>
+                <h3>Erro ao Integrar o produto</h3>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(() => { closeError(); }, 15000); // Fecha automaticamente em 7s
+
+        function closeError() {
+            let msg = document.querySelector(".error-container");
+            if (msg) msg.style.display = "none";
+        }
+    </script>
+@endif
+
 
     @if (session('msg'))
-        <div class="alert alert-success" role="alert">
-            {{ session('msg') }}
-            {{ session()->forget('msg') }}
+        <div class="message-container">
+            <div class="message-card">
+                <div class="message-content">
+                    <span class="close-btn" onclick="closeMessage()">×</span>
+                    <h3>Sucesso!</h3>
+                    <p>{{ session('msg') }}</p>
+                </div>
+            </div>
         </div>
+        <script>
+            setTimeout(() => { closeMessage(); }, 5000); // Fecha automaticamente em 5s
+
+            function closeMessage() {
+                let msg = document.querySelector(".message-container");
+                if (msg) msg.style.display = "none";
+            }
+        </script>
+        {{ session()->forget('msg') }}
     @endif
+
 
     <script>
         function clearForm() {
@@ -543,7 +729,7 @@
                                 <div class="product-card position-relative">
                                     <!-- Badge de desconto ou novo -->
                                     @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
-                                        <div class="badge-new"><i class="bi bi-pin-angle-fill"></i> Novo</div>
+                                        <div class="badge-new position-absolute top-0 end-0 p-2 bg-warning text-white"><i class="bi bi-pin-angle-fill"></i> Novo</div>
                                     @endif
 
                                     <!-- Carrossel de Imagens -->

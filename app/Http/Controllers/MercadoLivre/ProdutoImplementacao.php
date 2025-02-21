@@ -21,7 +21,7 @@ class ProdutoImplementacao extends criadorDeProduto
 
         // $dataAtual = new DateTime();
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ATUALIZADO
-        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado());
+        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado(),$products->atributos_json);
         $data = $produto->integrar($this->getDescricao(),$this->getIdProduct());
         if ($data) {
             return ['error_data' => $data];
@@ -39,11 +39,12 @@ class ProdutoImplementacao extends criadorDeProduto
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
         $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado());
         $data = $produto->integrarViaApi($this->getDescricao(),$this->getIdProduct());
-        if ($data) {
-            return ['error_data' => $data];
+        Log::alert($data);
+        if (!isset($data['id'])) {
+            return ['message' => $data, 'statusCode' => 400];
         } else {
             EventoAfiliado::dispatch($products);
-            return "";
+            return ['message' => $data, 'statusCode' => 200];
         }
     }
 

@@ -48,6 +48,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
 {
@@ -96,7 +98,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -243,25 +245,31 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
+
                                 $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
                                 $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
                                 if ($fornecedor) {
 
-                                    try {
-                                        // Dados para enviar no corpo da requisição
-                                        $data = [
-                                            "order_site_id" => $id_order,
-                                            "product_id" => $produto['id'],
-                                            "integrated_product_id" => $response->json()['id'],
-                                            "quantity_sold" => intVal($items->quantity),
-                                        ];
+                                // Envia Notificação de Venda
+                                if($id_order){
+                                    $this->pushNotificationApp("Olá {$fornecedor->name}","Você vendeu {$items->item->title}");
+                                }
 
-                                        $retirarEstoque = new SalesReportController();
-                                        $retirarEstoque->processSale($data);
+                                try {
+                                    // Dados para enviar no corpo da requisição
+                                    $data = [
+                                        "order_site_id" => $id_order,
+                                        "product_id" => $produto['id'],
+                                        "integrated_product_id" => $response->json()['id'],
+                                        "quantity_sold" => intVal($items->quantity),
+                                    ];
 
-                                    } catch (\Throwable $th) {
-                                        FacadesLog::alert($th->getMessage());
-                                    }
+                                    $retirarEstoque = new SalesReportController();
+                                    $retirarEstoque->processSale($data);
+
+                                } catch (\Throwable $th) {
+                                    FacadesLog::alert($th->getMessage());
+                                }
 
                                     // ENVIAR VENDA BLING
                                     try {
@@ -393,6 +401,23 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
         // Crie ou atualize o registro
         ShippingUpdate::updateOrCreate($conditions, $data);
+    }
+
+
+    public function pushNotificationApp($msgHeader,$msgBody){
+
+        $token = "epf7FGyeQBiX8cpZO3TuQU:APA91bG8CzIPLNvd27JwpKxAtB7eSSDSmx6V57t_GUPeUW5qdFLjr6bcWsxz_iEfMGfjX0hART_BKp_lfkI-k-XzMA-9NYByF8chOyy6bM23vaE2muhGJOQ"; // Pegue do banco de dados ou passe no request
+
+        $factory = (new Factory)
+        ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
+
+        $messaging = $factory->createMessaging();
+        $message = CloudMessage::withTarget('token', $token)
+            ->withNotification(Notification::create($msgHeader,$msgBody))
+            ->withData([
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            ]);
+        $messaging->send($message);
     }
 
 

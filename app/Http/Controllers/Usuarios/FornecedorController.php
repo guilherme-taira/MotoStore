@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Usuarios;
 
 use App\Http\Controllers\Controller;
 use App\Models\categorias_forncedores;
+use App\Models\Devolucao;
 use App\Models\financeiro;
 use App\Models\StatusPedido;
 use App\Models\sub_categoria_fornecedor;
+use App\Models\token as ModelsToken;
 use App\Models\User;
+use Aws\Token\Token;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Kreait\Firebase\Factory;
@@ -166,6 +170,14 @@ class FornecedorController extends Controller
     }
 
 
+    public function getDataCentralFornecedor(Request $request) {
+        Log::alert($request->id);
+        $dados = financeiro::contareceber($request->id);
+        return response()->json($dados);
+    }
+
+
+
     /**
      * Remove the specified resource from storage.
      *
@@ -230,4 +242,67 @@ class FornecedorController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Status de envio atualizado com sucesso!']);
     }
+
+
+    public function getDevolucoesByFornecedor(Request $request){
+
+        $data = Devolucao::getData($request->user_id);
+        return response()->json($data);
+    }
+
+    public function getMessageMediation(Request $request){
+
+            $token = ModelsToken::where('user_id',$request->user_id)->first();
+
+            try {
+                $url = "https://api.mercadolibre.com/post-purchase/v1/claims/{$request->mediation}/messages";
+
+                $curl = curl_init();
+
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => $url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_CUSTOMREQUEST => "GET",
+                    CURLOPT_HTTPHEADER => [
+                        "Authorization: Bearer {$token->access_token}",
+                        "x-format-new: true"
+                    ]
+                ]);
+
+                $response = curl_exec($curl);
+                $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                curl_close($curl);
+
+        Log::alert($response);
+                if ($httpCode >= 200 && $httpCode < 300) {
+                    $data = json_decode($response, true); // Decodifica como array associativo
+                    return response()->json($data);
+                }
+            } catch (\Exception $e) {
+                // Tratamento de erro
+                Log::alert($e->getMessage());
+            }
+
+
+    }
+
+    public function setShippingMediation(Request $request) {
+        Log::alert($request->all());
+
+        $updated = DB::table('devolucoes')
+            ->where('rastreio', $request->id)
+            ->update([
+                // 'dados' => json_encode($request->input('dados')), // Atualiza os dados como JSON
+                'bipado_por' => $request->input('user_id'), // Atualiza normalmente
+                'data_recebimento' => DB::raw("CASE WHEN '{$request->input('user_id')}' != '' THEN NOW() ELSE data_recebimento END")
+            ]);
+
+        if($updated){
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

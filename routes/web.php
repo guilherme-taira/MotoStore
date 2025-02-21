@@ -28,6 +28,7 @@ use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\Marketing\BannerPremiumController;
 use App\Http\Controllers\MercadoLivre\CategoryTest;
 use App\Http\Controllers\nft\nftcontroller;
+use App\Http\Controllers\NotaFiscalController;
 use App\Http\Controllers\Notification\NotificationSistemaController;
 use App\Http\Controllers\notificationController;
 use App\Http\Controllers\Orders\orderscontroller;
@@ -49,6 +50,7 @@ use App\Http\Middleware\AdminAccess;
 use App\Models\financeiro;
 use App\Models\Orders;
 use App\Models\Products;
+use AWS\CRT\HTTP\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -124,6 +126,7 @@ Route::get('/breve', function () {
 
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware('auth')->group(function () {
+Route::post('/upload-nf/{order_id}', [NotaFiscalController::class, 'uploadNotaFiscal'])->name('upload.nf');
 Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
@@ -156,7 +159,9 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function () {
+
     // Route::middleware('admin_msg')->group(function () {
+
         Route::post('/financeiro/{id}/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
         Route::post('/storeBling', [ApiBlingProductsController::class, 'storeBling'])->name('storeBling');
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
@@ -174,6 +179,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('editarPerfil',[configuracaoController::class,'editarPerfil'])->name('editProfile');
         Route::delete('deleteEndereco/{id}',[configuracaoController::class,'deletar'])->name('deletarEndereco');
         Route::post('storeEndereco',[configuracaoController::class,'store'])->name('cadastrarEndereco');
+        Route::post('/imprimir/contas',[fornecedorController::class,'haImprimir'])->name('imprimir.contas');
         Route::get('/getTokenAliexpress',[AlieExpressController::class,'getToken']);
         Route::resource('bling', IntegracaoBlingController::class);
         Route::get('/blingAutenticate', [BlingController::class, 'authenticate'])->name('blingAutenticate');

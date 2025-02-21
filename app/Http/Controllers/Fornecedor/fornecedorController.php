@@ -65,6 +65,7 @@ class fornecedorController extends Controller
 
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
+
             if($order->status == 3){
                 $viewData['haPagar'] += 1;
             }else if($order->isPrinted == 0){
@@ -79,6 +80,42 @@ class fornecedorController extends Controller
         ]);
     }
 
+
+
+    public function haImprimir(Request $request){
+
+        $orders = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')
+        ->join('pivot_site','order_site.id', '=', 'pivot_site.order_id')
+        ->join('users','pivot_site.id_user','=','users.id')
+        ->join('product_site','pivot_site.product_id','=','product_site.id')
+        ->join('products','product_site.codigo','=','products.id')
+        ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional','financeiro.id as financeiroId')
+        ->where('financeiro.user_id', $request->user)
+        ->where('status_envio',1)
+        ->orderBy('financeiro.id','desc')->paginate(10);
+
+        try {
+            foreach ($orders as $key => $value) {
+                Log::alert(json_encode($value));
+                // Obter o token para a etiqueta com base no shipping_id
+                $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
+                ->join('token', 'pivot_site.id_user', 'token.user_id')
+                ->where('shipping_id',$value->shipping_id)
+                ->first();
+
+            if (!$token) {
+                throw new Exception("Token não encontrado para o shipping_id: {$value->shipping_id}");
+            }
+
+            $orders['orders'][$key]['estimated_handling_limit'] = $this->getShipmentDelays($value->shipping_id,$token->access_token);
+        }
+        }catch(\Exception $th){
+
+        }
+
+        Log::alert(json_encode($orders));
+        return response()->json($orders);
+    }
 
     function getShipmentDelays($shipment_id, $access_token) {
         // URL da API com o ID do envio
@@ -96,7 +133,6 @@ class fornecedorController extends Controller
 
         // Executa a requisição
         $response = curl_exec($ch);
-
         // Verifica erros na requisição
         if(curl_errno($ch)) {
             echo 'Erro na requisição: ' . curl_error($ch);

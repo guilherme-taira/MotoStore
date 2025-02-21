@@ -29,4 +29,8 @@ class token extends Model
         return $data->id;
     }
 
+    public function getToken(){
+        return $this->token;
+    }
+
 }

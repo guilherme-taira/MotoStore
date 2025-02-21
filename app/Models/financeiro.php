@@ -47,6 +47,14 @@ class financeiro extends Model
         return $data;
     }
 
+
+    public static function aguardandopagamentoOrders($user)
+    {
+        $data = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')
+            ->where('user_id', $user)->where('status_id','=',3);
+        return $data;
+    }
+
     public static function pago($user)
     {
         $data = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')

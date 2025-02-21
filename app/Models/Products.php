@@ -43,7 +43,9 @@ class Products extends Model
         'id_bling',
         'isExclusivo',
         'informacaoadicional',
-        'link'
+        'link',
+        'atributos_html',
+        'atributos_json'
     ];
 
     protected $table = "products";
@@ -357,9 +359,9 @@ class Products extends Model
         // Verifica o filtro de 'estoque', incluindo o caso nulo
         if ($request->filled('estoque') || is_null($request->estoque)) {
             if (is_null($request->estoque)) {
-                $query->where('available_quantity', '>=', 0);
+                $query->where('estoque_afiliado', '>=', 0);
             } else {
-                $query->where('available_quantity', '>=', $request->estoque);
+                $query->where('estoque_afiliado', '>=', $request->estoque);
             }
         }
 
@@ -370,7 +372,7 @@ class Products extends Model
 
         $query->orderBy('id', 'desc');
 
-        return $query->paginate(15);
+        return $query->paginate(32);
     }
 
 

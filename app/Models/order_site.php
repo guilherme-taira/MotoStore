@@ -212,14 +212,30 @@ class order_site extends Model
             return $data;
     }
 
-    public static function getOrderjoinApi5orders($id)
+    public static function getOrderjoinApiDespachar($id)
     {
      $data = DB::table('pivot_site')
                 ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
                 ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
                 ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
                 ->join('financeiro', 'order_site.id', '=', 'financeiro.order_id')
+                ->join('users','pivot_site.id_user','users.id')
                 ->select('*','financeiro.id as finId')
+                ->where('financeiro.user_id', $id)
+                ->where('status_envio','=',1)
+                ->orderBy('pivot_site.created_at','desc')
+                ->paginate(10);
+            return $data;
+    }
+
+    public static function getOrderjoinApi5orders($id)
+    {
+     $data = DB::table('pivot_site')
+                ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
+                ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+                ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+                // ->join('financeiro', 'order_site.id', '=', 'financeiro.order_id')
+                // ->select('*','financeiro.id as finId')
                 ->where('pivot_site.id_user', $id)
                 ->orderBy('pivot_site.created_at','desc')
                 ->limit(5)->get();
@@ -232,7 +248,21 @@ class order_site extends Model
             ->join('token', 'pivot_site.id_user', '=', 'token.user_id')
             ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
             ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+            // ->join('contatos','contatos.id_user','=','users.id')
             ->leftJoin('financeiro', function ($join) { $join->on('order_site.external_reference', '=', 'financeiro.token_transaction')->where('order_site.external_reference', '!=', 'N/D');})
+            ->select('*')
+            ->where('order_site.id', $id)->get();
+        return $data;
+    }
+
+
+    public static function getOrderjoinCompleteByApp($id)
+    {
+        $data = DB::table('pivot_site')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+            ->leftJoin('contatos', 'contatos.integracao_bling_id', '=', 'pivot_site.id_user')
+            // ->leftJoin('financeiro', function ($join) { $join->on('order_site.external_reference', '=', 'financeiro.token_transaction')->where('order_site.external_reference', '!=', 'N/D');})
             ->select('*')
             ->where('order_site.id', $id)->get();
         return $data;

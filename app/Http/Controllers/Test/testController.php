@@ -83,19 +83,12 @@ class testController extends Controller
             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
 
             $messaging = $factory->createMessaging();
-
             $message = CloudMessage::withTarget('token', $token)
-                ->withNotification(Notification::create("Olá Você Vendeu!!", "Grelha 40x50 para churrasco inox"))
+                ->withNotification(Notification::create("Parabéns Maicon!!", "Você alcançou as 10 primeiras Vendas"))
                 ->withData([
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'title' => "Olá Você Vendeu!!", // Adicionando título nos dados
-                    'body' => "Grelha 40x50 para churrasco inox" // Adicionando corpo nos dados
                 ]);
-
             $messaging->send($message);
-
-            print_r($messaging);
-            return response()->json(['success' => true, 'message' => 'Notificação enviada!']);
 
     }
 }

@@ -286,6 +286,28 @@ class productsController extends Controller
         return response()->json($produtos);
     }
 
+    public function getProdutosPaginadosImages(Request $request) {
+        $produtos = Products::where('isKit', '=', '0')
+            ->where('isPublic', '=', 1)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        foreach ($produtos as $produto) {
+            // Obtém todas as imagens relacionadas ao produto
+            $imagens = images::where('product_id', $produto->id)->get();
+            $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
+            // Cria um array para armazenar os URLs das imagens
+            $imagem_urls = [];
+            foreach ($imagens as $imagem) {
+                $imagem_urls[] = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $imagem->url);
+            }
+            // Adiciona os URLs das imagens dentro do campo 'imagens' no produto
+            $produto->imagens = $imagem_urls;
+        }
+        return response()->json($produtos);
+    }
+
+
 
     public function tradeCategoria(Request $request){
         return $this->getAttributesTrade($request);
@@ -1394,7 +1416,7 @@ try {
             // Verifica se a chave possui letras maiúsculas
             if (preg_match('/[A-Z]/', $key)) {
                 // Adiciona o parâmetro ao array de parâmetros com letras maiúsculas
-                array_push($array,["id" => $key,"value" => $value, "values" => [["id" => $value,"struct" => "null"]]]);
+                array_push($array,["id" => $key,"value" => $value, "values" => [["id" => $value,"name" => $value]]]);
             }
         }
 
@@ -1654,6 +1676,14 @@ try {
         }
 
     }
+
+
+    public function getPedidosById(Request $request)
+    {
+        $order = order_site::getOrderjoinCompleteByApp($request->order);
+        return response()->json($order);
+    }
+
 
     public function getPedidos()
 {
@@ -1961,14 +1991,9 @@ try {
         $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, 1,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado);
         $data = $factory->getProdutoByApi();
 
-        if ($data) {
-            return response()->json([
-                'errors' => $data
-            ]);
-        }
         return response()->json([
-            'message' => 'Produto Cadstrado com Sucesso!'
-        ]);
+            'message' => $data['message']
+        ],$data['statusCode']);
     }
 
 
@@ -2041,7 +2066,7 @@ try {
                 $precoNew = new ManipuladorProdutosIntegrados($request->id,0);
                 $precoNew->atualizarOnlyProduct();
 
-                return response()->json([],200);
+                return response()->json(['data' => 'cadastrado GUilherem'],200);
         } catch (\Exception $e) {
             Log::alert($e->getMessage());
             return response()->json(['message' => $e->getMessage()],400);

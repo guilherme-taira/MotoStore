@@ -47,13 +47,10 @@ class AtualizarStockBlingApi implements ShouldQueue
         $retorno = $this->data['retorno'];
         $type = array_key_first($retorno); // Obtém a primeira chave do array
 
-
         // Executa o comportamento com base no tipo
         switch ($type) {
             case 'estoques':
-
                     $estoques = $retorno['estoques'];
-
                     foreach ($estoques as $estoque) {
                         $estoqueAtual = $estoque['estoque']['estoqueAtual'];
                         $id_bling = $estoque['estoque']['id'];

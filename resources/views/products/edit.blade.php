@@ -170,8 +170,82 @@
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="auth-user-id" content="{{ Auth::user()->id }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
 
     <script>
+        function serializeFormData() {
+            let inputs = document.querySelectorAll("#formContainer input, #formContainer select");
+            let formContainer = document.getElementById("formContainer");
+            // Criamos um objeto para armazenar os valores
+            let formData = {};
+            let jsonData = [];
+            // Percorre todos os inputs e selects dentro do formContainer
+            formContainer.querySelectorAll("input, select").forEach(field => {
+                let fieldData = {
+                    id: field.name, // Nome do campo
+                    value: field.value, // Valor selecionado/preenchido
+                    values: [{
+                        id: field.value, // O ID da opção selecionada ou valor do input
+                        name: field.value // Nome igual ao valor preenchido
+                    }]
+                };
+                // Adiciona o objeto formatado ao array
+                jsonData.push(fieldData);
+            });
+
+
+            inputs.forEach(input => {
+                if (input.tagName === "SELECT") {
+                    // Define a opção correta como "selected"
+                    let selectedOption = input.options[input.selectedIndex];
+                    if (selectedOption) {
+                        selectedOption.setAttribute("selected", "selected");
+                    }
+                } else {
+                    // Adiciona o atributo "value" nos inputs para salvar corretamente
+                    input.setAttribute("value", input.value);
+                }
+            });
+
+            // Salva o JSON no input hidden
+            document.getElementById("atributos_json").value = JSON.stringify(jsonData);
+            // Captura o HTML atualizado com os valores preenchidos
+            let formContainerHTML = document.getElementById("formContainer").innerHTML;
+            // Salva no input hidden antes do envio
+            document.getElementById("atributos_html").value = formContainerHTML;
+        }
+
+
+
+        function serializeFormHTML() {
+            let inputs = document.querySelectorAll("#formContainer input, #formContainer select");
+
+            inputs.forEach(input => {
+                if (input.tagName === "SELECT") {
+                    // Define a opção correta como "selected"
+                    let selectedOption = input.options[input.selectedIndex];
+                    if (selectedOption) {
+                        selectedOption.setAttribute("selected", "selected");
+                    }
+                } else {
+                    // Adiciona o atributo "value" nos inputs para salvar corretamente
+                    input.setAttribute("value", input.value);
+                }
+            });
+
+            // Captura o HTML atualizado com os valores preenchidos
+            let formContainerHTML = document.getElementById("formContainer").innerHTML;
+
+            // Verifica se os valores foram corretamente incluídos
+            console.log("HTML atualizado antes do envio:", formContainerHTML);
+
+            // Salva no input hidden antes do envio
+            document.getElementById("atributos_html").value = formContainerHTML;
+        }
+
+
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput'); // Campo de pesquisa
             const searchButton = document.getElementById('searchButton'); // Botão de pesquisa
@@ -546,7 +620,7 @@
 
 
             <form method="POST" action="{{ route('products.update', ['id' => $viewData['product']->id]) }}"
-                enctype="multipart/form-data" class="needs-validation">
+                enctype="multipart/form-data" class="needs-validation" onsubmit="serializeFormData()">
                 @method('PUT')
                 @csrf
 
@@ -649,8 +723,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <label for="link" class="form-label">Link do Material:</label>
-                                        <input name="link" type="text"
-                                            value="{{ $viewData['product']->link }}" class="form-control">
+                                        <input name="link" type="text" value="{{ $viewData['product']->link }}"
+                                            class="form-control">
                                     </div>
                                 </div>
 
@@ -1003,6 +1077,13 @@
                                     </div>
                                 </div>
 
+                                <div id="formContainer">
+                                    {!! $viewData['product']->atributos_html !!}
+                                </div>
+
+                                <div id="jsonViewer" style="height: 400px; border: 1px solid #ccc;"></div>
+
+
                             </div>
                         </div>
                     </div>
@@ -1086,6 +1167,31 @@
                         </div>
                     </div>
 
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            let jsonData = {!! $viewData['product']->atributos_json !!};
+
+                            let container = document.getElementById("jsonViewer");
+                            let options = {
+                                mode: "tree", // Exibe como árvore
+                                search: false, // Remove o campo de pesquisa
+                                enableSort: false, // Remove o botão de ordenação
+                                enableTransform: false // Remove o botão de transformação
+                            };
+
+                            let editor = new JSONEditor(container, options);
+                            editor.set(jsonData);
+
+                            // Expande automaticamente todos os nós
+                            editor.expandAll();
+                        });
+                    </script>
+
+                    <!-- Campo hidden para armazenar o HTML serializado -->
+                    <input type="hidden" name="atributos_html" id="atributos_html">
+                    <!-- Novo campo para armazenar o JSON -->
+                    <input type="hidden" name="atributos_json" id="atributos_json">
+
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">Atualizar <i class="bi bi-hdd"></i></button>
                     </div>
@@ -1137,11 +1243,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
+    <!-- Highlight.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll();
+    </script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
-
 
             const idBlingInput = document.getElementById('id_bling');
 
@@ -1477,60 +1587,136 @@
 
                             if (index.length <= 1) {
                                 $.ajax({
-                                    url: " https://api.mercadolibre.com/categories/" +
-                                        category + "/attributes",
+                                    url: "https://api.mercadolibre.com/categories/" + category +
+                                        "/attributes",
                                     type: "GET",
                                     success: function(response) {
                                         if (response) {
-
                                             const requiredItems = [];
-                                            const requiredAttributeNames = ['BRAND',
-                                                'MODEL', 'LENGTH', 'HEIGHT'
+                                            const excludedAttributes = ['BRAND', 'MODEL',
+                                                'LENGTH', 'HEIGHT'
                                             ];
+
                                             response.forEach(item => {
+
                                                 if (item.tags && item.tags
-                                                    .required === true && !
-                                                    requiredAttributeNames.includes(
-                                                        item.id)) {
+                                                    .required && !excludedAttributes
+                                                    .includes(item.id)) {
+                                                    console.log(item);
                                                     requiredItems.push(item);
                                                 }
                                             });
 
-                                            // Adiciona o h2
-                                            var h2 = document.createElement("h2");
-                                            h2.textContent = "Campos Obrigatórios";
-                                            formContainer.appendChild(h2);
+                                            // Limpa o container antes de adicionar os novos elementos
+                                            $("#formContainer").empty();
 
-                                            requiredItems.forEach(element => {
-                                                // Adiciona o label
-                                                var label = document.createElement(
-                                                    "label");
-                                                label.textContent = element.name;
-                                                formContainer.appendChild(label);
+                                            if (requiredItems.length > 0) {
+                                                // Cria um card para organizar melhor o formulário
+                                                var card = document.createElement("div");
+                                                card.className = "card shadow-sm mb-3";
 
-                                                var selectField = document
-                                                    .createElement("select");
-                                                for (var i = 0; i < element.values
-                                                    .length; i++) {
-                                                    var option = document
-                                                        .createElement("option");
-                                                    selectField.className =
-                                                        "form-control";
-                                                    selectField.name = element.id;
-                                                    option.text = element.values[i]
+                                                var cardBody = document.createElement(
+                                                    "div");
+                                                cardBody.className = "card-body";
+
+                                                var fieldset = document.createElement(
+                                                    "fieldset");
+
+                                                var legend = document.createElement(
+                                                    "legend");
+                                                legend.textContent = "Campos Obrigatórios";
+                                                legend.className = "h5 mb-3";
+                                                fieldset.appendChild(legend);
+
+                                                var row = document.createElement("div");
+                                                row.className =
+                                                    "row"; // Organiza os campos em duas colunas
+
+                                                requiredItems.forEach(element => {
+                                                    // Cria um grupo de formulário dentro da coluna
+                                                    var colDiv = document
+                                                        .createElement("div");
+                                                    colDiv.className =
+                                                        "col-md-6 col-sm-12 mb-3"; // Ajuste responsivo
+
+                                                    var formGroup = document
+                                                        .createElement("div");
+                                                    formGroup.className =
+                                                        "form-group";
+
+                                                    // Adiciona o label
+                                                    var label = document
+                                                        .createElement("label");
+                                                    label.textContent = element
                                                         .name;
-                                                    option.value = element.values[i]
-                                                        .id;
-                                                    selectField.appendChild(option);
+                                                    formGroup.appendChild(label);
 
-                                                }
-                                                formContainer.appendChild(
-                                                    selectField);
-                                            });
+                                                    if (!element.values || element
+                                                        .values.length === 0) {
+                                                        var input = document
+                                                            .createElement("input");
+                                                        input.type = "text";
+                                                        input.className =
+                                                            "form-control form-control-sm";
+                                                        input.name = element.id;
+                                                        formGroup.appendChild(
+                                                            input);
+                                                    } else {
+                                                        var selectField = document
+                                                            .createElement(
+                                                                "select");
+                                                        selectField.className =
+                                                            "form-control form-control-sm";
+                                                        selectField.name = element
+                                                            .id;
+
+                                                        // Adiciona a opção padrão
+                                                        var defaultOption = document
+                                                            .createElement(
+                                                                "option");
+                                                        defaultOption.text =
+                                                            "Selecione uma opção";
+                                                        defaultOption.value = "";
+                                                        selectField.appendChild(
+                                                            defaultOption);
+
+                                                        // Adiciona as opções do select
+                                                        element.values.forEach(
+                                                            value => {
+                                                                var option =
+                                                                    document
+                                                                    .createElement(
+                                                                        "option"
+                                                                    );
+                                                                option.text =
+                                                                    value.name;
+                                                                option.value =
+                                                                    value.id;
+                                                                selectField
+                                                                    .appendChild(
+                                                                        option);
+                                                            });
+
+                                                        formGroup.appendChild(
+                                                            selectField);
+                                                    }
+
+                                                    colDiv.appendChild(formGroup);
+                                                    row.appendChild(colDiv);
+                                                });
+
+                                                fieldset.appendChild(row);
+                                                cardBody.appendChild(fieldset);
+                                                card.appendChild(cardBody);
+                                                document.getElementById("formContainer")
+                                                    .appendChild(card);
+
+                                            }
                                         }
                                     }
                                 });
                             }
+
                             $("#categorias").html(index.join(''));
                         }
                     },

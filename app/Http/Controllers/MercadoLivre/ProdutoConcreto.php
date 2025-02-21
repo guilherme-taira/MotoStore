@@ -26,8 +26,9 @@ class ProdutoConcreto implements Produto
     private float $valorSemTaxa;
     private float $totalInformado;
     private $dadosIntegrado;
+    private $json;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado,$json = null)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
@@ -39,6 +40,7 @@ class ProdutoConcreto implements Produto
         $this->valorSemTaxa = $valorSemTaxa;
         $this->totalInformado = $totalInformado;
         $this->dadosIntegrado = $dadosIntegrado;
+        $this->json = $json;
     }
 
     public function integrar($descricao,$id_prod)
@@ -50,6 +52,10 @@ class ProdutoConcreto implements Produto
         foreach ($fotos as $foto) {
             array_push($photos, ["source" => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
         }
+
+        $jsonData = json_decode($this->getJson(), true);
+        $jsonData = is_array($jsonData) ? $jsonData : []; // Garante que é um array
+
         $data = [];
         if ($this->getProduto()) {
             $data['title'] = $this->getName();
@@ -67,6 +73,7 @@ class ProdutoConcreto implements Produto
                 "immediate_payment",
             ];
             $data['attributes'] = [
+                ...$jsonData,
                 [
                     "id" => "SELLER_SKU",
                     "value_name" =>  $this->getProduto()->id
@@ -134,7 +141,7 @@ class ProdutoConcreto implements Produto
 
             if ($photos) {
                 $data['pictures'] = $photos;
-            } else {
+            } else
                 $data['pictures'] = [[
                     "source" =>
                     "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $this->getProduto()->id . "/" . $this->getProduto()->image
@@ -142,8 +149,8 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-
-        //     // GET TOKEN
+            // Log::alert($data_json);
+            // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
@@ -182,11 +189,10 @@ class ProdutoConcreto implements Produto
                 $mercado_livre_history->save();
             }
         }
-    }
-
 
     public function integrarViaApi($descricao,$id_prod)
     {
+        Log::alert("INTEGRANDO " .$this->getProduto()->id);
         $error_message = [];
         $success_data = [];
         $fotos = images::where('product_id', $this->getProduto()->id)->get();
@@ -195,6 +201,10 @@ class ProdutoConcreto implements Produto
             array_push($photos, ["source" => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
         }
         $data = [];
+
+        $jsonData = json_decode($this->getProduto()->atributos_json, true);
+        $jsonData = is_array($jsonData) ? $jsonData : []; // Garante que é um array
+
         if ($this->getProduto()) {
             $data['title'] = $this->getName();
             $data['category_id'] = $this->getCategoria();
@@ -211,6 +221,7 @@ class ProdutoConcreto implements Produto
                 "immediate_payment",
             ];
             $data['attributes'] = [
+                ...$jsonData,
                 [
                     "id" => "SELLER_SKU",
                     "value_name" =>  $this->getProduto()->id
@@ -301,7 +312,7 @@ class ProdutoConcreto implements Produto
             curl_close($ch);
             $json = json_decode($reponse);
 
-            Log::emergency($this->getValorSemTaxa());
+            Log::alert($reponse);
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
@@ -324,6 +335,7 @@ class ProdutoConcreto implements Produto
                 $mercado_livre_history->product_id = $this->getProduto()->id;
                 $mercado_livre_history->priceNotFee = $this->getValorSemTaxa();
                 $mercado_livre_history->save();
+                return ['id' => $json->id];
             }
         }
     }
@@ -483,5 +495,13 @@ class ProdutoConcreto implements Produto
     public function getDadosIntegrado()
     {
         return $this->dadosIntegrado;
+    }
+
+    /**
+     * Get the value of json
+     */
+    public function getJson()
+    {
+        return $this->json;
     }
 }

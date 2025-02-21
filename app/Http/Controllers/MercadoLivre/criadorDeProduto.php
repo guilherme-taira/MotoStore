@@ -21,8 +21,9 @@ abstract class criadorDeProduto
     private float $valorSemTaxa;
     private float $totalInformado;
     private $dadosIntegrado; // DADOS PARA GUARDAR DEPOIS DE INTEGRAR
+    private $json;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null,$json = null)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -35,6 +36,7 @@ abstract class criadorDeProduto
         $this->valorSemTaxa = $valorSemTaxa;
         $this->totalInformado = $totalInformado;
         $this->dadosIntegrado = $dadosIntegrado;
+        $this->json = $json;
     }
 
 
@@ -227,5 +229,13 @@ abstract class criadorDeProduto
     public function getDadosIntegrado()
     {
         return $this->dadosIntegrado;
+    }
+
+    /**
+     * Get the value of json
+     */
+    public function getJson()
+    {
+        return $this->json;
     }
 }

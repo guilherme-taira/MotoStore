@@ -109,7 +109,6 @@ class orderscontroller extends Controller
         $viewData['shipping_cost'] = 0;
         $viewData['shipping'] = [];
 
-
         $contato = Contato::where('integracao_bling_id','=',$order[0]->id_user)->first();
         if(isset($contato)){
             $viewData['contato'] = $contato;
@@ -325,6 +324,11 @@ class orderscontroller extends Controller
         }else{
             $orders = order_site::getOrderjoinApi($request->userId);
         }
+        return response()->json($orders);
+    }
+
+    public function getOrderjoinApiDespacharApp(Request $request){
+        $orders = order_site::getOrderjoinApiDespachar($request->userId);
         return response()->json($orders);
     }
 

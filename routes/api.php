@@ -43,7 +43,6 @@ Route::prefix('v1')->group(function () {
         return ShippingNotification::where('shipping_id', $shipping_id)->get();
     });
 
-
     Route::post('/process-sale', [SalesReportController::class, 'processSale'])->name('sales.process');
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
@@ -83,20 +82,28 @@ Route::prefix('v1')->group(function () {
     Route::post('code',[StoreController::class,'getCode']);
     Route::post('fotoPreview',[productsController::class,'fotoPreview']);
     Route::get('getPedidos',[productsController::class,'getPedidos']);
+    Route::get('getPedidosById',[productsController::class,'getPedidosById']);
     Route::post('dataHome',[productsController::class,'dataHome']);
     Route::get('/sales-data', [productsController::class, 'getSalesData']);
     Route::get('/teste2',[productsController::class,'teste']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
     Route::get('/produtos', [productsController::class, 'getProdutosPaginados']);
+    Route::get('/produtosWithImages', [productsController::class, 'getProdutosPaginadosImages']);
     // ROTAS DE API PARA O APLICATIVO
     Route::post('integrarProdutoviaApi',[productsController::class,'integrarProdutoviaApi']);
     Route::post('produtosIntegradosViaApi',[productsController::class,'produtosIntegradosViaApi']);
     Route::post('produtosIntegradosMLApi',[productsController::class,'produtosIntegradosMLApi']);
     Route::post('EnviarDadosIntegradosMLApi',[productsController::class,'EnviarDadosIntegradosMLApi']);
     Route::get('getVendasApi',[orderscontroller::class,'getVendasApi']);
+    Route::get('getOrderjoinApiDespacharApp',[orderscontroller::class,'getOrderjoinApiDespacharApp']);
     Route::post('/loginApi', [LoginController::class, 'loginApi']);
     Route::post('/financeiro/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
+    Route::post('/getDataCentralFornecedor',[FornecedorController::class,'getDataCentralFornecedor']);
+    Route::post('/getDevolucoesByFornecedor',[FornecedorController::class,'getDevolucoesByFornecedor']);
+    Route::post('/getMessageMediation',[FornecedorController::class,'getMessageMediation']);
+    Route::post('/setShippingMediation',[FornecedorController::class,'setShippingMediation']);
+    // financeiro::contareceber(Auth::user()->id);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
