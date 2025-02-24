@@ -57,8 +57,7 @@ class LoginController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user_id' => Auth::user()->id,
-            'username' => Auth::user()->name,
-            'role' =>  Auth::user()->role
+            'username' => Auth::user()->name
         ]);
     }
 
