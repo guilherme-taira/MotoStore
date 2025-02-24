@@ -132,7 +132,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
 
-                    FacadesLog::debug(json_encode($dados));
+                    // FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
@@ -251,9 +251,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 if ($fornecedor) {
 
                                 // Envia Notificação de Venda
-                                if($id_order){
-                                    $this->pushNotificationApp("Olá {$fornecedor->name}","Você vendeu {$items->item->title}");
-                                }
+                                // if($id_order){
+                                //     $this->pushNotificationApp("Olá {$fornecedor->name}","Você vendeu {$items->item->title}");
+                                // }
 
                                 try {
                                     // Dados para enviar no corpo da requisição
@@ -348,20 +348,23 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                             $BlingApiService = new BlingApiService($auth->access_token);
                                             $BlingApiService->sendSale($data);
                                         }
+
+                                        financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                        // NOTIFICA O FORNECEDOR
+                                        Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                        // // NOTIFICA O VENDEDOR
+                                        Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
                                     } catch (\Throwable $th) {
                                         FacadesLog::alert($th->getMessage());
                                     }
 
-                                    // NOTIFICA O FORNECEDOR
-                                    Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                    // // NOTIFICA O VENDEDOR
-                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
+
                                 }
-                                    financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+
                                     // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{
 
-                                    FacadesLog::debug("Gravando no Banco pedido: " . $json->id);
+                                    // FacadesLog::debug("Gravando no Banco pedido: " . $json->id);
                                     try {
                                         $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),"N/D","N/D","1",$json->payments[0]->marketplace_fee,$json->shipping->id);
                                         $cliente->resource();
