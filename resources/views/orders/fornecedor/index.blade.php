@@ -515,7 +515,6 @@
 
     <script>
         $(document).ready(function() {
-
         $(".clickable-card").click(function() {
         let url = $(this).data("url"); // Obtém a URL da rota
         let userId = "{{ Auth::user()->id }}"; // Captura o ID do usuário autenticado
