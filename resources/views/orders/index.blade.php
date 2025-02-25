@@ -27,13 +27,13 @@
 
                             <!--Table body-->
                             <tbody>
-                                <div class="input-group mb-4">
+                                {{-- <div class="input-group mb-4">
                                     <input type="text" class="form-control" id="advanced-search-input"
                                         placeholder="Nome do Cliente, Código do Pedido" />
                                     <button class="btn btn-primary" id="advanced-search-button" type="button">
                                         <i class="fa fa-search"></i>
                                     </button>
-                                </div>
+                                </div> --}}
                                 <div class="accordion accordion-flush" id="accordionFlushExample">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="flush-headingOne">
