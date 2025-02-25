@@ -426,56 +426,45 @@ class orderscontroller extends Controller
 
     public function getSalesLastMont(Request $request)
     {
-        Log::alert($request->all());
-        $dataQuery = DB::table('pivot_site')
-        ->join('users', 'pivot_site.id_user', '=', 'users.id')
-        ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
-        ->select(
-            DB::raw('SUM(order_site.valorVenda) as totalValorVenda'),
-            DB::raw('SUM(order_site.fee) as totalValorTarifa'),
-            DB::raw('COUNT(order_site.id) as quantidadeVendas'),
-            DB::raw('DATE(order_site.dataVenda) as data')
-        )
-        ->where('users.id', $request->user_id);
+          // caso contrário, pega os dados do mês corrente.
+            $dataQuery = DB::table('pivot_site')
+            ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->select(
+                DB::raw('SUM(order_site.valorVenda) as totalValorVenda'),
+                DB::raw('SUM(order_site.fee) as totalValorTarifa'),
+                DB::raw('COUNT(order_site.id) as quantidadeVendas')
+            )
+            ->where('users.id', $request->user_id);
 
         if ($request->dataInicial && $request->dataFinal) {
-            $dataQuery->whereBetween(DB::raw('DATE(order_site.dataVenda)'), [$request->dataInicial, $request->dataFinal]);
+            $dataQuery->whereBetween('order_site.dataVenda', [$request->dataInicial, $request->dataFinal]);
+        } else {
+            $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+            $endOfMonth   = Carbon::now()->endOfMonth()->toDateString();
+            $dataQuery->whereBetween('order_site.dataVenda', [$startOfMonth, $endOfMonth]);
         }
 
-        $dataQuery->groupBy(DB::raw('DATE(order_site.dataVenda)'))
-                ->orderBy(DB::raw('DATE(order_site.dataVenda)'), 'asc');
+        $monthlyData = $dataQuery->first();
 
-        $dados = $dataQuery->get();
+        Log::alert(Carbon::today()->format('Y-m-d'));
+        // Query para o dia corrente
+        $dailyData = DB::table('pivot_site')
+            ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->select(
+                DB::raw('SUM(order_site.valorVenda) as totalValorVendaDia'),
+                DB::raw('COUNT(order_site.id) as quantidadeVendasDia')
+            )
+            ->where('users.id', $request->user_id)
+            ->whereDate('order_site.dataVenda',Carbon::today()->format('Y-m-d'))
+            ->first();
 
-
-
-        $valor = [];
-        $tarifa = [];
-        $quantidade = [];
-        $datavenda = [];
-
-        foreach ($dados as $dado) {
-            array_push($valor, round($dado->totalValorVenda));
-            array_push($tarifa, round($dado->totalValorTarifa));
-            array_push($quantidade, $dado->quantidadeVendas);
-            array_push($datavenda, $dado->dataVenda);
-        }
-
-        // // 2. Query para pegar a quantidade de vendas do dia corrente
-        // $vendasHoje = DB::table('pivot_site')
-        //     ->join('users', 'pivot_site.id_user', '=', 'users.id')
-        //     ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
-        //     ->where('users.id', $request->user_id)
-        //     ->whereDate('order_site.dataVenda', Carbon::today())
-        //     ->count();
-
-        // $viewData = [
-        //     'valor' => $valor,
-        //     'tarifa' => $tarifa,
-        //     'quantidadeVendas' => $quantidade, // Quantidade de vendas por dia para o período
-        //     'dataVenda' => $datavenda,
-        //     'vendasHoje' => $vendasHoje, // Total de vendas do dia atual
-        // ];
+        // Junta os resultados
+        $viewData = [
+            'monthlyData' => $monthlyData,
+            'dailyData'   => $dailyData,
+        ];
 
         return response()->json($viewData);
     }

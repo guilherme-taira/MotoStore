@@ -167,7 +167,7 @@ class order_site extends Model
 
         // Filtro por número do pedido (na tabela 'pivot_site')
         if ($request->npedido) {
-            $data->where('pivot_site.order_id', $request->npedido);
+            $data->where('order_site.numeropedido', $request->npedido);
         }
 
         // Filtro por intervalo de datas (campo 'dataVenda' na tabela 'order_site')
