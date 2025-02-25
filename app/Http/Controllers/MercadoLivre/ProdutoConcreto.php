@@ -149,7 +149,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-            // Log::alert($data_json);
+            Log::alert($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -164,7 +164,7 @@ class ProdutoConcreto implements Produto
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-
+            Log::alert($reponse);
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;

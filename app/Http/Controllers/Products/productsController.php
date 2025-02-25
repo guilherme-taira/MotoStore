@@ -1729,8 +1729,6 @@ try {
 
     public function getSalesData(Request $request)
     {
-
-
          // Defina a chave do cache
          $cacheKey = 'metricasVendasHomePage';
 

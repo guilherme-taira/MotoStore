@@ -35,25 +35,25 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        // PEGA AS VENDAS DO SISTEMA
+            // PEGA AS VENDAS DO SISTEMA
 
-        try {
-            $dataAtual = new DateTime();
-            $userML = token::where('user_id', Auth::user()->id)->first();
-            $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id_mercadolivre);
-            $newToken->resource();
-        } catch (\Exception $e) {
-            Log::alert($e->getMessage());
-        }
+            try {
+                $dataAtual = new DateTime();
+                $userML = token::where('user_id', Auth::user()->id)->first();
+                $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $userML->user_id_mercadolivre);
+                $newToken->resource();
+            } catch (\Exception $e) {
+                Log::alert($e->getMessage());
+            }
 
-        $viewData = [];
-        $viewData['title'] = "Afilidrop Dashboard";
-        $viewData['subtitle'] = "Dashboard";
-        // Defina a chave do cache
-        $cacheKey = 'vendas';
+            $viewData = [];
+            $viewData['title'] = "Afilidrop Dashboard";
+            $viewData['subtitle'] = "Dashboard";
+            // Defina a chave do cache
+            $cacheKey = 'vendas';
 
-        // Tempo em minutos que o cache será mantido
-        $cacheTime = 2;
+            // Tempo em minutos que o cache será mantido
+            $cacheTime = 2;
 
           // Verifique se já existe um cache
           if (Cache::has($cacheKey)) {
@@ -69,7 +69,6 @@ class HomeController extends Controller
         }
 
         $viewData['orders'] = $orders;
-
         return view('home')->with('viewData', $viewData);
     }
 

@@ -337,6 +337,10 @@ class order_site extends Model
         return $viewData;
     }
 
+
+
+
+
     public static function OrdersMercadoLivreDay($user, $monthCurrent)
     {
         $data = DB::table('pivot_site')

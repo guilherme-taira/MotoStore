@@ -98,7 +98,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        // FacadesLog::critical($reponse);
+        FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -114,86 +114,86 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                     $line_item = [];
 
-                //     if($getLink != null){
-                //     // IMPLEMENTAR DADOS DA SHOPIFY ********
-                //     foreach ($json->order_items as $items) {
-                //         // PRODUTOS DO ARRAY DA SHOPIFY
-                //         $produto = new ShopifyProduct($items->item->seller_sku,$getLink);
-                //         $verificar = $produto->resource();
-                //         if(isset($verificar['variant'])){
-                //             $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
-                //         }else{
-                //             $line_item[] = new LineItem("ND", $items->quantity);
-                //         }
+                    if($getLink != null){
+                    // IMPLEMENTAR DADOS DA SHOPIFY ********
+                    foreach ($json->order_items as $items) {
+                        // PRODUTOS DO ARRAY DA SHOPIFY
+                        $produto = new ShopifyProduct($items->item->seller_sku,$getLink);
+                        $verificar = $produto->resource();
+                        if(isset($verificar['variant'])){
+                            $line_item[] = new LineItem($items->item->seller_sku, $items->quantity);
+                        }else{
+                            $line_item[] = new LineItem("ND", $items->quantity);
+                        }
 
-                //      }
-                //    }
+                     }
+                   }
 
-                    // $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
-                    // $dados = $shippingClient->resource();
+                    $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
+                    $dados = $shippingClient->resource();
 
                     // FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
-                    // try {
+                    try {
 
-                    //     if($getLink != null){
+                        if($getLink != null){
 
-                    //     if ($getLink->comunicando == 1 && $dados['transportadora'] == NULL) {
+                        if ($getLink->comunicando == 1 && $dados['transportadora'] == NULL) {
 
-                    //         if (ShippingUpdate::ifExist($json->id)) {
-                    //             $redisKey = 'shipping_update' . $json->id;
+                            if (ShippingUpdate::ifExist($json->id)) {
+                                $redisKey = 'shipping_update' . $json->id;
 
-                    //             // Usar SETNX para garantir que não haja concorrência
-                    //             $isLocked = Redis::setnx($redisKey, false);
+                                // Usar SETNX para garantir que não haja concorrência
+                                $isLocked = Redis::setnx($redisKey, false);
 
-                    //             if ($isLocked) {
-                    //                 // Define o tempo de expiração de 5 horas (18.000 segundos)
-                    //                 Redis::expire($redisKey, 18000);
+                                if ($isLocked) {
+                                    // Define o tempo de expiração de 5 horas (18.000 segundos)
+                                    Redis::expire($redisKey, 18000);
 
-                    //                 FacadesLog::debug("Processando pedido: " . $json->id);
+                                    FacadesLog::debug("Processando pedido: " . $json->id);
 
-                    //                 // Processar o pedido
-                    //                 $this->storeShipping("D", $json->id, $json->buyer->id, $json->seller->id);
+                                    // Processar o pedido
+                                    $this->storeShipping("D", $json->id, $json->buyer->id, $json->seller->id);
 
-                    //                 $shipping_address = new ShippingAddress(
-                    //                     $dados['first_name'], $dados['address1'],
-                    //                     $dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],
-                    //                     $dados['city'], $dados['zip'], $dados['province'], $dados['country'],
-                    //                     $dados['last_name'], $dados['address2'], $dados['company'], $dados['name'],
-                    //                     $dados['country_code'], $dados['province_code'], $dados['cpf']
-                    //                 );
+                                    $shipping_address = new ShippingAddress(
+                                        $dados['first_name'], $dados['address1'],
+                                        $dados['phone'] == "XXXXXXX" ? $getLink->telefone : $dados['phone'],
+                                        $dados['city'], $dados['zip'], $dados['province'], $dados['country'],
+                                        $dados['last_name'], $dados['address2'], $dados['company'], $dados['name'],
+                                        $dados['country_code'], $dados['province_code'], $dados['cpf']
+                                    );
 
-                    //                 $nota = $json->id . " - " . $json->buyer->nickname;
-                    //                 $order = new Order($line_item, "paid", "BRL", $shipping_address, $nota,
-                    //                                    isset($getLink->email) ? $getLink->email : uniqid("cliente") . "@gmail.com");
+                                    $nota = $json->id . " - " . $json->buyer->nickname;
+                                    $order = new Order($line_item, "paid", "BRL", $shipping_address, $nota,
+                                                       isset($getLink->email) ? $getLink->email : uniqid("cliente") . "@gmail.com");
 
-                    //                 // Enviar o pedido
-                    //                 $data = new SendOrder($order, $getLink->name_loja, $getLink->token);
-                    //                 $id_shopifyOrder = $data->resource();
+                                    // Enviar o pedido
+                                    $data = new SendOrder($order, $getLink->name_loja, $getLink->token);
+                                    $id_shopifyOrder = $data->resource();
 
-                    //                 // Coloca na fila a conversão de rascunho para pedido
-                    //                 \App\Jobs\putDraftShopifyOrder::dispatch($getLink,
-                    //                     $id_shopifyOrder->data->draftOrderCreate->draftOrder->id,
-                    //                     $json->id, $json->buyer->id, $json->seller->id
-                    //                 )->delay(Carbon::now()->addSeconds(10));
+                                    // Coloca na fila a conversão de rascunho para pedido
+                                    \App\Jobs\putDraftShopifyOrder::dispatch($getLink,
+                                        $id_shopifyOrder->data->draftOrderCreate->draftOrder->id,
+                                        $json->id, $json->buyer->id, $json->seller->id
+                                    )->delay(Carbon::now()->addSeconds(10));
 
-                    //             } else {
-                    //                 // FacadesLog::debug("Chave já existente: " . $json->id);
-                    //                 return; // Registro já processado recentemente, não processar novamente
-                    //             }
-                    //         }
-                    //     }
-                    //  }
-                    // } catch (\Exception $th) {
-                    //     // Em caso de erro, remover a chave Redis para permitir nova tentativa no futuro
-                    //     Redis::del($redisKey);
+                                } else {
+                                    // FacadesLog::debug("Chave já existente: " . $json->id);
+                                    return; // Registro já processado recentemente, não processar novamente
+                                }
+                            }
+                        }
+                     }
+                    } catch (\Exception $th) {
+                        // Em caso de erro, remover a chave Redis para permitir nova tentativa no futuro
+                        Redis::del($redisKey);
 
-                    //     // Deletar o registro do banco de dados e registrar o erro
-                    //     FacadesLog::emergency("VENDA CANCELADA: " .  $json->id);
-                    //     ShippingUpdate::where('id_mercadoLivre', '=', $json->id)->delete();
-                    //     FacadesLog::emergency($th->getMessage());
-                    // }
+                        // Deletar o registro do banco de dados e registrar o erro
+                        FacadesLog::emergency("VENDA CANCELADA: " .  $json->id);
+                        ShippingUpdate::where('id_mercadoLivre', '=', $json->id)->delete();
+                        FacadesLog::emergency($th->getMessage());
+                    }
                     // FIM -*************
 
                     foreach ($json->payments as $payments) {
@@ -219,7 +219,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                          * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
                          */
 
-                            if (order_site::VerificarVenda($json->id) == false) {
+                            // if (order_site::VerificarVenda($json->id) == false) {
 
                                   // * FORMA DE PAGAMENTO NOVA *//
                             /**
@@ -242,12 +242,14 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id,$json->id);
                                 $preference = $prefence->resource();
 
-                                $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
-                                $cliente->resource();
-                                $id_order = $cliente->saveClient($json,$this->getSellerId());
+                                // $cliente = new InterfaceClienteController($json->buyer->id, $this->getToken(),$preference['external_reference'],$preference['init_point'],$preference['id'],$json->payments[0]->marketplace_fee,$shipping);
+                                // $cliente->resource();
+                                // $id_order = $cliente->saveClient($json,$this->getSellerId());
 
                                 $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
                                 $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
+                                financeiro::SavePayment(4, $payments->total_paid_amount, "25654", $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+
                                 if ($fornecedor) {
 
                                 // Envia Notificação de Venda
@@ -255,111 +257,112 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 //     $this->pushNotificationApp("Olá {$fornecedor->name}","Você vendeu {$items->item->title}");
                                 // }
 
-                                try {
-                                    // Dados para enviar no corpo da requisição
-                                    $data = [
-                                        "order_site_id" => $id_order,
-                                        "product_id" => $produto['id'],
-                                        "integrated_product_id" => $response->json()['id'],
-                                        "quantity_sold" => intVal($items->quantity),
-                                    ];
+                                // try {
+                                //     // Dados para enviar no corpo da requisição
+                                //     $data = [
+                                //         "order_site_id" => $id_order,
+                                //         "product_id" => $produto['id'],
+                                //         "integrated_product_id" => $response->json()['id'],
+                                //         "quantity_sold" => intVal($items->quantity),
+                                //     ];
 
-                                    $retirarEstoque = new SalesReportController();
-                                    $retirarEstoque->processSale($data);
+                                //     $retirarEstoque = new SalesReportController();
+                                //     $retirarEstoque->processSale($data);
 
-                                } catch (\Throwable $th) {
-                                    FacadesLog::alert($th->getMessage());
-                                }
+                                // } catch (\Throwable $th) {
+                                //     FacadesLog::alert($th->getMessage());
+                                // }
 
-                                    // ENVIAR VENDA BLING
-                                    try {
-                                        $contato = Contato::where('integracao_bling_id',$user->user_id)->first();
-                                        $auth = IntegracaoBling::where('user_id',$fornecedor->id)->first();
-                                        $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor($fornecedor->id,$contato->id);
+                                //     // ENVIAR VENDA BLING
+                                //     try {
+                                //         $contato = Contato::where('integracao_bling_id',$user->user_id)->first();
+                                //         $auth = IntegracaoBling::where('user_id',$fornecedor->id)->first();
+                                //         $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor($fornecedor->id,$contato->id);
 
-                                        if($contatoEfornecedor){
+                                //         if($contatoEfornecedor){
 
-                                            $data = [
-                                                "data" => date('Y-m-d'),
-                                                "numeroPedidoCompra" => $json->id,
-                                                "contato" => [
-                                                    "id" => $contatoEfornecedor->bling_id
-                                                ],
-                                                "itens" => [
-                                                    [
-                                                        "quantidade" => intVal($items->quantity),
-                                                        "valor" => $produto->priceWithFee,
-                                                        "produto" => [
-                                                            "id" => $produto->id_bling
-                                                        ]
-                                                    ]
-                                                ],
-                                            ];
+                                //             $data = [
+                                //                 "data" => date('Y-m-d'),
+                                //                 "numeroPedidoCompra" => $json->id,
+                                //                 "contato" => [
+                                //                     "id" => $contatoEfornecedor->bling_id
+                                //                 ],
+                                //                 "itens" => [
+                                //                     [
+                                //                         "quantidade" => intVal($items->quantity),
+                                //                         "valor" => $produto->priceWithFee,
+                                //                         "produto" => [
+                                //                             "id" => $produto->id_bling
+                                //                         ]
+                                //                     ]
+                                //                 ],
+                                //             ];
 
-                                            FacadesLog::critical(json_encode($data));
-                                            // PEGA O SERVIÇO BLING
-                                            $BlingApiService = new BlingApiService($auth->access_token);
-                                            $BlingApiService->sendSale($data);
+                                //             FacadesLog::critical(json_encode($data));
+                                //             // PEGA O SERVIÇO BLING
+                                //             $BlingApiService = new BlingApiService($auth->access_token);
+                                //             $BlingApiService->sendSale($data);
 
-                                        }else{
+                                //         }else{
 
-                                            $blingData = [
-                                                'nome' => $contato['nome'],
-                                                'tipo' => $contato['tipo'],
-                                                'numeroDocumento' => $contato['numeroDocumento'],
-                                                'situacao' => $contato['situacao'],
-                                                'celular' => $contato['celular'],
-                                                'email' => $contato['email'],
-                                                'rg' => $contato['rg'] ?? null,
-                                                'endereco' => [
-                                                    'geral' => [
-                                                        'endereco' => $contato['endereco'],
-                                                        'cep' => $contato['cep'],
-                                                        'bairro' => $contato['bairro'],
-                                                        'municipio' => $contato['municipio'],
-                                                        'uf' => $contato['uf'],
-                                                        'numero' => $contato['numero'],
-                                                        'complemento' => $contato['complemento'] ?? null,
-                                                    ],
-                                                ],
-                                            ];
+                                //             $blingData = [
+                                //                 'nome' => $contato['nome'],
+                                //                 'tipo' => $contato['tipo'],
+                                //                 'numeroDocumento' => $contato['numeroDocumento'],
+                                //                 'situacao' => $contato['situacao'],
+                                //                 'celular' => $contato['celular'],
+                                //                 'email' => $contato['email'],
+                                //                 'rg' => $contato['rg'] ?? null,
+                                //                 'endereco' => [
+                                //                     'geral' => [
+                                //                         'endereco' => $contato['endereco'],
+                                //                         'cep' => $contato['cep'],
+                                //                         'bairro' => $contato['bairro'],
+                                //                         'municipio' => $contato['municipio'],
+                                //                         'uf' => $contato['uf'],
+                                //                         'numero' => $contato['numero'],
+                                //                         'complemento' => $contato['complemento'] ?? null,
+                                //                     ],
+                                //                 ],
+                                //             ];
 
-                                            $BlingContatos = new BlingContatos($auth->access_token,$contato->id,$fornecedor->id);
-                                            $id = $BlingContatos->enviarContato($blingData);
+                                //             $BlingContatos = new BlingContatos($auth->access_token,$contato->id,$fornecedor->id);
+                                //             $id = $BlingContatos->enviarContato($blingData);
 
-                                            $data = [
-                                                "data" => date('Y-m-d'),
-                                                "numeroPedidoCompra" => $json->id,
-                                                "contato" => [
-                                                    "id" => $id
-                                                ],
-                                                "itens" => [
-                                                    [
-                                                        "quantidade" => intVal($items->quantity),
-                                                        "valor" => $produto->priceWithFee,
-                                                        "produto" => [
-                                                            "id" => $produto->id_bling
-                                                        ]
-                                                    ]
-                                                ],
-                                            ];
+                                //             $data = [
+                                //                 "data" => date('Y-m-d'),
+                                //                 "numeroPedidoCompra" => $json->id,
+                                //                 "contato" => [
+                                //                     "id" => $id
+                                //                 ],
+                                //                 "itens" => [
+                                //                     [
+                                //                         "quantidade" => intVal($items->quantity),
+                                //                         "valor" => $produto->priceWithFee,
+                                //                         "produto" => [
+                                //                             "id" => $produto->id_bling
+                                //                         ]
+                                //                     ]
+                                //                 ],
+                                //             ];
 
-                                            // PEGA O SERVIÇO BLING
-                                            $BlingApiService = new BlingApiService($auth->access_token);
-                                            $BlingApiService->sendSale($data);
-                                        }
-
-                                        financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                                        // NOTIFICA O FORNECEDOR
-                                        Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                        // // NOTIFICA O VENDEDOR
-                                        Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
-                                    } catch (\Throwable $th) {
-                                        FacadesLog::alert($th->getMessage());
-                                    }
+                                //             // PEGA O SERVIÇO BLING
+                                //             $BlingApiService = new BlingApiService($auth->access_token);
+                                //             $BlingApiService->sendSale($data);
+                                //         }
 
 
-                                }
+                                //     } catch (\Throwable $th) {
+                                //         FacadesLog::alert($th->getMessage());
+                                //     }
+                                    // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                    // NOTIFICA O FORNECEDOR
+                                    // Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                    // // // NOTIFICA O VENDEDOR
+                                    // Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
+
+                                // }
+
 
                                     // financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $token->user_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
                             }else{

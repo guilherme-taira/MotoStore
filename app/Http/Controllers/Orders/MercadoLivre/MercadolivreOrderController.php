@@ -353,11 +353,11 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         FacadesLog::alert($th->getMessage());
                                     }
 
-                                    financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                                    // NOTIFICA O FORNECEDOR
-                                    Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                    // // NOTIFICA O VENDEDOR
-                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
+                                        financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                        // NOTIFICA O FORNECEDOR
+                                        Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                        // // NOTIFICA O VENDEDOR
+                                        Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
 
                                 }
 

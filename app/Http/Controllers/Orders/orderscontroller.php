@@ -15,6 +15,7 @@ use App\Models\Orders;
 use App\Models\Products;
 use App\Models\StatusApp;
 use App\Models\token;
+use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Karriere\PdfMerge\PdfMerge;
 
@@ -382,5 +384,101 @@ class orderscontroller extends Controller
 
         return response()->json($dataFormatada);
     }
+
+    public function getSalesLast7Days(Request $request)
+    {
+        // 1. Buscar vendas reais no período (somente dias que têm vendas)
+        $rawSales = DB::table('order_site')
+            ->join('pivot_site', 'pivot_site.order_id', '=', 'order_site.id')
+            ->select(
+                DB::raw('DATE(dataVenda) as data'),
+                DB::raw('SUM(valorVenda) as total')
+            )
+            ->where('pivot_site.id_user', 59)
+            ->where('dataVenda', '>=', Carbon::today()->subDays(6))
+            ->groupBy(DB::raw('DATE(dataVenda)'))
+            ->orderBy(DB::raw('DATE(dataVenda)'))
+            ->get();
+
+        // 2. Montar array para os últimos 7 dias
+        $result = [];
+        for ($i = 0; $i < 7; $i++) {
+            // Aqui, usamos 'm-d' para exibir apenas mês-dia.
+            $dateStr = Carbon::today()->copy()->subDays($i)->format('m-d');
+            $sale = $rawSales->firstWhere('data', Carbon::today()->copy()->subDays($i)->format('Y-m-d'));
+
+            $valorBruto = $sale ? $sale->total : 0;
+            $valorFormatado = number_format($valorBruto, 2, ',', '.');
+
+            $result[] = [
+                'data'  => $dateStr,     // Agora só exibe mês e dia
+                'valor' => $valorFormatado,
+            ];
+        }
+
+        // Inverte para ficar em ordem cronológica
+        $result = array_reverse($result);
+
+        // Retorna em JSON
+        return response()->json(['data' => $result]);
+    }
+
+
+    public function getSalesLastMont(Request $request)
+    {
+        Log::alert($request->all());
+        $dataQuery = DB::table('pivot_site')
+        ->join('users', 'pivot_site.id_user', '=', 'users.id')
+        ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+        ->select(
+            DB::raw('SUM(order_site.valorVenda) as totalValorVenda'),
+            DB::raw('SUM(order_site.fee) as totalValorTarifa'),
+            DB::raw('COUNT(order_site.id) as quantidadeVendas'),
+            DB::raw('DATE(order_site.dataVenda) as data')
+        )
+        ->where('users.id', $request->user_id);
+
+        if ($request->dataInicial && $request->dataFinal) {
+            $dataQuery->whereBetween(DB::raw('DATE(order_site.dataVenda)'), [$request->dataInicial, $request->dataFinal]);
+        }
+
+        $dataQuery->groupBy(DB::raw('DATE(order_site.dataVenda)'))
+                ->orderBy(DB::raw('DATE(order_site.dataVenda)'), 'asc');
+
+        $dados = $dataQuery->get();
+
+
+
+        $valor = [];
+        $tarifa = [];
+        $quantidade = [];
+        $datavenda = [];
+
+        foreach ($dados as $dado) {
+            array_push($valor, round($dado->totalValorVenda));
+            array_push($tarifa, round($dado->totalValorTarifa));
+            array_push($quantidade, $dado->quantidadeVendas);
+            array_push($datavenda, $dado->dataVenda);
+        }
+
+        // // 2. Query para pegar a quantidade de vendas do dia corrente
+        // $vendasHoje = DB::table('pivot_site')
+        //     ->join('users', 'pivot_site.id_user', '=', 'users.id')
+        //     ->join('order_site', 'order_site.id', '=', 'pivot_site.order_id')
+        //     ->where('users.id', $request->user_id)
+        //     ->whereDate('order_site.dataVenda', Carbon::today())
+        //     ->count();
+
+        // $viewData = [
+        //     'valor' => $valor,
+        //     'tarifa' => $tarifa,
+        //     'quantidadeVendas' => $quantidade, // Quantidade de vendas por dia para o período
+        //     'dataVenda' => $datavenda,
+        //     'vendasHoje' => $vendasHoje, // Total de vendas do dia atual
+        // ];
+
+        return response()->json($viewData);
+    }
+
 
 }

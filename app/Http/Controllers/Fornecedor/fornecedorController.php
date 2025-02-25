@@ -62,7 +62,6 @@ class fornecedorController extends Controller
         $viewData['contasAtrasada'] = 0;
         $viewData['haPagar'] = 0;
 
-
         // INCREMENTA A QUANTIDADE DE VENDAS A RECEBER
         foreach ($viewData['countData'] as $order) {
 
@@ -96,6 +95,7 @@ class fornecedorController extends Controller
 
         try {
             foreach ($orders as $key => $value) {
+
                 // Obter o token para a etiqueta com base no shipping_id
                 $token = financeiro::join('pivot_site', 'pivot_site.order_id', 'financeiro.order_id')
                 ->join('token', 'pivot_site.id_user', 'token.user_id')

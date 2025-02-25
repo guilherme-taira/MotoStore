@@ -514,6 +514,11 @@
     </div>
 
     <script>
+        var orderShowRoute = "{{ route('orders.show', ['id' => ':id']) }}";
+      </script>
+
+
+    <script>
         $(document).ready(function() {
         $(".clickable-card").click(function() {
         let url = $(this).data("url"); // Obtém a URL da rota
@@ -643,9 +648,9 @@
                                             </div>
                                         ` : ''}
 
-                                        <a href="{{ route('orders.show', ['id' => $order->order_id]) }}" class="btn btn-outline-primary btn-sm">
+                                      <a href="${orderShowRoute.replace(':id', order.order_id)}" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-eye"></i> Ver Detalhes
-                                        </a>
+                                       </a>
                                     </div>
                                 </div>
                             </div>

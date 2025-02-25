@@ -37,6 +37,7 @@ class financeiro extends Model
             ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional','financeiro.id as financeiroId')
             ->where('financeiro.user_id', $user)
             ->orderBy('financeiro.id','desc')->paginate(10);
+
         return $data;
     }
 

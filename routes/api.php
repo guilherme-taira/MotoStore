@@ -85,6 +85,7 @@ Route::prefix('v1')->group(function () {
     Route::get('getPedidosById',[productsController::class,'getPedidosById']);
     Route::post('dataHome',[productsController::class,'dataHome']);
     Route::get('/sales-data', [productsController::class, 'getSalesData']);
+
     Route::get('/teste2',[productsController::class,'teste']);
     // ROTAS DE API PARA PAGAMENTOS
     Route::get('payment',[CartController::class,'createPayment']);
@@ -103,6 +104,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/getDevolucoesByFornecedor',[FornecedorController::class,'getDevolucoesByFornecedor']);
     Route::post('/getMessageMediation',[FornecedorController::class,'getMessageMediation']);
     Route::post('/setShippingMediation',[FornecedorController::class,'setShippingMediation']);
+    Route::post('getSalesLast7Days',[orderscontroller::class,'getSalesLast7Days']);
+    Route::post('getSalesLastMont',[orderscontroller::class,'getSalesLastMont']);
+
     // financeiro::contareceber(Auth::user()->id);
 });
 
