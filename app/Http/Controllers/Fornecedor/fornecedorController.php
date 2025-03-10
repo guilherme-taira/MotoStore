@@ -112,7 +112,6 @@ class fornecedorController extends Controller
 
         }
 
-        Log::alert(json_encode($orders));
         return response()->json($orders);
     }
 

@@ -17,6 +17,23 @@ class order_site extends Model
 
     protected $table = "order_site";
 
+    protected $fillable = [
+        'local',
+        'valorVenda',
+        'valorProdutos',
+        'dataVenda',
+        'cliente',
+        'status_id',
+        'preferenceId',
+        'external_reference',
+        'status_mercado_livre',
+        'id_pagamento',
+        'link_pagamento',
+        'fee',
+        'buyer',
+        'numeropedido'
+    ];
+
     public static function VerificarVenda($numero): bool
     {
         $data = order_site::where('numeropedido', '=', $numero)->first();

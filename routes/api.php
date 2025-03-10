@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
+use App\Http\Controllers\Firebase\FirebaseService;
 use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
@@ -18,9 +19,11 @@ use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Usuarios\FornecedorController;
 use App\Models\Products;
 use App\Models\ShippingNotification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Kreait\Firebase\Firestore;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,7 +109,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/setShippingMediation',[FornecedorController::class,'setShippingMediation']);
     Route::post('getSalesLast7Days',[orderscontroller::class,'getSalesLast7Days']);
     Route::post('getSalesLastMont',[orderscontroller::class,'getSalesLastMont']);
-
+    Route::post('saveTokenPhoneAuth',[FirebaseService::class,'saveTokenPhoneAuth']);
     // financeiro::contareceber(Auth::user()->id);
 });
 

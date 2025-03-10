@@ -12,6 +12,11 @@ class kit extends Model
 
     protected $table = 'kit';
 
+    protected $fillable = [
+        'product_id',
+        'product_kit',
+        'available_quantity',
+    ];
 
     public static function getAllKits($user)
     {
@@ -27,9 +32,9 @@ class kit extends Model
 
         // Query para buscar os itens que compõem o kit
         $kitItems = DB::table('kit')
-        ->join('products', 'kit.id_product_kit', '=', 'products.id')
+        ->leftJoin('products', 'kit.id_product_kit', '=', 'products.id')
         ->where('kit.product_id', '=', $id)
-        ->select('kit.*', 'products.*')
+        ->select('kit.*', 'products.*','kit.available_quantity as available_quantity')
         ->get();
 
         // Retorna os dados

@@ -92,7 +92,7 @@ class productsController extends Controller
             foreach ($fotos as $foto) {
                 $images[$produto->id]['fotos'][] = [
                     'id' => $foto->id,
-                    'foto' => $produto->id . "/" . $foto->url
+                    'foto' => $produto->id . "/" . $foto->url,
                 ];
             }
         }
@@ -214,12 +214,6 @@ class productsController extends Controller
                 ->withInput();
         }
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
         $produto = new Products();
         $produto->price = $request->price;
         $produto->title = $request->name;
@@ -294,7 +288,7 @@ class productsController extends Controller
 
         foreach ($produtos as $produto) {
             // Obtém todas as imagens relacionadas ao produto
-            $imagens = images::where('product_id', $produto->id)->get();
+            $imagens = images::where('product_id', $produto->id)->orderBy('position','asc')->get();
             $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
             // Cria um array para armazenar os URLs das imagens
             $imagem_urls = [];
@@ -737,7 +731,7 @@ class productsController extends Controller
             'price' => "required|numeric|gt:0",
             'priceKit' => "required|numeric|gt:0",
             'valorProdFornecedor' => "required|numeric",
-
+            'owner' => 'required',
 
             // Novos Campos
             'estoque_minimo_afiliado' => "required|numeric|gte:0",
@@ -746,6 +740,7 @@ class productsController extends Controller
             'min_unidades_kit' => "required|numeric|gte:0",
             'acao' => "nullable|string|max:50"
         ], [
+            'owner.required' => "O campo owner é obrigatório",
             'subcategoria.required' => "O campo Categoria é obrigatório",
             'isPublic.required' => "O campo ativo é obrigatório.",
             'title.required' => 'O campo Nome é obrigatório.',
@@ -803,58 +798,58 @@ class productsController extends Controller
         UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
 
       // MANIPULA O ESTOQUE DAS INTEGRAÇÕES
-try {
-    if ($request->hasFile('photos')) {
-        $firstImage = true; // Flag para identificar a primeira imagem nova
+        try {
+            if ($request->hasFile('photos')) {
+                $firstImage = true; // Flag para identificar a primeira imagem nova
 
-        // Obtém a última posição registrada para este produto
-        $lastPosition = Images::where('product_id', $produto->getId())
-            ->max('position'); // Pega a maior posição existente
+                // Obtém a última posição registrada para este produto
+                $lastPosition = Images::where('product_id', $produto->getId())
+                    ->max('position'); // Pega a maior posição existente
 
-        $newPosition = ($lastPosition !== null) ? $lastPosition + 1 : 1; // Se não houver imagens, começa do 1
+                $newPosition = ($lastPosition !== null) ? $lastPosition + 1 : 1; // Se não houver imagens, começa do 1
 
-        foreach ($request->file('photos') as $photo) {
-            $fileName = $photo->getClientOriginalName();
+                foreach ($request->file('photos') as $photo) {
+                    $fileName = $photo->getClientOriginalName();
 
-            // Salvar a foto no S3
-            $photo->storeAs(
-                'produtos/' . $produto->getId(),
-                $fileName,
-                's3'
-            );
+                    // Salvar a foto no S3
+                    $photo->storeAs(
+                        'produtos/' . $produto->getId(),
+                        $fileName,
+                        's3'
+                    );
 
-            // Se for a primeira imagem enviada, define como imagem principal do produto
-            if ($firstImage) {
-                $produto->image = $fileName;
-                $firstImage = false;
+                    // Se for a primeira imagem enviada, define como imagem principal do produto
+                    if ($firstImage) {
+                        $produto->image = $fileName;
+                        $firstImage = false;
+                    }
+
+                    // Criar uma instância de imagem e salvar no banco de dados
+                    $image = new Images();
+                    $image->url = $fileName;
+                    $image->product_id = $produto->getId();
+                    $image->position = $newPosition; // Salva na posição correta
+                    $image->save();
+
+                    $newPosition++; // Incrementa para a próxima imagem
+                }
+            } else {
+                // Nenhuma nova imagem foi enviada, verificar se a ordem foi alterada
+                $existingImages = Images::where('product_id', $produto->id)
+                    ->orderBy('position', 'asc')
+                    ->first(); // Pega a primeira imagem da nova ordem
+
+                if ($existingImages) {
+                    $produto->image = $existingImages->url; // Atualiza o campo `image` com a primeira da lista
+                } else {
+                    $produto->image = null; // Se todas as imagens forem removidas, limpa o campo `image`
+                }
             }
 
-            // Criar uma instância de imagem e salvar no banco de dados
-            $image = new Images();
-            $image->url = $fileName;
-            $image->product_id = $produto->getId();
-            $image->position = $newPosition; // Salva na posição correta
-            $image->save();
-
-            $newPosition++; // Incrementa para a próxima imagem
+            $produto->save();
+        } catch (\Exception $th) {
+            echo $th->getMessage();
         }
-    } else {
-        // Nenhuma nova imagem foi enviada, verificar se a ordem foi alterada
-        $existingImages = Images::where('product_id', $produto->id)
-            ->orderBy('position', 'asc')
-            ->first(); // Pega a primeira imagem da nova ordem
-
-        if ($existingImages) {
-            $produto->image = $existingImages->url; // Atualiza o campo `image` com a primeira da lista
-        } else {
-            $produto->image = null; // Se todas as imagens forem removidas, limpa o campo `image`
-        }
-    }
-
-    $produto->save();
-} catch (\Exception $th) {
-    echo $th->getMessage();
-}
 
         $products = $request->input('products');
 
@@ -1325,6 +1320,7 @@ try {
             $data['condition'] = $product->condition;
             $data['description'] = $product->description;
             $data['priceWithFee'] = $product->priceWithFee;
+            $data['priceKit'] = $product->priceKit;
             $data['link'] = $product->link;
             $data['ean'] = $product->gtin;
             $data['tags'] = [
@@ -1862,36 +1858,48 @@ try {
 
     public function addProduct(Request $request)
     {
-
         try {
             // Valida os dados recebidos
             $validated = $request->validate([
-                'product_id' => 'required|exists:products,id',
+                'product_id'     => 'required|exists:products,id',
                 'id_product_kit' => 'required|exists:products,id',
-                'quantity' => 'required|integer|min:1',
-                'user_id' => 'required|exists:users,id', // Valida o user_id
+                'quantity'       => 'required|integer|min:1',
+                'user_id'        => 'required|exists:users,id',
             ]);
 
+            // Busca o produto base e o produto do kit
+            $product = DB::table('products')->where('id', $validated['product_id'])->first();
+            $kitProduct = DB::table('products')->where('id', $validated['id_product_kit'])->first();
 
-            // Salva o produto no kit
+            // Verifica se os fornecedores são os mesmos
+            if ($product->fornecedor_id !== $kitProduct->fornecedor_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'O fornecedor do produto não corresponde ao fornecedor do kit.'
+                ], 200);
+            }
+
+            // Se os fornecedores forem iguais, cria ou atualiza o registro do kit
             $kit = new Kit();
             $kit->product_id = $validated['product_id'];
             $kit->id_product_kit = $validated['id_product_kit'];
             $kit->available_quantity = $validated['quantity'];
-            $kit->user_id = $validated['user_id']; // Associa o user_id
+            $kit->user_id = $validated['user_id'];
             $kit->save();
 
+            session()->flash('success', 'Produto adicionado ao kit com sucesso!');
             return response()->json([
                 'success' => true,
-                'message' => 'Produto adicionado ao kit com sucesso.',
+                'message' => 'Produto adicionado ao kit com sucesso!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
+
 
     public function integrados(){
 
@@ -2004,46 +2012,63 @@ try {
     }
 
 
+    function isZeroOrNull($value) {
+        // Se o valor for nulo ou estiver vazio (incluindo "0" ou "0.0") consideramos como zero
+        return is_null($value) || floatval($value) == 0;
+    }
+
     public function EnviarDadosIntegradosMLApi(Request $request){
 
         $isporcem = [2,4];
 
         try{
-        $tabela = [
-            '1' => 'acrescimo_reais',
-            '2' => 'acrescimo_porcentagem',
-            '3' => 'desconto_reais',
-            '4' => 'desconto_porcentagem'
-        ];
+            $tabela = [
+                '1' => 'acrescimo_reais',
+                '2' => 'acrescimo_porcentagem',
+                '3' => 'desconto_reais',
+                '4' => 'desconto_porcentagem'
+            ];
 
-            // Encontra o produto pelo ID
-            $product = produtos_integrados::findOrFail($request->id);
-            $product->isPorcem = in_array($request->valor_tipo,$isporcem) ? 1 : 0;
+                if ($this->isZeroOrNull($request->preco)
+                && $this->isZeroOrNull($request->valor_tipo)
+                && $this->isZeroOrNull($request->precoFixo)
+                && $this->isZeroOrNull($request->valor_agregado)) {
+                    $product = produtos_integrados::findOrFail($request->id);
+                    $product->active = $request->active;
+                    $product->estoque_minimo = $request->estoque_minimo;
+                    $product->save();
+                    $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
+                    $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$request->active,$request->estoque_minimo,$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
+                    $estoqueNew->updateStatusActive();
+                }else{
+                // Encontra o produto pelo ID
+                $product = produtos_integrados::findOrFail($request->id);
+                $product->isPorcem = in_array($request->valor_tipo,$isporcem) ? 1 : 0;
 
-            if($request->filled('valor_tipo')){
-                // Atualiza os campos conforme a regra de negócio
-                if ($tabela[$request->valor_tipo] == 'acrescimo_reais') {
-                    $product->acrescimo_reais = $request->valor_agregado;
-                    $product->acrescimo_porcentagem = null;
-                    $product->desconto_reais = null;
-                    $product->desconto_porcentagem = null;
-                } elseif ($tabela[$request->valor_tipo] == 'acrescimo_porcentagem') {
-                    $product->acrescimo_reais = null;
-                    $product->acrescimo_porcentagem = $request->valor_agregado;
-                    $product->desconto_reais = null;
-                    $product->desconto_porcentagem = null;
-                } elseif ($tabela[$request->valor_tipo] == 'desconto_reais') {
-                    $product->acrescimo_reais = null;
-                    $product->acrescimo_porcentagem = null;
-                    $product->desconto_reais = $request->valor_agregado;
-                    $product->desconto_porcentagem = null;
-                } elseif ($tabela[$request->valor_tipo] == 'desconto_porcentagem') {
-                    $product->acrescimo_reais = null;
-                    $product->acrescimo_porcentagem = null;
-                    $product->desconto_reais = null;
-                    $product->desconto_porcentagem = $request->valor_agregado;
+                if($request->filled('valor_tipo')){
+                    // Atualiza os campos conforme a regra de negócio
+                    if ($tabela[$request->valor_tipo] == 'acrescimo_reais') {
+                        $product->acrescimo_reais = $request->valor_agregado;
+                        $product->acrescimo_porcentagem = null;
+                        $product->desconto_reais = null;
+                        $product->desconto_porcentagem = null;
+                    } elseif ($tabela[$request->valor_tipo] == 'acrescimo_porcentagem') {
+                        $product->acrescimo_reais = null;
+                        $product->acrescimo_porcentagem = $request->valor_agregado;
+                        $product->desconto_reais = null;
+                        $product->desconto_porcentagem = null;
+                    } elseif ($tabela[$request->valor_tipo] == 'desconto_reais') {
+                        $product->acrescimo_reais = null;
+                        $product->acrescimo_porcentagem = null;
+                        $product->desconto_reais = $request->valor_agregado;
+                        $product->desconto_porcentagem = null;
+                    } elseif ($tabela[$request->valor_tipo] == 'desconto_porcentagem') {
+                        $product->acrescimo_reais = null;
+                        $product->acrescimo_porcentagem = null;
+                        $product->desconto_reais = null;
+                        $product->desconto_porcentagem = $request->valor_agregado;
+                    }
                 }
-             }
 
                 if ($request->filled('precoFixo')) {
                     $product->precofixo = $request->precoFixo;
@@ -2064,7 +2089,9 @@ try {
                 $precoNew = new ManipuladorProdutosIntegrados($request->id,0);
                 $precoNew->atualizarOnlyProduct();
 
-                return response()->json(['data' => 'cadastrado GUilherem'],200);
+            }
+
+            return response()->json(['data' => 'atualizado com sucesso'],200);
         } catch (\Exception $e) {
             Log::alert($e->getMessage());
             return response()->json(['message' => $e->getMessage()],400);

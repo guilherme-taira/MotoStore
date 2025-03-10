@@ -119,7 +119,7 @@
                         <div class="col-md-4">
                             <label for="rg" class="form-label">IE</label>
                             <input type="text" class="form-control" id="ie" name="ie" maxlength="20"
-                                   value="{{ old('ie', $viewData['contato']->rg) }}">
+                                   value="{{ old('ie', $viewData['contato']->ie) }}">
                         </div>
                         <div class="col-md-4">
                             <label for="rg" class="form-label">RG</label>

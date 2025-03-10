@@ -378,6 +378,8 @@
                             </div>
                         </div>
 
+                        <input type="hidden" name="owner" id="owner" value="{{ Auth::user()->id }}">
+
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
                         </div>
@@ -455,6 +457,7 @@
                     </div>
                     <input type="hidden" name="id" id="id">
                     <input type="hidden" id="name" name="name">
+                    <input type="hidden" id="unit_price" name="unit_price">
                     <div class="col-lg-4 text-end">
                         <button class="btn btn-success w-100 d-none" id="btnFinalizar">Inserir no Kit <i
                                 class="bi bi-signpost-2"></i></button>
@@ -472,10 +475,12 @@
                     @endphp
 
                     @if (isset($produtos) && count($produtos) > 0)
+
                         @foreach ($produtos as $produto)
+
                             @if (!empty($produto['id']))
                                 @php
-                                    $total += $produto['price']; // Acumula o valor de cada produto no total
+                                    $total += ($produto['price'] + ($produto['fee'] * $produto['quantidade'])); // Acumula o valor de cada produto no total
                                 @endphp
 
                                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
@@ -543,6 +548,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 <script>
     $(document).ready(function() {
+
 
           // Faz uma requisição POST para apagar as mensagens da sessão
           fetch("{{ route('clear.session.messages') }}", {
@@ -895,6 +901,7 @@ $('#adicionarSelecionados').on('click', function () {
                         $("#total").val(response.price);
                         $("#name").val(response.title);
                         $("#precoFinal").val(response.price);
+                        $("#unit_price").val(response.priceKit)
                     }
                 },
                 error: function(error) {
@@ -1072,17 +1079,21 @@ $('#adicionarSelecionados').on('click', function () {
         });
 
         // VALOR TOTAL
-        var total = $('#total').val();
-        console.log(total);
+        var total = parseFloat($('#total').val().replace(',', '.')); // Converte para número
+        if (!isNaN(total)) {
+            var novoTotal = total / 0.95; // Aumenta 5%
+            $('#total').val(novoTotal.toFixed(2).replace('.', ',')); // Atualiza formatado
+        }
+
         // var totalCalculado = $total;
-        $('#precoFinal').val(total);
+        $('#precoFinal').val(novoTotal.toFixed(2).replace('.', ','));
 
         function calculaPorcentagem(base, porcentagem) {
             return (base * parseFloat(porcentagem)) / 100;
         }
         // Evento para manipular descontos e acréscimos em porcentagem
         $('#acressimoP, #descontoP').keyup(function() {
-            let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+            let totalConvertido = parseFloat(novoTotal.toFixed(10));
             let valorPorcentagem = parseFloat($(this).val().replace(',', '.'));
 
             if ($(this).val().length > 0) {
@@ -1105,7 +1116,7 @@ $('#adicionarSelecionados').on('click', function () {
 
         // Evento para manipular descontos e acréscimos em reais
         $('#acressimoR, #descontoR').keyup(function() {
-            let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+            let totalConvertido = parseFloat(novoTotal.toFixed(10));
             let valorReais = parseFloat($(this).val().replace(',', '.'));
 
             if ($(this).val().length > 0) {

@@ -65,6 +65,18 @@ class User extends Authenticatable
         $this->orders = $orders;
     }
 
+
+    public static function GetDataUserAndToken($id) {
+        $data = DB::table('users')
+            ->leftJoin('fcm_tokens', 'users.id', '=', 'fcm_tokens.user_id')
+            ->where('users.id', $id)
+            ->select('fcm_tokens.token as token', 'users.id as id', 'users.name as name')
+            ->first();
+        return $data;
+    }
+
+
+
     public function orders(){
         return $this->belongsToMany(Orders::class, 'order_user','user','order');
     }

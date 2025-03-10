@@ -10,6 +10,7 @@ use App\Models\Products;
 use App\Models\sub_category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -148,7 +149,7 @@ class kitsController extends Controller
             }
 
             if (!in_array($codigoCliente, $chaves)) {
-                $request->session()->put($request->id, ['id' => $request->id, 'nome' => $request->name, 'imagem' => $this->getImageByUrl($request->id), 'price' => $this->getPriceKit($request->id), 'estoque' => '1']);
+                $request->session()->put($request->id, ['id' => $request->id, 'nome' => $request->name, 'imagem' => $this->getImageByUrl($request->id), 'price' => $this->getPriceKit($request->id), 'estoque' => '1', 'priceKit' => $this->getPriceKit($request->id), 'fee' => $this->getFeeProduto($request->id)]);
             } else {
                 $request->session()->forget($codigoCliente);
             }
@@ -215,6 +216,12 @@ class kitsController extends Controller
         return $data['priceKit'];
     }
 
+    public function getFeeProduto(int $id)
+    {
+        $data = Products::where('id', $id)->first();
+        return $data['fee'];
+    }
+
     public function StoreRota(Request $request)
     {
         $request->session()->forget(['_flash', '_token', '_previous']);
@@ -240,6 +247,26 @@ class kitsController extends Controller
         //     'pedidos' => $datas,
         //     'entregadores' => $entregadores,
         // ]);
+    }
+
+    public function updateQuantidadeNoKit(Request $request, $productId, $kitId){
+
+    $novaQuantidade = $request->input('stock');
+
+    // Localiza o registro certo na tabela `kit`
+    $kit = Kit::where('product_id', $productId)
+              ->where('id_product_kit', $kitId)
+              ->first();
+
+    if (!$kit) {
+        return redirect()->back()->with('error', 'Kit não encontrado.');
+    }
+
+    // Atualiza a coluna available_quantity
+    $kit->available_quantity = $novaQuantidade;
+    $kit->save();
+
+    return redirect()->back()->with('success', 'Quantidade atualizada com sucesso!');
     }
 
     public function adicionarQuantidadeNoKit(Request $request) {
@@ -281,7 +308,8 @@ class kitsController extends Controller
                     'imagem' => $produto['imagem'],
                     'price' => $this->getPriceKit($request->id) * $novaQuantidade, // Preço total
                     'quantidade' => $novaQuantidade,
-                    'available_quantity' => $availableStock
+                    'available_quantity' => $availableStock,
+                    'fee' => $this->getFeeProduto($request->id)
                 ];
             } else {
                 // Produto não existe na sessão, então adiciona como um novo item
@@ -291,10 +319,12 @@ class kitsController extends Controller
                     'imagem' => $this->getImageByUrl($request->id),
                     'price' => $this->getPriceKit($request->id) * $quantidadeAdicionada, // Preço total
                     'quantidade' => $quantidadeAdicionada,
-                    'available_quantity' => $availableStock
+                    'available_quantity' => $availableStock,
+                    'fee' => $this->getFeeProduto($request->id)
                 ];
             }
 
+            Log::alert(json_encode($produtos));
             // Salva os produtos atualizados na sessão
             $request->session()->put('produtos', $produtos);
 
@@ -378,7 +408,8 @@ class kitsController extends Controller
                         'price' => $this->getPriceKit($id) * $quantidadeAdicionada,
                         'quantidade' => $quantidadeAdicionada,
                         'available_quantity' => $availableStock,
-                        'fornecedor' => $fornecedorAtual
+                        'fornecedor' => $fornecedorAtual,
+                        'fee' => $this->getFeeProduto($id),
                     ];
                 }
 
@@ -536,25 +567,31 @@ public function DeleteOrderSessionRoute(Request $request, $id)
         }
 
 
-
     function calculaKitsPossiveis($produtos) {
         $kitsPossiveis = PHP_INT_MAX; // Inicializa com um valor alto para encontrar o mínimo
-
+        $valorKitWithFee = 0;
+        $fee = 0;
         foreach ($produtos as $produto) {
             if ($produto['quantidade'] > 0) {
+                $valorKitWithFee += $produto['price'] + ($produto['fee'] * $produto['quantidade']);
+                $fee += ($produto['fee'] * $produto['quantidade']);
                 // Calcula quantos kits podem ser feitos com base no estoque e na quantidade necessária de cada produto
                 $kitsProduto = floor($produto['available_quantity'] / $produto['quantidade']);
                 $kitsPossiveis = min($kitsPossiveis, $kitsProduto); // Mantém o menor valor encontrado
             }
         }
 
-        return $kitsPossiveis;
+        return [
+            'kitsPossiveis' => $kitsPossiveis,
+            'valorWithFee' => number_format(($valorKitWithFee / 0.95),2),
+            'fee' => $fee
+        ];
     }
 
     // Exemplo de uso
     $kitsPossiveis = calculaKitsPossiveis(array_values($products['produtos']));
 
-    if($kitsPossiveis > 0){
+    if($kitsPossiveis['kitsPossiveis'] > 0){
      $produto = new Products();
         $produto->title = $request->name;
         $produto->price = str_replace(',', '.',$request['precoFinal']);
@@ -562,27 +599,32 @@ public function DeleteOrderSessionRoute(Request $request, $id)
         // CATEGORIA REMOVIDA
         $produto->category_id = $request->id_categoria;
         $produto->subcategoria = $request->categoria;
+        $produto->fornecedor_id = $this->getUniqueFornecedorId(array_values($products['produtos']));
         $produto->iskit = 1;
-        $produto->available_quantity = $kitsPossiveis;
+        $produto->isPublic = 0;
+        $produto->owner = $request->owner;
+        $produto->fee = $kitsPossiveis['fee'];
+        $produto->priceWithFee = $kitsPossiveis['valorWithFee'];
+        $produto->available_quantity = $kitsPossiveis['kitsPossiveis'];
         $produto->image = "image.png";
         $produto->save();
 
-        // $files = $request->file('photos');
+        $files = $request->file('photos');
 
-        // $i = 0;
+        $i = 0;
 
-        // foreach ($files as $file) {
-        //     $filename = $file->getClientOriginalName();
-        //     $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
-        //     if ($i == 0) {
-        //         $produto->setImage($filename);
-        //     }
-        //     $image = new images();
-        //     $image->url = $filename;
-        //     $image->product_id = $produto->getId();
-        //     $image->save();
-        //     $i++;
-        // }
+        foreach ($files as $file) {
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('produtos/' . $produto->getId(), $filename, 's3');
+            if ($i == 0) {
+                $produto->setImage($filename);
+            }
+            $image = new images();
+            $image->url = $filename;
+            $image->product_id = $produto->getId();
+            $image->save();
+            $i++;
+        }
 
 
         $files = $request->file('photos');
@@ -642,12 +684,9 @@ public function DeleteOrderSessionRoute(Request $request, $id)
         $viewData['categorias'] = categorias::all();
         $viewData['kits'] = kit::getAllKits(Auth::user()->id);
 
-        return redirect()
-        ->route('kits.index', [
-            'viewData' => $viewData,
-            'total' => 0,
-        ])
+        return redirect()->route('products.edit', ['id' => $produto->getId()])
         ->with('success', 'Kit cadastrado com sucesso!');
+
 
     }else{
           // Redireciona de volta com uma mensagem de erro
@@ -657,10 +696,60 @@ public function DeleteOrderSessionRoute(Request $request, $id)
 
     }
 
+    /**
+     * Retorna o fornecedor_id único se todos os produtos tiverem o mesmo,
+     * ou null se houver divergência.
+     *
+     * @param array $produtos Array de produtos, onde cada produto é um array associativo com a chave 'fornecedor_id'
+     * @return mixed|null O fornecedor_id único ou null se houver divergência
+     */
+    function getUniqueFornecedorId(array $produtos):int
+    {
+            // Se o array estiver vazio, retorna 1 (ou outro valor padrão)
+        if (empty($produtos)) {
+            return 1;
+        }
+        // Cria um array com os IDs dos produtos
+        $ids = array_map(function($produto) {
+            return $produto['id'];
+        }, $produtos);
+        // Consulta os produtos no banco utilizando o model Products.
+        $products = Products::whereIn('id', $ids)->get();
 
+        // Obtém os fornecedor_id únicos
+        $uniqueFornecedorIds = $products->pluck('fornecedor_id')->unique();
 
-
-    public function VerificaQuantidade($id){
+        // Se houver exatamente um fornecedor_id, retorna-o, caso contrário, retorna null
+        return $uniqueFornecedorIds->count() === 1 ? $uniqueFornecedorIds->first() : 1;
 
     }
+
+
+    public function deleteProduct(Request $request, $productId, $kitId)
+    {
+        try {
+            // Remove o registro do kit correspondente ao productId e kitId
+            $deleted = DB::table('kit')
+                ->where('product_id', $productId)
+                ->where('id_product_kit', $kitId)
+                ->delete();
+
+            if ($deleted) {
+                // Se desejar, adicione o kit removido a um array para enviar na resposta
+                return redirect()->back()->with([
+                    'message' => 'Produto removido do kit com sucesso.',
+                ]);
+            } else {
+                return redirect()->back()->with([
+                    'error' => 'Erro ao remover o produto do kit.',
+                ]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with([
+                'error' => 'Erro: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+
 }

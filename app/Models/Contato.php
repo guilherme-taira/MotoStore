@@ -27,7 +27,8 @@ class Contato extends Model
         'uf',
         'numero',
         'complemento',
-        'bling_id'
+        'bling_id',
+        'ie'
     ];
 
     // Relacionamento com a tabela integracao_bling

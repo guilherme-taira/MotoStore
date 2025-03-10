@@ -20,6 +20,7 @@ use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
 use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
+use App\Models\FcmToken;
 use App\Models\IntegracaoBling;
 use App\Models\order_site;
 use App\Models\ShippingUpdate;
@@ -76,19 +77,48 @@ class testController extends Controller
 
 
         public function teste(Request $request) {
-            // Pegue o token do dispositivo para enviar a notificação
-            $token = "epf7FGyeQBiX8cpZO3TuQU:APA91bG8CzIPLNvd27JwpKxAtB7eSSDSmx6V57t_GUPeUW5qdFLjr6bcWsxz_iEfMGfjX0hART_BKp_lfkI-k-XzMA-9NYByF8chOyy6bM23vaE2muhGJOQ"; // Pegue do banco de dados ou passe no request
 
-            $factory = (new Factory)
-            ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
+            $este = User::GetDataUserAndToken(16);
+            print_r($este);
+            // $users = FcmToken::leftJoin('users', 'fcm_tokens.user_id', 'users.id')->get();
 
-            $messaging = $factory->createMessaging();
-            $message = CloudMessage::withTarget('token', $token)
-                ->withNotification(Notification::create("Parabéns Maicon!!", "Você alcançou as 10 primeiras Vendas"))
-                ->withData([
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                ]);
-            $messaging->send($message);
+            // foreach ($users as $value) {
+            //     Log::alert(json_encode($value));
 
-    }
+            //     if ($value && $value->token) { // 🔥 Verifica se o usuário tem token FCM
+
+            //         // 🔥 Criar apenas UMA instância do Factory para Firebase
+            //         $factory = (new Factory)
+            //             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')))
+            //             ->withDatabaseUri("https://afilidrop-33bcf-default-rtdb.firebaseio.com");
+
+            //         // 🔥 Criar instâncias do Firebase Database e Messaging
+            //         $database = $factory->createDatabase();
+            //         $messaging = $factory->createMessaging();
+
+            //         // 🔥 Salvar a notificação no Realtime Database
+            //         $database->getReference("notificacoes/{$value->id}")->push([
+            //             'mensagem' => "Olá Davi Santos",
+            //             'body' => "Você Vendeu Bucha de lavar Pratos..",
+            //             'timestamp' => now()->format('Y-m-d H:i:s'),
+            //             'lida' => false
+            //         ]);
+
+            //         // 🔥 Enviar notificação via FCM
+            //         $message = CloudMessage::withTarget('token', $value->token)
+            //             ->withNotification(Notification::create(
+            //                 "Olá Davi Santos",
+            //                 "Você Vendeu Bucha de lavar Pratos.."
+            //             ))
+            //             ->withData([
+            //                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            //             ]);
+
+            //         $messaging->send($message);
+
+            //         // 🔥 Retorna apenas uma resposta final
+            //         return response()->json(["success" => true, "message" => "Notificação enviada!"]);
+            //     }
+            // }
+        }
 }

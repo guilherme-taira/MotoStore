@@ -105,69 +105,77 @@ class InterfaceClienteController implements ClienteController
 
         try {
             if (order_site::VerificarVenda($result->id) == false) {
-                $pedidos = new order_site();
-                $pedidos->numeropedido = $result->id;
-                $pedidos->local = 'Mercado Livre';
-                $pedidos->valorVenda = $result->paid_amount;
-                $pedidos->valorProdutos = $result->total_amount;
-                $pedidos->dataVenda = date('Y-m-d', strtotime($result->date_closed));
-                $pedidos->cliente = $result->buyer->nickname;
-                $pedidos->status_id = 3;
-                $pedidos->preferenceId = $this->getPreferenceId();
-                $pedidos->external_reference = $this->getExeternalReference();
-                $pedidos->status_mercado_livre = "0";
-                $pedidos->id_pagamento = 0;
-                $pedidos->link_pagamento = $this->getLinkPagamento();
-                $pedidos->fee = $this->getFee();
-                $pedidos->buyer = $this->getComprador();
-                $pedidos->save();
+                // Tenta encontrar ou criar o pedido com base no campo numeropedido
+                $pedidos = order_site::firstOrCreate(
+                    ['numeropedido' => $result->id],
+                    [
+                        'local'               => 'Mercado Livre',
+                        'valorVenda'          => $result->paid_amount,
+                        'valorProdutos'       => $result->total_amount,
+                        'dataVenda'           => date('Y-m-d', strtotime($result->date_closed)),
+                        'cliente'             => $result->buyer->nickname,
+                        'status_id'           => 3,
+                        'preferenceId'        => $this->getPreferenceId(),
+                        'external_reference'  => $this->getExeternalReference(),
+                        'status_mercado_livre'=> "0",
+                        'id_pagamento'        => 0,
+                        'link_pagamento'      => $this->getLinkPagamento(),
+                        'fee'                 => $this->getFee(),
+                        'buyer'               => $this->getComprador(),
+                    ]
+                );
 
+           // Se o pedido foi recém-criado, insere os produtos e relaciona via pivot_site
+            if ($pedidos->wasRecentlyCreated) {
                 Log::alert($pedidos->id);
                 foreach ($result->order_items as $pedido) {
                     if (product_site::getVerifyProduct($pedido->item->seller_sku) == true) {
-                        // PEDIDO NOVO
+                        // Cria o produto
                         $produto = new product_site();
-                        $produto->nome = $pedido->item->title;
-                        $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                        $produto->valor = $pedido->unit_price;
+                        $produto->nome       = $pedido->item->title;
+                        $produto->codigo     = $pedido->item->seller_sku ?? 0;
+                        $produto->valor      = $pedido->unit_price;
                         $produto->quantidade = $pedido->quantity;
-                        $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                        $produto->image = $this->getPicture($pedido->item->id);
+                        $produto->seller_sku = $pedido->item->seller_sku ?? 0;
+                        $produto->image      = $this->getPicture($pedido->item->id);
                         $produto->save();
-                        // PIVOT
+
+                        // Cria o registro na tabela pivot
                         $userid = token::getId($sellerid);
                         $venda_pivot = new pivot_site();
-                        $venda_pivot->order_id = $pedidos->id;
+                        $venda_pivot->order_id   = $pedidos->id;
                         $venda_pivot->product_id = $produto->id;
-                        $venda_pivot->id_user = $userid;
+                        $venda_pivot->id_user    = $userid;
                         $venda_pivot->save();
-                    }else{
-                         // PEDIDO NOVO
+                    } else {
+                        // Cria o produto (para o caso em que getVerifyProduct retorna false)
+                        $sku = $pedido->item->seller_sku ?? 0;
+                        $produto = new product_site();
+                        $produto->nome       = $pedido->item->title;
+                        $produto->codigo     = $pedido->item->seller_sku ?? 0;
+                        $produto->valor      = $pedido->unit_price;
+                        $produto->quantidade = $pedido->quantity;
+                        $produto->seller_sku = $pedido->item->seller_sku ?? 0;
+                        $produto->image      = $this->getPicture($pedido->item->id);
+                        $produto->save();
 
-                         $sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                         $produto = new product_site();
-                         $produto->nome = $pedido->item->title;
-                         $produto->codigo = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                         $produto->valor = $pedido->unit_price;
-                         $produto->quantidade = $pedido->quantity;
+                        // Cria o registro na tabela pivot
+                        $userid = token::getId($sellerid);
+                        $venda_pivot = new pivot_site();
+                        $venda_pivot->order_id   = $pedidos->id;
+                        $venda_pivot->product_id = $produto->id;
+                        $venda_pivot->id_user    = $userid;
+                        $venda_pivot->save();
 
-                         $produto->seller_sku = isset($pedido->item->seller_sku) ? $pedido->item->seller_sku : 0;
-                         $produto->image = $this->getPicture($pedido->item->id);
-                         $produto->save();
-                         // PIVOT
-                         $userid = token::getId($sellerid);
-                         $venda_pivot = new pivot_site();
-                         $venda_pivot->order_id = $pedidos->id;
-                         $venda_pivot->product_id = $produto->id;
-                         $venda_pivot->id_user = $userid;
-                         $venda_pivot->save();
-
-                        // REMOVE ESTOQUE DO PRODUTO
-                        produtos_integrados::removeStockProduct($sku,$pedido->quantity);
+                        // Remove o estoque do produto
+                        produtos_integrados::removeStockProduct($sku, $pedido->quantity);
                     }
                 }
-                // RETORNA O ID DO PEDIDO PARA GRAVAR.
-                return $pedidos->id;
+            }
+
+            // Retorna o ID do pedido (novo ou existente)
+            return $pedidos->id;
+
             }
 
         } catch (\Exception $th) {
@@ -183,8 +191,10 @@ class InterfaceClienteController implements ClienteController
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$this->getToken()}"]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $reponse = curl_exec($ch);
+        Log::alert($reponse);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $json = json_decode($reponse);

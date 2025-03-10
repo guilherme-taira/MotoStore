@@ -283,7 +283,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                                 //             $data = [
                                 //                 "data" => date('Y-m-d'),
-                                //                 "numeroPedidoCompra" => $json->id,
+                                //                 "numeroPedidoCompra" => $json->id,e
                                 //                 "contato" => [
                                 //                     "id" => $contatoEfornecedor->bling_id
                                 //                 ],

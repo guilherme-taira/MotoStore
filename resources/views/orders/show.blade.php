@@ -97,20 +97,6 @@
 
                     <div class="alert alert-info" role="alert">
                         <h3>Status da Entrega: </h3>
-                        @php
-                        function traduzirSubstatusML($substatus) {
-                            $substatuses = [
-                                'in_warehouse' => 'No Armazém',
-                                'ready_to_pack' => 'Pronto para Embalar',
-                                'packed' => 'Embalado',
-                                'in_packing_list' => 'Na Lista de Embalagem',
-                                // Adicione outras traduções conforme necessário
-                            ];
-
-                            return $substatuses[strtolower($substatus)] ?? $substatus; // Se não houver tradução, retorna o valor original
-                        }
-                        @endphp
-
                         @if (isset($viewData['shipping']->substatus_history) && is_array($viewData['shipping']->substatus_history))
                         @foreach ($viewData['shipping']->substatus_history as $history)
                             <div>
@@ -121,7 +107,6 @@
                         @else
                         <p class="alert alert-warning">Nenhum histórico encontrado.</p>
                         @endif
-
                     </div>
 
                     @endforeach
@@ -132,25 +117,6 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    @php
-                        function traduzirStatusPagamento($status) {
-                            $statuses = [
-                                'approved' => 'Aprovado',
-                                'pending' => 'Pendente',
-                                'in_process' => 'Em processamento',
-                                'rejected' => 'Rejeitado',
-                                'refunded' => 'Reembolsado',
-                                'charged_back' => 'Estornado',
-                                'cancelled' => 'Cancelado',
-                                'authorized' => 'Autorizado',
-                                'paid' => 'Aprovado',
-                                // Adicione outros status de pagamento conforme necessário
-                            ];
-
-                            return $statuses[$status] ?? $status; // Se não houver tradução, retorna o valor original
-                        }
-                    @endphp
-
 
                     @if(isset($viewData['dados']) && isset($viewData['dados']->status))
                     <h6>Pagamento {{ traduzirStatusPagamento($viewData['dados']->status) }}</h6>

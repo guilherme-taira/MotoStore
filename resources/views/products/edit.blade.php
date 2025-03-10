@@ -252,9 +252,8 @@
             const searchResults = document.getElementById(
                 'searchResults'); // Div para exibir os resultados da pesquisa
 
-            // Evento ao clicar no botão de pesquisa
             searchButton.addEventListener('click', function(event) {
-                event.preventDefault(); // Evita que o botão envie o formulário
+                event.preventDefault(); // Evita o envio do formulário, se houver
 
                 const searchTerm = searchInput.value.trim(); // Valor do campo de pesquisa
                 if (!searchTerm) {
@@ -262,45 +261,52 @@
                     return;
                 }
 
-                // Faz uma requisição para o backend
+                // Alterar o botão para o estado de carregamento
+                searchButton.disabled = true;
+                const originalText = searchButton.innerHTML;
+                searchButton.innerHTML =
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Carregando...`;
+
                 fetch(`/api/v1/products/search?q=${encodeURIComponent(searchTerm)}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro na requisição');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         // Limpa o conteúdo anterior
                         searchResults.innerHTML = '';
 
                         if (data.products.data.length > 0) {
-                            // Adiciona os produtos no modal
-
                             data.products.data.forEach(product => {
                                 const productItem = `
-                            <div class="product-item border-bottom mb-2 pb-2 d-flex align-items-center">
-                                <!-- Imagem do produto -->
-                                <img src="${product.imagem_url}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                        <div class="product-item border-bottom mb-2 pb-2 d-flex align-items-center">
+                            <!-- Imagem do produto -->
+                            <img src="${product.imagem_url}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
 
-                                <!-- Informações do produto -->
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">${product.title}</h6>
-                                    <span class="text-muted">Preço: R$${product.priceKit.toFixed(2)}</span>
-                                    <span class="text-muted ms-3">Estoque Disponível: ${product.available_quantity}</span>
+                            <!-- Informações do produto -->
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${product.title}</h6>
+                                <span class="text-muted">Preço: R$${product.priceKit.toFixed(2)}</span>
+                                <span class="text-muted ms-3">Estoque Disponível: ${product.available_quantity}</span>
 
-                                    <!-- Campo de entrada para a quantidade desejada (opcional) -->
-                                    <div class="mt-2">
-                                        <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
-                                    </div>
+                                <!-- Campo de entrada para a quantidade desejada (opcional) -->
+                                <div class="mt-2">
+                                    <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
                                 </div>
-
-                                <!-- Botão para adicionar ao kit -->
-                                <button class="btn btn-primary btn-sm ms-auto" type="button" onclick="addProductToKit(${product.id})">
-                                    Adicionar ao Kit
-                                </button>
                             </div>
 
+                            <!-- Botão para adicionar ao kit -->
+                           <button id="btnAddToKit-${product.id}" class="btn btn-primary btn-sm ms-auto" type="button" onclick="addProductToKit(${product.id})">
+                                Adicionar ao Kit
+                            </button>
+
+                        </div>
                         `;
                                 searchResults.innerHTML += productItem;
                             });
                         } else {
-                            // Exibe uma mensagem se nenhum produto for encontrado
                             searchResults.innerHTML =
                                 '<p class="text-muted">Nenhum produto encontrado.</p>';
                         }
@@ -309,34 +315,47 @@
                         console.error('Erro ao buscar produtos:', error);
                         searchResults.innerHTML =
                             '<p class="text-danger">Erro ao buscar produtos. Tente novamente mais tarde.</p>';
+                    })
+                    .finally(() => {
+                        // Restaura o botão para o estado normal
+                        searchButton.disabled = false;
+                        searchButton.innerHTML = originalText;
                     });
             });
         });
 
-
-        // Função para adicionar um produto ao kit
         function addProductToKit(productId) {
-            // Obtém o user_id via backend (Laravel coloca o ID do usuário autenticado como variável JavaScript)
+            // Seleciona o botão pelo id
+            const button = document.getElementById("btnAddToKit-" + productId);
+            // Guarda o texto original do botão
+            const originalText = button.innerHTML;
+
+            // Define o botão para estado de loading
+            button.disabled = true;
+            button.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Carregando...';
+
+            // Obtém os dados necessários
             const userId = document.querySelector('meta[name="auth-user-id"]').content;
             const productHiddenField = document.querySelector('input[name="product_id"]'); // ID do produto sendo editado
             const productEditingId = productHiddenField.value;
             const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
             const csrfToken = csrfTokenElement ? csrfTokenElement.content : null;
 
-            // Dados enviados para a rota
+            // Monta os dados para enviar
             const data = {
                 product_id: productEditingId,
                 id_product_kit: productId,
-                quantity: 1, // Valor fixo ou dinâmico, conforme necessário
-                user_id: userId, // ID do usuário autenticado
+                quantity: 1,
+                user_id: userId
             };
 
-            // Faz a requisição para a rota
+            // Envia a requisição com fetch
             fetch('/api/v1/kitsAddProduct', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken // Token CSRF para segurança
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify(data)
                 })
@@ -357,11 +376,13 @@
                 .catch(error => {
                     console.error('Erro ao adicionar produto ao kit:', error);
                     alert('Erro ao adicionar produto ao kit. Tente novamente mais tarde.');
+                })
+                .finally(() => {
+                    // Restaura o botão para o estado normal
+                    button.disabled = false;
+                    button.innerHTML = originalText;
                 });
         }
-
-
-
 
         // Adicionar produto ao kit
         document.getElementById('addProductBtn').addEventListener('click', function() {
@@ -618,19 +639,123 @@
                 </div>
             </div>
 
+            @if (isset($viewData['product']->isKit) && $viewData['product']->isKit)
+                <div class="accordion" id="productFormAccordion">
+                    <div class="accordion-item shadow-sm border-0">
+                        <h2 class="accordion-header" id="headingKit">
+                            <button class="accordion-button bg-white text-dark collapsed" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapseKit" aria-expanded="false"
+                                aria-controls="collapseKit" style="font-weight: 600;">
+                                <i class="bi bi-box-seam me-2"></i> Informações do Kit
+                            </button>
+                        </h2>
+                        <div id="collapseKit" class="accordion-collapse collapse" aria-labelledby="headingKit"
+                            data-bs-parent="#productFormAccordion">
+                            <div class="accordion-body">
+                                <!-- Botão para abrir o modal de adicionar produtos -->
+                                <div class="mb-3 text-end">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#addProductModal">
+                                        <i class="bi bi-plus-circle me-1"></i> Adicionar Novo Produto
+                                    </button>
+                                </div>
+                                <div class="row mb-3">
+                                    <ul class="list-unstyled" id="kitItemList">
+                                        @php
+                                            $totalPrice = 0; // Variável para armazenar o total
+                                            $fee = 0;
+                                        @endphp
+
+                                        @foreach ($viewData['kitProducts']['kitItems'] as $product)
+                                            @php
+                                                $fee += $product->available_quantity * $product->fee;
+                                                $totalPrice += $product->priceKit * $product->available_quantity; // Soma o preço do item ao total
+                                            @endphp
+                                            <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+                                                <!-- Checkbox -->
+                                                <input class="form-check-input me-2 kit-checkbox" type="checkbox"
+                                                       value="{{ $product->id }}" id="product-{{ $product->id }}"
+                                                       name="products[{{ $product->id }}][id]" checked>
+
+                                                <!-- Imagem do Produto -->
+                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) !!}"
+                                                     alt="{{ $product->title }}"
+                                                     class="rounded me-3"
+                                                     style="width: 80px; height: 80px; object-fit: cover;">
+
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ $product->title }}</h6>
+                                                    <span class="text-muted">Preço:
+                                                        R${{ number_format($product->priceKit, 2, ',', '.') }}</span>
+                                                    <span class="text-muted ms-3">Quantidade Selecionada:
+                                                        {{ $product->available_quantity }}</span>
+
+                                                    <!-- Formulário para atualizar quantidade -->
+                                                    <form action="{{ route('updateQuantidadeNoKit', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
+                                                          method="POST" class="update-quantity-form mt-2">
+                                                        @csrf
+                                                        <div class="input-group input-group-sm" style="width: 150px;">
+                                                            <input name="stock" id="stock-{{ $product->id }}"
+                                                                   value="{{ $product->available_quantity ?? 1 }}"
+                                                                   type="number" class="form-control">
+                                                            <button type="submit" id="btnSalvarQuantidade{{ $product->id }}" class="btn btn-success">
+                                                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                                            </button>
+                                                        </div>
+                                                    </form>
+
+                                                    <!-- Botão Delete para remover o produto do kit -->
+                                                    <form action="{{ route('kits.deleteProduct', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
+                                                          method="POST"
+                                                          class="mt-2"
+                                                          onsubmit="return confirm('Tem certeza que deseja remover este produto do kit?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="bi bi-trash"></i> Deletar
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Inputs ocultos para dados adicionais -->
+                                                    <input type="hidden" name="products[{{ $product->id }}][priceKit]"
+                                                           value="{{ $product->priceKit }}">
+                                                    <input type="hidden" name="products[{{ $product->id }}][quantity]" value="1">
+                                                    <input type="hidden" name="products[{{ $product->id }}][available_quantity]"
+                                                           value="{{ $product->available_quantity }}">
+                                                </div>
+                                            </li>
+
+                                        @endforeach
+                                    </ul>
+                                </div>
+
+
+                                <!-- Exibir o total no final -->
+                                <div class="mt-4 text-end">
+                                    <h5>Total do Kit: R$<span
+                                            id="totalKit">{{ number_format($totalPrice, 2, ',', '.') }}</span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
 
             <form method="POST" action="{{ route('products.update', ['id' => $viewData['product']->id]) }}"
                 enctype="multipart/form-data" class="needs-validation" onsubmit="serializeFormData()">
                 @method('PUT')
                 @csrf
 
+                <input type="hidden" name="owner" id="owner" value="{{ Auth::user()->id }}">
 
                 <div class="accordion" id="productFormAccordion">
                     <!-- Informações Básicas -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingBasicInfo">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseBasicInfo" aria-expanded="true" aria-controls="collapseBasicInfo">
+                                data-bs-target="#collapseBasicInfo" aria-expanded="true"
+                                aria-controls="collapseBasicInfo">
                                 Informações Básicas
                             </button>
                         </h2>
@@ -645,8 +770,8 @@
                                             <label for="file"
                                                 class="col-lg-2 col-md-6 col-sm-12 col-form-label">Imagem:</label>
                                             <div class="col-lg-10 col-md-6 col-sm-12">
-                                                <input class="form-control" type="file" id="file" name="photos[]"
-                                                    multiple>
+                                                <input class="form-control" type="file" id="file"
+                                                    name="photos[]" multiple>
                                             </div>
                                         </div>
                                     </div>
@@ -687,7 +812,7 @@
 
 
                                 <div class="row mb-3">
-                                    <div class="col">
+                                    <div class="col {{ $viewData['product']->isKit ? 'd-none' : null }}">
                                         <label for="isPublic">Ativo / Público:</label>
                                         <select name="isPublic" class="form-control" required>
                                             <option value="1"
@@ -747,77 +872,6 @@
 
 
 
-                    @if (isset($viewData['product']->isKit) && $viewData['product']->isKit)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingKit">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseKit" aria-expanded="false" aria-controls="collapseKit">
-                                    Informações do Kit
-                                </button>
-                            </h2>
-                            <div id="collapseKit" class="accordion-collapse collapse" aria-labelledby="headingKit"
-                                data-bs-parent="#productFormAccordion">
-                                <div class="accordion-body">
-                                    <!-- Botão para abrir o modal de adicionar produtos -->
-                                    <div class="mb-3 text-end">
-                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#addProductModal">
-                                            Adicionar Novo Produto
-                                        </button>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <ul class="list-unstyled" id="kitItemList">
-                                            @php
-                                                $totalPrice = 0; // Variável para armazenar o total
-                                            @endphp
-
-                                            @foreach ($viewData['kitProducts']['kitItems'] as $product)
-                                                @php
-                                                    $totalPrice += $product->priceKit; // Soma o preço do item ao total
-                                                @endphp
-                                                <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
-                                                    <!-- Checkbox -->
-                                                    <input class="form-check-input me-2 kit-checkbox" type="checkbox"
-                                                        value="{{ $product->id }}" id="product-{{ $product->id }}"
-                                                        name="products[{{ $product->id }}][id]" checked>
-
-                                                    <!-- Imagem do Produto -->
-                                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) !!}" alt="{{ $product->title }}"
-                                                        class="rounded me-3"
-                                                        style="width: 80px; height: 80px; object-fit: cover;">
-
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="mb-1">{{ $product->title }}</h6>
-                                                        <span class="text-muted">Preço:
-                                                            R${{ number_format($product->priceKit, 2, ',', '.') }}</span>
-                                                        <span class="text-muted ms-3">Estoque Disponível:
-                                                            {{ $product->available_quantity }}</span>
-
-                                                        <!-- Inputs ocultos para os dados adicionais -->
-                                                        <input type="hidden"
-                                                            name="products[{{ $product->id }}][priceKit]"
-                                                            value="{{ $product->priceKit }}">
-                                                        <input type="hidden"
-                                                            name="products[{{ $product->id }}][quantity]"
-                                                            value="1">
-                                                        <input type="hidden"
-                                                            name="products[{{ $product->id }}][available_quantity]"
-                                                            value="{{ $product->available_quantity }}">
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-
-                                    <!-- Exibir o total no final -->
-                                    <div class="mt-4">
-                                        <h5>Total do Kit: R$<span
-                                                id="totalKit">{{ number_format($totalPrice, 2, ',', '.') }}</span></h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
 
                     <!-- Preço e Estoque -->
                     <div class="accordion-item">
@@ -834,8 +888,9 @@
                                     <!-- Preço R$ -->
                                     <div class="col-lg-3">
                                         <label for="precoNormal">Preço R$:</label>
-                                        <input name="price" id="precoNormal" value="{{ $viewData['product']->price }}"
-                                            type="text" class="form-control" required>
+                                        <input name="price" id="precoNormal"
+                                            value="{{ $viewData['product']->isKit ? number_format($totalPrice, 2) : $viewData['product']->price }}"
+                                            type="text" class="form-control" required readonly>
                                         @error('price')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
@@ -1004,7 +1059,7 @@
 
                                 <div class="row mb-3">
 
-                                    <div class="col-md-8">
+                                    <div class="col-md-8 d-none">
                                         <label for="preco" class="form-label">Fornecedores
                                             <div id="loadingF" class="spinner-border spinner-border-sm d-none"
                                                 role="status">
@@ -1097,66 +1152,88 @@
                                 Taxas
                             </button>
                         </h2>
-                        <div id="collapseFees" class="accordion-collapse collapse" aria-labelledby="headingFees"
-                            data-bs-parent="#productFormAccordion">
-                            <div class="accordion-body">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                        @if ($viewData['product']->isKit == 1)
+                            <div id="collapseFees" class="accordion-collapse collapse" aria-labelledby="headingFees"
+                                data-bs-parent="#productFormAccordion">
+                                <div class="accordion-body">
+                                    <div class="row mb-3">
                                         <div class="col">
-                                            <div class="mb-3 row">
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoP" name="valorProdFornecedor"
-                                                        class="form-control porcem" value="{{ old('acressimoP') }}">
-                                                </div>
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                                <div class="col-lg-3 col-md-6 col-sm-6">
-                                                    <input id="acressimoR" name="valorProdFornecedor" type="text"
-                                                        class="form-control porcem"
-                                                        value="{{ $viewData['product']->valorProdFornecedor }}">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-3 row">
-                                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
-                                            <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input id="precoFinal" value="{{ old('price') }}" type="text"
-                                                    class="form-control">
-                                            </div>
-                                            <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
-                                            <div class="col-lg-3 col-md-6 col-sm-12">
-                                                <input name="valorProdFornecedor"
-                                                    value="{{ $viewData['product']->valorProdFornecedor }}"
-                                                    id="precoLiquido" type="text" class="form-control">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="col">
+                                            {{-- <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p> --}}
+                                            <div class="col d-none">
                                                 <div class="mb-3 row">
-
-                                                    <label class="col-lg-2 col-md-3 col-sm-12 col-form-label">Taxa %:
-                                                    </label>
-                                                    <div class="col-lg-1 col-md-6 col-sm-12">
-                                                        <input name="taxaFee" id="taxaFee" type="text"
-                                                            value="4.99" class="form-control">
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoP" name="valorProdFornecedor"
+                                                            class="form-control porcem" value="{{ old('acressimoP') }}"
+                                                            type="hidden" readonly>
                                                     </div>
-
-                                                    <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
-                                                    </label>
-                                                    <div class="col-lg-2 col-md-3 col-sm-12">
-                                                        <input name="priceWithFee" id="PriceWithFee" type="text"
-                                                            class="form-control"
-                                                            value="{{ $viewData['product']->priceWithFee }}">
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoR" name="valorProdFornecedor" type="hidden"
+                                                            class="form-control porcem"
+                                                            value="{{ $viewData['product']->isKit ? $fee : $viewData['product']->valorProdFornecedor }}"
+                                                            readonly>
                                                     </div>
-                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço Kit:
-                                                    </label>
-                                                    <div class="col-lg-2 col-md-3 col-sm-12">
-                                                        <input name="priceKit" id="priceKit" type="text"
-                                                            class="form-control"
-                                                            value="{{ $viewData['product']->priceKit }}">
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3 row d-none">
+
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                                <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <input name="valorProdFornecedor"
+                                                        value="{{ $viewData['product']->valorProdFornecedor }}"
+                                                        id="precoLiquido" type="hidden" class="form-control" readonly>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-md-12">
+                                                <div class="col">
+                                                    <!-- Mensagem de cálculo -->
+                                                    <div id="calculoMensagem" class="mt-2 p-2 text-center fw-bold"
+                                                        style="background-color: black; color: #FFD700; border-radius: 5px; font-size: 16px;">
+                                                        Cálculo: (Preço Kit + Tarifas) ÷ 0,95 = R$: Preço por anunciar.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mt-3">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+
+                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label">Tarifa
+                                                            R$: </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="fee"
+                                                                value="{{ number_format($fee, 2, '.', '') }}"
+                                                                id="fee" type="text" class="form-control"
+                                                                readonly>
+                                                        </div>
+
+                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label">Taxa %:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-6 col-sm-12">
+                                                            <input name="taxaFee" id="taxaFee" type="text"
+                                                                value="4.99" class="form-control" readonly>
+                                                        </div>
+
+                                                        {{-- <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
+                                                        </label> --}}
+                                                        <div class="col-lg-2 col-md-3 col-sm-12 d-none">
+                                                            <input name="priceWithFee" id="PriceWithFee" type="hidden"
+                                                                class="form-control"
+                                                                value="{{ $viewData['product']->priceWithFee }}" readonly>
+                                                        </div>
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço
+                                                            Kit + Tarifas:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="priceKit" id="priceKit" type="text"
+                                                                class="form-control"
+                                                                value="{{ number_format(($viewData['product']->priceKit ? $viewData['product']->priceKit : $viewData['product']->price + $fee) / 0.95, 2, '.', '') }}"
+                                                                readonly>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1164,7 +1241,77 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @else
+                            <div id="collapseFees" class="accordion-collapse collapse" aria-labelledby="headingFees"
+                                data-bs-parent="#productFormAccordion">
+                                <div class="accordion-body">
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
+                                            <div class="col">
+                                                <div class="mb-3 row">
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoP" name="valorProdFornecedor"
+                                                            class="form-control porcem" value="{{ old('acressimoP') }}">
+                                                    </div>
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoR" name="valorProdFornecedor" type="text"
+                                                            class="form-control porcem"
+                                                            value="{{ $viewData['product']->isKit ? $fee : $viewData['product']->valorProdFornecedor }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3 row">
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Bruto:</label>
+                                                <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <input id="precoFinal" value="{{ old('price') }}" type="text"
+                                                        class="form-control">
+                                                </div>
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                                <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <input name="valorProdFornecedor"
+                                                        value="{{ $viewData['product']->valorProdFornecedor }}"
+                                                        id="precoLiquido" type="text" class="form-control">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+
+                                                        <label class="col-lg-2 col-md-3 col-sm-12 col-form-label">Taxa %:
+                                                        </label>
+                                                        <div class="col-lg-1 col-md-6 col-sm-12">
+                                                            <input name="taxaFee" id="taxaFee" type="text"
+                                                                value="4.99" class="form-control">
+                                                        </div>
+
+                                                        <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="priceWithFee" id="PriceWithFee" type="text"
+                                                                class="form-control"
+                                                                value="{{ $viewData['product']->priceWithFee }}">
+                                                        </div>
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço
+                                                            Kit:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="priceKit" id="priceKit" type="text"
+                                                                class="form-control"
+                                                                value="{{ $viewData['product']->priceKit }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <script>
@@ -1237,7 +1384,7 @@
 
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
@@ -1249,6 +1396,78 @@
         hljs.highlightAll();
     </script>
 
+    <script>
+        // Função para atualizar o valor exibido
+        const isPorcemInput = document.getElementById('isPorcem');
+        const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
+        const valorAgregadoInput = document.getElementById('valorAgregadoInput');
+        const valorAgregadoSelect = document.getElementById('editValorAgregado');
+
+
+
+        function atualizarValorProduto() {
+
+            let novoValor = parseFloat($('#precoNormal').val()) || 0;
+            let tarifaTotal = parseFloat($("#fee").val().replace(',', '.')) || 0;
+
+            // Garante que o valor não seja negativo
+            if (novoValor < 0) novoValor = 0;
+            // Atualiza o display do valor
+            if ($("#precoNormal").val() > 0) {
+                var result = (novoValor + tarifaTotal) / 0.95;
+                $("#priceKit").val(result.toFixed(2));
+            }
+        }
+
+        atualizarValorProduto();
+
+
+        (function() {
+            let devtoolsOpen = false;
+
+            // Detecta a abertura do DevTools (F12, Ctrl+Shift+I, etc.)
+            let element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    devtoolsOpen = true;
+                    window.location.reload(); // Recarrega a página
+                }
+            });
+            console.log("%c", element);
+
+            // Monitora mudanças no `readonly`
+            document.addEventListener("DOMContentLoaded", function() {
+                let inputs = document.querySelectorAll("input[readonly]");
+
+                inputs.forEach(input => {
+                    // Força o readonly
+                    input.setAttribute("readonly", "readonly");
+
+                    // Evita alterações pelo DevTools
+                    Object.defineProperty(input, "readOnly", {
+                        value: true,
+                        writable: false
+                    });
+                });
+            });
+
+            // Previne atalhos do teclado (F12, Ctrl+Shift+I, etc.)
+            document.addEventListener("keydown", function(event) {
+                if (event.key === "F12" ||
+                    (event.ctrlKey && event.shiftKey && (event.key === "I" || event.key === "J" || event.key ===
+                        "C")) ||
+                    (event.ctrlKey && event.key === "U")) {
+                    event.preventDefault();
+                    window.location.reload(); // Recarrega a página
+                }
+            });
+
+            // Impede o clique direito
+            document.addEventListener("contextmenu", function(event) {
+                event.preventDefault();
+            });
+        })();
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1302,27 +1521,6 @@
                 // Atualiza o campo de estoque do afiliado
                 $('#estoque_afiliado').val(estoqueAfiliado);
             });
-
-
-            // const form = document.querySelector('form'); // Seleciona o formulário
-            // const hiddenInput = document.getElementById('image'); // Campo hidden para a imagem principal
-
-            // // Adiciona evento ao formulário para garantir que a imagem principal seja enviada
-            // form.addEventListener('submit', function() {
-            //     const mainLabel = document.querySelector('.main-image-label'); // Label visível
-            //     if (mainLabel) {
-            //         const imageItem = mainLabel.closest('.image-item'); // Container da imagem principal
-            //         if (imageItem) {
-            //             const imageUrl = imageItem.getAttribute(
-            //             'data-url'); // URL completo da imagem principal
-            //             const fileName = imageUrl.split('/').pop(); // Extrai apenas o nome do arquivo
-            //             hiddenInput.value = fileName; // Atualiza o campo hidden com o nome do arquivo
-            //         }
-            //     }
-            // });
-
-
-
 
             // Adicionar evento para novas imagens no input
             $('#file').on('change', function(e) {

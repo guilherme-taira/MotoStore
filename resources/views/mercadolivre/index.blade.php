@@ -809,7 +809,8 @@
                                 type: "GET",
                                 headers: {
                                     "Content-Type": 'application/json',
-                                    'Accept': 'application/json'
+                                    'Accept': 'application/json',
+                                    "Authorization": `Bearer ${$("#token").val()}`
                                 },
                                 success: function(response) {
                                     if (response) {
@@ -967,8 +968,11 @@
                 $("#titlenovo").empty();
 
                 $.ajax({
-                    url: " https://api.mercadolibre.com/items/" + product,
+                    url: "https://api.mercadolibre.com/items/" + product,
                     type: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${$("#token").val()}`
+                    },
                     success: function(response) {
                         if (response) {
                             if (response.variations.length > 0) {
@@ -976,14 +980,16 @@
                             } else {
                                 $("#variacao").prop("checked", false);
                             }
-                            // SHOW ALL RESULT QUERY
-                            //$("#titulo-anuncio").append(product);
-                            // getSugestoes(response.title);
-                            $("#titlenovo").val(response.title).css("background-color", "yellow")
-                                .focus();;
+                            $("#titlenovo").val(response.title)
+                                        .css("background-color", "yellow")
+                                        .focus();
                         }
                     },
+                    error: function(xhr, status, error) {
+                        console.error("Erro na requisição:", error);
+                    }
                 });
+
             }
 
             function getSugestoes(title) {

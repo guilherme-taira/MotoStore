@@ -394,7 +394,7 @@ class orderscontroller extends Controller
                 DB::raw('DATE(dataVenda) as data'),
                 DB::raw('SUM(valorVenda) as total')
             )
-            ->where('pivot_site.id_user', 59)
+            ->where('pivot_site.id_user', $request->user_id)
             ->where('dataVenda', '>=', Carbon::today()->subDays(6))
             ->groupBy(DB::raw('DATE(dataVenda)'))
             ->orderBy(DB::raw('DATE(dataVenda)'))

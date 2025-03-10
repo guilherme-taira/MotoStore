@@ -57,18 +57,13 @@ class getPaymentController extends Controller
             order_site::where('numeropedido',$res->external_reference)->update(['status_id' => 5]);
         }else if($httpCode == '200'){
             if($res->status == "approved"){
-
-
-                // Log::critical($res->external_reference);
-                // $userML = token::where('user_id_mercadolivre',$res->payer->id)->first();
-                // // INSERE A NOTIFICAÇÃO
-                // $user = User::find($userML->user_id);
-                // $orderId = order_site::where('external_reference',$res->external_reference)->first();
-
-                // foreach ($res->additional_info->items as $item) {
-                //     $produto = Products::find($item->id);
-                //     $user->notify(new notificaUserOrder($user,$this->getOrderId(),$produto,$orderId->id,$orderId->numeropedido));
-                // }
+                // INSERE NOTIFICACOES
+                try {
+                    $dados = financeiro::GetTokenByNotification($res->external_reference);
+                    pushNotificationApp("Olá {$dados->name}","Pagamento Recebido Nº {$res->id} no Valor de R$: {$res->transaction_amount}",$dados->token,$dados->id_user);
+                } catch (\Exception $th) {
+                    Log::error($th->getMessage());
+                }
 
                 order_site::where('external_reference',$res->external_reference)->update(['status_id' => 4]);
                 // financeiro::where('token_transaction',$res->external_reference)->get();

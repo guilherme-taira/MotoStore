@@ -16,6 +16,7 @@ use App\Http\Controllers\categoriaFornecedor\subcategoriaFornecedor;
 use App\Http\Controllers\Configuracao\configuracaoController;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\email\sendEmail;
+use App\Http\Controllers\Firebase\FirebaseService;
 use App\Http\Controllers\Fornecedor\fornecedorController;
 use App\Http\Controllers\GlobalMessageController;
 use App\Http\Controllers\HomeController;
@@ -65,7 +66,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::get('/', function () {
     return redirect()->route('home');
 });
@@ -104,6 +104,9 @@ Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout'
 Route::post('/merge-pdfs', [orderscontroller::class, 'mergeLabels'])->name('merge.pdfs');
 Route::get('/exclusivos',[productsController::class,'exclusivos'])->name('products.exclusivos')->middleware('restrict.route');
 Route::post('/salvar-ordem-imagens', [productsController::class, 'salvarOrdem'])->name('salvar.ordem.imagens');
+Route::delete('/kits/deleteProduct/{productId}/{kitId}', [KitsKitsController::class, 'deleteProduct'])
+    ->name('kits.deleteProduct');
+
 // Rota para listar todas as notificações
 Route::get('/vernotificacoes', [NotificationSistemaController::class, 'index'])->name('notifications');
 // NOTIFICAO MARCAR LIDO
@@ -149,6 +152,7 @@ Route::get('/getProductByName',[KitsKitsController::class,'getProductByName'])->
 Route::get('/DeleteOrderSessionRoute/{id}',[KitsKitsController::class,'DeleteOrderSessionRoute'])->name('deleteSessionRoute');
 Route::post('/adicionarQuantidade',[KitsKitsController::class,'adicionarQuantidade'])->name('adicionarQuantidade');
 Route::post('/adicionarQuantidadeNoKit',[KitsKitsController::class,'adicionarQuantidadeNoKit'])->name('adicionarQuantidadeNoKit');
+Route::post('/updateQuantidadeNoKit/{productId}/{kitId}', [KitsKitsController::class, 'updateQuantidadeNoKit'])->name('updateQuantidadeNoKit');
 // ROTA DE EMAIL
 Route::get('/sendEmail',[sendEmail::class,'sendEmail']);
 // ROTAS DE FILA
@@ -161,7 +165,6 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function () {
 
     // Route::middleware('admin_msg')->group(function () {
-
         Route::post('/financeiro/{id}/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
         Route::post('/storeBling', [ApiBlingProductsController::class, 'storeBling'])->name('storeBling');
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');

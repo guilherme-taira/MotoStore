@@ -50,6 +50,8 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redis;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+
 
 class MercadolivreOrderController implements InterfaceMercadoLivre
 {
@@ -98,7 +100,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        // FacadesLog::critical($reponse);
+        FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -132,7 +134,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     $shippingClient = new getShippingData($shipping,$this->getToken(),$json);
                     $dados = $shippingClient->resource();
 
-                    FacadesLog::debug(json_encode($dados));
+                    // FacadesLog::debug(json_encode($dados));
 
                     // PEGA OS DADOS DA INTEGRACAO SHOPIFY
                     try {
@@ -188,7 +190,6 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                     } catch (\Exception $th) {
                         // Em caso de erro, remover a chave Redis para permitir nova tentativa no futuro
                         Redis::del($redisKey);
-
                         // Deletar o registro do banco de dados e registrar o erro
                         FacadesLog::emergency("VENDA CANCELADA: " .  $json->id);
                         ShippingUpdate::where('id_mercadoLivre', '=', $json->id)->delete();
@@ -236,7 +237,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $response = Http::get($url);
                                 // Verifica se a requisição foi bem-sucedida
                                 if ($response->successful()) {
-                                    $image = $response->json()['thumbnail'];
+                                    $image = isset($response->json()['thumbnail']) ? $response->json()['thumbnail'] : "-";
                                 }
 
                                 $prefence = new MercadoPagoPreference($carrinhoCesta,'https://afilidrop.com.br/api/v1/notification',$json->seller->id,$json->id);
@@ -246,14 +247,34 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $cliente->resource();
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
 
-                                $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
-                                $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
-                                if ($fornecedor) {
+                                $fornecedor = User::GetDataUserAndToken($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
+                                FacadesLog::alert($fornecedor->name);
+                                $vendedor = User::GetDataUserAndToken($user->user_id); // Certifique-se de que este ID é o do usuário correto
+                                FacadesLog::alert($vendedor->name);
 
+                                if ($fornecedor) {
                                 // Envia Notificação de Venda
-                                // if($id_order){
-                                //     $this->pushNotificationApp("Olá {$fornecedor->name}","Você vendeu {$items->item->title}");
-                                // }
+                                if($id_order){
+                                        try {
+                                            if(isset($fornecedor->token)){
+                                                pushNotificationApp("Olá Fornecedor {$fornecedor->name}","Você teve +1 Venda {$items->item->title}",$fornecedor->token,$fornecedor->id);
+                                            }
+
+                                        } catch (\Exception $th) {
+                                            FacadesLog::alert($th->getMessage());
+                                        }
+
+                                    try {
+                                        if(isset($fornecedor->token)){
+                                        pushNotificationApp("Olá {$vendedor->name}","Você vendeu {$items->item->title}",$vendedor->token,$vendedor->id);
+                                        }
+                                    } catch (\Exception $th) {
+                                        FacadesLog::alert($th->getMessage());
+                                    }
+
+                                    $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
+                                    $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
+                                }
 
                                 try {
                                     // Dados para enviar no corpo da requisição
@@ -353,11 +374,11 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         FacadesLog::alert($th->getMessage());
                                     }
 
-                                        financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
-                                        // NOTIFICA O FORNECEDOR
-                                        Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
-                                        // // NOTIFICA O VENDEDOR
-                                        Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
+                                    financeiro::SavePayment(3, $payments->total_paid_amount, $id_order, $produto->fornecedor_id, $preference['init_point'], "S/N","aguardando pagamento",$preference['external_reference'],$shipping);
+                                    // NOTIFICA O FORNECEDOR
+                                    Notification::send($fornecedor, new notificaUserOrder($fornecedor, $json, $produto, $id_order, $json->id));
+                                    // // NOTIFICA O VENDEDOR
+                                    Notification::send($vendedor, new notificaSellerOrder($vendedor, $json, $produto, $id_order, $json->id,$preference['init_point'],$image));
 
                                 }
 
@@ -406,17 +427,14 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         ShippingUpdate::updateOrCreate($conditions, $data);
     }
 
-
-    public function pushNotificationApp($msgHeader,$msgBody){
-
-        $token = "epf7FGyeQBiX8cpZO3TuQU:APA91bG8CzIPLNvd27JwpKxAtB7eSSDSmx6V57t_GUPeUW5qdFLjr6bcWsxz_iEfMGfjX0hART_BKp_lfkI-k-XzMA-9NYByF8chOyy6bM23vaE2muhGJOQ"; // Pegue do banco de dados ou passe no request
+    public function pushNotificationApp($msgHeader,$msgBody,$token){
 
         $factory = (new Factory)
         ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
 
         $messaging = $factory->createMessaging();
         $message = CloudMessage::withTarget('token', $token)
-            ->withNotification(Notification::create($msgHeader,$msgBody))
+            ->withNotification(FirebaseNotification::create($msgHeader,$msgBody))
             ->withData([
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             ]);

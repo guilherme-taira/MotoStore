@@ -45,7 +45,8 @@ class Products extends Model
         'informacaoadicional',
         'link',
         'atributos_html',
-        'atributos_json'
+        'atributos_json',
+        'owner'
     ];
 
     protected $table = "products";

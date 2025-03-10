@@ -73,6 +73,17 @@ class financeiro extends Model
         return $data;
     }
 
+    public static function GetTokenByNotification($order_id)
+    {
+        $data = DB::table('pivot_site')
+            ->join('order_site', 'pivot_site.order_id', '=', 'order_site.id')
+            ->join('financeiro', 'financeiro.order_id', 'order_site.id')
+            ->join('users','pivot_site.id_user','=','users.id')
+            ->join('fcm_tokens','pivot_site.id_user','fcm_tokens.user_id')
+            ->where('financeiro.token_transaction', $order_id)->first();
+        return $data;
+    }
+
     public static function GetDataByUserApp($order_id)
     {
         $data = DB::table('pivot_site')

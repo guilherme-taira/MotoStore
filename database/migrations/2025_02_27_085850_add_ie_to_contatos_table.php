@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddUniqueConstraintToOrderSiteNumeropedido extends Migration
+class AddIeToContatosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddUniqueConstraintToOrderSiteNumeropedido extends Migration
      */
     public function up()
     {
-        Schema::table('order_site', function (Blueprint $table) {
-            $table->unique('numeropedido');
+        Schema::table('contatos', function (Blueprint $table) {
+            $table->string('ie')->nullable(); // Ajuste 'nome' para a coluna após a qual deseja adicionar
         });
     }
 
@@ -25,8 +25,8 @@ class AddUniqueConstraintToOrderSiteNumeropedido extends Migration
      */
     public function down()
     {
-        Schema::table('order_site', function (Blueprint $table) {
-            $table->dropUnique(['numeropedido']);
+        Schema::table('contatos', function (Blueprint $table) {
+            $table->dropColumn('ie');
         });
     }
 }

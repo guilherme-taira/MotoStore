@@ -131,6 +131,7 @@ class ContatoController extends Controller
       // Validar os dados
       $validated = $request->validate([
         'nome' => 'required|string|max:255',
+        'ie' => 'nullable',
         'email' => 'nullable|email|max:255',
         'celular' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}[-\s]?\d{4}$/',
         'numeroDocumento' => 'nullable|string|max:20',
@@ -148,7 +149,7 @@ class ContatoController extends Controller
         // Mensagens personalizadas para cada campo
         'nome.required' => 'O campo Nome é obrigatório.',
         'nome.string' => 'O campo Nome deve ser uma string.',
-        'nome.max' => 'O campo Nome não pode ter mais que 255 caracteres.',
+        'nome.max' => 'O campo ie não pode ter mais que 255 caracteres.',
         'email.email' => 'O campo E-mail deve conter um endereço de e-mail válido.',
         'email.max' => 'O campo E-mail não pode ter mais que 255 caracteres.',
         'celular.regex' => 'O campo Celular deve estar no formato (XX) XXXXX-XXXX.',
