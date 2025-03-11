@@ -1007,6 +1007,8 @@ class productsController extends Controller
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
 
+        $token = token::where('user_id', $request->auth)->first();
+
         try {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -1014,6 +1016,7 @@ class productsController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
             $response = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -1130,6 +1133,8 @@ class productsController extends Controller
     public function PutAttributes($ids, $data, $base, $auth, $descricao)
     {
         $token = token::where('user_id', $auth)->first();
+
+
         // ENDPOINT PARA REQUISICAO
         if (count($ids) > 1) {
             try {
@@ -1188,6 +1193,7 @@ class productsController extends Controller
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
                     $reponse = curl_exec($ch);
+                    Log::alert($reponse);
                     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
                     $json = json_decode($reponse);
