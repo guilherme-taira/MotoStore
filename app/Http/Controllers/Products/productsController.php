@@ -35,6 +35,7 @@ use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
 use App\Http\Controllers\image\image;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerShoes;
@@ -338,6 +339,7 @@ class productsController extends Controller
              $handler = new handlerDresses();
              $handler->setNext(new handlerDresses())
              ->setNext(new handlerShoes())
+             ->setNext(new handlerBooties())
              ->setNext(new handlerPants())
              ->setNext(new handlerSkirts());
 
@@ -362,6 +364,7 @@ class productsController extends Controller
             $newToken->resource();
             $token = token::where('user_id_mercadolivre',$request->user)->first(); // CHAMANDO ANTIGO
 
+            Log::alert($data_json);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
