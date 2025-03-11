@@ -2109,4 +2109,24 @@ class productsController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Ordem atualizada com sucesso!']);
-    }}
+    }
+
+
+    public function getKitsByOwner(Request $request)
+    {
+        // Obtém o parâmetro 'id' da query string (representa o owner)
+        $owner = $request->query('id');
+
+        if (!$owner) {
+            return response()->json([
+                'error' => 'Parâmetro id (owner) é obrigatório.'
+            ], 400);
+        }
+
+        // Busque os kits onde a coluna 'owner' é igual ao valor informado
+        $kits = Products::where('owner', $owner)->paginate();
+
+        return response()->json($kits);
+    }
+
+}

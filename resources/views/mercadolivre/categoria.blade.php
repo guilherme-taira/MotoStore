@@ -61,13 +61,15 @@
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="radioName" value="fotos" id="checkbox_id">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="fotos"
+                                id="checkbox_id">
                             <label class="form-check-label" for="fotos">
                                 Fotos
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="radioName" value="info" id="checkbox_id">
+                            <input class="form-check-input" type="checkbox" name="radioName" value="info"
+                                id="checkbox_id">
                             <label class="form-check-label" for="info">
                                 Ficha Técnica
                             </label>
@@ -83,23 +85,24 @@
                 <div class="card-body">
                     <h5 class="card-title">Tipo de Cadastro</h5>
                     <div class="container mt-4">
-                            <label class="form-check-label col-md-8 d-none" id="titulo_anuncio" for="duplicar">
-                                    Título do Anúncio:
-                                    <input type="text" class="form-control" name="title_anuncio" id="title_anuncio">
-                            </label>
-                            <hr>
-                            <input class="form-check-input" type="radio" name="tp_cadastro" value="duplicar"
-                                id="duplicar">
-                            <label class="form-check-label" for="duplicar">
-                                Duplicar
-                            </label>
+                        <label class="form-check-label col-md-8 d-none" id="titulo_anuncio" for="duplicar">
+                            Título do Anúncio:
+                            <input type="text" class="form-control" name="title_anuncio" id="title_anuncio">
+                        </label>
+                        <hr>
+                        <input class="form-check-input" type="radio" name="tp_cadastro" value="duplicar"
+                            id="duplicar">
+                        <label class="form-check-label" for="duplicar">
+                            Duplicar
+                        </label>
 
-                            <input class="form-check-input" type="radio" name="tp_cadastro" value="variacao" id="variacao">
-                            <label class="form-check-label" for="variacao">
-                                Variação
-                            </label>
-                        </div>
+                        <input class="form-check-input" type="radio" name="tp_cadastro" value="variacao"
+                            id="variacao">
+                        <label class="form-check-label" for="variacao">
+                            Variação
+                        </label>
                     </div>
+                </div>
 
             </div>
 
@@ -204,7 +207,7 @@
             $('#formulario input[id=duplicar]').on('change', function() {
                 alert("Preencha o nome do Novo Anúncio:");
                 $("#titulo_anuncio").removeClass("d-none");
-                $("#title_anuncio").css("background-color","yellow").focus();
+                $("#title_anuncio").css("background-color", "yellow").focus();
             });
 
 
@@ -241,8 +244,8 @@
                 var base = $("#base").val();
                 var title = $("#title_anuncio").val();
                 var sList = "";
-                $('input[type=checkbox]').each(function () {
-                    atributos.push((this.checked ?  $(this).val() : "not_checked"));
+                $('input[type=checkbox]').each(function() {
+                    atributos.push((this.checked ? $(this).val() : "not_checked"));
                 });
 
                 tp_cadastro = $("#formulario").find("input[name=tp_cadastro]:checked").val();
@@ -253,7 +256,7 @@
                 });
                 if (base) {
                     console.log("BASE PREENCHIDA");
-                    sendProductIdForServer(ids, base, access_token,atributos,tp_cadastro,title);
+                    sendProductIdForServer(ids, base, access_token, atributos, tp_cadastro, title);
                 } else {
                     console.log("BASE VAZIA");
                     $("li#ids_li").each(function(index, element) {
@@ -419,7 +422,8 @@
             }
 
             // FUNCAO PARA CHAMAR TOKE
-            function sendProductIdForServer(data, base, access_token,atributos,tp_cadastro = "N/D",title = "N/D") {
+            function sendProductIdForServer(data, base, access_token, atributos, tp_cadastro = "N/D", title =
+            "N/D") {
                 $.ajax({
                     url: "https://melimaximo.com.br/api/v1/getAttributesById",
                     type: "POST",
@@ -446,8 +450,11 @@
             // FUNCAO PARA CHAMAR PRODUTO
             function getProduct(product) {
                 $.ajax({
-                    url: " https://api.mercadolibre.com/items/" + product,
+                    url: "https://api.mercadolibre.com/items/" + product,
                     type: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${$("#token").val()}`
+                    },
                     success: function(response) {
                         if (response) {
                             // SHOW ALL RESULT QUERY

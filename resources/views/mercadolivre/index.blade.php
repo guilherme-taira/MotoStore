@@ -1024,8 +1024,6 @@
             }
 
 
-
-
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getCategory(category) {
                 var domain = "";
