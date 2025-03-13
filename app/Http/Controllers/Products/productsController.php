@@ -282,10 +282,20 @@ class productsController extends Controller
     }
 
     public function getProdutosPaginadosImages(Request $request) {
-        $produtos = Products::where('isKit', '=', '0')
+        Log::alert($request->all());
+        if ($request->has('fornecedor')) {
+            $produtos = Products::where('isKit', '=', '0')
+                ->where('isPublic', '=', 1)
+                ->where('fornecedor_id','=', $request->fornecedor)
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+        } else {
+            // Caso não tenha o parâmetro, você pode definir outra query ou retornar um erro
+            $produtos = Products::where('isKit', '=', '0')
             ->where('isPublic', '=', 1)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+        }
 
         foreach ($produtos as $produto) {
             // Obtém todas as imagens relacionadas ao produto
@@ -2136,6 +2146,14 @@ class productsController extends Controller
         $kits = Products::where('owner', $owner)->paginate();
 
         return response()->json($kits);
+    }
+
+
+    public function getComposicaoKit(Request $request){
+        // Obtém o parâmetro 'id' da query string (representa o owner)
+        $kit = $request->query('id');
+        $data = kit::getProductsByKit($kit);
+        return response()->json($data);
     }
 
 }

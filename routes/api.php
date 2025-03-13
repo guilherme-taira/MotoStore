@@ -111,6 +111,7 @@ Route::prefix('v1')->group(function () {
     Route::post('getSalesLastMont',[orderscontroller::class,'getSalesLastMont']);
     Route::post('saveTokenPhoneAuth',[FirebaseService::class,'saveTokenPhoneAuth']);
     Route::post('getKitsByOwner', [productsController::class, 'getKitsByOwner']);
+    Route::post('getComposicaoKit', [productsController::class, 'getComposicaoKit']);
     // financeiro::contareceber(Auth::user()->id);
 });
 
