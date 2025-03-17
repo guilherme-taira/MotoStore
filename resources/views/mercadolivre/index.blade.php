@@ -802,6 +802,7 @@
                             clearInterval(intervalo);
                             setTimeout(ativerIntervalo, 3000);
                         }
+
                         $("li#ids_li").each(function(index, element) {
 
                             $.ajax({
