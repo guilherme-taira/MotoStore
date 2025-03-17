@@ -638,7 +638,7 @@
                             <th scope="col">Publico</th>
                             <th scope="col">Integrar</th>
                             <th scope="col">Edit</th>
-                            <th scope="col">Delete</th>
+                            {{-- <th scope="col">Delete</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -670,12 +670,12 @@
                                                 Editar</button>
                                         </a>
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         <a href="{{ route('products.edit', ['id' => $product->id]) }}">
                                             <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>
                                                 Deletar</button>
                                         </a>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             </section>
                         @endforeach
