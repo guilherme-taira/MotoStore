@@ -679,11 +679,11 @@
                                 </tr>
                             </section>
                         @endforeach
-                        <div class="d-flex justify-content-center mt-4">
-                            {!! $viewData['kits']->links() !!}
-                        </div>
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {!! $viewData['kits']->links() !!}
+                </div>
             </div>
 
         </div>
