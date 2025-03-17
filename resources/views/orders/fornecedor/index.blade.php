@@ -33,8 +33,8 @@
             transition: transform 0.3s ease-in-out;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
+        body.modal-open .card:hover {
+            transform: none;
         }
 
         .card-body {
@@ -483,7 +483,7 @@
                                 <!-- Modal -->
                                 <div class="modal fade" id="trackingModal-{{ $order->id }}" tabindex="-1"
                                     aria-labelledby="trackingModalLabel-{{ $order->id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-right">
+                                    <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="trackingModalLabel-{{ $order->id }}">
@@ -553,14 +553,11 @@
                                             <span class="badge bg-primary text-white d-flex align-items-center"
                                                 style="font-size: 0.9rem; padding: 5px 10px;">
                                                 <i class="fas fa-truck me-2"></i> Status
-                                                <div class="latest-status fw-bold text-white"
-                                                    style="font-size: 0.9rem;"> Carregando...
-                                                </div>
+                                                <div class="latest-status fw-bold text-white" style="font-size: 0.9rem;"> Carregando...</div>
                                             </span>
                                         </div>
                                         <input type="hidden" class="shipping-id" value="${order.shipping_id}">
-                                        <div class="modal-tracking-details text-muted mt-2" style="display: none;">
-                                        </div>
+                                        <div class="modal-tracking-details text-muted mt-2" style="display: none;"></div>
                                     </div>
                                 </div>
                                 <div class="card-body bg-light">
@@ -597,10 +594,8 @@
                                         <div>
                                             <h6 class="mb-1 text-end">
                                                 <strong class="mt-4">Afiliado :</strong> ${order.name}
-                                                <select name="status_envio"
-                                                    class="form-select form-select-sm mt-4 status-envio-select"
-                                                    data-id="${order.financeiroId}"
-                                                    data-shipping-id="${order.shipping_id}">
+                                                <select name="status_envio" class="form-select form-select-sm mt-4 status-envio-select"
+                                                    data-id="${order.financeiroId}" data-shipping-id="${order.shipping_id}">
                                                     <option value="">Selecione</option>
                                                     ${order.statusOptions}
                                                 </select>
@@ -647,10 +642,9 @@
                                                 </label>
                                             </div>
                                         ` : ''}
-
-                                      <a href="${orderShowRoute.replace(':id', order.order_id)}" class="btn btn-outline-primary btn-sm">
+                                        <a href="${orderShowRoute.replace(':id', order.order_id)}" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-eye"></i> Ver Detalhes
-                                       </a>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -773,10 +767,17 @@
 
         document.querySelectorAll('button[data-bs-toggle="modal"]').forEach(button => {
             button.addEventListener('click', function(event) {
-                event.preventDefault(); // Previne a atualização da página
-                // Lógica adicional pode ser adicionada aqui
+                // event.preventDefault(); // Previne a ação padrão
+                // // Aqui você pode adicionar qualquer lógica necessária
+
+                // // Abre o modal manualmente
+                // const targetModalId = button.getAttribute('data-bs-target');
+                // const modalElement = document.querySelector(targetModalId);
+                // const modalInstance = new bootstrap.Modal(modalElement);
+                // modalInstance.show();
             });
         });
+
 
         document.getElementById('merge-labels-button').addEventListener('click', function() {
             const selectedCheckboxes = document.querySelectorAll('.pdf-checkbox:checked');
