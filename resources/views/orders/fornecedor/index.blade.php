@@ -405,12 +405,9 @@
                                                         <span class="badge text-bg-info"><strong>Observacão
                                                                 :{{ $order->informacaoadicional }}</strong></span>
 
-                                                        <span class="badge text-bg-warning"><strong>Prazo de Envio:
-                                                                {{ $order->estimated_handling_limit }}</strong></span>
+                                                        {{-- <span class="badge text-bg-warning"><strong>Prazo de Envio:
+                                                                {{ $order->estimated_handling_limit }}</strong></span> --}}
                                                     </h6>
-                                                @else
-                                                    <span class="badge text-bg-warning mt-4"><strong>Prazo de Envio:
-                                                            {{ $order->estimated_handling_limit }}</strong></span>
                                                 @endif
                                             </div>
                                         </div>
