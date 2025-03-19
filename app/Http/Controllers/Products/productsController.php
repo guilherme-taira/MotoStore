@@ -1610,11 +1610,17 @@ class productsController extends Controller
 
     public function todosProdutos(Request $request)
     {
-
         // PRODUTOS EM PROMOÇÂO
-        $data = Products::where('fornecedor_id', Auth::user()->id)
-        ->orderBy('id', 'desc') // Ordena pelo ID do produto, se ele for incremental
+        $data = Products::select('products.*')
+        ->where('products.fornecedor_id', Auth::user()->id)
+        ->where(function ($query) {
+             $query->where('products.owner', Auth::user()->id)
+                   ->orWhereNull('products.owner');
+        })
+        ->orderBy('products.id', 'desc')
         ->paginate(10);
+
+
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";
