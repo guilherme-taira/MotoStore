@@ -102,7 +102,7 @@ Route::prefix('v1')->group(function () {
     Route::get('getVendasApi',[orderscontroller::class,'getVendasApi']);
     Route::get('getOrderjoinApiDespacharApp',[orderscontroller::class,'getOrderjoinApiDespacharApp']);
     Route::post('/loginApi', [LoginController::class, 'loginApi']);
-    Route::post('/cadastraUserApi', [LoginController::class, 'loginApi']);
+    Route::post('/cadastraUserApi', [LoginController::class, 'cadastraUserApi']);
     Route::post('/financeiro/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
     Route::post('/getDataCentralFornecedor',[FornecedorController::class,'getDataCentralFornecedor']);
     Route::post('/getDevolucoesByFornecedor',[FornecedorController::class,'getDevolucoesByFornecedor']);

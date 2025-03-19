@@ -47,38 +47,51 @@ class LoginController extends Controller
 
     public function cadastraUserApi(Request $request)
     {
-        Log::alert($request->all());
-        // Validação dos dados recebidos
-        // $validator = Validator::make($request->all(), [
-        //     'name'     => 'required|string|max:255',
-        //     'email'    => 'required|email|max:255|unique:users',
-        //     'password' => 'required|string|min:6|confirmed', // Exige campo password_confirmation
-        // ]);
+        // Decodifica os dados enviados na chave "data"
+        $decodedData = json_decode($request->get('data'), true);
 
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'message' => 'Erro de validação',
-        //         'errors'  => $validator->errors()
-        //     ], 422);
-        // }
+        // Validação dos dados usando o array decodificado
+        $validator = Validator::make($decodedData, [
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            // Se for necessário confirmar a senha, envie também 'password_confirmation'
+            // 'password' => 'required|string|min:6|confirmed',
+        ]);
 
-        // // Criação do usuário
-        // $user = User::create([
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'password' => Hash::make($request->password),
-        // ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Erro de validação',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
-        // // Criação do token via Sanctum
-        // $token = $user->createToken('api_token')->plainTextToken;
+        try {
+            // Criação do usuário com os dados validados
+            $user = User::create([
+                'name'     => $decodedData['name'],
+                'email'    => $decodedData['email'],
+                'password' => Hash::make($decodedData['password']),
+            ]);
+        } catch (\Exception $e) {
+            // Caso ocorra algum erro, como duplicidade de email, retorna um erro
+            return response()->json([
+                'message' => 'Erro ao cadastrar usuário',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
 
-        // // Retorna os dados do usuário e o token gerado
-        // return response()->json([
-        //     'user'    => $user,
-        //     'token'   => $token,
-        //     'message' => 'Usuário cadastrado com sucesso.'
-        // ], 201);
+        // Criação do token via Sanctum
+        $token = $user->createToken('api_token')->plainTextToken;
+
+        return response()->json([
+            'user'    => $user,
+            'token'   => $token,
+            'message' => 'Usuário cadastrado com sucesso.'
+        ], 201);
     }
+
+
 
 
     public function loginApi(Request $request){

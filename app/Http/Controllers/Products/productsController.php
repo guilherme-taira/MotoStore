@@ -47,6 +47,7 @@ use App\Http\Controllers\MercadoLivre\ProdutoConcreto;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSwimwearCreator;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Http\Controllers\MercadoLivreStockController;
 use App\Jobs\UpdateStockJob;
@@ -351,7 +352,8 @@ class productsController extends Controller
              ->setNext(new handlerShoes())
              ->setNext(new handlerBooties())
              ->setNext(new handlerPants())
-             ->setNext(new handlerSkirts());
+             ->setNext(new handlerSkirts())
+             ->setNext(new handlerSwimwearCreator());
 
              $grid = $handler->Manipular($obj);
 

@@ -321,6 +321,7 @@
             "domains": [
                 { "domain_id": "MLB-SNEAKERS" },
                 { "domain_id": "MLB-BOOTS_AND_BOOTIES" },
+                { "domain_id": "MLB-SWIMWEAR"},
                 // { "domain_id": "MLB-LOAFERS_AND_OXFORDS" },
                 // { "domain_id": "MLB-FOOTBALL_SHOES" },
                 // { "domain_id": "MLB-SANDALS_AND_CLOGS" },
@@ -347,7 +348,7 @@
                 // { "domain_id": "MLB-BABIES_FOOTWEAR" },
                 // { "domain_id": "MLB-SAFETY_FOOTWEAR" },
                 // { "domain_id": "MLB-SPORT_T_SHIRTS" },
-                // { "domain_id": "MLB-SWEATERS_AND_CARDIGANS" },
+                // { "domain_id": "MLB-SWEATERS_AND_CARDIGANS"},
                 // { "domain_id": "MLB-CYCLING_JERSEYS" },
                 // { "domain_id": "MLB-VESTS" },
                 // { "domain_id": "MLB-ROBES" },
@@ -385,7 +386,6 @@
         function checkDomainId(value) {
             return data.domains.some(domain => domain.domain_id === value);
         }
-
 
             // Show loading indicator
             $("#loading").fadeIn();
@@ -464,7 +464,6 @@
                         var listItem = $(`<li id="ids_li">${codigo.trim()}</li>`);
                         $("#titulo-anuncio").append(listItem);
                     });
-
                     $("#id").val("");
                 }
             });

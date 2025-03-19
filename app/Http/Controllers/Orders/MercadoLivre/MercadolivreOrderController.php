@@ -254,27 +254,27 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                                 if ($fornecedor) {
                                 // Envia Notificação de Venda
-                                if($id_order){
-                                        try {
-                                            if(isset($fornecedor->token)){
-                                                pushNotificationApp("Olá Fornecedor {$fornecedor->name}","Você teve +1 Venda {$items->item->title}",$fornecedor->token,$fornecedor->id);
-                                            }
+                                // if($id_order){
+                                //         try {
+                                //             if(isset($fornecedor->token)){
+                                //                 pushNotificationApp("Olá Fornecedor {$fornecedor->name}","Você teve +1 Venda {$items->item->title}",$fornecedor->token,$fornecedor->id);
+                                //             }
 
-                                        } catch (\Exception $th) {
-                                            FacadesLog::alert($th->getMessage());
-                                        }
+                                //         } catch (\Exception $th) {
+                                //             FacadesLog::alert($th->getMessage());
+                                //         }
 
-                                    try {
-                                        if(isset($fornecedor->token)){
-                                        pushNotificationApp("Olá {$vendedor->name}","Você vendeu {$items->item->title}",$vendedor->token,$vendedor->id);
-                                        }
-                                    } catch (\Exception $th) {
-                                        FacadesLog::alert($th->getMessage());
-                                    }
+                                //     try {
+                                //         if(isset($fornecedor->token)){
+                                //         pushNotificationApp("Olá {$vendedor->name}","Você vendeu {$items->item->title}",$vendedor->token,$vendedor->id);
+                                //         }
+                                //     } catch (\Exception $th) {
+                                //         FacadesLog::alert($th->getMessage());
+                                //     }
 
                                     $fornecedor = User::find($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
                                     $vendedor = User::find($user->user_id); // Certifique-se de que este ID é o do usuário correto
-                                }
+                                // }
 
                                 try {
                                     // Dados para enviar no corpo da requisição
