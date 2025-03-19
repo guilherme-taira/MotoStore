@@ -213,7 +213,7 @@
                         @foreach (Auth::user()->unreadNotifications as $notification)
                             <li>
                                 <a class="dropdown-item notification-item"
-                                   @if(isset($notification->data['link'])) href="{{ $notification->data['link'] }}"
+                                   @if(isset($notification->data['link'])) href="{{ route('orders.index')}}"
                                    @elseif(isset($notification->data['orderid'])) href="{{ route('orders.show', ['id' => $notification->data['orderid']]) }}"
                                    @else onclick="marcarComoLido('{{ $notification->id }}')"
                                    @endif>
@@ -271,8 +271,8 @@
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#!">Settings</a></li>
-                    <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                    {{-- <li><a class="dropdown-item" href="#!">Settings</a></li>
+                    <li><a class="dropdown-item" href="#!">Activity Log</a></li> --}}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="{{ route('logout') }}"
