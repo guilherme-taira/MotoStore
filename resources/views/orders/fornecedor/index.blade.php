@@ -5,6 +5,19 @@
 @section('conteudo')
 
     <style>
+        /* Aplica border-radius aos itens do accordion */
+            #advancedFilterAccordion .accordion-item {
+                border: 1px solid #dee2e6; /* Exibe a borda para evidenciar o arredondamento */
+                border-radius: 10px;
+                margin-bottom: 10px; /* Espaço entre os itens */
+                overflow: hidden; /* Garante que o conteúdo não ultrapasse o arredondamento */
+            }
+
+            /* Se desejar, arredonde também o botão do accordion */
+            #advancedFilterAccordion .accordion-button {
+                border-radius: 10px;
+            }
+
         /* Estilo para o botão flutuante */
         #merge-labels-button {
             position: fixed;
@@ -228,7 +241,7 @@
                 </div>
             </div>
 
-            <div class="accordion mt-4" id="accordionExample">
+            <div class="accordion mt-2" id="accordionExample">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button text-white" type="button" data-bs-toggle="collapse"
@@ -291,9 +304,89 @@
                 </div>
             </div>
         </div>
+
+
+        @php
+            // Se algum dos filtros estiver preenchido, abrimos o accordion
+            $openAccordion = request('npedido') || request('nome') || request('codigoafiliado') || request('cpf') || request('cnpj') || request('datainicial') || request('datafinal') || request('status');
+        @endphp
+
+        <div class="accordion accordion-flush py-2" id="advancedFilterAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="advancedFilterHeading">
+                    <button class="accordion-button {{ $openAccordion ? '' : 'collapsed' }} text-white" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#advancedFilterCollapse" aria-expanded="{{ $openAccordion ? 'true' : 'false' }}" aria-controls="advancedFilterCollapse">
+                        Filtros Avançados
+                    </button>
+                </h2>
+                <div id="advancedFilterCollapse" class="accordion-collapse collapse {{ $openAccordion ? 'show' : '' }}" aria-labelledby="advancedFilterHeading"
+                    data-bs-parent="#advancedFilterAccordion">
+                    <div class="accordion-body">
+                        <form id="filterForm" action="{{ route('fornecedor.index') }}" method="get">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label for="npedido" class="form-label">Número do Pedido</label>
+                                    <input type="text" name="npedido" class="form-control" id="npedido"
+                                        value="{{ request('npedido') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="nome" class="form-label">Nome do Cliente (Mercado Livre)</label>
+                                    <input type="text" name="nome" class="form-control" id="nome"
+                                        value="{{ request('nome') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="codigoafiliado" class="form-label">Código do Afiliado</label>
+                                    <input type="text" name="codigoafiliado" class="form-control" id="codigoafiliado"
+                                        value="{{ request('codigoafiliado') }}">
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label for="datainicial" class="form-label">Data Inicial</label>
+                                    <input type="date" name="datainicial" class="form-control" id="datainicial"
+                                        value="{{ request('datainicial') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="datafinal" class="form-label">Data Final</label>
+                                    <input type="date" name="datafinal" class="form-control" id="datafinal"
+                                        value="{{ request('datafinal') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="status" class="form-label">Status do Pedido</label>
+                                    <select class="form-select" name="status" id="status">
+                                        <option value="">Selecione...</option>
+                                        <option value="" {{ request('status') == '1' ? 'selected' : '' }}>Aguardando Envio</option>
+                                        <option value="1" {{ request('status') == '2' ? 'selected' : '' }}>A Enviar</option>
+                                        <option value="2" {{ request('status') == '3' ? 'selected' : '' }}>Enviado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button class="btn btn-primary" type="submit">Pesquisar</button>
+                                <button type="button" class="btn btn-secondary ms-2" onclick="clearFilter()">Limpar Formulário</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Script para limpar o formulário -->
+        <script>
+            function clearFilter(){
+                // Limpa os inputs de texto e data
+                $('#filterForm input[type="text"], #filterForm input[type="date"]').val('');
+                // Reseta os selects para a primeira opção
+                $('#filterForm select').prop('selectedIndex', 0);
+            }
+        </script>
+
+
+
         {{-- END ACCORDION DATA --}}
 
-        <div class="card">
+        <div class="card mt-2">
             <div class="card-header">{{ $viewData['subtitle'] }}</div>
             <div class="card-body">
                 <h5 class="card-title">Clientes / Fornecedores</h5>
@@ -385,7 +478,7 @@
                                             <div>
                                                 <h6 class="mb-1 text-end">
 
-                                                    <strong class="mt-4">Afiliado :</strong> {{ $order->name }}
+                                                    <strong class="mt-4">Afiliado :</strong> {{ $order->name }} / <strong>Código :</strong> {{ $order->id_user }}
                                                     <select name="status_envio"
                                                         class="form-select form-select-sm mt-4 status-envio-select"
                                                         data-id="{{ $order->financeiroId }}"

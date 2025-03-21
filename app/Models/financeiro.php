@@ -29,16 +29,79 @@ class financeiro extends Model
 
     public static function contareceber($user)
     {
-        $data = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')
-            ->join('pivot_site','order_site.id', '=', 'pivot_site.order_id')
-            ->join('users','pivot_site.id_user','=','users.id')
-            ->join('product_site','pivot_site.product_id','=','product_site.id')
-            ->join('products','product_site.codigo','=','products.id')
-            ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional','financeiro.id as financeiroId')
-            ->where('financeiro.user_id', $user)
-            ->orderBy('financeiro.id','desc')->paginate(10);
+        // OLD VERSION
+        // $data = financeiro::join('order_site', "order_site.id", '=', 'financeiro.order_id')
+        //     ->join('pivot_site','order_site.id', '=', 'pivot_site.order_id')
+        //     ->join('users','pivot_site.id_user','=','users.id')
+        //     ->join('product_site','pivot_site.product_id','=','product_site.id')
+        //     ->join('products','product_site.codigo','=','products.id')
+        //     ->select('financeiro.status as statusf','order_site.*','financeiro.*','order_site.id as id_venda','pivot_site.*','users.*','product_site.*','products.informacaoadicional','financeiro.id as financeiroId')
+        //     ->where('financeiro.user_id', $user)
+        //     ->orderBy('financeiro.id','desc')->paginate(10);
 
-        return $data;
+        // return $data;
+
+            // NEW VERSION WITH FILTER
+            $query = financeiro::join('order_site', 'order_site.id', '=', 'financeiro.order_id')
+            ->join('pivot_site', 'order_site.id', '=', 'pivot_site.order_id')
+            ->join('users', 'pivot_site.id_user', '=', 'users.id')
+            ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
+            ->join('products', 'product_site.codigo', '=', 'products.id')
+            ->select(
+                'financeiro.status as statusf',
+                'order_site.*',
+                'financeiro.*',
+                'order_site.id as id_venda',
+                'pivot_site.*',
+                'users.*',
+                'product_site.*',
+                'products.informacaoadicional',
+                'financeiro.id as financeiroId'
+            )
+            ->where('financeiro.user_id', $user);
+
+            // Filtro: Número do Pedido (assumindo que esteja em order_site.numeropedido)
+            if (request()->filled('npedido')) {
+                $npedido = request()->input('npedido');
+                $query->where('order_site.numeropedido', 'like', "%{$npedido}%");
+            }
+
+            // Filtro: Nome do Cliente (assumindo que esteja em users.name)
+            if (request()->filled('nome')) {
+                $nome = request()->input('nome');
+                $query->where('order_site.cliente', 'like', "%{$nome}%");
+            }
+
+            // Filtro: Nome do Cliente (assumindo que esteja em users.name)
+            if (request()->filled('codigoafiliado')) {
+                $codigoafiliado = request()->input('codigoafiliado');
+                $query->where('pivot_site.id_user', 'like', "%{$codigoafiliado}%");
+            }
+
+            // Filtro: Data Inicial (assumindo que a data de criação está em order_site.created_at)
+            if (request()->filled('datainicial')) {
+                $datainicial = request()->input('datainicial');
+                $query->whereDate('order_site.dataVenda', '>=', $datainicial);
+            }
+
+            // Filtro: Data Final
+            if (request()->filled('datafinal')) {
+                $datafinal = request()->input('datafinal');
+                $query->whereDate('order_site.dataVenda', '<=', $datafinal);
+            }
+
+            // Filtro: Status do Pedido (assumindo que está em financeiro.status)
+            if (request()->filled('status')) {
+                $status = request()->input('status');
+                $query->where('financeiro.status_envio', $status);
+            }
+
+            // Pagina e anexa os parâmetros da requisição
+            $data = $query->orderBy('financeiro.id','desc')
+            ->paginate(10)
+            ->appends(request()->all());
+
+           return $data;
     }
 
     public static function aguardandopagamento($user)

@@ -97,7 +97,7 @@
         // Array para armazenar os IDs dos produtos selecionados
         let selectedProducts = [];
 
-        $(document).on('change', '.form-check-input', function () {
+        $(document).on('change', '.form-check-input', function() {
             const productId = $(this).val();
             const stockValue = $(`#stock-${productId}`).val(); // Obtém o valor do estoque
             const nome = $(`#title-${productId}`).val(); // Obtém o nome do produto
@@ -124,88 +124,142 @@
             console.log('Produtos selecionados:', selectedProducts);
         });
 
-     // Exibe o array no console sempre que um checkbox for clicado
-     console.log('Produtos selecionados:', selectedProducts);
+        // Exibe o array no console sempre que um checkbox for clicado
+        console.log('Produtos selecionados:', selectedProducts);
+        let filterApplied = false; // Indica se o filtro já foi aplicado
 
-        function loadProducts(page = 1) {
+        function loadProducts(page = 1, fornecedor = null) {
             $('#produto-list').empty(); // Limpa a lista de produtos enquanto carrega
             $('#loader').removeClass('d-none');
-            $.get(`/api/v1/produtos?page=${page}`, function(data) {
+
+            $.get(`/api/v1/produtos?page=${page}&fornecedor_id=${fornecedor}`, function(data) {
                 const products = data.data;
                 const pagination = data.links;
+                console.log(pagination);
                 $('#loader').addClass('d-none');
-                // Oculta o loader após a requisição
-                // Limpa a lista e recria os produtos
+
+                // Cria os itens da lista de produtos
                 products.forEach(product => {
                     const isChecked = selectedProducts.includes(product.id.toString()) ? 'checked' : '';
-
                     $('#produto-list').append(`
                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
-                    <input class="form-check-input me-2" type="checkbox" value="${product.id}" id="product-${product.id}">
+                    <input class="form-check-input me-2 product-checkbox" type="checkbox" value="${product.id}" id="product-${product.id}" ${isChecked}>
                     <img src="${product.imagem_url}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
                     <div class="flex-grow-1">
                         <h6 class="mb-1">${product.title}</h6>
                         <span class="text-muted">Preço: R$${product.priceKit.toFixed(2)}</span>
                         <span class="text-muted ms-3">Estoque Disponível: ${product.available_quantity}</span>
-
-                        <!-- Campo de entrada para a quantidade desejada -->
+                        <!-- Inputs ocultos para armazenar dados -->
                         <div class="mt-2">
-                            <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
-                             <input type="hidden" id="title-${product.id}" value="${product.title}">
-                             <input type="hidden" id="fornecedor-${product.id}" value="${product.fornecedor_id}">
+                            <input type="hidden" id="stock-${product.id}" value="1">
+                            <input type="hidden" id="title-${product.id}" value="${product.title}">
+                            <input type="hidden" id="fornecedor-${product.id}" value="${product.fornecedor_id}">
                         </div>
                     </div>
                 </li>
             `);
                 });
 
-                // Atualiza a navegação de paginação
-                $('#pagination').html('');
-                // Adiciona botão "Anterior"
-                if (data.prev_page_url) {
-                    $('#pagination').append(`
-                <li class="page-item">
-                    <a class="page-link" href="#" onclick="loadProducts(${page - 1}); return false;">Anterior</a>
-                </li>
-            `);
-                }
-
-                // Adiciona números das páginas com índice
-                pagination.forEach((pageLink, index) => {
-                    if (pageLink.url) {
-
-                        if (index != pagination.length - 1 || index == 0)
-                            $('#pagination').append(`
-                    <li class="page-item ${pageLink.active ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="loadProducts(${pageLink.label}); return false;">${index}</a>
-                    </li>
-                `);
+                // Vincula o evento de clique aos checkboxes recém-criados
+                $('.product-checkbox').on('click', function() {
+                    const productId = $(this).val();
+                    const fornecedorId = $(`#fornecedor-${productId}`).val();
+                    // Chama novamente a função para recarregar os produtos
+                 // Se o filtro ainda não foi aplicado ou se o fornecedor for diferente, recarregue com o novo filtro
+                    if (!filterApplied || currentFornecedor !== fornecedorId) {
+                        loadProducts(page, fornecedorId);
+                        filterApplied = true;
+                        currentFornecedor = fornecedorId;
                     }
                 });
 
+                // Atualiza a navegação de paginação
+                $('#pagination').html('');
+
+                // Botão "Anterior" (se existir)
+                if (data.prev_page_url) {
+                    // Podemos detectar o link de "previous" procurando no array
+                    // ou simplesmente usar a URL `data.prev_page_url`.
+                    // Exemplo usando o page - 1:
+                    $('#pagination').append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#"
+                            onclick="loadProducts(${page - 1}, ${fornecedor === null ? 'null' : `'${fornecedor}'`}); return false;">
+                            Anterior
+                            </a>
+                        </li>
+                    `);
+                }
+
+                    // Percorre cada link de paginação
+                    pagination.forEach((pageLink) => {
+                    // Se o label for 'pagination.previous' ou 'pagination.next',
+                    // podemos tratar separadamente ou simplesmente ignorar aqui.
+                    if (pageLink.label === 'pagination.previous' || pageLink.label === 'pagination.next') {
+                        return;
+                    }
+
+                    // Tenta converter o label em número (páginas numéricas)
+                    const pageNumber = parseInt(pageLink.label, 10);
+
+                    // Se for um número válido, exibimos
+                    if (!isNaN(pageNumber)) {
+                        $('#pagination').append(`
+                            <li class="page-item ${pageLink.active ? 'active' : ''}">
+                                <a class="page-link" href="#"
+                                onclick="loadProducts(${pageNumber}, ${fornecedor === null ? 'null' : `'${fornecedor}'`}); return false;">
+                                ${pageNumber}
+                                </a>
+                            </li>
+                        `);
+                    }
+                });
+
+                // Botão "Próximo" (se existir)
+                if (data.next_page_url) {
+                    // Você pode detectar a URL exata ou simplesmente usar page + 1.
+                    // Exemplo usando o page + 1:
+                    $('#pagination').append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#"
+                            onclick="loadProducts(${page + 1}, ${fornecedor === null ? 'null' : `'${fornecedor}'`}); return false;">
+                            Próximo
+                            </a>
+                        </li>
+                    `);
+                }
+
             });
         }
+
+        function clearFilter() {
+    // Reseta o controle de filtro e recarrega a lista sem filtro
+    filterApplied = false;
+    currentFornecedor = null;
+    loadProducts(1, null);
+}
+
     </script>
 
 
 
-<div class="container mt-3">
-    <!-- Mensagem de sucesso -->
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+    <div class="container mt-3">
+        <!-- Mensagem de sucesso -->
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-    <!-- Mensagem de erro -->
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-</div>
+        <!-- Mensagem de erro -->
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+    </div>
 
 
 
@@ -237,6 +291,24 @@
 
 
 
+    @php
+    // Se $produtos for array associativo, reindexamos para pegar o primeiro item;
+    // se for uma Collection, usamos ->first().
+    $firstProduct = null;
+    if (isset($produtos) && count($produtos) > 0) {
+        $firstProduct = is_array($produtos)
+            ? array_values($produtos)[0]  // Reindexa e pega o primeiro
+            : $produtos->first();         // Se for Collection
+    }
+
+    // Verifica se há fornecedor definido no primeiro produto
+    $hasFornecedor = false;
+    if ($firstProduct && !empty($firstProduct['fornecedor'])) {
+        $hasFornecedor = true;
+    }
+  @endphp
+
+
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -263,38 +335,6 @@
                                         <div class="col-lg-10 col-md-6 col-sm-12">
                                             <input name="name" id="titleAnuncio" type="text"
                                                 value="{{ old('name') }}" class="form-control" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p>
-                                <div class="col">
-                                    <div class="mb-3 row">
-                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                        <div class="col-lg-3 col-md-6 col-sm-6">
-                                            <input id="acressimoP" class="form-control porcem">
-                                        </div>
-                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                        <div class="col-lg-3 col-md-6 col-sm-6">
-                                            <input id="acressimoR" type="text" required class="form-control porcem">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Desconto </p>
-                                <div class="col">
-                                    <div class="mb-3 row">
-                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
-                                        <div class="col-lg-3 col-md-6 col-sm-6">
-                                            <input id="descontoP" type="text" class="form-control porcem">
-                                        </div>
-                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
-                                        <div class="col-lg-3 col-md-6 col-sm-6">
-                                            <input id="descontoR" type="text" class="form-control porcem">
                                         </div>
                                     </div>
                                 </div>
@@ -392,37 +432,45 @@
     <!--- FINAL DO MODAL ---->
 
     <!-- Modal para exibir o catálogo de produtos com checkboxes -->
-    <div class="modal fade" id="catalogoModal" tabindex="-1" aria-labelledby="catalogoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="catalogoModalLabel">Catálogo de Produtos</h5>
+<div class="modal fade" id="catalogoModal" tabindex="-1" aria-labelledby="catalogoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="catalogoModalLabel">Catálogo de Produtos</h5>
+                <div class="d-flex">
+                    <!-- Botão de Limpar Filtro (só aparece se NÃO houver fornecedor) -->
+                    @if(!$hasFornecedor)
+                        <button type="button" class="btn btn-danger me-2" onclick="clearFilter()" id="btnLimparFiltro">
+                            <i class="bi bi-x-circle me-2"></i> Limpar Filtro
+                        </button>
+                    @endif
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- Loader -->
-                    <div id="loader" class="text-center mb-3 d-none">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Carregando...</span>
-                        </div>
+            </div>
+            <div class="modal-body">
+                <!-- Loader -->
+                <div id="loader" class="text-center mb-3 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
                     </div>
-                    <!-- Área onde os produtos serão listados -->
-                    <div id="produto-list"></div>
+                </div>
 
-                    <!-- Botão para adicionar produtos selecionados ao kit -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <!-- Botão para enviar produtos selecionados -->
-                        <button type="button" class="btn btn-primary" id="adicionarSelecionados">Adicionar Produtos
-                            Selecionados</button>
+                <!-- Área onde os produtos serão listados -->
+                <div id="produto-list"></div>
 
-
-                        <!-- Navegação de paginação -->
-                        <nav aria-label="Navegação de página" id="pagination" class="pagination"></nav>
-                    </div>
+                <!-- Botão para adicionar produtos selecionados ao kit e navegação de paginação -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button type="button" class="btn btn-primary" id="adicionarSelecionados">
+                        Adicionar Produtos Selecionados
+                    </button>
+                    <nav aria-label="Navegação de página" id="pagination" class="pagination"></nav>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
     <!--- FINAL DO MODAL ---->
 
     <div class="card mb-4 shadow">
@@ -449,10 +497,12 @@
                 <div class="row align-items-center">
                     <div class="col-lg-8 mb-3">
                         <div class="input-group">
-                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                data-bs-target="#catalogoModal">
-                                <i class="bi bi-book me-2"></i> Ver Catálogo
-                            </button>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                                    data-bs-target="#catalogoModal">
+                                    <i class="bi bi-book me-2"></i> Ver Catálogo
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <input type="hidden" name="id" id="id">
@@ -475,48 +525,54 @@
                     @endphp
 
                     @if (isset($produtos) && count($produtos) > 0)
-
                         @foreach ($produtos as $produto)
-
                             @if (!empty($produto['id']))
                                 @php
-                                    $total += ($produto['price'] + ($produto['fee'] * $produto['quantidade'])); // Acumula o valor de cada produto no total
+                                    // Soma o preço e a taxa multiplicada pela quantidade
+                                    $total += $produto['price'] + $produto['fee'] * $produto['quantidade'];
                                 @endphp
-
                                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
-
-                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}" alt="{{ $produto['nome'] }}" class="rounded me-3"
-                                        style="width: 80px; height: 80px; object-fit: cover;">
+                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}"
+                                         alt="{{ $produto['nome'] }}"
+                                         class="rounded me-3"
+                                         style="width: 80px; height: 80px; object-fit: cover;">
 
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1">{{ $produto['nome'] ?? '' }}</h6>
 
                                         <!-- Seção de preço e estoque -->
                                         <div class="d-flex align-items-center mb-2">
-                                            <span class="text-dark me-3">Preço: R$
-                                                {{ number_format($produto['price'], 2, ',', '.') }} Un / Pct </span>
-                                            <span class="text-dark">Estoque: {{ $produto['available_quantity'] ?? 0 }}
-                                                Disponível</span>
+                                            <span class="text-dark me-3">
+                                                Preço: R$ {{ number_format($produto['price'], 2, ',', '.') }} Un / Pct
+                                            </span>
+                                            <span class="text-dark">
+                                                Estoque: {{ $produto['available_quantity'] ?? 0 }} Disponível
+                                            </span>
                                         </div>
 
                                         <!-- Campo de quantidade e botão de adicionar -->
                                         <div class="d-flex align-items-center">
                                             <span class="me-2">Quantidade:</span>
-                                            <form
-                                                action="{{ route('adicionarQuantidadeNoKit', ['id' => $produto['id']]) }}"
-                                                method="POST" class="d-inline-flex align-items-center">
+                                            <form action="{{ route('adicionarQuantidadeNoKit', ['id' => $produto['id']]) }}"
+                                                  method="POST"
+                                                  class="d-inline-flex align-items-center">
                                                 @csrf
-                                                <input name="stock" id="stock-{{ $produto['id'] }}"
-                                                    value="{{ $produto['quantidade'] ?? 1 }}" type="number"
-                                                    class="form-control form-control-sm w-25 me-2">
-                                                <button id="btnSalvarQuantidade"
-                                                    class="btn btn-success btn-sm">Adicionar</button>
+                                                <input name="stock"
+                                                       id="stock-{{ $produto['id'] }}"
+                                                       value="{{ $produto['quantidade'] ?? 1 }}"
+                                                       type="number"
+                                                       class="form-control form-control-sm w-25 me-2">
+                                                <button id="btnSalvarQuantidade" class="btn btn-success btn-sm">
+                                                    Adicionar
+                                                </button>
                                             </form>
                                         </div>
                                     </div>
 
                                     <a href="{{ route('deleteSessionRoute', ['id' => $produto['id']]) }}"
-                                        class="btn btn-danger ms-3">Remover <i class="bi bi-dash-circle-dotted"></i></a>
+                                       class="btn btn-danger ms-3">
+                                        Remover <i class="bi bi-dash-circle-dotted"></i>
+                                    </a>
                                 </li>
                             @endif
                         @endforeach
@@ -530,14 +586,15 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <label class="me-2"><strong>Total R$:</strong></label>
                     <input name="price" id="total" type="text"
-                        value="{{ number_format($total, 2, ',', '.') }}" class="form-control w-25" readonly>
-                    <button type="button" class="btn btn-primary ms-2" id="modalbutton" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">Cadastrar Kit <i class="bi bi-pin-map"></i></button>
+                           value="{{ number_format($total, 2, ',', '.') }}"
+                           class="form-control w-25" readonly>
+                    <button type="button" class="btn btn-primary ms-2"
+                            id="modalbutton" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                        Cadastrar Kit <i class="bi bi-pin-map"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-    </div>
 
 @endsection
 
@@ -546,21 +603,33 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
+
+
 <script>
     $(document).ready(function() {
 
 
-          // Faz uma requisição POST para apagar as mensagens da sessão
-          fetch("{{ route('clear.session.messages') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        }).then(response => response.json())
-          .then(data => console.log(data.message)) // Exibe a mensagem no console
-          .catch(error => console.error('Erro ao limpar a sessão:', error));
+        let currentFornecedor = null;
+        let filterApplied = false;
+
+        // Se existir pelo menos um produto, definimos o fornecedor e marcamos como filtrado
+        @if($firstProduct)
+            currentFornecedor = "{{ $firstProduct['fornecedor'] ?? '' }}";
+            filterApplied = true;
+        @endif
+
+
+        // Faz uma requisição POST para apagar as mensagens da sessão
+        fetch("{{ route('clear.session.messages') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json())
+            .then(data => console.log(data.message)) // Exibe a mensagem no console
+            .catch(error => console.error('Erro ao limpar a sessão:', error));
 
         // Função para resetar o conteúdo
         $('#resetButton').on('click', function() {
@@ -644,94 +713,105 @@
         });
 
 
-        $('#file').change(function () {
-    var formData = new FormData();
+        $('#file').change(function() {
+            var formData = new FormData();
 
-    var files = $('#file')[0].files;
-    for (var i = 0; i < files.length; i++) {
-        formData.append('file[]', files[i]);
-    }
+            var files = $('#file')[0].files;
+            for (var i = 0; i < files.length; i++) {
+                formData.append('file[]', files[i]);
+            }
 
-    $.ajax({
-        url: '/api/v1/fotoPreview', // Rota para o método 'fotoPreview'
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function (data) {
-            $('#imagePreview').empty();
-            $('#image-count').text('Total de fotos: ' + data.length);
+            $.ajax({
+                url: '/api/v1/fotoPreview', // Rota para o método 'fotoPreview'
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    $('#imagePreview').empty();
+                    $('#image-count').text('Total de fotos: ' + data.length);
 
-            $.each(data, function (index, image) {
-                const mainLabel = index === 0 ? '<span class="main-image-label">Imagem Principal</span>' : '';
-                const deleteButton = `<button type="button" class="delete-button" onclick="removeImage(${index})">Excluir</button>`;
+                    $.each(data, function(index, image) {
+                        const mainLabel = index === 0 ?
+                            '<span class="main-image-label">Imagem Principal</span>' :
+                            '';
+                        const deleteButton =
+                            `<button type="button" class="delete-button" onclick="removeImage(${index})">Excluir</button>`;
 
-                $('#imagePreview').append(
-                    `<div class="image-item position-relative" data-original-name="${image.originalName}">
+                        $('#imagePreview').append(
+                            `<div class="image-item position-relative" data-original-name="${image.originalName}">
                         ${mainLabel}
                         <img src="${image.url}" class="img-fluid">
                         ${deleteButton}
                     </div>`
-                );
-            });
-
-            if (data.length > 0) {
-                $('#clearImages').show();
-            }
-
-            // Configura a funcionalidade de sortable e captura a nova ordem
-            $('#imagePreview').sortable({
-                axis: "x",
-                start: function (event, ui) {
-                    $('#imageContainer').css('overflow-x', 'hidden');
-                },
-                stop: function (event, ui) {
-                    $('#imageContainer').css('overflow-x', 'auto');
-                },
-                update: function (event, ui) {
-
-                     // Remove todas as etiquetas "Imagem Principal"
-                    $('#imagePreview .main-image-label').remove();
-
-                    // Adiciona a etiqueta "Imagem Principal" à primeira imagem
-                    $('#imagePreview .image-item').each(function(index) {
-                        if (index === 0) {
-                            $(this).prepend('<span class="main-image-label">Imagem Principal</span>');
-                        }
+                        );
                     });
 
-                    const newOrder = [];
-                    $('#imagePreview .image-item').each(function () {
-                        const imageUrl = $(this).find('img').attr('src');
-                        const originalName = $(this).data('original-name');
-                        newOrder.push({ url: imageUrl, originalName: originalName });
-                    });
-
-                    console.log(newOrder);
-
-                    // Atualiza o campo hidden com a nova ordem
-                    let imageOrderInput = $('#imageOrder');
-                    if (imageOrderInput.length === 0) {
-                        imageOrderInput = $('<input>', {
-                            type: 'hidden',
-                            id: 'imageOrder',
-                            name: 'imageOrder',
-                        });
-                        $('#imagePreview').append(imageOrderInput);
+                    if (data.length > 0) {
+                        $('#clearImages').show();
                     }
 
-                    imageOrderInput.val(JSON.stringify(newOrder));
+                    // Configura a funcionalidade de sortable e captura a nova ordem
+                    $('#imagePreview').sortable({
+                        axis: "x",
+                        start: function(event, ui) {
+                            $('#imageContainer').css('overflow-x', 'hidden');
+                        },
+                        stop: function(event, ui) {
+                            $('#imageContainer').css('overflow-x', 'auto');
+                        },
+                        update: function(event, ui) {
+
+                            // Remove todas as etiquetas "Imagem Principal"
+                            $('#imagePreview .main-image-label').remove();
+
+                            // Adiciona a etiqueta "Imagem Principal" à primeira imagem
+                            $('#imagePreview .image-item').each(function(
+                                index) {
+                                if (index === 0) {
+                                    $(this).prepend(
+                                        '<span class="main-image-label">Imagem Principal</span>'
+                                    );
+                                }
+                            });
+
+                            const newOrder = [];
+                            $('#imagePreview .image-item').each(function() {
+                                const imageUrl = $(this).find('img')
+                                    .attr('src');
+                                const originalName = $(this).data(
+                                    'original-name');
+                                newOrder.push({
+                                    url: imageUrl,
+                                    originalName: originalName
+                                });
+                            });
+
+                            console.log(newOrder);
+
+                            // Atualiza o campo hidden com a nova ordem
+                            let imageOrderInput = $('#imageOrder');
+                            if (imageOrderInput.length === 0) {
+                                imageOrderInput = $('<input>', {
+                                    type: 'hidden',
+                                    id: 'imageOrder',
+                                    name: 'imageOrder',
+                                });
+                                $('#imagePreview').append(imageOrderInput);
+                            }
+
+                            imageOrderInput.val(JSON.stringify(newOrder));
+                        },
+                    });
                 },
             });
-        },
-    });
-});
+        });
 
 
 
         let fileOrder = [];
 
-        $('#file').on('change', function (e) {
+        $('#file').on('change', function(e) {
             let files = e.target.files;
             fileOrder = []; // Reseta a ordem
 
@@ -793,80 +873,83 @@
 
 
 
-// Clique no botão "Adicionar Selecionados"
-$('#adicionarSelecionados').on('click', function () {
-    // Fecha outros modais se estiverem abertos
-    $('.modal').modal('hide');
+        // Clique no botão "Adicionar Selecionados"
+        $('#adicionarSelecionados').on('click', function() {
+            // Fecha outros modais se estiverem abertos
+            $('.modal').modal('hide');
 
-    // Abre o modal de progresso
-    $('#progressModal').modal('show');
+            // Abre o modal de progresso
+            $('#progressModal').modal('show');
 
-    if (selectedProducts.length === 0) {
-        alert('Nenhum produto selecionado.');
-        $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
-        return;
-    }
+            if (selectedProducts.length === 0) {
+                alert('Nenhum produto selecionado.');
+                $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
+                return;
+            }
 
-    let completedRequests = 0;
+            let completedRequests = 0;
 
-    // Função para atualizar a barra de progresso
-    function updateProgress() {
-        completedRequests++;
-        const progressPercent = (completedRequests / selectedProducts.length) * 100;
-        $('#progressBar').css('width', `${progressPercent}%`);
-        $('#progressBar').text(`${Math.round(progressPercent)}%`);
-        $('#currentProduct').text(completedRequests);
-        $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
+            // Função para atualizar a barra de progresso
+            function updateProgress() {
+                completedRequests++;
+                const progressPercent = (completedRequests / selectedProducts.length) * 100;
+                $('#progressBar').css('width', `${progressPercent}%`);
+                $('#progressBar').text(`${Math.round(progressPercent)}%`);
+                $('#currentProduct').text(completedRequests);
+                $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
 
-        // Fecha o modal quando todos os produtos forem processados
-        if (completedRequests === selectedProducts.length) {
-            setTimeout(() => {
-                $('#progressModal').modal('hide');
-                location.reload(); // Atualiza a página
-            }, 3000);
-        }
-    }
+                // Fecha o modal quando todos os produtos forem processados
+                if (completedRequests === selectedProducts.length) {
+                    setTimeout(() => {
+                        $('#progressModal').modal('hide');
+                        location.reload(); // Atualiza a página
+                    }, 3000);
+                }
+            }
 
-    // Função para enviar os produtos sequencialmente
-    function processProductsSequentially(index) {
-        if (index >= selectedProducts.length) {
-            return; // Fim do processamento
-        }
+            // Função para enviar os produtos sequencialmente
+            function processProductsSequentially(index) {
+                if (index >= selectedProducts.length) {
+                    return; // Fim do processamento
+                }
 
-        const item = selectedProducts[index];
-        console.log(`Processando produto: ${item.nome} (${item.id})`);
+                const item = selectedProducts[index];
+                console.log(`Processando produto: ${item.nome} (${item.id})`);
 
-        // Envia o produto para a rota
-        $.ajax({
-            url: '/adicionarQuantidade',
-            type: 'POST',
-            data: {
-                products: [item],
-            },
-            success: function (response) {
-                console.log(`Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
-                updateProgress();
-            },
-            error: function (xhr, status, error) {
-                console.error(`Erro ao adicionar produto ${item.nome} (${item.id}):`, error);
-                updateProgress();
-            },
-            complete: function () {
-                // Chama a próxima iteração após 3 segundos
-                setTimeout(() => {
-                    processProductsSequentially(index + 1);
-                }, 3000);
-            },
+                // Envia o produto para a rota
+                $.ajax({
+                    url: '/adicionarQuantidade',
+                    type: 'POST',
+                    data: {
+                        products: [item],
+                    },
+                    success: function(response) {
+                        console.log(
+                            `Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
+                        updateProgress();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(
+                            `Erro ao adicionar produto ${item.nome} (${item.id}):`,
+                            error);
+                        updateProgress();
+                    },
+                    complete: function() {
+                        // Chama a próxima iteração após 3 segundos
+                        setTimeout(() => {
+                            processProductsSequentially(index + 1);
+                        }, 3000);
+                    },
+                });
+            }
+
+            // Inicia o processamento sequencial
+            processProductsSequentially(0);
         });
-    }
-
-    // Inicia o processamento sequencial
-    processProductsSequentially(0);
-});
 
         // Carregar produtos ao abrir o modal
         $('#catalogoModal').on('show.bs.modal', function() {
-            loadProducts();
+            loadProducts(1, currentFornecedor);
         });
 
         // Evento para adicionar os produtos selecionados ao kit

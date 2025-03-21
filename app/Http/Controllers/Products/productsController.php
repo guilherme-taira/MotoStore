@@ -271,10 +271,21 @@ class productsController extends Controller
     }
 
     public function getProdutosPaginados(Request $request){
-        $produtos = Products::where('isKit','=','0')
-        ->orderBy('created_at','desc')
-        ->where('isPublic','=',1)
-        ->paginate(20);
+        Log::alert($request->all());
+        if($request->fornecedor_id != 'null'){
+            Log::alert("1");
+            $produtos = Products::where('isKit','=','0')
+            ->orderBy('created_at','desc')
+            ->where('isPublic','=',1)->where('fornecedor_id','=',$request->fornecedor_id)
+            ->paginate(20);
+        }else{
+            Log::alert("2");
+            $produtos = Products::where('isKit','=','0')
+            ->orderBy('created_at','desc')
+            ->where('isPublic','=',1)
+            ->paginate(20);
+        }
+
         // Adiciona o URL completo da imagem para cada produto
         foreach ($produtos as $produto) {
             $produto->imagem_url = Storage::disk('s3')->url('produtos/' . $produto->id . '/' . $produto->image);
@@ -1613,14 +1624,13 @@ class productsController extends Controller
         // PRODUTOS EM PROMOÇÂO
         $data = Products::select('products.*')
         ->where('products.fornecedor_id', Auth::user()->id)
+        ->where('products.isKit',0)
         ->where(function ($query) {
              $query->where('products.owner', Auth::user()->id)
                    ->orWhereNull('products.owner');
         })
         ->orderBy('products.id', 'desc')
         ->paginate(10);
-
-
 
         $viewData = [];
         $viewData['title'] = "Afilidrop";

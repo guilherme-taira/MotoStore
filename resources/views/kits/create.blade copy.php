@@ -97,11 +97,11 @@
         // Array para armazenar os IDs dos produtos selecionados
         let selectedProducts = [];
 
-       // Evento para monitorar mudanças nos checkboxes
         $(document).on('change', '.form-check-input', function () {
             const productId = $(this).val();
             const stockValue = $(`#stock-${productId}`).val(); // Obtém o valor do estoque
             const nome = $(`#title-${productId}`).val(); // Obtém o nome do produto
+            const fornecedor = $(`#fornecedor-${productId}`).val(); // Obtém o nome do produto
 
             if ($(this).is(':checked')) {
                 // Verifica se o produto já está no array
@@ -113,6 +113,7 @@
                         id: productId,
                         stock: stockValue,
                         nome: nome,
+                        fornecedor: fornecedor
                     });
                 }
             } else {
@@ -123,6 +124,8 @@
             console.log('Produtos selecionados:', selectedProducts);
         });
 
+     // Exibe o array no console sempre que um checkbox for clicado
+     console.log('Produtos selecionados:', selectedProducts);
 
         function loadProducts(page = 1) {
             $('#produto-list').empty(); // Limpa a lista de produtos enquanto carrega
@@ -149,6 +152,7 @@
                         <div class="mt-2">
                             <input type="hidden" id="stock-${product.id}" class="form-control form-control-sm w-25" min="1" max="${product.available_quantity}" value="1">
                              <input type="hidden" id="title-${product.id}" value="${product.title}">
+                             <input type="hidden" id="fornecedor-${product.id}" value="${product.fornecedor_id}">
                         </div>
                     </div>
                 </li>
@@ -182,6 +186,30 @@
             });
         }
     </script>
+
+
+
+<div class="container mt-3">
+    <!-- Mensagem de sucesso -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Mensagem de erro -->
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+</div>
+
+
+
+
 
     <!-- Modal de Progresso -->
     <div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
@@ -350,6 +378,8 @@
                             </div>
                         </div>
 
+                        <input type="hidden" name="owner" id="owner" value="{{ Auth::user()->id }}">
+
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Finalizar Cadastro</button>
                         </div>
@@ -427,6 +457,7 @@
                     </div>
                     <input type="hidden" name="id" id="id">
                     <input type="hidden" id="name" name="name">
+                    <input type="hidden" id="unit_price" name="unit_price">
                     <div class="col-lg-4 text-end">
                         <button class="btn btn-success w-100 d-none" id="btnFinalizar">Inserir no Kit <i
                                 class="bi bi-signpost-2"></i></button>
@@ -444,10 +475,12 @@
                     @endphp
 
                     @if (isset($produtos) && count($produtos) > 0)
+
                         @foreach ($produtos as $produto)
+
                             @if (!empty($produto['id']))
                                 @php
-                                    $total += $produto['price']; // Acumula o valor de cada produto no total
+                                    $total += ($produto['price'] + ($produto['fee'] * $produto['quantidade'])); // Acumula o valor de cada produto no total
                                 @endphp
 
                                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
@@ -515,6 +548,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 <script>
     $(document).ready(function() {
+
+
+          // Faz uma requisição POST para apagar as mensagens da sessão
+          fetch("{{ route('clear.session.messages') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }).then(response => response.json())
+          .then(data => console.log(data.message)) // Exibe a mensagem no console
+          .catch(error => console.error('Erro ao limpar a sessão:', error));
 
         // Função para resetar o conteúdo
         $('#resetButton').on('click', function() {
@@ -747,94 +793,76 @@
 
 
 
+// Clique no botão "Adicionar Selecionados"
+$('#adicionarSelecionados').on('click', function () {
+    // Fecha outros modais se estiverem abertos
+    $('.modal').modal('hide');
 
-        $('#adicionarSelecionados').on('click', function() {
-            // Fecha outros modais se estiverem abertos
-            $('.modal').modal('hide');
+    // Abre o modal de progresso
+    $('#progressModal').modal('show');
 
-            // Abre o modal de progresso
-            $('#progressModal').modal('show');
+    if (selectedProducts.length === 0) {
+        alert('Nenhum produto selecionado.');
+        $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
+        return;
+    }
 
-            // Captura os IDs e quantidades dos produtos selecionados
-            let selectedProducts = [];
-            $('#produto-list input[type="checkbox"]:checked').each(function() {
-                const id = $(this).val();
-                const stock = $(`#stock-${id}`)
-                    .val(); // Obtém o valor do stock especificado pelo usuário
-                const nome = $(`#title-${id}`)
-                    .val(); // Nome do produto (ajuste conforme necessário)
-                selectedProducts.push({
-                    id,
-                    stock,
-                    nome
-                });
-            });
+    let completedRequests = 0;
 
-            if (selectedProducts.length === 0) {
-                alert("Nenhum produto selecionado.");
-                $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
-                return;
-            }
+    // Função para atualizar a barra de progresso
+    function updateProgress() {
+        completedRequests++;
+        const progressPercent = (completedRequests / selectedProducts.length) * 100;
+        $('#progressBar').css('width', `${progressPercent}%`);
+        $('#progressBar').text(`${Math.round(progressPercent)}%`);
+        $('#currentProduct').text(completedRequests);
+        $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
 
-            let completedRequests = 0;
+        // Fecha o modal quando todos os produtos forem processados
+        if (completedRequests === selectedProducts.length) {
+            setTimeout(() => {
+                $('#progressModal').modal('hide');
+                location.reload(); // Atualiza a página
+            }, 3000);
+        }
+    }
 
-            // Função para atualizar a barra de progresso
-            function updateProgress() {
-                completedRequests++;
-                const progressPercent = (completedRequests / selectedProducts.length) * 100;
-                $('#progressBar').css('width', `${progressPercent}%`);
-                $('#progressBar').text(`${Math.round(progressPercent)}%`);
-                $('#currentProduct').text(completedRequests);
-                $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
+    // Função para enviar os produtos sequencialmente
+    function processProductsSequentially(index) {
+        if (index >= selectedProducts.length) {
+            return; // Fim do processamento
+        }
 
-                // Fecha o modal quando todos os produtos forem processados
-                if (completedRequests === selectedProducts.length) {
-                    setTimeout(() => {
-                        $('#progressModal').modal('hide');
-                        location.reload(); // Atualiza a página
-                    }, 6000);
-                }
-            }
+        const item = selectedProducts[index];
+        console.log(`Processando produto: ${item.nome} (${item.id})`);
 
-            // Função para enviar os produtos com atraso
-            function processProductsSequentially(index) {
-                if (index >= selectedProducts.length) {
-                    return; // Fim do processamento
-                }
-
-                const item = selectedProducts[index];
-                console.log(`Processando produto: ${item.nome} (${item.id})`);
-
-                // Envia o produto para a rota
-                $.ajax({
-                    url: '/adicionarQuantidade',
-                    type: 'POST',
-                    data: {
-                        products: [item]
-                    },
-                    success: function(response) {
-                        console.log(
-                            `Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
-                        updateProgress();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(
-                            `Erro ao adicionar produto ${item.nome} (${item.id}):`,
-                            error);
-                        updateProgress();
-                    },
-                    complete: function() {
-                        // Chama a próxima iteração após 3 segundos
-                        setTimeout(() => {
-                            processProductsSequentially(index + 1);
-                        }, 3000);
-                    }
-                });
-            }
-
-            // Inicia o processamento sequencial
-            processProductsSequentially(0);
+        // Envia o produto para a rota
+        $.ajax({
+            url: '/adicionarQuantidade',
+            type: 'POST',
+            data: {
+                products: [item],
+            },
+            success: function (response) {
+                console.log(`Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
+                updateProgress();
+            },
+            error: function (xhr, status, error) {
+                console.error(`Erro ao adicionar produto ${item.nome} (${item.id}):`, error);
+                updateProgress();
+            },
+            complete: function () {
+                // Chama a próxima iteração após 3 segundos
+                setTimeout(() => {
+                    processProductsSequentially(index + 1);
+                }, 3000);
+            },
         });
+    }
+
+    // Inicia o processamento sequencial
+    processProductsSequentially(0);
+});
 
         // Carregar produtos ao abrir o modal
         $('#catalogoModal').on('show.bs.modal', function() {
@@ -873,6 +901,7 @@
                         $("#total").val(response.price);
                         $("#name").val(response.title);
                         $("#precoFinal").val(response.price);
+                        $("#unit_price").val(response.priceKit)
                     }
                 },
                 error: function(error) {
@@ -1050,17 +1079,21 @@
         });
 
         // VALOR TOTAL
-        var total = $('#total').val();
-        console.log(total);
+        var total = parseFloat($('#total').val().replace(',', '.')); // Converte para número
+        if (!isNaN(total)) {
+            var novoTotal = total / 0.95; // Aumenta 5%
+            $('#total').val(novoTotal.toFixed(2).replace('.', ',')); // Atualiza formatado
+        }
+
         // var totalCalculado = $total;
-        $('#precoFinal').val(total);
+        $('#precoFinal').val(novoTotal.toFixed(2).replace('.', ','));
 
         function calculaPorcentagem(base, porcentagem) {
             return (base * parseFloat(porcentagem)) / 100;
         }
         // Evento para manipular descontos e acréscimos em porcentagem
         $('#acressimoP, #descontoP').keyup(function() {
-            let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+            let totalConvertido = parseFloat(novoTotal.toFixed(10));
             let valorPorcentagem = parseFloat($(this).val().replace(',', '.'));
 
             if ($(this).val().length > 0) {
@@ -1083,7 +1116,7 @@
 
         // Evento para manipular descontos e acréscimos em reais
         $('#acressimoR, #descontoR').keyup(function() {
-            let totalConvertido = parseFloat(total.toString().replace(',', '.'));
+            let totalConvertido = parseFloat(novoTotal.toFixed(10));
             let valorReais = parseFloat($(this).val().replace(',', '.'));
 
             if ($(this).val().length > 0) {
