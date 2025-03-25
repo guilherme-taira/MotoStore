@@ -150,6 +150,25 @@ class orderscontroller extends Controller
         //
     }
 
+    public function updateInformacoes(Request $request, $id)
+    {
+
+        $request->validate([
+            'informacaoadicional' => 'required|string',
+        ]);
+
+        $order = Financeiro::findOrFail(893);
+        $order->informacoes = $request->input('informacaoadicional');
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Informações atualizadas com sucesso.'
+        ]);
+
+    }
+
+
     /**
      * Update the specified resource in storage.
      *

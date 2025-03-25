@@ -24,6 +24,43 @@
             Histórico
         </button>
 
+        <!-- Botão para abrir o modal offcanvas -->
+        <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft"
+            aria-controls="offcanvasLeft">
+            Recadastrar Produto
+        </button>
+
+
+        <!-- Modal Offcanvas -->
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasLeft" aria-labelledby="offcanvasLeftLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasLeftLabel">Recadastrar Produto Mercado Livre</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="offcanvas-body">
+                <p>Ao informar o ID do produto, você inativará o produto e somente poderá reativá-lo recadastrando-o.
+                </p>
+                <!-- Formulário para enviar o input e o id -->
+                <form id="recadastrarForm" action="{{ route('orders.recadastrar') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="token" id="token">
+                    <div class="mb-3">
+                        <label for="produtoId" class="form-label">ID do Produto</label>
+                        <input type="text" class="form-control" id="produtoId" name="produto_id"
+                            placeholder="Digite o ID do Produto">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Recadastrar Produto</button>
+                </form>
+                <!-- Container para exibir o toast logo abaixo do formulário -->
+                <div id="toastMessageContainer" class="mt-3"></div>
+            </div>
+        </div>
+
+
+
+
         <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
             aria-labelledby="offcanvasExampleLabel">
             <div class="offcanvas-header">
@@ -82,13 +119,14 @@
         </div>
 
 
-        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2"
-            tabindex="-1">
+        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true"
+            aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Modal 2</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         Hide this modal and show the first with the button below.
@@ -106,7 +144,8 @@
                 <span class="input-group-text">Anúncio / Anúncio Base</span>
                 <input type="text" class="form-control" id="id"
                     placeholder="Código do anúncio que sofrerá Mudança." />
-                <input type="text" class="form-control" id="base" placeholder="Código do anúncio base." value="@php echo isset($_GET['id']) ? $_GET['id'] : "" @endphp">
+                <input type="text" class="form-control" id="base" placeholder="Código do anúncio base."
+                    value="@php echo isset($_GET['id']) ? $_GET['id'] : "" @endphp">
                 <div class="input-group-append">
                     <button class="btn btn-primary" id="inserir" type="button">Inserir</button>
                 </div>
@@ -316,76 +355,123 @@
 
     <script>
         $(document).ready(function() {
+            // Intercepta o submit do formulário
+            $('#recadastrarForm').on('submit', function(e) {
+                e.preventDefault(); // Impede o envio tradicional do formulário
+                var $form = $(this);
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: $form.attr('method'),
+                    data: $form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(response.message, 'success');
+                        } else {
+                            showToast(response.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        showToast("Erro ao recadastrar produto. Tente novamente.", 'error');
+                    }
+                });
+                return false;
+            });
+
+            function showToast(message, type) {
+                var alertClass = (type === 'success') ? 'alert-success' : 'alert-danger';
+                var toastHTML = `
+                    <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                $('#toastMessageContainer').html(toastHTML);
+            }
+
 
             const data = {
-            "domains": [
-                { "domain_id": "MLB-SNEAKERS" },
-                { "domain_id": "MLB-BOOTS_AND_BOOTIES" },
-                { "domain_id": "MLB-SWIMWEAR"},
-                // { "domain_id": "MLB-LOAFERS_AND_OXFORDS" },
-                // { "domain_id": "MLB-FOOTBALL_SHOES" },
-                // { "domain_id": "MLB-SANDALS_AND_CLOGS" },
-                // { "domain_id": "MLB-T_SHIRTS" },
-                //{ "domain_id": "MLB-JACKETS_AND_COATS" },
-                { "domain_id": "MLB-DRESSES" },
-                // { "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES" },
-                // { "domain_id": "MLB-BLOUSES" },
-                { "domain_id": "MLB-SHIRTS" },
-                // { "domain_id": "MLB-PAJAMAS" },
-                // { "domain_id": "MLB-PANTS_TEST" },
-                { "domain_id": "MLB-PANTS" },
-                // { "domain_id": "MLB-SHORTS" },
-                // { "domain_id": "MLB-LEGGINGS" },
-                // { "domain_id": "MLB-HEELS_AND_WEDGES" },
-                // { "domain_id": "MLB-SLIPPERS" },
-                // { "domain_id": "MLB-FLATS" },
-                // { "domain_id": "MLB-ESPADRILLES" },
-                // { "domain_id": "MLB-HIKING_BOOTS" },
-                // { "domain_id": "MLB-TACTICAL_BOOTS" },
-                // { "domain_id": "MLB-NEOPRENE_BOOTS" },
-                // { "domain_id": "MLB-DANCE_SNEAKERS_AND_SHOES" },
-                // { "domain_id": "MLB-MOTORCYCLE_BOOTS" },
-                // { "domain_id": "MLB-BABIES_FOOTWEAR" },
-                // { "domain_id": "MLB-SAFETY_FOOTWEAR" },
-                // { "domain_id": "MLB-SPORT_T_SHIRTS" },
-                // { "domain_id": "MLB-SWEATERS_AND_CARDIGANS"},
-                // { "domain_id": "MLB-CYCLING_JERSEYS" },
-                // { "domain_id": "MLB-VESTS" },
-                // { "domain_id": "MLB-ROBES" },
-                // { "domain_id": "MLB-THERMAL_SHIRTS" },
-                // { "domain_id": "MLB-FISHING_SHIRTS" },
-                // { "domain_id": "MLB-FOOTBALL_JACKETS" },
-                // { "domain_id": "MLB-BASKETBALL_JERSEYS" },
-                // { "domain_id": "MLB-PONCHOS" },
-                // { "domain_id": "MLB-FASHION_KIMONOS" },
-                // { "domain_id": "MLB-FOOTBALL_SHIRTS" },
-                // { "domain_id": "MLB-AMERICAN_FOOTBALL_JERSEYS" },
-                // { "domain_id": "MLB-FOOTBALL_SWEATSHIRTS_AND_HOODIES" },
-                // { "domain_id": "MLB-BASEBALL_AND_SOFTBALL_JERSEYS" },
-                // { "domain_id": "MLB-FISHING_VESTS" },
-                // { "domain_id": "MLB-RUGBY_JERSEYS" },
-                // { "domain_id": "MLB-SCHOOL_SMOCKS" },
-                // { "domain_id": "MLB-NIGHTGOWNS" },
-                // { "domain_id": "MLB-SPORT_PANTS" },
-                // { "domain_id": "MLB-WADERS" },
-                // { "domain_id": "MLB-FISHING_PANTS" },
-                // { "domain_id": "MLB-TACTICAL_PANTS" },
-                // { "domain_id": "MLB-WORK_PANTS" },
-                // { "domain_id": "MLB-SPORT_SHORTS" },
-                // { "domain_id": "MLB-BRAS" },
-                // { "domain_id": "MLB-UNDERPANTS" },
-                // { "domain_id": "MLB-PANTIES" },
-                { "domain_id": "MLB-SKIRTS" },
-                // { "domain_id": "MLB-SPORT_SKIRTS" },
-                // { "domain_id": "MLB-TUTUS" },
-                // { "domain_id": "MLB-SNEAKERS_TEST" }
-            ]
-        };
+                "domains": [{
+                        "domain_id": "MLB-SNEAKERS"
+                    },
+                    {
+                        "domain_id": "MLB-BOOTS_AND_BOOTIES"
+                    },
+                    {
+                        "domain_id": "MLB-SWIMWEAR"
+                    },
+                    // { "domain_id": "MLB-LOAFERS_AND_OXFORDS" },
+                    // { "domain_id": "MLB-FOOTBALL_SHOES" },
+                    // { "domain_id": "MLB-SANDALS_AND_CLOGS" },
+                    // { "domain_id": "MLB-T_SHIRTS" },
+                    //{ "domain_id": "MLB-JACKETS_AND_COATS" },
+                    {
+                        "domain_id": "MLB-DRESSES"
+                    },
+                    // { "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES" },
+                    // { "domain_id": "MLB-BLOUSES" },
+                    {
+                        "domain_id": "MLB-SHIRTS"
+                    },
+                    // { "domain_id": "MLB-PAJAMAS" },
+                    // { "domain_id": "MLB-PANTS_TEST" },
+                    {
+                        "domain_id": "MLB-PANTS"
+                    },
+                    // { "domain_id": "MLB-SHORTS" },
+                    // { "domain_id": "MLB-LEGGINGS" },
+                    // { "domain_id": "MLB-HEELS_AND_WEDGES" },
+                    // { "domain_id": "MLB-SLIPPERS" },
+                    // { "domain_id": "MLB-FLATS" },
+                    // { "domain_id": "MLB-ESPADRILLES" },
+                    // { "domain_id": "MLB-HIKING_BOOTS" },
+                    // { "domain_id": "MLB-TACTICAL_BOOTS" },
+                    // { "domain_id": "MLB-NEOPRENE_BOOTS" },
+                    // { "domain_id": "MLB-DANCE_SNEAKERS_AND_SHOES" },
+                    // { "domain_id": "MLB-MOTORCYCLE_BOOTS" },
+                    // { "domain_id": "MLB-BABIES_FOOTWEAR" },
+                    // { "domain_id": "MLB-SAFETY_FOOTWEAR" },
+                    // { "domain_id": "MLB-SPORT_T_SHIRTS" },
+                    // { "domain_id": "MLB-SWEATERS_AND_CARDIGANS"},
+                    // { "domain_id": "MLB-CYCLING_JERSEYS" },
+                    // { "domain_id": "MLB-VESTS" },
+                    // { "domain_id": "MLB-ROBES" },
+                    // { "domain_id": "MLB-THERMAL_SHIRTS" },
+                    // { "domain_id": "MLB-FISHING_SHIRTS" },
+                    // { "domain_id": "MLB-FOOTBALL_JACKETS" },
+                    // { "domain_id": "MLB-BASKETBALL_JERSEYS" },
+                    // { "domain_id": "MLB-PONCHOS" },
+                    // { "domain_id": "MLB-FASHION_KIMONOS" },
+                    // { "domain_id": "MLB-FOOTBALL_SHIRTS" },
+                    // { "domain_id": "MLB-AMERICAN_FOOTBALL_JERSEYS" },
+                    // { "domain_id": "MLB-FOOTBALL_SWEATSHIRTS_AND_HOODIES" },
+                    // { "domain_id": "MLB-BASEBALL_AND_SOFTBALL_JERSEYS" },
+                    // { "domain_id": "MLB-FISHING_VESTS" },
+                    // { "domain_id": "MLB-RUGBY_JERSEYS" },
+                    // { "domain_id": "MLB-SCHOOL_SMOCKS" },
+                    // { "domain_id": "MLB-NIGHTGOWNS" },
+                    // { "domain_id": "MLB-SPORT_PANTS" },
+                    // { "domain_id": "MLB-WADERS" },
+                    // { "domain_id": "MLB-FISHING_PANTS" },
+                    // { "domain_id": "MLB-TACTICAL_PANTS" },
+                    // { "domain_id": "MLB-WORK_PANTS" },
+                    // { "domain_id": "MLB-SPORT_SHORTS" },
+                    // { "domain_id": "MLB-BRAS" },
+                    // { "domain_id": "MLB-UNDERPANTS" },
+                    // { "domain_id": "MLB-PANTIES" },
+                    {
+                        "domain_id": "MLB-SKIRTS"
+                    },
+                    // { "domain_id": "MLB-SPORT_SKIRTS" },
+                    // { "domain_id": "MLB-TUTUS" },
+                    // { "domain_id": "MLB-SNEAKERS_TEST" }
+                ]
+            };
 
-        // Função para verificar se o domain_id existe
-        function checkDomainId(value) {
-            return data.domains.some(domain => domain.domain_id === value);
-        }
+            // Função para verificar se o domain_id existe
+            function checkDomainId(value) {
+                return data.domains.some(domain => domain.domain_id === value);
+            }
 
             // Show loading indicator
             $("#loading").fadeIn();
@@ -486,27 +572,27 @@
                 const formData = [];
 
                 inputs.forEach(input => {
-                        const name = input.name;
-                        const value = input.value;
+                    const name = input.name;
+                    const value = input.value;
 
-                        let optionText = value; // Valor padrão para `name` no caso de ser um `input`
+                    let optionText = value; // Valor padrão para `name` no caso de ser um `input`
 
-                        if (input.tagName === 'SELECT') {
-                            // Pega o texto do <option> selecionado
-                            const selectedOption = input.options[input.selectedIndex];
-                            optionText = selectedOption ? selectedOption.text : "";
-                        }
+                    if (input.tagName === 'SELECT') {
+                        // Pega o texto do <option> selecionado
+                        const selectedOption = input.options[input.selectedIndex];
+                        optionText = selectedOption ? selectedOption.text : "";
+                    }
 
-                        const entry = {
-                            id: name,
-                            values: [{
-                                id: value,
-                                name: optionText // Usa o texto do <option> selecionado
-                            }]
-                        };
+                    const entry = {
+                        id: name,
+                        values: [{
+                            id: value,
+                            name: optionText // Usa o texto do <option> selecionado
+                        }]
+                    };
 
-                        formData.push(entry);
-                    });
+                    formData.push(entry);
+                });
 
                 $("#resultadoServer").empty();
                 var atributos = [];
@@ -528,7 +614,7 @@
                 });
                 if (base) {
                     console.log("BASE PREENCHIDA");
-                    sendProductIdForServer(ids, base,title);
+                    sendProductIdForServer(ids, base, title);
                 } else {
                     console.log("BASE VAZIA");
                     // Exemplo de uso
@@ -536,12 +622,14 @@
                     console.log(domain);
                     if (checkDomainId(domain)) {
                         $("li#ids_li").each(function(index, element) {
-                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData,true,domain);
-                    });
+                            pushProduct($(element).text(), $("#token").val(), $("#id_categoria")
+                                .val(), formData, true, domain);
+                        });
                     } else {
                         $("li#ids_li").each(function(index, element) {
-                        pushProduct($(element).text(), $("#token").val(), $("#id_categoria").val(),formData,false,domain);
-                    });
+                            pushProduct($(element).text(), $("#token").val(), $("#id_categoria")
+                                .val(), formData, false, domain);
+                        });
                     }
                 }
             });
@@ -632,7 +720,7 @@
             });
 
             // FUNCAO PARA TROCAR DE CATEGORIA
-            function pushProduct(product, accessToken, category,array,moda = false,domain = "") {
+            function pushProduct(product, accessToken, category, array, moda = false, domain = "") {
 
                 var body = {
                     'user': $("#user").val(),
@@ -981,8 +1069,8 @@
                                 $("#variacao").prop("checked", false);
                             }
                             $("#titlenovo").val(response.title)
-                                        .css("background-color", "yellow")
-                                        .focus();
+                                .css("background-color", "yellow")
+                                .focus();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -1048,8 +1136,8 @@
                             arr.reverse();
 
                             if (index.length <= 1) {
-                                   // Remover a classe d-none para mostrar o elemento select
-                            $(".smartFiled").removeClass('d-none');
+                                // Remover a classe d-none para mostrar o elemento select
+                                $(".smartFiled").removeClass('d-none');
                                 $.ajax({
                                     url: " https://api.mercadolibre.com/categories/" +
                                         category + "/attributes",
@@ -1077,7 +1165,7 @@
                                                 label.textContent = element.name;
                                                 formContainer.appendChild(label);
 
-                                                if(label.textContent == "Marca"){
+                                                if (label.textContent == "Marca") {
                                                     var input = document
                                                         .createElement("input");
                                                     // Define o tipo do input como "text"
@@ -1089,7 +1177,7 @@
                                                     // Adiciona o input ao corpo do documento (ou a qualquer outro elemento desejado)
                                                     formContainer.appendChild(
                                                         input);
-                                                }else
+                                                } else
                                                 if (!element.values) {
                                                     var input = document
                                                         .createElement("input");

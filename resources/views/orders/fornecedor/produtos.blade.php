@@ -179,9 +179,11 @@ function importProduct(product) {
     <div class="container-fluid px-4">
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            @if(Auth::user()->forncecedor == 1)
             <a href="{{ route('products.create') }}">
                 <button class="btn btn-success me-md-2" type="button">Novo Produto <i class="bi bi-patch-plus"></i></button>
             </a>
+            @endif
             <button id="importBling" class="btn btn-primary" type="button">Importar Bling <i class="bi bi-cloud-arrow-down"></i></button>
         </div>
 

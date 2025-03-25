@@ -59,6 +59,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use stdClass;
+use Illuminate\Support\Facades\Http;
 
 set_time_limit(0);
 
@@ -331,6 +332,7 @@ class productsController extends Controller
     }
 
     public function tradeCategoriaApiNew(Request $request){
+
 
         if($request->via = "alterador"){
 
@@ -2172,6 +2174,56 @@ class productsController extends Controller
         $kit = $request->query('id');
         $data = kit::getProductsByKit($kit);
         return response()->json($data);
+    }
+
+
+    public function recadastrar(Request $request)
+    {
+
+        // Valide o campo enviado
+        $request->validate([
+            'produto_id' => 'required|string',
+            'token' => 'required'
+        ]);
+
+        $url = "https://api.mercadolibre.com/items/{$request->produto_id}";
+
+        $payload = [
+            'status' => 'closed'
+        ];
+
+
+
+        try {
+            // Enviando a requisição para o Mercado Livre
+            $response = Http::withToken($request->token)
+                ->put($url, $payload);
+
+            // Tratando a resposta
+            if ($response->successful()) {
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Finalizado com sucesso!',
+                    'data' => $response->json(),
+                ], 200);
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'erro ao finalizar o produto!',
+                    'data' => $response->json(),
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro inesperado ao finalizar o produto',
+                'error' => $e->getMessage(),
+            ], 500);  // 500 Internal Server Error
+        }
+
+
+
     }
 
 }

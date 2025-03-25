@@ -210,14 +210,20 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::resource('logo', 'App\Http\Controllers\Logo\logoController')->names('logos')->parameters(['logo' => 'id']);
         Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
         Route::resource('orders', 'App\Http\Controllers\Orders\orderscontroller')->names('orders')->parameters(['orders' => 'id']);
-        Route::resource('product', 'App\Http\Controllers\Products\productsController')->names('products')->parameters(['product' => 'id']);
+        Route::resource('product', 'App\Http\Controllers\Products\productsController')
+        ->names('products')
+        ->parameters(['product' => 'id'])
+        ->middleware('check_fornecedor')
+        ->except(['edit']);
+
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
         Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');
         Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
         Route::resource('global_messages', 'App\Http\Controllers\GlobalMessageController')->names('global_messages')->parameters(['global_messages' => 'id']);
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
-
-});
+        Route::post('/orders/update-informacoes/{id}', [orderscontroller::class, 'updateInformacoes'])->name('orders.updateInformacoes');
+        Route::post('/orders/recadastrar', [productsController::class, 'recadastrar'])->name('orders.recadastrar');
+    });
 
 
 

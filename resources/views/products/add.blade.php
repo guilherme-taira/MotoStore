@@ -347,24 +347,22 @@
 
                                     <div class="col-md-8">
                                         <label for="preco" class="form-label">Fornecedores
-                                            <div id="loadingF" class="spinner-border spinner-border-sm d-none"
-                                                role="status">
+                                            <div id="loadingF" class="spinner-border spinner-border-sm d-none" role="status">
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
                                         </label>
                                         <div class="input-group">
                                             <select id="fornecedor-select" name="fornecedor" class="form-select" style="max-width: 240px;">
-                                                <option value="">Selecione..</option>
-                                                @foreach ($viewData['fornecedor'] as $fornecedor)
+                                                <option value="{{ Auth::user()->id }}">{{ Auth::user()->name }}</option>
+                                                {{-- @foreach ($viewData['fornecedor'] as $fornecedor)
                                                     <option class="bg-warning" value="{{ $fornecedor->id }}" {{ old('fornecedor') == $fornecedor->id ? 'selected' : '' }}>
                                                         {{ $fornecedor->name }}
                                                     </option>
-                                                @endforeach
+                                                @endforeach --}}
                                             </select>
-                                            <span class="input-group-text"><i class="bi bi-person-lines-fill"></i></span>
+                                            {{-- <span class="input-group-text"><i class="bi bi-person-lines-fill"></i></span>
                                             <input type="text" id="fornecedor-input" class="form-control"
-                                                placeholder="digite o nome do fornecedor">
-
+                                                placeholder="digite o nome do fornecedor"> --}}
                                         </div>
                                     </div>
 

@@ -411,6 +411,16 @@
                         </div>
                     @endforeach
                 @endif
+
+                @if(session('msg_warning'))
+                    <div class="container mt-3">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ session('msg_warning') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- CONTEUDO DO SITE  --}}
                 @yield('conteudo')
             </main>

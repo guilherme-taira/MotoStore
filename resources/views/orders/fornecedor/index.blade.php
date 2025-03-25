@@ -6,17 +6,20 @@
 
     <style>
         /* Aplica border-radius aos itens do accordion */
-            #advancedFilterAccordion .accordion-item {
-                border: 1px solid #dee2e6; /* Exibe a borda para evidenciar o arredondamento */
-                border-radius: 10px;
-                margin-bottom: 10px; /* Espaço entre os itens */
-                overflow: hidden; /* Garante que o conteúdo não ultrapasse o arredondamento */
-            }
+        #advancedFilterAccordion .accordion-item {
+            border: 1px solid #dee2e6;
+            /* Exibe a borda para evidenciar o arredondamento */
+            border-radius: 10px;
+            margin-bottom: 10px;
+            /* Espaço entre os itens */
+            overflow: hidden;
+            /* Garante que o conteúdo não ultrapasse o arredondamento */
+        }
 
-            /* Se desejar, arredonde também o botão do accordion */
-            #advancedFilterAccordion .accordion-button {
-                border-radius: 10px;
-            }
+        /* Se desejar, arredonde também o botão do accordion */
+        #advancedFilterAccordion .accordion-button {
+            border-radius: 10px;
+        }
 
         /* Estilo para o botão flutuante */
         #merge-labels-button {
@@ -159,7 +162,74 @@
         .accordion-button:focus {
             box-shadow: none;
         }
+
+        #toastContainer .toast {
+            min-width: 350px;
+            /* Ajuste para a largura desejada */
+        }
     </style>
+
+    <script>
+        $(document).ready(function() {
+
+            function showToast(message, type) {
+                // Define a cor de fundo com base no tipo: "success" ou "error"
+                var bgColor = (type === 'success') ? 'bg-success' : 'bg-danger';
+
+                var toastHTML = `
+                    <div class="toast align-items-center text-white ${bgColor} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                        ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    </div>`;
+
+                var $toast = $(toastHTML);
+                $("#toastContainer").append($toast);
+
+                // Inicializa o Toast com delay de 3000ms (3 segundos)
+                var toast = new bootstrap.Toast($toast[0], {
+                    delay: 3000
+                });
+                toast.show();
+
+                // Após o tempo, remove o toast para não acumular no DOM
+                setTimeout(function() {
+                    $toast.remove();
+                }, 3500);
+            }
+
+            $(document).on('submit', '.informacoesForm', function(e) {
+                e.preventDefault();
+                console.log("Submit interceptado.");
+
+                var $form = $(this);
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: $form.attr('method'),
+                    data: $form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(response.message, 'success');
+                            // Fecha o modal (Bootstrap 5)
+                            $form.closest('.modal').modal('hide');
+                            // Atualiza a página ou redireciona
+                            // window.location.reload();
+                        }
+                    },
+                    error: function(xhr) {
+                        showToast("Erro ao atualizar informações. Tente novamente.", 'error');
+                    }
+                });
+
+                return false;
+            });
+        });
+    </script>
+
 
     <div class="container">
 
@@ -188,6 +258,11 @@
                 {{ session()->get('msg') }}
             </div>
         @endif
+
+        <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 start-0 translate-middle-y p-3 mt-4"
+            style="z-index: 1055; max-width: 600px; width: 100%;">
+            <div id="toastContainer" class="toast-container"></div>
+        </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a href="{{ route('bancario.index') }}"><button class="btn btn-success me-md-2" type="button">Dados Bancários
@@ -308,19 +383,28 @@
 
         @php
             // Se algum dos filtros estiver preenchido, abrimos o accordion
-            $openAccordion = request('npedido') || request('nome') || request('codigoafiliado') || request('cpf') || request('cnpj') || request('datainicial') || request('datafinal') || request('status');
+            $openAccordion =
+                request('npedido') ||
+                request('nome') ||
+                request('codigoafiliado') ||
+                request('cpf') ||
+                request('cnpj') ||
+                request('datainicial') ||
+                request('datafinal') ||
+                request('status');
         @endphp
 
         <div class="accordion accordion-flush py-2" id="advancedFilterAccordion">
             <div class="accordion-item">
                 <h2 class="accordion-header" id="advancedFilterHeading">
-                    <button class="accordion-button {{ $openAccordion ? '' : 'collapsed' }} text-white" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#advancedFilterCollapse" aria-expanded="{{ $openAccordion ? 'true' : 'false' }}" aria-controls="advancedFilterCollapse">
+                    <button class="accordion-button {{ $openAccordion ? '' : 'collapsed' }} text-white" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#advancedFilterCollapse"
+                        aria-expanded="{{ $openAccordion ? 'true' : 'false' }}" aria-controls="advancedFilterCollapse">
                         Filtros Avançados
                     </button>
                 </h2>
-                <div id="advancedFilterCollapse" class="accordion-collapse collapse {{ $openAccordion ? 'show' : '' }}" aria-labelledby="advancedFilterHeading"
-                    data-bs-parent="#advancedFilterAccordion">
+                <div id="advancedFilterCollapse" class="accordion-collapse collapse {{ $openAccordion ? 'show' : '' }}"
+                    aria-labelledby="advancedFilterHeading" data-bs-parent="#advancedFilterAccordion">
                     <div class="accordion-body">
                         <form id="filterForm" action="{{ route('fornecedor.index') }}" method="get">
                             <div class="row">
@@ -356,15 +440,19 @@
                                     <label for="status" class="form-label">Status do Pedido</label>
                                     <select class="form-select" name="status" id="status">
                                         <option value="">Selecione...</option>
-                                        <option value="" {{ request('status') == '1' ? 'selected' : '' }}>Aguardando Envio</option>
-                                        <option value="1" {{ request('status') == '2' ? 'selected' : '' }}>A Enviar</option>
-                                        <option value="2" {{ request('status') == '3' ? 'selected' : '' }}>Enviado</option>
+                                        <option value="" {{ request('status') == '1' ? 'selected' : '' }}>Aguardando
+                                            Envio</option>
+                                        <option value="1" {{ request('status') == '2' ? 'selected' : '' }}>A Enviar
+                                        </option>
+                                        <option value="2" {{ request('status') == '3' ? 'selected' : '' }}>Enviado
+                                        </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-12 mt-4">
                                 <button class="btn btn-primary" type="submit">Pesquisar</button>
-                                <button type="button" class="btn btn-secondary ms-2" onclick="clearFilter()">Limpar Formulário</button>
+                                <button type="button" class="btn btn-secondary ms-2" onclick="clearFilter()">Limpar
+                                    Formulário</button>
                             </div>
                         </form>
                     </div>
@@ -374,7 +462,7 @@
 
         <!-- Script para limpar o formulário -->
         <script>
-            function clearFilter(){
+            function clearFilter() {
                 // Limpa os inputs de texto e data
                 $('#filterForm input[type="text"], #filterForm input[type="date"]').val('');
                 // Reseta os selects para a primeira opção
@@ -478,7 +566,8 @@
                                             <div>
                                                 <h6 class="mb-1 text-end">
 
-                                                    <strong class="mt-4">Afiliado :</strong> {{ $order->name }} / <strong>Código :</strong> {{ $order->id_user }}
+                                                    <strong class="mt-4">Afiliado :</strong> {{ $order->name }} /
+                                                    <strong>Código :</strong> {{ $order->id_user }}
                                                     <select name="status_envio"
                                                         class="form-select form-select-sm mt-4 status-envio-select"
                                                         data-id="{{ $order->financeiroId }}"
@@ -492,18 +581,23 @@
                                                         @endforeach
                                                     </select>
                                                 </h6>
-                                                @if ($order->informacaoadicional)
-                                                    <hr>
-                                                    <h6 class="mb-1 text-end">
-                                                        <span class="badge text-bg-info"><strong>Observacão
-                                                                :{{ $order->informacaoadicional }}</strong></span>
 
-                                                        {{-- <span class="badge text-bg-warning"><strong>Prazo de Envio:
-                                                                {{ $order->estimated_handling_limit }}</strong></span> --}}
-                                                    </h6>
-                                                @endif
+                                                <hr>
+                                                <h6 class="mb-1 text-end">
+                                                    <span class="badge text-bg-info"><strong>Observacão
+                                                            :{{ $order->informacoes }}</strong></span>
+                                                    <hr>
+                                                    <!-- Botão para abrir o modal de atualização -->
+                                                    <button type="button" class="btn btn-sm btn-outline-primary ms-2"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#informacoesModal-{{ $order->id }}">
+                                                        Criar Observação
+                                                    </button>
+                                                </h6>
+
                                             </div>
                                         </div>
+
 
                                         <!-- Imagem e detalhes do produto -->
                                         <div class="d-flex align-items-center my-3">
@@ -570,6 +664,7 @@
                                     </div>
                                 </div>
 
+
                                 <!-- Modal -->
                                 <div class="modal fade" id="trackingModal-{{ $order->id }}" tabindex="-1"
                                     aria-labelledby="trackingModalLabel-{{ $order->id }}" aria-hidden="true">
@@ -587,6 +682,41 @@
                                         </div>
                                     </div>
                                 </div>
+
+
+                                <!-- Modal de Atualização de Informações -->
+                                <div class="modal fade" id="informacoesModal-{{ $order->financeiroId }}" tabindex="-1"
+                                    aria-labelledby="informacoesModalLabel-{{ $order->financeiroId }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form id="informacoesForm" class="informacoesForm"
+                                                action="{{ route('orders.updateInformacoes', $order->financeiroId) }}"
+                                                method="POST">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="informacoesModalLabel-{{ $order->financeiroId }}">Atualizar
+                                                        Informações</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Fechar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="informacaoadicional-{{ $order->financeiroId }}"
+                                                            class="form-label">Informações Adicionais</label>
+                                                        <textarea class="form-control" id="informacaoadicional-{{ $order->financeiroId }}" name="informacaoadicional"
+                                                            rows="4">{{ $order->informacoes }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Atualizar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -594,7 +724,7 @@
             </div>
         </div>
         <div class="d-flex">
-           <!-- Container da paginação -->
+            <!-- Container da paginação -->
             <div class="pagination-container">
                 {!! $viewData['orders']->links() !!}
             </div>
@@ -603,35 +733,43 @@
     </div>
     </div>
 
+
+
+
     <script>
         var orderShowRoute = "{{ route('orders.show', ['id' => ':id']) }}";
-      </script>
+    </script>
 
 
     <script>
         $(document).ready(function() {
-        $(".clickable-card").click(function() {
-        let url = $(this).data("url"); // Obtém a URL da rota
-        let userId = "{{ Auth::user()->id }}"; // Captura o ID do usuário autenticado
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: {
-                user: userId, // Envia o ID do usuário
-                _token: "{{ csrf_token() }}" // Proteção CSRF
-            },
-            beforeSend: function() {
-                $("#merge-labels-form").html('<p class="text-center">Carregando...</p>'); // Placeholder de carregamento
-            },
-            success: function(response) {
-                let html = '';
-                console.log(response);
-                if (response.data.length > 0) {
-                    $.each(response.data, function(index, order) {
-                        let cardColorClass = order.status_envio == 1 ? 'bg-warning' : (order.status_envio == 2 ? 'bg-success' : 'bg-primary');
+            $(".clickable-card").click(function() {
+                let url = $(this).data("url"); // Obtém a URL da rota
+                let userId = "{{ Auth::user()->id }}"; // Captura o ID do usuário autenticado
 
-                        html += `
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        user: userId, // Envia o ID do usuário
+                        _token: "{{ csrf_token() }}" // Proteção CSRF
+                    },
+                    beforeSend: function() {
+                        $("#merge-labels-form").html(
+                            '<p class="text-center">Carregando...</p>'
+                        ); // Placeholder de carregamento
+                    },
+                    success: function(response) {
+                        let html = '';
+                        console.log(response);
+                        if (response.data.length > 0) {
+                            $.each(response.data, function(index, order) {
+                                let cardColorClass = order.status_envio == 1 ?
+                                    'bg-warning' : (order.status_envio == 2 ?
+                                        'bg-success' : 'bg-primary');
+
+                                html += `
                             <div class="card mt-4 shadow-lg border-0 ${cardColorClass}">
                                 <div class="card-header ${cardColorClass} text-white d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">Venda Nº: ${order.id_venda}</h5>
@@ -657,22 +795,22 @@
                                                 <div class="text-center">
                                                     <div class="d-flex gap-2">
                                                         ${order.nota_fiscal ? `
-                                                            <a href="/storage/public/${order.nota_fiscal}" target="_blank"
-                                                                class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2 shadow-lg"
-                                                                style="border-radius: 8px; margin-bottom:30px; background: linear-gradient(135deg, #00C853, #1B5E20); transition: all 0.3s ease-in-out;">
-                                                                <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i>
-                                                                <span class="fw-bold">Ver Nota Fiscal</span>
-                                                            </a>
-                                                        ` : `
-                                                            <form action="/upload-nf/${order.financeiroId}" method="POST" enctype="multipart/form-data">
-                                                                <label for="${order.financeiroId}" class="p-3 d-block"
-                                                                    style="border: 2px dashed gray; border-radius: 10px; padding: 10px; cursor: pointer;">
-                                                                    <i class="bi bi-file-earmark-plus" style="font-size: 24px;"></i>
-                                                                    <p class="mb-0 fw-bold">Anexar NF</p>
-                                                                </label>
-                                                                <input type="file" name="nota_fiscal" id="${order.financeiroId}" class="d-none">
-                                                            </form>
-                                                        `}
+                                                                                        <a href="/storage/public/${order.nota_fiscal}" target="_blank"
+                                                                                            class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2 shadow-lg"
+                                                                                            style="border-radius: 8px; margin-bottom:30px; background: linear-gradient(135deg, #00C853, #1B5E20); transition: all 0.3s ease-in-out;">
+                                                                                            <i class="bi bi-file-earmark-pdf" style="font-size: 1.2rem;"></i>
+                                                                                            <span class="fw-bold">Ver Nota Fiscal</span>
+                                                                                        </a>
+                                                                                    ` : `
+                                                                                        <form action="/upload-nf/${order.financeiroId}" method="POST" enctype="multipart/form-data">
+                                                                                            <label for="${order.financeiroId}" class="p-3 d-block"
+                                                                                                style="border: 2px dashed gray; border-radius: 10px; padding: 10px; cursor: pointer;">
+                                                                                                <i class="bi bi-file-earmark-plus" style="font-size: 24px;"></i>
+                                                                                                <p class="mb-0 fw-bold">Anexar NF</p>
+                                                                                            </label>
+                                                                                            <input type="file" name="nota_fiscal" id="${order.financeiroId}" class="d-none">
+                                                                                        </form>
+                                                                                    `}
                                                     </div>
                                                 </div>
                                                 <strong class="mt-2">Cliente:</strong> ${order.cliente}
@@ -691,14 +829,14 @@
                                                 </select>
                                             </h6>
                                             ${order.informacaoadicional ? `
-                                                <hr>
-                                                <h6 class="mb-1 text-end">
-                                                    <span class="badge text-bg-info"><strong>Observação: ${order.informacaoadicional}</strong></span>
-                                                    <span class="badge text-bg-warning"><strong>Prazo de Envio: ${order.estimated_handling_limit}</strong></span>
-                                                </h6>
-                                            ` : `
-                                                <span class="badge text-bg-warning mt-4"><strong>Prazo de Envio: ${order.estimated_handling_limit}</strong></span>
-                                            `}
+                                                                            <hr>
+                                                                            <h6 class="mb-1 text-end">
+                                                                                <span class="badge text-bg-info"><strong>Observação: ${order.informacaoadicional}</strong></span>
+                                                                                <span class="badge text-bg-warning"><strong>Prazo de Envio: ${order.estimated_handling_limit}</strong></span>
+                                                                            </h6>
+                                                                        ` : `
+                                                                            <span class="badge text-bg-warning mt-4"><strong>Prazo de Envio: ${order.estimated_handling_limit}</strong></span>
+                                                                        `}
                                         </div>
                                     </div>
 
@@ -723,15 +861,15 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         ${order.statusf == 3 ? `<span class="badge bg-danger p-2">Aguardando Pagamento</span>` : ''}
                                         ${order.statusf == 4 ? `
-                                            <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                            <div class="form-check">
-                                                <input class="form-check-input ${order.isPrinted ? 'bg-warning' : ''} pdf-checkbox" type="checkbox"
-                                                    value="${order.shipping_id}" id="checkbox-${order.id}">
-                                                <label class="form-check-label" for="checkbox-${order.id}">
-                                                    ${order.isPrinted ? `Etiqueta Já Impressa data: ${order.updated_at}` : `Etiqueta para o pedido ${order.order_id}`}
-                                                </label>
-                                            </div>
-                                        ` : ''}
+                                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input ${order.isPrinted ? 'bg-warning' : ''} pdf-checkbox" type="checkbox"
+                                                                                value="${order.shipping_id}" id="checkbox-${order.id}">
+                                                                            <label class="form-check-label" for="checkbox-${order.id}">
+                                                                                ${order.isPrinted ? `Etiqueta Já Impressa data: ${order.updated_at}` : `Etiqueta para o pedido ${order.order_id}`}
+                                                                            </label>
+                                                                        </div>
+                                                                    ` : ''}
                                         <a href="${orderShowRoute.replace(':id', order.order_id)}" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-eye"></i> Ver Detalhes
                                         </a>
@@ -739,20 +877,21 @@
                                 </div>
                             </div>
                         `;
-                    });
-                } else {
-                    html = '<p class="text-center">Nenhum pedido encontrado.</p>';
-                }
+                            });
+                        } else {
+                            html = '<p class="text-center">Nenhum pedido encontrado.</p>';
+                        }
 
-                $("#merge-labels-form").html(html);
-                $(".pagination-container").html(response.pagination); // Atualiza paginação
-            },
-            error: function(xhr, status, error) {
-                console.error("Erro:", xhr.responseText);
-                alert("Erro ao buscar os pedidos.");
-            }
-        });
-    });
+                        $("#merge-labels-form").html(html);
+                        $(".pagination-container").html(response
+                            .pagination); // Atualiza paginação
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Erro:", xhr.responseText);
+                        alert("Erro ao buscar os pedidos.");
+                    }
+                });
+            });
 
 
             // Função para animar números do zero até o valor final
