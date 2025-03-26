@@ -11,6 +11,7 @@ use App\Http\Controllers\MercadoLivreHandler\getDomainController;
 use App\Http\Controllers\Services\ServicesController;
 use App\Models\banner_autokm;
 use App\Models\banner_premium;
+use App\Models\financeiro;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
 use App\Models\images;
@@ -2176,6 +2177,12 @@ class productsController extends Controller
         return response()->json($data);
     }
 
+
+    public function getInformacoesAdicionais(Request $request){
+        $data = Financeiro::findOrFail($request->id);
+        Log::alert($data);
+        return response()->json(['plain_text' => $data->informacoes]);
+    }
 
     public function recadastrar(Request $request)
     {
