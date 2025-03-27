@@ -397,9 +397,9 @@
                     {
                         "domain_id": "MLB-BOOTS_AND_BOOTIES"
                     },
-                    {
-                        "domain_id": "MLB-SWIMWEAR"
-                    },
+                    // {
+                    //     "domain_id": "MLB-SWIMWEAR"
+                    // },
                     // { "domain_id": "MLB-LOAFERS_AND_OXFORDS" },
                     // { "domain_id": "MLB-FOOTBALL_SHOES" },
                     // { "domain_id": "MLB-SANDALS_AND_CLOGS" },

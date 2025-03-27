@@ -584,13 +584,13 @@
 
                                                 <hr>
                                                 <h6 class="mb-1 text-end">
-                                                    <span class="badge text-bg-info"><strong>Observacão
+                                                    <span class="badge text-bg-info"><strong>
                                                             {{ $order->informacaoadicional }}</strong></span>
                                                     <hr>
                                                     <!-- Botão para abrir o modal de atualização -->
                                                     <button type="button" class="btn btn-sm btn-outline-primary ms-2"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#informacoesModal-{{ $order->id }}">
+                                                        data-bs-target="#informacoesModal-{{ $order->financeiroId }}">
                                                         Criar Observação
                                                     </button>
                                                 </h6>

@@ -157,7 +157,7 @@ class orderscontroller extends Controller
             'informacaoadicional' => 'required|string',
         ]);
 
-        $order = Financeiro::findOrFail(893);
+        $order = Financeiro::findOrFail($id);
         $order->informacoes = $request->input('informacaoadicional');
         $order->save();
 
