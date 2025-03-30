@@ -2206,6 +2206,7 @@ class productsController extends Controller
             $response = Http::withToken($request->token)
                 ->put($url, $payload);
 
+            Log::alert($response->json());
             // Tratando a resposta
             if ($response->successful()) {
 

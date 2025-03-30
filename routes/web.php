@@ -214,7 +214,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         ->names('products')
         ->parameters(['product' => 'id'])
         ->middleware('check_fornecedor')
-        ->except(['edit','update','index']);
+        ->except(['edit','update','index','show']);
 
         Route::resource('kits','App\Http\Controllers\Kits\kitsController')->names('kits')->parameters(['kits' => 'id']);
         Route::resource('fornecedor', 'App\Http\Controllers\Fornecedor\fornecedorController')->names('fornecedor')->parameters(['fornecedor' => 'id'])->middleware('check_fornecedor');

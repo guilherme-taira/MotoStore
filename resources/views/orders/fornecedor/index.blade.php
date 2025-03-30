@@ -77,7 +77,7 @@
         }
 
         .count-number {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: bold;
             color: #343a40;
         }
@@ -288,8 +288,8 @@
                                 </div>
                             </div>
                             <div class="text-end">
-                                <div class="count-number" data-target="{{ $viewData['totalAguardando'] }}">R$:
-                                    {{ $viewData['totalAguardando'] }}</div>
+                                <div class="count-number" data-target="{{ $viewData['totalAguardando'] }}">
+                                    R$: {{ number_format($viewData['totalAguardando'], 2, ',', '.') }}</div>
                             </div>
                         </div>
                     </div>
@@ -308,7 +308,7 @@
                                 </div>
                             </div>
                             <div class="text-end">
-                                <div class="count-number" data-target="{{ $viewData['pago'] }}">R$: {{ $viewData['pago'] }}
+                                <div class="count-number" data-target="{{ $viewData['pago'] }}">R$: {{ number_format($viewData['pago'], 2, ',', '.') }}
                                 </div>
                             </div>
                         </div>
