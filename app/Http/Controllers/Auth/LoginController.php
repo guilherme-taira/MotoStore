@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\token;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -91,6 +93,51 @@ class LoginController extends Controller
         ], 201);
     }
 
+
+    public function getTokenUpMineracao(Request $request){
+              // Busca o token no banco de dados pelo user_id
+        $token = token::where('user_id', $request->id)->first();
+
+        // Verifica se o token foi encontrado
+        if ($token) {
+            return response()->json([
+                'access_token' => $token->access_token
+            ]);
+        } else {
+            return response()->json([
+                'error' => 'Token não encontrado para este usuário.'
+            ], 404);
+        }
+
+    }
+
+    public function getDataFromApi(Request $request)
+    {
+        // Valida o email
+        $validated = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        // Verifica se o email existe na tabela 'users' e faz o join com a tabela 'token'
+        $user = User::join('token', 'users.id', '=', 'token.user_id') // Assuming 'user_id' is the foreign key in 'token'
+                    ->where('users.email', $validated['email'])
+                    ->select('users.email', 'token.access_token') // Seleciona apenas o email e access_token
+                    ->first();
+
+        // Se o email não existir ou não encontrar o token correspondente
+        if (!$user) {
+            return response()->json([
+                'message' => 'Email ou token não encontrado na base de dados.',
+            ], 404); // Status 404 - Not Found
+        }
+
+        // Retorna o email e access_token encontrados
+        return response()->json([
+            'email' => $user->email,
+            'access_token' => $user->access_token,
+            'code' => 200
+        ], 200);
+    }
 
 
 
