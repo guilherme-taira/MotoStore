@@ -115,7 +115,7 @@ Route::prefix('v1')->group(function () {
     Route::post('getInformacoesAdicionais', [productsController::class, 'getInformacoesAdicionais']);
     Route::post('/loginApiSeeia', [LoginController::class, 'getDataFromApi']);
     Route::post('getComposicaoKit', [productsController::class, 'getComposicaoKit']);
-    Route::post('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
+    Route::get('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
     // financeiro::contareceber(Auth::user()->id);
 });
 
