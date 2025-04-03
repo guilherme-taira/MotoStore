@@ -11,6 +11,7 @@ use App\Http\Controllers\MercadoLivreHandler\getDomainController;
 use App\Http\Controllers\Services\ServicesController;
 use App\Models\banner_autokm;
 use App\Models\banner_premium;
+use App\Models\TokenUpMineracao;
 use App\Models\financeiro;
 use App\Models\categorias;
 use App\Models\categorias_forncedores;
@@ -2229,9 +2230,52 @@ class productsController extends Controller
                 'error' => $e->getMessage(),
             ], 500);  // 500 Internal Server Error
         }
+    }
 
+    public function recadastrarExtensao(Request $request)
+    {
+        // Valide o campo enviado
+        $request->validate([
+            'produto_id' => 'required|string',
+            'user_id' => 'required'
+        ]);
 
+        $token = TokenUpMineracao::where('user_id',$request->user_id)->first();
 
+        $url = "https://api.mercadolibre.com/items/{$request->produto_id}";
+
+        $payload = [
+            'status' => 'closed'
+        ];
+
+        try {
+            // Enviando a requisição para o Mercado Livre
+            $response = Http::withToken($token->access_token)
+                ->put($url, $payload);
+
+            Log::alert($response->json());
+            // Tratando a resposta
+            if ($response->successful()) {
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Finalizado com sucesso!',
+                    'data' => $response->json(),
+                ], 200);
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'message' => 'erro ao finalizar o produto!',
+                    'data' => $response->json(),
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro inesperado ao finalizar o produto',
+                'error' => $e->getMessage(),
+            ], 500);  // 500 Internal Server Error
+        }
     }
 
 }

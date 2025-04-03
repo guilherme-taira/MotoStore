@@ -223,11 +223,14 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
         Route::post('/orders/update-informacoes/{id}', [orderscontroller::class, 'updateInformacoes'])->name('orders.updateInformacoes');
         Route::post('/orders/recadastrar', [productsController::class, 'recadastrar'])->name('orders.recadastrar');
+
     });
 
 
-
-
+Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);
+Route::get('/conta-integrada', function () {
+    return view('layouts.integracao');
+});
 
 Route::post('/clear-session-messages', function () {
     session()->forget('success');

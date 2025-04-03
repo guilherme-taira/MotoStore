@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Karriere\PdfMerge\PdfMerge;
 
@@ -441,6 +442,29 @@ class orderscontroller extends Controller
         // Retorna em JSON
         return response()->json(['data' => $result]);
     }
+
+    public function buscarVendas(Request $request)
+    {
+
+        $url = $request->query('url');
+
+        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return response()->json(['error' => 'URL inválida'], 400);
+        }
+
+        try {
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                return response()->json(['html' => $response->body()]);
+            }
+
+            return response()->json(['error' => 'Erro ao buscar os dados'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
+        }
+    }
+
 
 
     public function getSalesLastMont(Request $request)

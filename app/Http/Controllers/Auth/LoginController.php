@@ -95,7 +95,8 @@ class LoginController extends Controller
 
 
     public function getTokenUpMineracao(Request $request){
-              // Busca o token no banco de dados pelo user_id
+        Log::alert($request->all());
+        // Busca o token no banco de dados pelo user_id
         $token = token::where('user_id', $request->id)->first();
 
         // Verifica se o token foi encontrado
@@ -119,23 +120,24 @@ class LoginController extends Controller
         ]);
 
         // Verifica se o email existe na tabela 'users' e faz o join com a tabela 'token'
-        $user = User::join('token', 'users.id', '=', 'token.user_id') // Assuming 'user_id' is the foreign key in 'token'
+        $user = User::join('token_up_mineracao', 'users.id', '=', 'token_up_mineracao.user_id') // Assuming 'user_id' is the foreign key in 'token'
                     ->where('users.email', $validated['email'])
-                    ->select('users.email', 'token.access_token') // Seleciona apenas o email e access_token
+                    ->select('users.email', 'token_up_mineracao.user_id','token_up_mineracao.user_id_mercadolivre as integrado') // Seleciona apenas o email e access_token
                     ->first();
 
         // Se o email não existir ou não encontrar o token correspondente
         if (!$user) {
             return response()->json([
-                'message' => 'Email ou token não encontrado na base de dados.',
+                'message' => 'Email não encontrado na base de dados.',
             ], 404); // Status 404 - Not Found
         }
 
         // Retorna o email e access_token encontrados
         return response()->json([
             'email' => $user->email,
-            'access_token' => $user->access_token,
-            'code' => 200
+            'user_id' => $user->user_id,
+            'code' => 200,
+            'integrado' => $user->integrado
         ], 200);
     }
 

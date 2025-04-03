@@ -83,6 +83,7 @@ Route::prefix('v1')->group(function () {
     Route::get('getValueGraphic6Mounth',[StoreController::class,'getValueGraphic6Mounth']);
     Route::post('deleteFoto',[productsController::class,'destroyFotoS3']);
     Route::post('code',[StoreController::class,'getCode']);
+    Route::post('codeUpMaximo',[StoreController::class,'getCodeUpMineracao']);
     Route::post('fotoPreview',[productsController::class,'fotoPreview']);
     Route::get('getPedidos',[productsController::class,'getPedidos']);
     Route::get('getPedidosById',[productsController::class,'getPedidosById']);
@@ -113,9 +114,10 @@ Route::prefix('v1')->group(function () {
     Route::post('saveTokenPhoneAuth',[FirebaseService::class,'saveTokenPhoneAuth']);
     Route::post('getKitsByOwner', [productsController::class, 'getKitsByOwner']);
     Route::post('getInformacoesAdicionais', [productsController::class, 'getInformacoesAdicionais']);
-    Route::post('/loginApiSeeia', [LoginController::class, 'getDataFromApi']);
+    Route::post('/loginApiUpmineracao', [LoginController::class, 'getDataFromApi']);
     Route::post('getComposicaoKit', [productsController::class, 'getComposicaoKit']);
     Route::get('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
+    Route::get('getNumberOrder', [orderscontroller::class, 'buscarVendas']);
     // financeiro::contareceber(Auth::user()->id);
 });
 

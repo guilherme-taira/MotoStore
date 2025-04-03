@@ -4,6 +4,7 @@ namespace App\Http\Controllers\GenerateCode;
 
 use App\Http\Controllers\Controller;
 use App\Models\token;
+use App\Models\TokenUpMineracao;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +36,6 @@ class GetCodeController extends RequestCodeMercadoLivre
 
         $data_json = json_encode($dataToPost);
 
-        Log::alert($data_json);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $endpoint);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'content-type:application/x-www-form-urlencoded'));
@@ -49,9 +49,11 @@ class GetCodeController extends RequestCodeMercadoLivre
         Log::alert($response);
         curl_close($ch);
         $dados = json_decode($response);
-        // if (!isset($dados->status)) {
+        if ($this->getRedirectUri() == "https://afilidrop.com.br/conta-integrada") {
+            $this->saveCodeUpMineracao($dados);
+        }else{
             $this->saveCode($dados);
-        //}
+        }
         return $dados;
     }
 
@@ -68,6 +70,30 @@ class GetCodeController extends RequestCodeMercadoLivre
                 $token = new token();
                 $token->access_token = $codeReturn->access_token;
                 $token->type = "MercadoLivre";
+                $token->refresh_token = $codeReturn->refresh_token;
+                $token->user_id_mercadolivre = $codeReturn->user_id;
+                $token->user_id = $this->getUserId();
+                $token->datamodify = $DataSistema;
+                $token->save();
+            } catch (\Exception $e) {
+                return $e->getMessage();
+            }
+        }
+    }
+
+    public function saveCodeUpMineracao($codeReturn)
+    {
+
+        $verifyExist = TokenUpMineracao::where('user_id', $this->getUserId())->first();
+        if (!$verifyExist) {
+            try {
+                $date = new DateTime();
+                $date->modify('+6 hours');
+                $DataSistema = $date->format('Y-m-d H:i:s');
+
+                $token = new TokenUpMineracao();
+                $token->access_token = $codeReturn->access_token;
+                $token->type = "UpMaximo";
                 $token->refresh_token = $codeReturn->refresh_token;
                 $token->user_id_mercadolivre = $codeReturn->user_id;
                 $token->user_id = $this->getUserId();

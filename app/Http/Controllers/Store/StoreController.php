@@ -166,6 +166,13 @@ class StoreController extends Controller
         return response()->json(["dados" => $data]);
     }
 
+    public function getCodeUpMineracao(Request $request)
+    {
+        $getNewCode = new GetCodeController("authorization_code", "159024264044117", "EFQQgu53eaB0y5jdOi44o8morHq9WTPd", $request->code, "https://afilidrop.com.br/conta-integrada", $request->id);
+        $data = $getNewCode->resource();
+        return response()->json(["dados" => $data]);
+    }
+
     public function getCodeBling(Request $request)
     {
         $getNewCode = new GetCodeController("authorization_code", "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $request->code, "https://afilidrop.com.br/home", $request->id);
