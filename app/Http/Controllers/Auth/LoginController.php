@@ -120,9 +120,9 @@ class LoginController extends Controller
         ]);
 
         // Verifica se o email existe na tabela 'users' e faz o join com a tabela 'token'
-        $user = User::join('token_up_mineracao', 'users.id', '=', 'token_up_mineracao.user_id') // Assuming 'user_id' is the foreign key in 'token'
+        $user = User::leftJoin('token_up_mineracao', 'users.id', '=', 'token_up_mineracao.user_id') // Assuming 'user_id' is the foreign key in 'token'
                     ->where('users.email', $validated['email'])
-                    ->select('users.email', 'token_up_mineracao.user_id','token_up_mineracao.user_id_mercadolivre as integrado') // Seleciona apenas o email e access_token
+                    ->select('users.email', 'users.id','token_up_mineracao.user_id_mercadolivre as integrado') // Seleciona apenas o email e access_token
                     ->first();
 
         // Se o email não existir ou não encontrar o token correspondente
