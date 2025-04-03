@@ -135,7 +135,7 @@ class LoginController extends Controller
         // Retorna o email e access_token encontrados
         return response()->json([
             'email' => $user->email,
-            'user_id' => $user->user_id,
+            'user_id' => $user->id,
             'code' => 200,
             'integrado' => $user->integrado
         ], 200);
