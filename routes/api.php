@@ -115,6 +115,7 @@ Route::prefix('v1')->group(function () {
     Route::post('getKitsByOwner', [productsController::class, 'getKitsByOwner']);
     Route::post('getInformacoesAdicionais', [productsController::class, 'getInformacoesAdicionais']);
     Route::post('/loginApiUpmineracao', [LoginController::class, 'getDataFromApi']);
+    Route::post('/register-extension', [LoginController::class, 'register']);
     Route::post('getComposicaoKit', [productsController::class, 'getComposicaoKit']);
     Route::get('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
     Route::get('getNumberOrder', [orderscontroller::class, 'buscarVendas']);

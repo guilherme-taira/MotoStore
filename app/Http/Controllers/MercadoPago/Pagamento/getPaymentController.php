@@ -58,12 +58,12 @@ class getPaymentController extends Controller
         }else if($httpCode == '200'){
             if($res->status == "approved"){
                 // INSERE NOTIFICACOES
-                try {
-                    $dados = financeiro::GetTokenByNotification($res->external_reference);
-                    pushNotificationApp("Olá {$dados->name}","Pagamento Recebido Nº {$res->id} no Valor de R$: {$res->transaction_amount}",$dados->token,$dados->id_user);
-                } catch (\Exception $th) {
-                    Log::error($th->getMessage());
-                }
+                // try {
+                //     $dados = financeiro::GetTokenByNotification($res->external_reference);
+                //     pushNotificationApp("Olá {$dados->name}","Pagamento Recebido Nº {$res->id} no Valor de R$: {$res->transaction_amount}",$dados->token,$dados->id_user);
+                // } catch (\Exception $th) {
+                //     Log::error($th->getMessage());
+                // }
 
                 order_site::where('external_reference',$res->external_reference)->update(['status_id' => 4]);
                 // financeiro::where('token_transaction',$res->external_reference)->get();

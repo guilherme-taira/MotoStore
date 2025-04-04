@@ -112,6 +112,34 @@ class LoginController extends Controller
 
     }
 
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+        ], [
+            'name.required' => 'O nome é obrigatório.',
+            'name.max' => 'O nome não pode ter mais que 255 caracteres.',
+
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email' => 'Informe um e-mail válido.',
+            'email.unique' => 'Este e-mail já está em uso.',
+
+            'password.required' => 'A senha é obrigatória.',
+            'password.min' => 'A senha deve ter no mínimo 6 caracteres.',
+        ]);
+
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
+        return response()->json(['message' => 'Usuário criado com sucesso!', 'user' => $user], 201);
+    }
+
+
     public function getDataFromApi(Request $request)
     {
         // Valida o email
@@ -131,7 +159,7 @@ class LoginController extends Controller
                 'message' => 'Email não encontrado na base de dados.',
             ], 404); // Status 404 - Not Found
         }
-
+        Log::alert($user);
         // Retorna o email e access_token encontrados
         return response()->json([
             'email' => $user->email,
