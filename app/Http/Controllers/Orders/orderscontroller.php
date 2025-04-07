@@ -443,17 +443,22 @@ class orderscontroller extends Controller
         return response()->json(['data' => $result]);
     }
 
+
     public function buscarVendas(Request $request)
     {
         $url = $request->query('url');
 
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
-            Log::error('URL inválida informada:', ['url' => $url]);
             return response()->json(['error' => 'URL inválida'], 400);
         }
 
         try {
-            $response = Http::get($url);
+            sleep(2); // Delay para evitar bloqueios
+
+            $response = Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept-Language' => 'pt-BR,pt;q=0.9',
+            ])->get($url);
 
             if ($response->successful()) {
                 return response()->json(['html' => $response->body()]);
@@ -466,12 +471,10 @@ class orderscontroller extends Controller
             ]);
 
             return response()->json(['error' => 'Erro ao buscar os dados'], 500);
-
         } catch (\Exception $e) {
-            Log::error('Exceção ao buscar dados:', [
+            Log::error('Exceção na requisição HTTP:', [
                 'url' => $url,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'exception' => $e->getMessage()
             ]);
 
             return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
