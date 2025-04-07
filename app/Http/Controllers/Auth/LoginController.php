@@ -150,7 +150,7 @@ class LoginController extends Controller
         // Verifica se o email existe na tabela 'users' e faz o join com a tabela 'token'
         $user = User::leftJoin('token_up_mineracao', 'users.id', '=', 'token_up_mineracao.user_id') // Assuming 'user_id' is the foreign key in 'token'
                     ->where('users.email', $validated['email'])
-                    ->select('users.email', 'users.id','token_up_mineracao.user_id_mercadolivre as integrado') // Seleciona apenas o email e access_token
+                    ->select('users.email', 'users.id','token_up_mineracao.user_id_mercadolivre as integrado','users.name as nome') // Seleciona apenas o email e access_token
                     ->first();
 
         // Se o email não existir ou não encontrar o token correspondente
@@ -159,16 +159,16 @@ class LoginController extends Controller
                 'message' => 'Email não encontrado na base de dados.',
             ], 404); // Status 404 - Not Found
         }
-        Log::alert($user);
+
         // Retorna o email e access_token encontrados
         return response()->json([
             'email' => $user->email,
             'user_id' => $user->id,
             'code' => 200,
-            'integrado' => $user->integrado
+            'integrado' => $user->integrado,
+            'nome' => $user->nome
         ], 200);
     }
-
 
 
     public function loginApi(Request $request){

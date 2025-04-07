@@ -67,6 +67,7 @@ Route::prefix('v1')->group(function () {
     Route::get('products', [productsController::class, 'getAllProduct']);
     Route::get('products/search', [productsController::class, 'getAllProductSearch']);
     Route::get('getVisits', [productsController::class, 'getVisits']);
+    Route::get('getVisitsExtension', [productsController::class, 'getVisitsExtension']);
     Route::post('getAttributesForVariations',[productsController::class,'getAttributesForVariations']);
     Route::get('getHistoryById',[productsController::class,'getHistoryById']);
     Route::get('product/{id}', [productsController::class,'getProduct']);

@@ -1854,6 +1854,28 @@ class productsController extends Controller
             }
     }
 
+    public function getVisitsExtension(Request $request){
+
+        Log::alert($request->all());
+        // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
+        $acesso = token::where('user_id','38')->first();
+        try {
+
+            $context = stream_context_create([
+                "http" => [
+                    "header" => "Authorization: Bearer $acesso->access_token"
+                ]
+            ]);
+
+            $response = file_get_contents("https://api.mercadolibre.com/items/{$request->item}/visits/time_window?last=60&unit=day&ending={$request->currentDate}",false,$context);
+
+            return response($response)->header('Content-Type', 'application/json');  // Certifique-se de que o PHP retorne JSON puro
+
+            } catch (\Exception $e) {
+                return response()->json($e->getMessage());
+            }
+    }
+
     public function destroyFotoS3(Request $request){{
         try {
                // // Parte da URL que você deseja remover
@@ -2265,7 +2287,7 @@ class productsController extends Controller
             }else{
                 return response()->json([
                     'success' => false,
-                    'message' => 'erro ao finalizar o produto!',
+                    'message' => 'erro ao inativar o produto!',
                     'data' => $response->json(),
                 ], 200);
             }
