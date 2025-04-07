@@ -445,10 +445,10 @@ class orderscontroller extends Controller
 
     public function buscarVendas(Request $request)
     {
-
         $url = $request->query('url');
 
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+            Log::error('URL inválida informada:', ['url' => $url]);
             return response()->json(['error' => 'URL inválida'], 400);
         }
 
@@ -459,8 +459,21 @@ class orderscontroller extends Controller
                 return response()->json(['html' => $response->body()]);
             }
 
+            Log::error('Falha na requisição HTTP ao buscar dados:', [
+                'url' => $url,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
             return response()->json(['error' => 'Erro ao buscar os dados'], 500);
+
         } catch (\Exception $e) {
+            Log::error('Exceção ao buscar dados:', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
         }
     }
