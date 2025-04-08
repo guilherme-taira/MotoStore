@@ -443,73 +443,54 @@ class orderscontroller extends Controller
         return response()->json(['data' => $result]);
     }
 
-    public function buscarVendas(Request $request)
-    {
-        $url = $request->query('url');
+    public function buscarVendas(Request $request) {
+            $url = $request->query('url');
 
-        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
-            return response()->json(['error' => 'URL inválida'], 400);
-        }
-
-        // Buscar proxies da Webshare API
-        try {
-            $proxyResponse = Http::withHeaders([
-                'Authorization' => 'Token tevozdrl87hbnswv0rj2un1g1clc1cga7z9p1izd'
-            ])->get('https://proxy.webshare.io/api/v2/proxy/list/?mode=direct&page=1&page_size=25');
-
-            if (!$proxyResponse->successful()) {
-                return response()->json(['error' => 'Não foi possível obter os proxies'], 500);
+            if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+                return response()->json(['error' => 'URL inválida'], 400);
             }
 
-            $proxyList = $proxyResponse->json('results');
-
-            if (empty($proxyList)) {
-                return response()->json(['error' => 'Lista de proxies vazia'], 500);
-            }
-
-            // Selecionar proxy aleatório
-            $proxyData = $proxyList[array_rand($proxyList)];
-            $ip = $proxyData['proxy_address'];
-            $port = $proxyData['port'];
-            $user = $proxyData['username'];
-            $pass = $proxyData['password'];
+            // Configurações do proxy rotativo Webshare
+            $ip = 'p.webshare.io';
+            $port = 80;
+            $user = 'jwcxnvon-rotate';
+            $pass = 'zpkdrpl7n7as';
             $proxyUrl = "https://{$user}:{$pass}@{$ip}:{$port}";
 
-            // Loga o proxy em uso
-            Log::info('Usando proxy:', ['proxy' => $proxyUrl]);
+            try {
+                Log::info('Usando proxy rotativo:', ['proxy' => $proxyUrl]);
 
-            // Faz a requisição usando o proxy
-            $response = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                'Accept-Language' => 'pt-BR,pt;q=0.9',
-            ])->withOptions([
-                'proxy' => $proxyUrl,
-                'timeout' => 15,
-            ])->get($url);
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept-Language' => 'pt-BR,pt;q=0.9',
+                ])->withOptions([
+                    'proxy' => $proxyUrl,
+                    'timeout' => 15,
+                ])->get($url);
 
-            if ($response->successful()) {
-                return response()->json(['html' => $response->body()]);
+                if ($response->successful()) {
+                    return response()->json(['html' => $response->body()]);
+                }
+
+                Log::error('Falha na requisição HTTP ao buscar dados:', [
+                    'url' => $url,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'proxy' => $proxyUrl
+                ]);
+
+                return response()->json(['error' => 'Erro ao buscar os dados'], 500);
+
+            } catch (\Exception $e) {
+                Log::error('Exceção na requisição HTTP:', [
+                    'url' => $url,
+                    'proxy' => $proxyUrl,
+                    'exception' => $e->getMessage()
+                ]);
+
+                return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
             }
-
-            Log::error('Falha na requisição HTTP ao buscar dados:', [
-                'url' => $url,
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'proxy' => $proxyUrl
-            ]);
-
-            return response()->json(['error' => 'Erro ao buscar os dados'], 500);
-
-        } catch (\Exception $e) {
-            Log::error('Exceção na requisição HTTP:', [
-                'url' => $url,
-                'exception' => $e->getMessage()
-            ]);
-
-            return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
         }
-    }
-
 
 
 
