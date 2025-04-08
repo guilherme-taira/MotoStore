@@ -473,7 +473,7 @@ class orderscontroller extends Controller
             $port = $proxyData['port'];
             $user = $proxyData['username'];
             $pass = $proxyData['password'];
-            $proxyUrl = "http://{$user}:{$pass}@{$ip}:{$port}";
+            $proxyUrl = "https://{$user}:{$pass}@{$ip}:{$port}";
 
             // Loga o proxy em uso
             Log::info('Usando proxy:', ['proxy' => $proxyUrl]);
