@@ -443,54 +443,67 @@ class orderscontroller extends Controller
         return response()->json(['data' => $result]);
     }
 
-    public function buscarVendas(Request $request) {
-            $url = $request->query('url');
+    public function buscarVendas(Request $request)
+    {
+        $url = $request->query('url');
 
-            if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
-                return response()->json(['error' => 'URL inválida'], 400);
-            }
-
-            // Configurações do proxy rotativo Webshare
-            $ip = 'p.webshare.io';
-            $port = 80;
-            $user = 'jwcxnvon-rotate';
-            $pass = 'zpkdrpl7n7as';
-            $proxyUrl = "http://{$user}:{$pass}@{$ip}:{$port}";
-
-            try {
-                Log::info('Usando proxy rotativo:', ['proxy' => $proxyUrl]);
-
-                $response = Http::withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                    'Accept-Language' => 'pt-BR,pt;q=0.9',
-                ])->withOptions([
-                    'proxy' => $proxyUrl,
-                    'timeout' => 15,
-                ])->get($url);
-
-                if ($response->successful()) {
-                    return response()->json(['html' => $response->body()]);
-                }
-
-                Log::error('Falha na requisição HTTP ao buscar dados:', [
-                    'url' => $url,
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                    'proxy' => $proxyUrl
-                ]);
-
-                return response()->json(['error' => 'Erro ao buscar os dados'], 500);
-
-            } catch (\Exception $e) {
-                Log::error('Exceção na requisição HTTP:', [
-                    'url' => $url,
-                    'proxy' => $proxyUrl,
-                    'exception' => $e->getMessage()
-                ]);
-
-                return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
-            }
+        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+            return response()->json(['error' => 'URL inválida'], 400);
         }
+
+        // Configurações do proxy rotativo Webshare
+        $ip = 'p.webshare.io';
+        $port = 80;
+        $user = 'jwcxnvon-rotate';
+        $pass = 'zpkdrpl7n7as';
+        $proxyUrl = "http://{$user}:{$pass}@{$ip}:{$port}";
+
+        try {
+
+            $response = Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'Accept-Language' => 'pt-BR,pt;q=0.9',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Sec-Fetch-Mode' => 'no-cors',
+            ])->withOptions([
+                'proxy' => $proxyUrl,
+                'timeout' => 15,
+            ])->get($url);
+
+            if ($response->successful()) {
+                $html = $response->body();
+
+                // Regex para extrair o conteúdo do span com a classe ui-pdp-subtitle
+                preg_match('/<span class="ui-pdp-subtitle">[^|]+\|\s*\+?([\d.]+)\s+vendid[oa]s?<\/span>/i', $html, $matches);
+                $vendidos = isset($matches[1]) ? (int)str_replace('.', '', $matches[1]) : 0;
+
+                return response()->json([
+                    'vendidos' => $vendidos,
+                    'url' => $url
+                ]);
+            }
+
+            Log::error('Falha na requisição HTTP ao buscar dados:', [
+                'url' => $url,
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'proxy' => $proxyUrl
+            ]);
+
+            return response()->json(['error' => 'Erro ao buscar os dados'], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Exceção na requisição HTTP:', [
+                'url' => $url,
+                'proxy' => $proxyUrl,
+                'exception' => $e->getMessage()
+            ]);
+
+            return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
+        }
+    }
+
+
 
 
 
