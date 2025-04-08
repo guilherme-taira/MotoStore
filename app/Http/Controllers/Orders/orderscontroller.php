@@ -455,7 +455,7 @@ class orderscontroller extends Controller
             $port = 80;
             $user = 'jwcxnvon-rotate';
             $pass = 'zpkdrpl7n7as';
-            $proxyUrl = "https://{$user}:{$pass}@{$ip}:{$port}";
+            $proxyUrl = "http://{$user}:{$pass}@{$ip}:{$port}";
 
             try {
                 Log::info('Usando proxy rotativo:', ['proxy' => $proxyUrl]);
