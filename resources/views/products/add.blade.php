@@ -54,119 +54,7 @@
         }
     </style>
 
-    <script>
-           $(document).on('click', '#searchItemButton', function() {
-            const itemId = $('#searchItemInput').val().trim();
 
-            if (itemId === '') {
-                alert('Por favor, insira um ID de item.');
-                return;
-            }
-
-            // URL base da API do Mercado Livre
-            const apiBaseUrl = 'https://api.mercadolibre.com/items/';
-
-            // Função genérica para fazer a requisição AJAX
-            function fetchData(url, successCallback, errorMessage) {
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: successCallback,
-                    error: function() {
-                        $('#searchResult').html(
-                            `<p class="text-danger">${errorMessage}</p>`);
-                    }
-                });
-            }
-
-            // Requisição para os dados do item
-            fetchData(
-                `${apiBaseUrl}${itemId}`,
-                function(response) {
-
-                    $("#titulo").val(response.title);
-                    $("#precoNormal").val(response.price);
-                    $("#stock").val(response.initial_quantity);
-                    $("#id_categoria").val(response.category_id);
-
-                      // Itera sobre os atributos do item
-                    if (response.attributes && Array.isArray(response.attributes)) {
-                        response.attributes.forEach(attribute => {
-                            switch (attribute.id) {
-                                case 'BRAND':
-                                    $("#brand").val(attribute.value_name); // Marca
-                                    break;
-                                case 'GTIN':
-                                    $("#ean").val(attribute.value_name); // Código universal
-                                    break;
-                                case 'IS_KIT':
-                                    $("#isKit").val(attribute.value_name); // É kit
-                                    break;
-                                case 'NET_WEIGHT':
-                                    $("#netWeight").val(attribute.value_name); // Peso líquido
-                                    break;
-                                case 'PACKAGE_HEIGHT':
-                                    $("#packageHeight").val(attribute.value_name?.replace(" cm", "")); // Altura da embalagem
-                                    break;
-                                case 'PACKAGE_LENGTH':
-                                    $("#packageLength").val(attribute.value_name?.replace(" cm", "")); // Comprimento da embalagem
-                                    break;
-                                case 'PACKAGE_WEIGHT':
-                                    $("#packageWeight").val(attribute.value_name); // Peso da embalagem
-                                    break;
-                                case 'PACKAGE_WIDTH':
-                                    $("#packageWidth").val(attribute.value_name?.replace(" cm", "")); // Largura da embalagem
-                                    break;
-                                case 'ITEM_CONDITION':
-                                    $("#itemCondition").val(attribute.value_name); // Condição do item
-                                    break;
-                                case 'SALE_FORMAT':
-                                    $("#saleFormat").val(attribute.value_name); // Formato de venda
-                                    break;
-                                case 'SELLER_SKU':
-                                    $("#sellerSku").val(attribute.value_name); // SKU do vendedor
-                                    break;
-                                default:
-                                    console.log(`Atributo não mapeado: ${attribute.id}`);
-                            }
-                        });
-                    }
-                    // Requisição para os dados da categoria
-                    fetchData(
-                        `https://api.mercadolibre.com/categories/${response.category_id}`,
-                        function(categoryResponse) {
-                            $("#categoryName").val(categoryResponse.name);
-
-                            $("#id_categoria").val(categoryResponse.id);
-                            // Exibe o caminho da categoria (path_from_root)
-                            const pathList = categoryResponse.path_from_root.map((category,
-                                index, array) => {
-                                if (index === array.length - 1) {
-                                    return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
-                                } else {
-                                    return `<li class="list-group-item">${category.name}</li>`;
-                                }
-                            }).join('');
-                            $('.content_categorias').append(pathList);
-                        },
-                        'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
-                    );
-                },
-                'Erro ao buscar o item. Verifique o ID e tente novamente.'
-            );
-
-            // Requisição para a descrição do item
-            fetchData(
-                `${apiBaseUrl}${itemId}/description`,
-                function(descriptionResponse) {
-                    $("#description").val(descriptionResponse.plain_text);
-                },
-                'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
-            );
-
-
-        });
-    </script>
     <div class="card mb-4">
         <div class="card-header">
             Criar Produto
@@ -181,6 +69,7 @@
                 </ul>
             @endif
 
+            <input type="hidden" name="access_token" id="access_token" value="{{$viewData['access_token']}}">
 
             <!--- FINAL DO MODAL ---->
             <div id="liveAlertPlaceholder"></div>
@@ -493,6 +382,127 @@
 
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+            <script>
+                $(document).on('click', '#searchItemButton', function(e) {
+                 e.preventDefault();
+                 const itemId = $('#searchItemInput').val().trim();
+
+                 if (itemId === '') {
+                     alert('Por favor, insira um ID de item.');
+                     return;
+                 }
+
+                 // URL base da API do Mercado Livre
+                 const apiBaseUrl = 'https://api.mercadolibre.com/items/';
+
+                 // Seu token de acesso (coloque dinamicamente se possível)
+                 const accessToken = $("#access_token").val();
+
+                 // Função genérica para fazer a requisição AJAX com Bearer Token
+                 function fetchData(url, successCallback, errorMessage) {
+                 $.ajax({
+                     url: url,
+                     type: 'GET',
+                     headers: {
+                     'Authorization': `Bearer ${accessToken}`
+                     },
+                     success: successCallback,
+                     error: function () {
+                     $('#searchResult').html(
+                         `<p class="text-danger">${errorMessage}</p>`
+                     );
+                     }
+                 });
+                 }
+                 // Requisição para os dados do item
+                 fetchData(
+                     `${apiBaseUrl}${itemId}`,
+                     function(response) {
+
+                         $("#titulo").val(response.title);
+                         $("#precoNormal").val(response.price);
+                         $("#stock").val(response.initial_quantity);
+                         $("#id_categoria").val(response.category_id);
+
+                           // Itera sobre os atributos do item
+                         if (response.attributes && Array.isArray(response.attributes)) {
+                             response.attributes.forEach(attribute => {
+                                 switch (attribute.id) {
+                                     case 'BRAND':
+                                         $("#brand").val(attribute.value_name); // Marca
+                                         break;
+                                     case 'GTIN':
+                                         $("#ean").val(attribute.value_name); // Código universal
+                                         break;
+                                     case 'IS_KIT':
+                                         $("#isKit").val(attribute.value_name); // É kit
+                                         break;
+                                     case 'NET_WEIGHT':
+                                         $("#netWeight").val(attribute.value_name); // Peso líquido
+                                         break;
+                                     case 'PACKAGE_HEIGHT':
+                                         $("#packageHeight").val(attribute.value_name?.replace(" cm", "")); // Altura da embalagem
+                                         break;
+                                     case 'PACKAGE_LENGTH':
+                                         $("#packageLength").val(attribute.value_name?.replace(" cm", "")); // Comprimento da embalagem
+                                         break;
+                                     case 'PACKAGE_WEIGHT':
+                                         $("#packageWeight").val(attribute.value_name); // Peso da embalagem
+                                         break;
+                                     case 'PACKAGE_WIDTH':
+                                         $("#packageWidth").val(attribute.value_name?.replace(" cm", "")); // Largura da embalagem
+                                         break;
+                                     case 'ITEM_CONDITION':
+                                         $("#itemCondition").val(attribute.value_name); // Condição do item
+                                         break;
+                                     case 'SALE_FORMAT':
+                                         $("#saleFormat").val(attribute.value_name); // Formato de venda
+                                         break;
+                                     case 'SELLER_SKU':
+                                         $("#sellerSku").val(attribute.value_name); // SKU do vendedor
+                                         break;
+                                     default:
+                                         console.log(`Atributo não mapeado: ${attribute.id}`);
+                                 }
+                             });
+                         }
+                         // Requisição para os dados da categoria
+                         fetchData(
+                             `https://api.mercadolibre.com/categories/${response.category_id}`,
+                             function(categoryResponse) {
+                                 $("#categoryName").val(categoryResponse.name);
+
+                                 $("#id_categoria").val(categoryResponse.id);
+                                 // Exibe o caminho da categoria (path_from_root)
+                                 const pathList = categoryResponse.path_from_root.map((category,
+                                     index, array) => {
+                                     if (index === array.length - 1) {
+                                         return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
+                                     } else {
+                                         return `<li class="list-group-item">${category.name}</li>`;
+                                     }
+                                 }).join('');
+                                 $('.content_categorias').append(pathList);
+                             },
+                             'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
+                         );
+                     },
+                     'Erro ao buscar o item. Verifique o ID e tente novamente.'
+                 );
+
+                 // Requisição para a descrição do item
+                 fetchData(
+                     `${apiBaseUrl}${itemId}/description`,
+                     function(descriptionResponse) {
+                         $("#description").val(descriptionResponse.plain_text);
+                     },
+                     'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
+                 );
+
+
+             });
+         </script>
 
             <script>
 

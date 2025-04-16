@@ -95,7 +95,6 @@ class LoginController extends Controller
 
 
     public function getTokenUpMineracao(Request $request){
-        Log::alert($request->all());
         // Busca o token no banco de dados pelo user_id
         $token = token::where('user_id', $request->id)->first();
 

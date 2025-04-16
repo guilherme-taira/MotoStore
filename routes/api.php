@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
+use App\Http\Controllers\extensao\extensaoController;
 use App\Http\Controllers\Firebase\FirebaseService;
 use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\Marketing\BannerController;
@@ -120,6 +121,7 @@ Route::prefix('v1')->group(function () {
     Route::post('getComposicaoKit', [productsController::class, 'getComposicaoKit']);
     Route::get('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
     Route::get('getNumberOrder', [orderscontroller::class, 'buscarVendas']);
+    Route::get('paginationExtract',[extensaoController::class,'paginarAutomaticamente']);
     // financeiro::contareceber(Auth::user()->id);
 });
 

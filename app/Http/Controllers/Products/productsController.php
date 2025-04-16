@@ -141,9 +141,11 @@ class productsController extends Controller
             ];
         }
 
+        $token = token::where('user_id',34)->first();
         $subCategoria = [];
         $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
         $viewData['categorias'] = $categorias;
+        $viewData['access_token'] = $token->access_token;
 
         return view('products.add')->with('viewData', $viewData);
     }
