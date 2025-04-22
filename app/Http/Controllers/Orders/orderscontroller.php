@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Karriere\PdfMerge\PdfMerge;
+set_time_limit(0); // Executa sem limite de tempo
 
 class orderscontroller extends Controller
 {
@@ -445,65 +446,55 @@ class orderscontroller extends Controller
 
     public function buscarVendas(Request $request)
     {
-        $url = $request->query('url');
+        $url = $request->input('url');
 
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
             return response()->json(['error' => 'URL inválida'], 400);
         }
 
-        // Configurações do proxy rotativo Webshare
-        $ip = 'p.webshare.io';
-        $port = 80;
-        $user = 'jwcxnvon-rotate';
-        $pass = 'zpkdrpl7n7as';
-        $proxyUrl = "http://{$user}:{$pass}@{$ip}:{$port}";
-
+        // Detecta e segue redirecionamento para o catálogo
         try {
+            $client = new \GuzzleHttp\Client([
+                'allow_redirects' => true,
+                'timeout' => 20,
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0',
+                    'Accept-Language' => 'pt-BR,pt;q=0.9'
+                ]
+            ]);
 
-            $response = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                'Accept-Language' => 'pt-BR,pt;q=0.9',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Sec-Fetch-Mode' => 'no-cors',
-            ])->withOptions([
-                'proxy' => $proxyUrl,
-                'timeout' => 15,
-            ])->get($url);
+            $response = $client->request('GET', $url);
+            $finalUrl = $response->getHeader('X-Guzzle-Effective-URL')[0] ?? $url;
+            $html = (string) $response->getBody();
 
-            if ($response->successful()) {
-                $html = $response->body();
+            // Extrai número de vendas
+            preg_match('/<span class="ui-pdp-subtitle">[^|]+\|\s*\+?([\d.,]+)\s*(milh(?:õ|o)es?|mil)?\s+vendid[oa]s?<\/span>/i', $html, $matches);
+            $vendidos = 0;
 
-                // Regex para extrair o conteúdo do span com a classe ui-pdp-subtitle
-                preg_match('/<span class="ui-pdp-subtitle">[^|]+\|\s*\+?([\d.]+)\s+vendid[oa]s?<\/span>/i', $html, $matches);
-                $vendidos = isset($matches[1]) ? (int)str_replace('.', '', $matches[1]) : 0;
+            if (isset($matches[1])) {
+                $valor = str_replace(['.', ','], ['', '.'], $matches[1]); // remove . milhar e adapta ,
+                $numero = (float) $valor;
 
-                return response()->json([
-                    'vendidos' => $vendidos,
-                    'url' => $url
-                ]);
+                $unidade = strtolower($matches[2] ?? '');
+
+                if (str_contains($unidade, 'milh')) {
+                    $vendidos = (int) ($numero * 1000000);
+                } elseif (str_contains($unidade, 'mil')) {
+                    $vendidos = (int) ($numero * 1000);
+                } else {
+                    $vendidos = (int) $numero;
+                }
             }
 
-            Log::error('Falha na requisição HTTP ao buscar dados:', [
-                'url' => $url,
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'proxy' => $proxyUrl
+            return response()->json([
+                'vendidos' => $vendidos,
+                'url' => $finalUrl
             ]);
-
-            return response()->json(['error' => 'Erro ao buscar os dados'], 500);
-
         } catch (\Exception $e) {
-            Log::error('Exceção na requisição HTTP:', [
-                'url' => $url,
-                'proxy' => $proxyUrl,
-                'exception' => $e->getMessage()
-            ]);
-
+            Log::error('Erro ao buscar vendas: ' . $e->getMessage());
             return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
         }
     }
-
-
 
 
 

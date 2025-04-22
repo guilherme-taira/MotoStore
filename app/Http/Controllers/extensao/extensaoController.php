@@ -4,6 +4,7 @@ namespace App\Http\Controllers\extensao;
 
 use App\Http\Controllers\Controller;
 use App\Models\token;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -57,6 +58,7 @@ class extensaoController extends Controller
                                         'timeout' => 15,
                                     ])->get($permalink);
 
+
                                     if ($vendasRes->successful()) {
                                         preg_match('/<span class=\"ui-pdp-subtitle\">[^|]+\|\s*\+?([\d.]+)\s+vendid[oa]s?<\/span>/i', $vendasRes->body(), $matches);
                                         $vendidos = isset($matches[1]) ? (int)str_replace('.', '', $matches[1]) : 0;
@@ -66,6 +68,10 @@ class extensaoController extends Controller
                                     Log::error('Erro ao buscar vendas: ' . $e->getMessage());
                                 }
                             }
+
+                            $diasCriado = isset($dadosApi['date_created'])
+                            ? Carbon::parse($dadosApi['date_created'])->diffInDays(now())
+                            : null;
 
                             if ($res->ok()) {
                                 $dadosApi = $res->json();
@@ -79,8 +85,11 @@ class extensaoController extends Controller
                                     'logistica' => $dadosApi['shipping']['logistic_type'] ?? 'sem info',
                                     'frete_gratis' => $dadosApi['shipping']['free_shipping'] ? 'sim' : 'nao',
                                     'internacional' => $dadosApi['international_delivery_mode'] === 'DDP' ? 'sim' : 'nao',
-                                    'permalink' => $dadosApi['permalink'] ?? 'sem link' // ✅ adicionando o link do anúncio
+                                    'permalink' => $dadosApi['permalink'] ?? 'sem link',
+                                    'dias_criado' => $diasCriado ?? 'N/A',
+                                    'date_created' => $dadosApi['date_created'] ?? null // opcional, se quiser manter a data original também
                                 ];
+
 
                             }
                         }
@@ -93,7 +102,7 @@ class extensaoController extends Controller
             $url = $nextLink ? $nextLink->getAttribute('href') : null;
 
             Log::alert($url);
-            sleep(1);
+            // sleep(1);
         }
 
         return response()->json($todosProdutos);

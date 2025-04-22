@@ -151,52 +151,51 @@
 
 
                         @foreach ($viewData['dados']->payments as $payment)
+                        @php
+                            $liquido = $payment->total_paid_amount - $payment->marketplace_fee - $viewData['shipping_cost'];
+                            $totalFees = 0;
+                        @endphp
 
                         <h3>Mercado Livre</h3>
                         <div class="d-flex justify-content-between font-weight-bold">
                             <p>Total Pago</p>
-                            <p>R$ {{$payment->total_paid_amount}}</p>
+                            <p>R$ {{ $payment->total_paid_amount }}</p>
                         </div>
                         <div class="d-flex justify-content-between font-weight-bold">
                             <p class="strong">Líquido</p>
-                            <p>R$ {{$payment->total_paid_amount - $payment->marketplace_fee - $viewData['shipping_cost']}}</p>
+                            <p>R$ {{ number_format($liquido, 2) }}</p>
                         </div>
 
                         {{-- DADOS DA PLATAFORMA --}}
                         <hr>
 
                         @if($order['venda']->detalhes_transacao)
-                        @php
-                          $totalFees = 0; // Inicializa a variável para somar as taxas
-                        @endphp
+                            @php
+                                $detalhes = json_decode($order['venda']->detalhes_transacao);
+                            @endphp
 
-                        <p>{{json_decode($order['venda']->detalhes_transacao)->id}}</p>
-                        <h3>Afilidrop</h3>
+                            <p>{{ $detalhes->id }}</p>
+                            <h3>Afilidrop</h3>
 
-                        @foreach (json_decode($order['venda']->detalhes_transacao)->fee_details as $fee)
+                            @foreach ($detalhes->fee_details as $fee)
+                                @php $totalFees += $fee->amount; @endphp
+                                <div class="d-flex justify-content-between font-weight-bold">
+                                    <p class="strong">Taxa {{ $fee->type }}</p>
+                                    <p>R$ {{ $fee->amount }}</p>
+                                </div>
+                            @endforeach
 
-                        @php
-                            $totalFees += $fee->amount; // Soma o valor da taxa
-                            $liquido = $payment->total_paid_amount - $payment->marketplace_fee - $viewData['shipping_cost'];
-                        @endphp
+                            @php
+                                $final = $liquido - $totalFees;
+                            @endphp
 
-                        <div class="d-flex justify-content-between font-weight-bold">
-                            <p class="strong">Taxa {{$fee->type}}</p>
-                            <p>R$ {{$fee->amount}}</p>
-                        </div>
-                        @endforeach
-
-                        @php
-                            $final =  ($liquido - ($totalFees + $fee->amount));
-                        @endphp
+                            <div class="d-flex justify-content-between font-weight-bold">
+                                <p class="strong">Líquido Final</p>
+                                <p>R$: {{ number_format($final, 2) }}</p>
+                            </div>
                         @endif
-                        @if(isset($final))
-                        <div class="d-flex justify-content-between font-weight-bold">
-                            <p class="strong">Líquido</p>
-                           <p>R$: {{ number_format($final,2) }}</p>
-                        </div>
-                        @endif
-                        @endforeach
+                    @endforeach
+
 
                         @if (isset($viewData['dados']->cancel_detail))
                         <div class="alert alert-danger">

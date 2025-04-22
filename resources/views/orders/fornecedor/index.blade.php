@@ -598,7 +598,6 @@
                                             </div>
                                         </div>
 
-
                                         <!-- Imagem e detalhes do produto -->
                                         <div class="d-flex align-items-center my-3">
                                             <div>
@@ -623,38 +622,35 @@
 
                                         <div class="d-flex justify-content-between align-items-center">
                                             @if ($order->statusf == 3)
-                                                <span class="badge bg-danger p-2">Aguardando
-                                                    Pagamento</span>
+                                                <span class="badge bg-danger p-2">Aguardando Pagamento</span>
                                             @endif
+
                                             @if ($order->statusf == 4)
-                                                @if ($order->isPrinted == 0 && $order->statusf == 4)
-                                                    <span class="badge bg-success p-2">Pagamento
-                                                        Realizado</span>
+                                                @if ($order->isPrinted == 0)
+                                                    <span class="badge bg-success p-2">Pagamento Realizado</span>
                                                     <div class="form-check">
                                                         <input class="form-check-input pdf-checkbox" type="checkbox"
-                                                            value="{{ $order->shipping_id }}"
-                                                            id="checkbox-{{ $order->id }}">
-                                                        <label class="form-check-label"
-                                                            for="checkbox-{{ $order->id }}">
-                                                            Etiqueta para o pedido
-                                                            {{ $order->order_id }}
+                                                            value="{{ $order->shipping_id }}" id="checkbox-{{ $order->id }}">
+                                                        <label class="form-check-label" for="checkbox-{{ $order->id }}">
+                                                            Etiqueta para o pedido {{ $order->order_id }}
                                                         </label>
                                                     </div>
                                                 @else
-                                                    <span class="badge bg-success p-2">Pagamento
-                                                        Realizado</span>
+                                                    <span class="badge bg-success p-2">Pagamento Realizado</span>
                                                     <div class="form-check">
-                                                        <input class="form-check-input bg-warning pdf-checkbox"
-                                                            type="checkbox" value="{{ $order->shipping_id }}"
-                                                            id="checkbox-{{ $order->id }}">
-                                                        <label class="form-check-label"
-                                                            for="checkbox-{{ $order->id }}">
-                                                            Etiqueta Já Impressa data:
-                                                            {{ $order->updated_at }}
+                                                        <input class="form-check-input bg-warning pdf-checkbox" type="checkbox"
+                                                            value="{{ $order->shipping_id }}" id="checkbox-{{ $order->id }}">
+                                                        <label class="form-check-label" for="checkbox-{{ $order->id }}">
+                                                            Etiqueta Já Impressa data: {{ $order->updated_at }}
                                                         </label>
                                                     </div>
                                                 @endif
                                             @endif
+
+                                            @if ($order->statusf == 5)
+                                                <span class="badge bg-danger p-2">Pagamento Cancelado</span>
+                                            @endif
+
 
                                             <a href="{{ route('orders.show', ['id' => $order->order_id]) }}"
                                                 class="btn btn-outline-primary btn-sm">
@@ -861,15 +857,15 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         ${order.statusf == 3 ? `<span class="badge bg-danger p-2">Aguardando Pagamento</span>` : ''}
                                         ${order.statusf == 4 ? `
-                                                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input ${order.isPrinted ? 'bg-warning' : ''} pdf-checkbox" type="checkbox"
-                                                                                value="${order.shipping_id}" id="checkbox-${order.id}">
-                                                                            <label class="form-check-label" for="checkbox-${order.id}">
-                                                                                ${order.isPrinted ? `Etiqueta Já Impressa data: ${order.updated_at}` : `Etiqueta para o pedido ${order.order_id}`}
-                                                                            </label>
-                                                                        </div>
-                                                                    ` : ''}
+                                        <span class="badge bg-success p-2">Pagamento Realizado</span>
+                                        <div class="form-check">
+                                            <input class="form-check-input ${order.isPrinted ? 'bg-warning' : ''} pdf-checkbox" type="checkbox"
+                                                value="${order.shipping_id}" id="checkbox-${order.id}">
+                                            <label class="form-check-label" for="checkbox-${order.id}">
+                                                ${order.isPrinted ? `Etiqueta Já Impressa data: ${order.updated_at}` : `Etiqueta para o pedido ${order.order_id}`}
+                                            </label>
+                                        </div>
+                                         ` : ''}
                                         <a href="${orderShowRoute.replace(':id', order.order_id)}" class="btn btn-outline-primary btn-sm">
                                             <i class="bi bi-eye"></i> Ver Detalhes
                                         </a>
