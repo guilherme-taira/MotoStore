@@ -63,7 +63,7 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 use Illuminate\Support\Facades\Http;
 
-set_time_limit(0);
+// set_time_limit(0);
 
 class productsController extends Controller
 {
@@ -440,6 +440,8 @@ class productsController extends Controller
 
     public function getAttributesTrade(Request $request)
     {
+        $token = token::where('user_id_mercadolivre',$request->user)->first();
+
         if($request->base){
              // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/'.$request->base;
@@ -450,6 +452,7 @@ class productsController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
         $response = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -483,23 +486,34 @@ class productsController extends Controller
 
     }
 
-    public function isClother($attr,$auth):bool {
-
+    public function isClother($attr, $auth): bool {
         $context = stream_context_create([
             "http" => [
                 "header" => "Authorization: Bearer $auth->access_token"
             ]
         ]);
 
-        $dominios = file_get_contents('https://api.mercadolibre.com/catalog/charts/MLB/configurations/active_domains',false,$context);
+        $response = file_get_contents(
+            'https://api.mercadolibre.com/catalog/charts/MLB/configurations/active_domains',
+            false,
+            $context
+        );
 
-        foreach (array_values(json_decode($dominios,true)['domains']) as $value) {
-            if($value['domain_id'] == $attr){
+        $decoded = json_decode($response, true);
+
+        if (!isset($decoded['domains']) || !is_array($decoded['domains'])) {
+            return false; // resposta inesperada
+        }
+
+        foreach ($decoded['domains'] as $value) {
+            if (isset($value['domain_id']) && $value['domain_id'] == $attr) {
                 return true;
             }
         }
+
         return false;
     }
+
 
 
     public function refazerRequest($id,$user,$data,$domain,$newtitle) {
@@ -508,10 +522,10 @@ class productsController extends Controller
 
         $token = token::where('user_id_mercadolivre',$user)->first();
 
-            unset($data['location']);
+            unset($data['location'],$data['family_name'],$data['user_product_id'],$data['official_store_id'],$data['original_price']);
 
             $data_json = json_encode($data);
-
+            Log::emergency($data);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
