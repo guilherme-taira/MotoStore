@@ -888,13 +888,20 @@
                                     <!-- Preço R$ -->
                                     <div class="col-lg-3">
                                         <label for="precoNormal">Preço R$:</label>
-                                        <input name="price" id="precoNormal"
+                                        <input
+                                            name="price"
+                                            id="precoNormal"
                                             value="{{ $viewData['product']->isKit ? number_format($totalPrice, 2) : $viewData['product']->price }}"
-                                            type="text" class="form-control" required readonly>
+                                            type="text"
+                                            class="form-control"
+                                            required
+                                            @if(Auth::user()->fornecedor != 1) readonly @endif
+                                        >
                                         @error('price')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
+
 
                                     <!-- Preço Promocional -->
                                     <div class="col-lg-3">
