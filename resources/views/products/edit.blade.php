@@ -895,7 +895,7 @@
                                             type="text"
                                             class="form-control"
                                             required
-                                            @if(Auth::user()->fornecedor != 1) readonly @endif
+                                            @if(Auth::user()->fornececedor != 1) readonly @endif
                                         >
                                         @error('price')
                                             <span class="text-danger">{{ $message }}</span>
