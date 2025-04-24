@@ -63,7 +63,7 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 use Illuminate\Support\Facades\Http;
 
-// set_time_limit(0);
+set_time_limit(0);
 
 class productsController extends Controller
 {
@@ -525,7 +525,7 @@ class productsController extends Controller
             unset($data['location'],$data['family_name'],$data['user_product_id'],$data['official_store_id'],$data['original_price']);
 
             $data_json = json_encode($data);
-            Log::emergency($data);
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
