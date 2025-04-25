@@ -452,27 +452,32 @@ class orderscontroller extends Controller
             return response()->json(['error' => 'URL inválida'], 400);
         }
 
-        // Detecta e segue redirecionamento para o catálogo
+        // Configurações do proxy rotativo Webshare
+        $proxyUrl = 'http://jwcxnvon-rotate:zpkdrpl7n7as@p.webshare.io:80';
+
         try {
             $client = new \GuzzleHttp\Client([
                 'allow_redirects' => true,
                 'timeout' => 20,
+                'proxy' => $proxyUrl,
                 'headers' => [
-                    'User-Agent' => 'Mozilla/5.0',
-                    'Accept-Language' => 'pt-BR,pt;q=0.9'
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                    'Accept-Language' => 'pt-BR,pt;q=0.9',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
                 ]
             ]);
 
             $response = $client->request('GET', $url);
+
             $finalUrl = $response->getHeader('X-Guzzle-Effective-URL')[0] ?? $url;
             $html = (string) $response->getBody();
 
-            // Extrai número de vendas
+            // Regex para extrair vendas (com mil ou milhões)
             preg_match('/<span class="ui-pdp-subtitle">[^|]+\|\s*\+?([\d.,]+)\s*(milh(?:õ|o)es?|mil)?\s+vendid[oa]s?<\/span>/i', $html, $matches);
             $vendidos = 0;
 
             if (isset($matches[1])) {
-                $valor = str_replace(['.', ','], ['', '.'], $matches[1]); // remove . milhar e adapta ,
+                $valor = str_replace(['.', ','], ['', '.'], $matches[1]);
                 $numero = (float) $valor;
 
                 $unidade = strtolower($matches[2] ?? '');
@@ -490,11 +495,18 @@ class orderscontroller extends Controller
                 'vendidos' => $vendidos,
                 'url' => $finalUrl
             ]);
+
         } catch (\Exception $e) {
-            Log::error('Erro ao buscar vendas: ' . $e->getMessage());
+            Log::error('Erro ao buscar vendas via proxy:', [
+                'url' => $url,
+                'proxy' => $proxyUrl,
+                'erro' => $e->getMessage()
+            ]);
+
             return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 
