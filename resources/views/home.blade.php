@@ -2,7 +2,6 @@
 @section('title', $viewData['title'])
 @section('conteudo')
 
-
     @if (session('error'))
         <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
             {{ session('error') }}
@@ -10,9 +9,96 @@
         </div>
     @endif
 
+    <!-- Modal Termos e Condições -->
+    <div class="modal fade" id="modalTermos" tabindex="-1" aria-labelledby="modalTermosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalTermosLabel">Termos e Condições de Uso da Plataforma AfiliDrop</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-muted mb-3">Data da última atualização: 06/02/2025</h6>
+
+                    <p>Este contrato estabelece os termos e condições de prestação de serviços entre <strong>Maximo Company LTDA</strong>, inscrita no CNPJ 48.930.389/0001-09, com sede à R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490, doravante denominada <strong>Maximo Company LTDA</strong>, titular da marca <strong>AfiliDrop</strong>, e o(a) <strong>Afiliado(a)</strong>, pessoa física ou jurídica, identificado(a) no momento do cadastro na plataforma.</p>
+
+                    <h5>Cláusula 1 - Objeto do Contrato</h5>
+                    <p>O presente contrato tem como objeto a prestação de serviços pela AfiliDrop ao Afiliado, por meio de tecnologia que permite ao Afiliado:</p>
+                    <ul>
+                        <li>Comercializar produtos fornecidos exclusivamente por fornecedores da AfiliDrop através de plataformas de e-commerce, respeitando todas as políticas da AfiliDrop.</li>
+                        <li>Utilizar a conta do Mercado Livre ou outras plataformas designadas pela AfiliDrop, utilizando o endereço da AfiliDrop (R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490) para facilitar a conferência, logística e devoluções.</li>
+                    </ul>
+                    <p>A AfiliDrop atua como intermediária, sem assumir responsabilidades diretas sobre vendas e atendimento ao cliente.</p>
+
+                    <h5>Cláusula 2 - Uso e Confidencialidade</h5>
+                    <p>O Afiliado reconhece que a plataforma está em versão beta e compromete-se a:</p>
+                    <ul>
+                        <li>Não filmar, divulgar ou compartilhar informações sem autorização prévia.</li>
+                        <li>Não divulgar login e senha a terceiros.</li>
+                    </ul>
+
+                    <h5>Cláusula 3 - Regras de Uso da Plataforma</h5>
+                    <ul>
+                        <li>Utilizar exclusivamente produtos disponibilizados pela AfiliDrop.</li>
+                        <li>Utilizar exclusivamente o endereço da Maximo Company LTDA para postagem e devoluções.</li>
+                    </ul>
+                    <p><strong>Proibições:</strong></p>
+                    <ul>
+                        <li>Comercializar produtos externos na conta vinculada à AfiliDrop.</li>
+                        <li>Manter anúncios não vinculados à AfiliDrop.</li>
+                    </ul>
+
+                    <h5>Cláusula 4 - Direitos de Imagem, Vídeo, Descrição e Ficha Técnica</h5>
+                    <p>A AfiliDrop fornecerá materiais exclusivamente para anúncios vinculados à plataforma.</p>
+
+                    <h5>Cláusula 5 - Benefícios e Condições Financeiras</h5>
+                    <p>O Afiliado terá acesso gratuito por 60 dias ou até 20 vendas (o que ocorrer primeiro).</p>
+
+                    <h5>Cláusula 6 - Natureza da Relação</h5>
+                    <p>Não existe vínculo empregatício, societário ou de representação entre AfiliDrop e Afiliado.</p>
+
+                    <h5>Cláusula 7 - Desvinculação e Encerramento</h5>
+                    <p>Encerramento pode ser solicitado a qualquer momento, com desvinculação total em até 30 dias.</p>
+
+                    <h5>Cláusula 8 - Disposições Gerais</h5>
+                    <p>Este contrato poderá ser atualizado mediante comunicação prévia pela plataforma.</p>
+
+                    <h5>Cláusula 9 - Suporte e Instabilidades</h5>
+                    <p>Podem ocorrer instabilidades ou falhas, sem garantia total de disponibilidade.</p>
+
+                    <h5>Cláusula 10 - Responsabilidade e Limitações</h5>
+                    <p>A AfiliDrop não assume responsabilidade direta pelas transações.</p>
+
+                    <h5>Cláusula 11 - Penalidades</h5>
+                    <p>O descumprimento poderá resultar em:</p>
+                    <ul>
+                        <li>Suspensão temporária.</li>
+                        <li>Cancelamento permanente.</li>
+                        <li>Exclusão dos anúncios criados.</li>
+                    </ul>
+
+
+                    <div class="form-check my-3">
+                        <input type="checkbox" class="form-check-input" id="aceitarTermos" required>
+                        <label class="form-check-label" for="aceitarTermos">
+                            Eu li e concordo com os <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos">Termos e Condições</a>.
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn btn-success" id="btnAceitarTermos">Confirmar Aceite dos Termos</button>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container-fluid px-4">
         <h2 class="mt-4">Dashboard</h2>
-
 
         <div aria-live="polite" aria-atomic="true" class="position-relative">
             <div class="toast-container position-absolute top-50 end-0 translate-middle-y p-3">
@@ -179,6 +265,51 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
 
+        $(document).ready(function() {
+            @if ($viewData['mostrarModalTermos'])
+                var modalTermos = new bootstrap.Modal(document.getElementById('modalTermos'));
+                modalTermos.show();
+            @endif
+        });
+
+        $('form').on('submit', function(e) {
+            if (!$('#aceitarTermos').is(':checked')) {
+                e.preventDefault();
+                alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
+            }
+        });
+
+        $('#btnAceitarTermos').on('click', function() {
+        if ($('#aceitarTermos').is(':checked')) {
+            $.ajax({
+                url: "{{ route('aceitarTermos') }}",
+                method: "POST",
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                success: function(response) {
+                    alert(response.message);
+                    // Pode desabilitar o botão após aceite, para evitar múltiplas gravações
+                    $('#btnAceitarTermos').prop('disabled', true).text('Termos aceitos');
+                },
+                error: function() {
+                    alert('Houve um erro ao registrar o aceite. Tente novamente.');
+                }
+            });
+        } else {
+            alert('Você deve aceitar os Termos antes de continuar.');
+        }
+    });
+
+
+
+        // Ou para seu AJAX específico:
+        $('#seuBotaoIntegracao').on('click', function(e) {
+            if (!$('#aceitarTermos').is(':checked')) {
+                e.preventDefault();
+                alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
+                return;
+            }
+            // Chamada AJAX aqui
+        });
         // Função para exibir o toast
         function showToast(toastId) {
             var toastElement = document.getElementById(toastId);

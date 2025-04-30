@@ -165,6 +165,7 @@ Route::get('queueMercadoPago',[PaymentController::class,'getQueueDataMercadoPago
 Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function () {
 
     // Route::middleware('admin_msg')->group(function () {
+        Route::post('/aceitar-termos', [UserController::class, 'aceitarTermos'])->name('aceitarTermos');
         Route::post('/financeiro/{id}/update-status-envio', [fornecedorController::class, 'updateStatusEnvio']);
         Route::post('/storeBling', [ApiBlingProductsController::class, 'storeBling'])->name('storeBling');
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -120,4 +121,13 @@ class UserController extends Controller
     {
         //
     }
+
+    public function aceitarTermos(Request $request){
+    $user = Auth::user();
+    $user->aceitou_termos = now();
+    $user->save();
+
+    return response()->json(['message' => 'Termos aceitos com sucesso!']);
+    }
+
 }

@@ -46,9 +46,11 @@ class HomeController extends Controller
                 Log::alert($e->getMessage());
             }
 
+            $user = Auth::user();
             $viewData = [];
             $viewData['title'] = "Afilidrop Dashboard";
             $viewData['subtitle'] = "Dashboard";
+            $viewData['mostrarModalTermos'] = is_null($user->aceitou_termos);
             // Defina a chave do cache
             $cacheKey = 'vendas';
 
