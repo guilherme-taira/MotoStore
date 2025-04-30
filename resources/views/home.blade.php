@@ -18,65 +18,80 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <h6 class="text-muted mb-3">Data da última atualização: 06/02/2025</h6>
+                    <h6 class="text-muted mb-3">Atualizado em: 30/04/2025</h6>
 
-                    <p>Este contrato estabelece os termos e condições de prestação de serviços entre <strong>Maximo Company LTDA</strong>, inscrita no CNPJ 48.930.389/0001-09, com sede à R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490, doravante denominada <strong>Maximo Company LTDA</strong>, titular da marca <strong>AfiliDrop</strong>, e o(a) <strong>Afiliado(a)</strong>, pessoa física ou jurídica, identificado(a) no momento do cadastro na plataforma.</p>
+                    <p>Estes Termos e Condições de Uso regulam a prestação de serviços entre <strong>Maximo Company LTDA</strong>, inscrita no CNPJ 48.930.389/0001-09, com sede à R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490, titular da marca <strong>AfiliDrop</strong>, doravante denominada AfiliDrop, e a pessoa física ou jurídica identificada no momento do cadastro na plataforma, doravante denominada Afiliado(a).</p>
 
-                    <h5>Cláusula 1 - Objeto do Contrato</h5>
-                    <p>O presente contrato tem como objeto a prestação de serviços pela AfiliDrop ao Afiliado, por meio de tecnologia que permite ao Afiliado:</p>
+                    <p>Ao clicar em “Li e Aceito os Termos”, o Afiliado declara ter lido, compreendido e aceitado integralmente as disposições deste documento. Caso não concorde com qualquer cláusula, o uso da plataforma deve ser imediatamente interrompido.</p>
+
+                    <h5>Cláusula 1 – Objeto</h5>
                     <ul>
-                        <li>Comercializar produtos fornecidos exclusivamente por fornecedores da AfiliDrop através de plataformas de e-commerce, respeitando todas as políticas da AfiliDrop.</li>
-                        <li>Utilizar a conta do Mercado Livre ou outras plataformas designadas pela AfiliDrop, utilizando o endereço da AfiliDrop (R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490) para facilitar a conferência, logística e devoluções.</li>
+                        <li>Comercializar produtos fornecidos exclusivamente por fornecedores cadastrados na AfiliDrop em plataformas de e-commerce, respeitando as políticas da plataforma.</li>
+                        <li>Utilizar o endereço logístico da AfiliDrop (R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490) para fins de conferência, postagem, devolução e logística reversa dos produtos vendidos.</li>
                     </ul>
-                    <p>A AfiliDrop atua como intermediária, sem assumir responsabilidades diretas sobre vendas e atendimento ao cliente.</p>
+                    <p>A AfiliDrop não é proprietária dos produtos ofertados no catálogo da plataforma. Os produtos são disponibilizados por fornecedores parceiros. A AfiliDrop atua apenas como intermediadora entre fornecedor e Afiliado.</p>
+                    <p>Atrasos, avarias ou falhas logísticas cometidas pelo fornecedor não são de responsabilidade da AfiliDrop. No entanto, a AfiliDrop buscará resolver a situação junto ao fornecedor.</p>
 
-                    <h5>Cláusula 2 - Uso e Confidencialidade</h5>
-                    <p>O Afiliado reconhece que a plataforma está em versão beta e compromete-se a:</p>
+                    <h5>Cláusula 2 – Cadastro e Condições de Uso</h5>
                     <ul>
-                        <li>Não filmar, divulgar ou compartilhar informações sem autorização prévia.</li>
-                        <li>Não divulgar login e senha a terceiros.</li>
-                    </ul>
-
-                    <h5>Cláusula 3 - Regras de Uso da Plataforma</h5>
-                    <ul>
-                        <li>Utilizar exclusivamente produtos disponibilizados pela AfiliDrop.</li>
-                        <li>Utilizar exclusivamente o endereço da Maximo Company LTDA para postagem e devoluções.</li>
-                    </ul>
-                    <p><strong>Proibições:</strong></p>
-                    <ul>
-                        <li>Comercializar produtos externos na conta vinculada à AfiliDrop.</li>
-                        <li>Manter anúncios não vinculados à AfiliDrop.</li>
+                        <li>O uso da plataforma depende da veracidade das informações fornecidas no cadastro.</li>
+                        <li>O Afiliado é responsável por manter seus dados atualizados.</li>
                     </ul>
 
-                    <h5>Cláusula 4 - Direitos de Imagem, Vídeo, Descrição e Ficha Técnica</h5>
-                    <p>A AfiliDrop fornecerá materiais exclusivamente para anúncios vinculados à plataforma.</p>
-
-                    <h5>Cláusula 5 - Benefícios e Condições Financeiras</h5>
-                    <p>O Afiliado terá acesso gratuito por 60 dias ou até 20 vendas (o que ocorrer primeiro).</p>
-
-                    <h5>Cláusula 6 - Natureza da Relação</h5>
-                    <p>Não existe vínculo empregatício, societário ou de representação entre AfiliDrop e Afiliado.</p>
-
-                    <h5>Cláusula 7 - Desvinculação e Encerramento</h5>
-                    <p>Encerramento pode ser solicitado a qualquer momento, com desvinculação total em até 30 dias.</p>
-
-                    <h5>Cláusula 8 - Disposições Gerais</h5>
-                    <p>Este contrato poderá ser atualizado mediante comunicação prévia pela plataforma.</p>
-
-                    <h5>Cláusula 9 - Suporte e Instabilidades</h5>
-                    <p>Podem ocorrer instabilidades ou falhas, sem garantia total de disponibilidade.</p>
-
-                    <h5>Cláusula 10 - Responsabilidade e Limitações</h5>
-                    <p>A AfiliDrop não assume responsabilidade direta pelas transações.</p>
-
-                    <h5>Cláusula 11 - Penalidades</h5>
-                    <p>O descumprimento poderá resultar em:</p>
+                    <h5>Cláusula 3 – Regras de Uso</h5>
                     <ul>
-                        <li>Suspensão temporária.</li>
-                        <li>Cancelamento permanente.</li>
-                        <li>Exclusão dos anúncios criados.</li>
+                        <li>É obrigatório utilizar exclusivamente produtos da AfiliDrop.</li>
+                        <li>É obrigatório usar o endereço logístico da Maximo Company LTDA.</li>
+                    </ul>
+                    <p><strong>Não será permitido:</strong></p>
+                    <ul>
+                        <li>Manter anúncios de produtos não vinculados à AfiliDrop.</li>
+                    </ul>
+                    <p><strong>Em caso de descumprimento:</strong></p>
+                    <ul>
+                        <li>Produtos não reconhecidos poderão ser descartados.</li>
+                        <li>Anúncios poderão ser removidos automaticamente.</li>
+                        <li>O acesso à plataforma poderá ser suspenso ou cancelado.</li>
                     </ul>
 
+                    <h5>Cláusula 4 – Direitos de Uso de Materiais</h5>
+                    <ul>
+                        <li>A AfiliDrop fornece imagens, vídeos e descrições apenas para uso dentro da plataforma.</li>
+                        <li>É proibido reutilizar esse material fora da plataforma.</li>
+                    </ul>
+
+                    <h5>Cláusula 5 – Natureza da Relação</h5>
+                    <ul>
+                        <li>Não existe vínculo empregatício ou societário entre AfiliDrop e Afiliado.</li>
+                        <li>A relação é de prestação de serviços tecnológicos e operacionais.</li>
+                        <li>A AfiliDrop não faz parte da cadeia de fornecimento dos produtos.</li>
+                    </ul>
+
+                    <h5>Cláusula 6 – Suporte e Limitações</h5>
+                    <p>A plataforma encontra-se em fase beta, podendo apresentar instabilidades.</p>
+
+                    <h5>Cláusula 7 – Encerramento e Desvinculação</h5>
+                    <ul>
+                        <li>O Afiliado pode encerrar sua conta a qualquer momento pelos canais oficiais.</li>
+                        <li>A AfiliDrop terá até 30 dias para concluir a desvinculação e remover os anúncios criados.</li>
+                        <li>Após o encerramento, o Afiliado perde acesso aos recursos da plataforma.</li>
+                    </ul>
+
+                    <h5>Cláusula 8 – Penalidades</h5>
+                    <ul>
+                        <li>Suspensão temporária de acesso.</li>
+                        <li>Cancelamento definitivo do cadastro.</li>
+                        <li>Exclusão de anúncios vinculados à plataforma.</li>
+                    </ul>
+
+                    <h5>Cláusula 9 – Disposições Finais</h5>
+                    <ul>
+                        <li>Os termos poderão ser atualizados a qualquer momento mediante notificação.</li>
+                        <li>O uso contínuo após alterações será considerado como concordância.</li>
+                    </ul>
+
+                    <h5 class="mt-4">Aceite</h5>
+                    <p>Declaro que li, compreendi e aceito os Termos e Condições de Uso acima descritos, autorizando a Maximo Company LTDA a realizar o tratamento das minhas informações nos termos da legislação vigente e a prestar os serviços conforme estabelecido neste documento.</p>
 
                     <div class="form-check my-3">
                         <input type="checkbox" class="form-check-input" id="aceitarTermos" required>
@@ -87,14 +102,15 @@
 
                     <button type="button" class="btn btn-success" id="btnAceitarTermos">Confirmar Aceite dos Termos</button>
 
-                </div>
 
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <div class="container-fluid px-4">
