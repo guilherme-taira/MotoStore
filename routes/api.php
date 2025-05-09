@@ -122,6 +122,8 @@ Route::prefix('v1')->group(function () {
     Route::get('getTokenUpMineracao', [LoginController::class, 'getTokenUpMineracao']);
     Route::get('getNumberOrder', [orderscontroller::class, 'buscarVendas']);
     Route::get('paginationExtract',[extensaoController::class,'paginarAutomaticamente']);
+    Route::get('/visitas-ml/{itemId}', [productsController::class, 'getVisitas']);
+
     // financeiro::contareceber(Auth::user()->id);
 });
 

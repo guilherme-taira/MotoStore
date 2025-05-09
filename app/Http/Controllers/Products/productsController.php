@@ -2099,6 +2099,7 @@ class productsController extends Controller
 
     public function EnviarDadosIntegradosMLApi(Request $request){
 
+        Log::alert($request->all());
         $isporcem = [2,4];
 
         try{
@@ -2113,19 +2114,20 @@ class productsController extends Controller
                 && $this->isZeroOrNull($request->valor_tipo)
                 && $this->isZeroOrNull($request->precoFixo)
                 && $this->isZeroOrNull($request->valor_agregado)) {
-                    $product = produtos_integrados::findOrFail($request->id);
-                    $product->active = $request->active;
-                    $product->estoque_minimo = $request->estoque_minimo;
-                    $product->save();
-                    $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
-                    $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$request->active,$request->estoque_minimo,$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
-                    $estoqueNew->updateStatusActive();
+
+                $product = produtos_integrados::findOrFail($request->id);
+                $product->active = $request->active;
+                $product->estoque_minimo = $request->estoque_minimo;
+                $product->save();
+                $dadosDoProdutoOriginal = Products::where('id',$product->product_id)->first();
+                $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre,$dadosDoProdutoOriginal->estoque_afiliado,$request->active,$request->estoque_minimo,$product->user_id,$dadosDoProdutoOriginal->estoque_minimo_afiliado);
+                $estoqueNew->updateStatusActive();
                 }else{
                 // Encontra o produto pelo ID
                 $product = produtos_integrados::findOrFail($request->id);
                 $product->isPorcem = in_array($request->valor_tipo,$isporcem) ? 1 : 0;
 
-                if($request->filled('valor_tipo')){
+                if($request->valor_tipo != 0){
                     // Atualiza os campos conforme a regra de negócio
                     if ($tabela[$request->valor_tipo] == 'acrescimo_reais') {
                         $product->acrescimo_reais = $request->valor_agregado;
@@ -2316,5 +2318,25 @@ class productsController extends Controller
             ], 500);  // 500 Internal Server Error
         }
     }
+
+    public function getVisitas($itemId){
+
+    $token = token::where('user_id',34)->first();
+
+    $response = Http::withToken($token->access_token)
+        ->get("https://api.mercadolibre.com/visits/items", [
+            'ids' => $itemId
+        ]);
+
+
+    if ($response->successful()) {
+        return response()->json($response->json());
+    }
+
+    return response()->json([
+        'error' => 'Erro ao buscar visitas',
+        'status' => $response->status()
+    ], $response->status());
+}
 
 }

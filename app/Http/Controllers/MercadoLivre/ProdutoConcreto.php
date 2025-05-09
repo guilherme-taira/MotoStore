@@ -195,7 +195,7 @@ class ProdutoConcreto implements Produto
         Log::alert("INTEGRANDO " .$this->getProduto()->id);
         $error_message = [];
         $success_data = [];
-        $fotos = images::where('product_id', $this->getProduto()->id)->get();
+        $fotos = images::where('product_id', $this->getProduto()->id)->OrderBy('position','asc')->get();
         $photos = [];
         foreach ($fotos as $foto) {
             array_push($photos, ["source" => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . "/" . $foto->url]);
