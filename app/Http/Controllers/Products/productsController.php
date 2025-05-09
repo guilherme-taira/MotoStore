@@ -38,6 +38,7 @@ use Throwable;
 use App\Events\logAlteracao;
 use App\Http\Controllers\image\image;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBras;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerShoes;
@@ -337,7 +338,6 @@ class productsController extends Controller
 
     public function tradeCategoriaApiNew(Request $request){
 
-
         if($request->via = "alterador"){
 
              // ENDPOINT PARA REQUISICAO
@@ -370,10 +370,10 @@ class productsController extends Controller
              ->setNext(new handlerBooties())
              ->setNext(new handlerPants())
              ->setNext(new handlerSkirts())
+             ->setNext(new handlerBras())
              ->setNext(new handlerSwimwearCreator());
 
              $grid = $handler->Manipular($obj);
-
 
             if($request->moda){
                     $data_json = json_encode(['category_id' => $request->categoria,'attributes' => $grid]);
@@ -2029,7 +2029,6 @@ class productsController extends Controller
     public function integrarProdutoviaApi(Request $request){
         Log::alert(($request->all()));
 
-
         $isporcem = [2,4];
 
         $tabela = [
@@ -2039,10 +2038,14 @@ class productsController extends Controller
             '4' => 'desconto_porcentagem'
         ];
 
+        $tipo_anuncio = $request->tipo_anuncio;
+        $price = $request->input('preco');
+
         $dadosIntegrado = [];
         if (isset($request->precoFixo)) {
             // Mantém o valor fixo se estiver preenchido
             $dadosIntegrado['precofixo'] = $request->precoFixo;
+            $price = $request->precoFixo;
         } else {
             $dadosIntegrado['valor_tipo'] = $tabela[$request->agregado];
             $dadosIntegrado['isPorcem'] = in_array($request->agregado,$isporcem) ? 1 : 0;
@@ -2050,8 +2053,6 @@ class productsController extends Controller
         }
 
         $name = $request->title;
-        $tipo_anuncio = $request->tipo_anuncio;
-        $price = $request->input('preco');
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;

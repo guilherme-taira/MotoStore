@@ -417,6 +417,9 @@
                     {
                         "domain_id": "MLB-PANTS"
                     },
+                    {
+                        "domain_id": "MLB-BRAS"
+                    },
                     // { "domain_id": "MLB-SHORTS" },
                     // { "domain_id": "MLB-LEGGINGS" },
                     // { "domain_id": "MLB-HEELS_AND_WEDGES" },
@@ -455,7 +458,7 @@
                     // { "domain_id": "MLB-TACTICAL_PANTS" },
                     // { "domain_id": "MLB-WORK_PANTS" },
                     // { "domain_id": "MLB-SPORT_SHORTS" },
-                    // { "domain_id": "MLB-BRAS" },
+
                     // { "domain_id": "MLB-UNDERPANTS" },
                     // { "domain_id": "MLB-PANTIES" },
                     {
