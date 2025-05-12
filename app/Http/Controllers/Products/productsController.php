@@ -2028,7 +2028,7 @@ class productsController extends Controller
 
 
     public function integrarProdutoviaApi(Request $request){
-        Log::alert(($request->all()));
+        // Log::alert(($request->all()));
 
         $isporcem = [2,4];
 

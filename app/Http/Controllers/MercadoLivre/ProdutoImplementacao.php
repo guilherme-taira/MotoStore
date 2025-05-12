@@ -39,7 +39,7 @@ class ProdutoImplementacao extends criadorDeProduto
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
         $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado());
         $data = $produto->integrarViaApi($this->getDescricao(),$this->getIdProduct());
-        Log::alert($data);
+
         if (!isset($data['id'])) {
             return ['message' => $data, 'statusCode' => 400];
         } else {

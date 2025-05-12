@@ -126,10 +126,19 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
-            if(count($this->getOpcionais()) >= 1){
+            $jsonData = json_decode($this->getProduto()->atributos_json, true);
+            $jsonData = is_array($jsonData) ? $jsonData : [];
+            $jsonData = array_filter($jsonData, function ($attribute) {
+                return !(isset($attribute['id']) && $attribute['id'] === 'precoFixo');
+            });
+
+            // Agora adiciona os opcionais (também filtrando precoFixo)
+            if (count($this->getOpcionais()) >= 1) {
                 foreach ($this->getOpcionais() as $key => $dados) {
-                    array_push($data['attributes'],$dados);
-               }
+                    if (!(isset($dados['id']) && $dados['id'] === 'precoFixo')) {
+                        array_push($data['attributes'], $dados);
+                    }
+                }
             }
 
             if ($this->getPrice() > 79.99) {
@@ -147,6 +156,7 @@ class ProdutoConcreto implements Produto
                     "https://file-upload-motostore.s3.sa-east-1.amazonaws.com/produtos/" . $this->getProduto()->id . "/" . $this->getProduto()->image
                 ]];
             }
+
 
             $data_json = json_encode($data);
             Log::alert($data_json);
@@ -274,10 +284,13 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
-            if(count($this->getOpcionais()) >= 1){
+            // Agora adiciona os opcionais (também filtrando precoFixo)
+            if (count($this->getOpcionais()) >= 1) {
                 foreach ($this->getOpcionais() as $key => $dados) {
-                    array_push($data['attributes'],$dados);
-               }
+                    if (!(isset($dados['id']) && $dados['id'] === 'precoFixo')) {
+                        array_push($data['attributes'], $dados);
+                    }
+                }
             }
 
             if ($this->getPrice() > 79.99) {

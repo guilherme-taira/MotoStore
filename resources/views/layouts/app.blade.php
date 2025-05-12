@@ -384,7 +384,7 @@
                             Central Vendedor
                         </a>
 
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{route('treinamentos.index')}}">
                             <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i>                            </div>
                             Treinamentos
                         </a>

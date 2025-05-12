@@ -45,6 +45,7 @@ use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\Test\testController;
+use App\Http\Controllers\TreinamentosController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Usuarios\FornecedorController as UsuariosFornecedorController;
 use App\Http\Middleware\AdminAccess;
@@ -228,6 +229,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('/meli/categories', [productsController::class, 'getCategories']);
         Route::get('/meli/subcategories/{category}', [productsController::class, 'getCategoryById']);
         Route::get('/meli/subcategories/attributes/{category}', [productsController::class, 'getCategoryAttributeById']);
+        Route::get('/treinamentos', [TreinamentosController::class, 'index'])->name('treinamentos.index');
     });
 
 
