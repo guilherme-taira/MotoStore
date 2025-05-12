@@ -2,339 +2,353 @@
 @section('title', $viewData['title'])
 @section('conteudo')
     <style>
-
-    .badge-new {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: orange;
-        color: white;
-        padding: 5px 10px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        border-radius: 5px;
-        z-index:1000;
-    }
-
-            /* Card Principal */
-    .product-form-card {
-        background-color: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-    }
-
-    /* Labels */
-    .form-label {
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* Inputs e Selects */
-    .form-control, .form-select {
-        border-radius: 6px;
-        box-shadow: none;
-        border-color: #ccc;
-    }
-
-    /* Seções do Formulário */
-    .form-section {
-        border-top: 1px solid #ddd;
-        margin-top: 20px;
-        padding-top: 20px;
-    }
-
-    /* Botão Principal */
-    .btn-success {
-        border-radius: 6px;
-        font-weight: bold;
-    }
-
-    /* Loading Spinner */
-    .loading-integracao {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
-
-    /* Ajuste para Alinhamento */
-    .row .col {
-        padding-bottom: 15px;
-    }
-           .product-title {
-        display: -webkit-box;
-        -webkit-line-clamp: 2; /* Limita a 2 linhas */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis; /* Adiciona reticências */
-        font-size: 1rem;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 8px;
-        line-height: 1.4rem;
-    }
-            /* Botões de ação */
-    .btn-primary, .btn-success {
-        font-weight: bold;
-        text-transform: uppercase;
-        border: none;
-        padding: 6px 12px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background: #4C566A;
-        color: #fff;
-        transform: scale(1.05);
-    }
-
-    .btn-success:hover {
-        background: #218838;
-        color: #fff;
-        transform: scale(1.05);
-    }
-            /* Botões principais */
-       /* Estilo do card de produto */
-       .product-card {
-        background-color: #fff; /* Fundo branco */
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .product-card:hover {
-        transform: scale(1.03); /* Efeito ao passar o mouse */
-    }
-
-    /* Imagem do produto */
-    .product-img {
-        width: 100%;
-        max-height: 200px;
-        object-fit: contain;
-        margin-bottom: 10px;
-    }
-
-    /* Etiqueta de desconto e novidade */
-    .badge-discount {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: #FF5252;
-        color: white;
-        font-size: 0.8rem;
-        border-radius: 4px;
-        padding: 2px 8px;
-    }
-
-    .badge-new {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #FF9800;
-        color: white;
-        font-size: 0.8rem;
-        border-radius: 4px;
-        padding: 2px 8px;
-    }
-
-    /* Preços */
-    .product-price {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #E91E63; /* Cor vermelha para preço */
-    }
-
-    .product-price-old {
-        text-decoration: line-through;
-        color: #9E9E9E;
-        font-size: 0.9rem;
-    }
-
-    /* Ícones e ações */
-    .product-actions i {
-        color: #777;
-        font-size: 1rem;
-        margin-right: 10px;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-
-    .product-actions i:hover {
-        color: #E91E63;
-    }
-
-    /* Avaliação */
-    .product-rating {
-        color: #FFD700;
-        font-size: 0.9rem;
-    }
-    /* Fundo escuro semi-transparente */
-    .message-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-
-    /* Card com efeito tecnológico */
-    .message-card {
-        background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-        border-radius: 15px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-        animation: pulseNeonSuccess 1.5s infinite alternate;
-        max-width: 400px;
-        position: relative;
-    }
-
-    /* Título */
-    .message-content h3 {
-        color: #0ff;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-        font-weight: bold;
-    }
-
-    /* Texto da mensagem */
-    .message-content p {
-        color: #fff;
-        font-size: 16px;
-    }
-
-    /* Botão de fechar */
-    .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 20px;
-        color: #0ff;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .close-btn:hover {
-        color: #fff;
-    }
-
-    /* Animação neon */
-    @keyframes pulseNeonSuccess {
-        from {
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        .badge-new {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: orange;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 5px;
+            z-index: 1000;
         }
-        to {
-            box-shadow: 0 0 30px rgba(0, 255, 255, 1);
+
+        /* Card Principal */
+        .product-form-card {
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
         }
-    }
 
-    /* Fundo escuro semi-transparente */
-.error-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
+        /* Labels */
+        .form-label {
+            font-weight: bold;
+            color: #333;
+        }
 
-/* Card tecnológico de erro */
-.error-card {
-    background: linear-gradient(135deg, #FFB005FF 0%, #FFEE01FF 100%);
-    border-radius: 15px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-    animation: pulseNeon 1.5s infinite alternate;
-    max-width: 650px;
-    position: relative;
-}
+        /* Inputs e Selects */
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            box-shadow: none;
+            border-color: #ccc;
+        }
 
-/* Título */
-.error-content h3 {
-    color: #000000FF;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
+        /* Seções do Formulário */
+        .form-section {
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
 
-/* Lista de erros */
-.error-content ul {
-    color: #000000;
-    font-size: 16px;
-    text-align: left;
-    list-style: none;
-    padding: 0;
-}
+        /* Botão Principal */
+        .btn-success {
+            border-radius: 6px;
+            font-weight: bold;
+        }
 
-.error-content li::before {
-    content: "⚠ ";
-    color: #EFD658FF;
-    font-weight: bold;
-    margin-right: 5px;
-}
+        /* Loading Spinner */
+        .loading-integracao {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
 
-/* Botão de fechar */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 20px;
-    color: #FF0000FF;
-    cursor: pointer;
-    transition: 0.3s;
-}
+        /* Ajuste para Alinhamento */
+        .row .col {
+            padding-bottom: 15px;
+        }
 
-.close-btn:hover {
-    color: #fff;
-}
+        .product-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            /* Limita a 2 linhas */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* Adiciona reticências */
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4rem;
+        }
 
-/* Animação neon pulsante */
-@keyframes pulseNeon {
-    from {
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
-    }
-    to {
-        box-shadow: 0 0 30px rgba(255, 0, 0, 1);
-    }
-}
+        /* Botões de ação */
+        .btn-primary,
+        .btn-success {
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #4C566A;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* Botões principais */
+        /* Estilo do card de produto */
+        .product-card {
+            background-color: #fff;
+            /* Fundo branco */
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: scale(1.03);
+            /* Efeito ao passar o mouse */
+        }
+
+        /* Imagem do produto */
+        .product-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        /* Etiqueta de desconto e novidade */
+        .badge-discount {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #FF5252;
+            color: white;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+
+        .badge-new {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FF9800;
+            color: white;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+
+        /* Preços */
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #E91E63;
+            /* Cor vermelha para preço */
+        }
+
+        .product-price-old {
+            text-decoration: line-through;
+            color: #9E9E9E;
+            font-size: 0.9rem;
+        }
+
+        /* Ícones e ações */
+        .product-actions i {
+            color: #777;
+            font-size: 1rem;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .product-actions i:hover {
+            color: #E91E63;
+        }
+
+        /* Avaliação */
+        .product-rating {
+            color: #FFD700;
+            font-size: 0.9rem;
+        }
+
+        /* Fundo escuro semi-transparente */
+        .message-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Card com efeito tecnológico */
+        .message-card {
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            animation: pulseNeonSuccess 1.5s infinite alternate;
+            max-width: 400px;
+            position: relative;
+        }
+
+        /* Título */
+        .message-content h3 {
+            color: #0ff;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Texto da mensagem */
+        .message-content p {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        /* Botão de fechar */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            color: #0ff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Animação neon */
+        @keyframes pulseNeonSuccess {
+            from {
+                box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+            }
+
+            to {
+                box-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            }
+        }
+
+        /* Fundo escuro semi-transparente */
+        .error-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Card tecnológico de erro */
+        .error-card {
+            background: linear-gradient(135deg, #FFB005FF 0%, #FFEE01FF 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+            animation: pulseNeon 1.5s infinite alternate;
+            max-width: 650px;
+            position: relative;
+        }
+
+        /* Título */
+        .error-content h3 {
+            color: #000000FF;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Lista de erros */
+        .error-content ul {
+            color: #000000;
+            font-size: 16px;
+            text-align: left;
+            list-style: none;
+            padding: 0;
+        }
+
+        .error-content li::before {
+            content: "⚠ ";
+            color: #EFD658FF;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Botão de fechar */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            color: #FF0000FF;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Animação neon pulsante */
+        @keyframes pulseNeon {
+            from {
+                box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+            }
+
+            to {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 1);
+            }
+        }
     </style>
 
-@if ($errors->any())
-    <div class="error-container">
-        <div class="error-card">
-            <div class="error-content">
-                <span class="close-btn" onclick="closeError()">×</span>
-                <h3>Erro ao Integrar o produto</h3>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    @if ($errors->any())
+        <div class="error-container">
+            <div class="error-card">
+                <div class="error-content">
+                    <span class="close-btn" onclick="closeError()">×</span>
+                    <h3>Erro ao Integrar o produto</h3>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        setTimeout(() => { closeError(); }, 15000); // Fecha automaticamente em 7s
+        <script>
+            setTimeout(() => {
+                closeError();
+            }, 15000); // Fecha automaticamente em 7s
 
-        function closeError() {
-            let msg = document.querySelector(".error-container");
-            if (msg) msg.style.display = "none";
-        }
-    </script>
-@endif
+            function closeError() {
+                let msg = document.querySelector(".error-container");
+                if (msg) msg.style.display = "none";
+            }
+        </script>
+    @endif
 
 
     @if (session('msg'))
@@ -348,7 +362,9 @@
             </div>
         </div>
         <script>
-            setTimeout(() => { closeMessage(); }, 5000); // Fecha automaticamente em 5s
+            setTimeout(() => {
+                closeMessage();
+            }, 5000); // Fecha automaticamente em 5s
 
             function closeMessage() {
                 let msg = document.querySelector(".message-container");
@@ -372,7 +388,8 @@
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
 
-    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+        tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -406,7 +423,8 @@
                                 aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
 
                                 <div class="accordion-body">
-                                    <form method="POST" action="{{ route('IntegrarProduto') }}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('IntegrarProduto') }}"
+                                        enctype="multipart/form-data">
                                         @csrf
 
                                         <!-- Card do Produto -->
@@ -432,10 +450,12 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 Título do Anúncio: <div id="contador" class="text-end">0/60</div>
-                                                <input type="text" class="form-control" name="name" id="name" placeholder="Digite o nome do produto">
+                                                <input type="text" class="form-control" name="name" id="name"
+                                                    placeholder="Digite o nome do produto">
                                                 <div class="progress mt-2">
-                                                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"
-                                                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    <div id="progress-bar" class="progress-bar" role="progressbar"
+                                                        style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -453,7 +473,8 @@
                                                 <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
                                                 <div class="col">
                                                     <div class="mb-3 row">
-                                                        <select name="tipo_anuncio" class="form-control" aria-label=".form-select-sm example" required>
+                                                        <select name="tipo_anuncio" class="form-control"
+                                                            aria-label=".form-select-sm example" required>
                                                             <option value="gold_special">Clássico</option>
                                                             <option value="gold_pro">Premium</option>
                                                         </select>
@@ -462,9 +483,11 @@
                                             </div>
 
                                             <div class="col-md-5 mb-4">
-                                                <p class="col-lg-4 col-md-12 col-sm-12 col-form-label">Material de Apoio</p>
+                                                <p class="col-lg-4 col-md-12 col-sm-12 col-form-label">Material de Apoio
+                                                </p>
                                                 <div class="col">
-                                                    <a class="linkMaterial btn btn-success" id="linkMaterial" target="_blank">Baixar Material de Apoio</a>
+                                                    <a class="linkMaterial btn btn-success" id="linkMaterial"
+                                                        target="_blank">Baixar Material de Apoio</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -474,7 +497,8 @@
                                         <div class="row form-section">
                                             <div class="col-md-6">
                                                 <label class="form-label" for="editValorAgregado">Valor Agregado</label>
-                                                <select id="editValorAgregado" class="form-select" name="valor_tipo" required>
+                                                <select id="editValorAgregado" class="form-select" name="valor_tipo"
+                                                    required>
                                                     <option value="">Selecione uma opção</option>
                                                     <option value="acrescimo_reais">Acréscimo R$</option>
                                                     <option value="acrescimo_porcentagem">Acréscimo %</option>
@@ -484,23 +508,27 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="valorAgregadoInput">Valor</label>
-                                                <input type="text" class="form-control" id="valorAgregadoInput" name="valor_agregado" value="0" required>
+                                                <input type="text" class="form-control" id="valorAgregadoInput"
+                                                    name="valor_agregado" value="0" required>
                                             </div>
                                         </div>
 
                                         <!-- Checkbox para preço fixo -->
                                         <div class="row form-section">
                                             <div class="row-md-2">
-                                                <input type="checkbox" class="form-check-input" id="precoFixoCheckbox" name="precoFixo">
-                                                <label class="form-check-label" for="precoFixoCheckbox">Ativar Preço Fixo</label>
-                                                <small id="precoFixoCheckbox" class="form-text text-muted">Não use virgula no preço, coloque ponto ex: 35.90.</small>
+                                                <input type="checkbox" class="form-check-input" id="precoFixoCheckbox"
+                                                    name="precoFixo">
+                                                <label class="form-check-label" for="precoFixoCheckbox">Ativar Preço
+                                                    Fixo</label>
+                                                <small id="precoFixoCheckbox" class="form-text text-muted">Não use virgula
+                                                    no preço, coloque ponto ex: 35.90.</small>
                                             </div>
 
                                             <!-- Input para Preço Fixo -->
                                             <div class="col-md-3">
                                                 <label for="precoFixoInput" class="form-label">Preço Fixo</label>
-                                                <input type="text" class="form-control" id="precoFixoInput" name="precoFixo"
-                                                    placeholder="Digite o preço fixo" required disabled>
+                                                <input type="text" class="form-control" id="precoFixoInput"
+                                                    name="precoFixo" placeholder="Digite o preço fixo" required disabled>
                                             </div>
 
                                             <!-- Hidden input para isPorcem -->
@@ -510,12 +538,14 @@
                                         <div class="row form-section">
                                             <div class="col-md-4">
                                                 <label class="form-label" for="precoFinal">Preço:</label>
-                                                <input name="price" id="precoFinal" type="text" class="form-control">
+                                                <input name="price" id="precoFinal" type="text"
+                                                    class="form-control">
                                             </div>
 
                                             <div class="col-md-4">
                                                 <label class="form-label" for="valorProdutoDisplay">Total:</label>
-                                                <input name="totalInformado" id="valorProdutoDisplay" type="text" class="form-control">
+                                                <input name="totalInformado" id="valorProdutoDisplay" type="text"
+                                                    class="form-control">
                                             </div>
                                         </div>
 
@@ -524,9 +554,10 @@
                                                 <div class="mb-3 row">
                                                     <div class="col-lg-8 col-md-6 col-sm-12">
                                                         <div class="form-check">
-                                                            <input type="hidden" class="form-control" name="category_id" id="category_id">
-                                                            <input class="form-check-input" type="checkbox" name="category_default" id="flexCheckChecked"
-                                                                checked>
+                                                            <input type="hidden" class="form-control" name="category_id"
+                                                                id="category_id">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="category_default" id="flexCheckChecked" checked>
                                                             <label class="form-check-label" for="flexCheckChecked">
                                                                 Usar Categoria Padrão Selecionada
                                                             </label>
@@ -541,9 +572,11 @@
                                             <div class="col-md-6">
                                                 <div class="col">
                                                     <div class="mb-3 row">
-                                                        <label class="col-lg-2 col-md-12 col-sm-12 col-form-label">Categorias:</label>
+                                                        <label
+                                                            class="col-lg-2 col-md-12 col-sm-12 col-form-label">Categorias:</label>
                                                         <div class="col-lg-8 col-md-12 col-sm-12">
-                                                            <select class="form-select" id="categorias" aria-label="Default select example">
+                                                            <select class="form-select" id="categorias"
+                                                                aria-label="Default select example">
                                                                 <option selected disabled>Selecionar</option>
                                                             </select>
                                                         </div>
@@ -558,22 +591,24 @@
                                                         </ol>
                                                     </div>
                                                 </div>
-                                        </div>
+                                            </div>
 
 
-                                        <div id="formContainer"></div>
+                                            <div id="formContainer"></div>
 
-                                        <input type="hidden" class="form-control" name="id_categoria"
-                                            id="id_categoria">
+                                            <input type="hidden" class="form-control" name="id_categoria"
+                                                id="id_categoria">
                                         </div>
 
                                         <!-- Spinner e Botão -->
                                         <div class="row form-section">
                                             <div class="col-md-12 text-end">
-                                                <div class="spinner-border text-success loading-integracao d-none" role="status">
+                                                <div class="spinner-border text-success loading-integracao d-none"
+                                                    role="status">
                                                     <span class="visually-hidden">Loading...</span>
                                                 </div>
-                                                <button type="submit" class="btn btn-success botao_integracao">Finalizar Integração</button>
+                                                <button type="submit" class="btn btn-success botao_integracao">Finalizar
+                                                    Integração</button>
                                             </div>
                                         </div>
                                     </form>
@@ -723,80 +758,93 @@
                 <div class="container mt-4">
                     <div class="row">
                         @foreach ($viewData['products'] as $product)
-                        <section class="col-md-3 mb-4" id="linhasProduct">
-                            <span class="d-none id_product">{{ $product->getId() }}</span>
-                            <div>
-                                <div class="product-card position-relative">
-                                    <!-- Badge de desconto ou novo -->
-                                    @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
-                                        <div class="badge-new position-absolute top-0 end-0 p-2 bg-warning text-white"><i class="bi bi-pin-angle-fill"></i> Novo</div>
-                                    @endif
-
-                                    <!-- Carrossel de Imagens -->
-                                    @php
-                                        $fotos = $viewData['images'][$product->getId()]['fotos'] ?? [];
-                                    @endphp
-
-                                    @if (!empty($fotos))
-                                      <div id="carousel{{ $product->getId() }}" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
-                                            <div class="carousel-inner">
-                                                @foreach ($fotos as $index => $foto)
-                                                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                                        <img src="{!! Storage::disk('s3')->url('produtos/'.$foto['foto']) !!}"
-                                                             alt="{{ $product->getName() }}" class="product-img d-block w-100">
-                                                    </div>
-                                                @endforeach
+                            <section class="col-md-3 mb-4" id="linhasProduct">
+                                <span class="d-none id_product">{{ $product->getId() }}</span>
+                                <div>
+                                    <div class="product-card position-relative">
+                                        <!-- Badge de desconto ou novo -->
+                                        @if ($product->created_at->gt(\Carbon\Carbon::now()->subDays(20)))
+                                            <div class="badge-new position-absolute top-0 end-0 p-2 bg-warning text-white">
+                                                <i class="bi bi-pin-angle-fill"></i> Novo
                                             </div>
-                                            <!-- Controles do carrossel -->
-                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $product->getId() }}" data-bs-slide="prev" style="filter: invert(1);">
-                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Anterior</span>
-                                            </button>
-                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ $product->getId() }}" data-bs-slide="next" style="filter: invert(1);">
-                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Próximo</span>
+                                        @endif
+
+                                        <!-- Carrossel de Imagens -->
+                                        @php
+                                            $fotos = $viewData['images'][$product->getId()]['fotos'] ?? [];
+                                        @endphp
+
+                                        @if (!empty($fotos))
+                                            <div id="carousel{{ $product->getId() }}" class="carousel slide"
+                                                data-bs-ride="false" data-bs-interval="false">
+                                                <div class="carousel-inner">
+                                                    @foreach ($fotos as $index => $foto)
+                                                        <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $foto['foto']) !!}"
+                                                                alt="{{ $product->getName() }}"
+                                                                class="product-img d-block w-100">
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                                <!-- Controles do carrossel -->
+                                                <button class="carousel-control-prev" type="button"
+                                                    data-bs-target="#carousel{{ $product->getId() }}"
+                                                    data-bs-slide="prev" style="filter: invert(1);">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Anterior</span>
+                                                </button>
+                                                <button class="carousel-control-next" type="button"
+                                                    data-bs-target="#carousel{{ $product->getId() }}"
+                                                    data-bs-slide="next" style="filter: invert(1);">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Próximo</span>
+                                                </button>
+                                            </div>
+                                        @endif
+
+                                        <!-- Estoque e Nome -->
+                                        <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">
+                                            Estoque {{ $product->available_quantity }}</p>
+                                        <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
+
+                                        <!-- Preço -->
+                                        <div>
+                                            <span class="product-price">R$
+                                                {{ number_format($product->priceWithFee, 2) }}</span>
+                                        </div>
+
+                                        <!-- Avaliação -->
+                                        <div class="product-rating mt-2">
+                                            ★★★★★
+                                        </div>
+
+                                        <!-- Ações -->
+                                        <div class="product-actions mt-3 d-flex justify-content-between">
+                                            <a href="{{ route('products.show', ['id' => $product->getId()]) }}"
+                                                class="btn btn-primary btn-sm" style="border-radius: 20px;">
+                                                Ver Mais
+                                            </a>
+                                            <button class="btn btn-success btn-sm" style="border-radius: 20px;"
+                                                data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
+                                                Integrar
                                             </button>
                                         </div>
-                                    @endif
-
-                                    <!-- Estoque e Nome -->
-                                    <p class="fw-bold text-uppercase text-muted mb-1" style="font-size: 0.8rem;">Estoque {{ $product->available_quantity }}</p>
-                                    <h6 class="fw-bold mb-2 product-title">{{ $product->getName() }}</h6>
-
-                                    <!-- Preço -->
-                                    <div>
-                                        <span class="product-price">R$ {{ number_format($product->priceWithFee, 2) }}</span>
-                                    </div>
-
-                                    <!-- Avaliação -->
-                                    <div class="product-rating mt-2">
-                                        ★★★★★
-                                    </div>
-
-                                    <!-- Ações -->
-                                    <div class="product-actions mt-3 d-flex justify-content-between">
-                                        <a href="{{ route('products.show', ['id' => $product->getId()]) }}" class="btn btn-primary btn-sm" style="border-radius: 20px;">
-                                            Ver Mais
-                                        </a>
-                                        <button class="btn btn-success btn-sm" style="border-radius: 20px;" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
-                                            Integrar
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
-                    @endforeach
-                    <div class="d-flex justify-content-center mt-4">
-                        {!! $viewData['products']->links() !!}
+                            </section>
+                        @endforeach
+                        <div class="d-flex justify-content-center mt-4">
+                            {!! $viewData['products']->links() !!}
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
 
 
         <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
         <input type="hidden" name="total" id="total">
+        <input type="text" name="auth" id="auth" value="{{ $viewData['token']->access_token }}">
 
     @endsection
 
@@ -806,226 +854,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
 
     <script>
-        var valorProduto = 0;
-        var i = 0;
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
+            var valorProduto = 0;
+            var i = 0;
 
-        function atualizarProgresso() {
-            var caracteresDigitados = $('#name').val().length;
-            $('#contador').text(caracteresDigitados + '/60');
-            var progresso = (caracteresDigitados / 60) * 100;
-            $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
-
-            if (caracteresDigitados > 60) {
-                $('#name').val($('#name').val().substr(0, 60));
-                $('#contador').text(60+'/60');
-                alert("O valor não pode exceder 60 caracteres.");
-            }
-        }
-
-        // Ativar a função quando o usuário digitar
-        $('#name').on('keyup', atualizarProgresso);
+            var token = $('#auth').val();
 
 
-
-        // Função para atualizar o valor exibido
-            const isPorcemInput = document.getElementById('isPorcem');
-            const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
-            const valorAgregadoInput = document.getElementById('valorAgregadoInput');
-            const valorAgregadoSelect = document.getElementById('editValorAgregado');
-
-            // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
-            precoFixoCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    // Ativa o campo Preço Fixo
-                    precoFixoInput.disabled = false;
-
-                    // Desativa campos de Valor Agregado
-                    valorAgregadoInput.value = ''; // Limpa o valor
-                    valorAgregadoInput.disabled = true;
-                    valorAgregadoSelect.disabled = true;
-                    isPorcemInput.value = '0'; // Garante que isPorcem seja false
-                } else {
-                    // Desativa o campo Preço Fixo
-                    precoFixoInput.disabled = true;
-                    precoFixoInput.value = ''; // Limpa o valor
-
-                    // Reativa campos de Valor Agregado
-                    valorAgregadoInput.disabled = false;
-                    valorAgregadoSelect.disabled = false;
-                }
-            });
-
-            // Atualiza o placeholder dinamicamente conforme a seleção do select
-            valorAgregadoSelect.addEventListener('change', function() {
-                const selectedOption = valorAgregadoSelect.value;
-
-                switch (selectedOption) {
-                    case 'acrescimo_reais':
-                        valorAgregadoInput.placeholder = 'Digite o acréscimo em R$';
-                        break;
-                    case 'acrescimo_porcentagem':
-                        valorAgregadoInput.placeholder = 'Digite o acréscimo em %';
-                        isPorcemInput.value = '1';
-                        break;
-                    case 'desconto_reais':
-                        valorAgregadoInput.placeholder = 'Digite o desconto em R$';
-                        break;
-                    case 'desconto_porcentagem':
-                        valorAgregadoInput.placeholder = 'Digite o desconto em %';
-                        isPorcemInput.value = '1';
-                        break;
-                    default:
-                        valorAgregadoInput.placeholder = 'Digite o valor';
-                        isPorcemInput.value = '0';
-                        break;
-                }
-            });
-
-            function atualizarValorProduto() {
-
-            const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
-            const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
-            const precoFixo = parseFloat($("#precoFixoInput").val().replace(',', '.')) || 0;
-
-            basePrice = parseFloat($('#precoFinal').val()) || 0; // Preço base do produto
-
-            let novoValor = basePrice; // Começa com o preço base
-
-            // Prioridade para preço fixo
-            if (precoFixo > 0) {
-                novoValor = precoFixo;
-            } else {
-                // Aplica o cálculo com base no tipo selecionado
-                if (tipoAgregado === 'acrescimo_reais') {
-                    novoValor = basePrice + valorAgregado;
-                } else if (tipoAgregado === 'acrescimo_porcentagem') {
-                    novoValor = basePrice + (basePrice * (valorAgregado / 100));
-                } else if (tipoAgregado === 'desconto_reais') {
-                    novoValor = basePrice - valorAgregado;
-                } else if (tipoAgregado === 'desconto_porcentagem') {
-                    novoValor = basePrice - (basePrice * (valorAgregado / 100));
-                }
-
-            }
-           // Garante que o valor não seja negativo
-           if (novoValor < 0) novoValor = 0;
-           // Atualiza o display do valor
-           $("#valorProdutoDisplay").val(novoValor.toFixed(2).replace('.', ','));
-
-
-        }
-
-            // Eventos
-            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
-            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
-            precoFixoInput.addEventListener('input', atualizarValorProduto);
-
-            $('input[name="preco"]').mask('000.000.000,00', {
-                reverse: true
-            });
-
-            $('.botao_integracao').click(function(event) {
-
-                $(".loading-integracao").removeClass('d-none');
-
-                // Obtém a posição do elemento de loading
-                // Altura da janela do navegador
-            });
-
-
-            $("section#linhasProduct").click(function() {
-
-                var id_produto = $(this).find("span:eq(0)").text(); // Obtém o ID do produto
-
-                // Garante que o editor não tenha conteúdo antigo no DOM
-                $('#editor').html(''); // Limpa o conteúdo antigo
-
-                // LIMPA O HISTÓRICO e os campos do formulário
-                $('#id_prodenv').val(''); // Limpa o campo de ID
-                $('#name').val(''); // Limpa o campo de Nome
-                $('#precoFinal').val(''); // Limpa o campo de Preço
-                $('#category_id').val(''); // Limpa o campo de Categoria
-                $(".img_integracao_foto").attr('src', ''); // Remove a imagem
-                $(".img_integracao_title").empty(); // Limpa o título
-                $(".img_integracao_ean").empty(); // Limpa o EAN
-                $(".img_integracao_price").empty(); // Limpa o Preço
-                $(".content_categorias").empty(); // Limpa a lista de categorias
-                $('#editor').val(''); // Limpa o editor
-
-                // LIMPA O HISTORICO
-                $('.adicionarHistorico').empty();
-                $('#id_prodenv').val(id_produto); // ID DO PRODUTO
-
-                var id_user = $('#id_user').val();
-                $.ajax({
-                    url: "/api/v1/product/" + id_produto,
-                    type: "GET",
-                    success: function(response) {
-
-
-                        $("#loading-api").addClass('d-none');
-                        if (response) {
-                            valorProduto = response.priceWithFee;
-                            $("#linkMaterial").attr("href", response.link);
-                            $("#total").val(response.priceWithFee);
-                            $("#name").val(response.title);
-                            $("#precoFinal").val(response.priceWithFee);
-                            $("#category_id").val(response.category_id);
-                            $(".img_integracao_foto").attr('src', response.image);
-                            $(".img_integracao_title").append(response.title);
-                            $(".img_integracao_ean").append("EAN : " + response.ean);
-                            $(".img_integracao_price").append("Preço: " + response
-                            .priceWithFee);
-
-                            // Atualiza o textarea com a descrição
-                            $('#editor').val(response.description);
-                            atualizarProgresso();
-                        }
-                    },
-                    error: function(error) {
-                        $('#result').html(
-                            '<option> Produto Digitado Não Existe! </option>'
-                        );
-                    }
-                });
-
-
-
-                $.ajax({
-                    url: "/api/v1/getHistoryById",
-                    type: "GET",
-                    data: {
-                        id: id_produto,
-                        id_user: id_user
-                    },
-                    success: function(response) {
-                        if (response) {
-                            var index = [];
-                            $.each(response.dados, function(i, item) {
-                                index[i] = '<li class="list-group-item"> Nome: ' + item
-                                    .name + '  | ID: ' + item.id_ml +
-                                    '   | Criado em : ' + item.created_at + '</li>';
-                            });
-
-                            var arr = jQuery.makeArray(index);
-                            arr.reverse();
-                            $(".adicionarHistorico").append(arr);
-                        }
-                    },
-                    error: function(error) {
-                        $('#result').html(
-                            '<option> Produto Digitado Não Existe! </option>'
-                        );
-                    }
-                });
-            });
-
-            //
             $.ajax({
-                url: "https://api.mercadolibre.com/sites/MLB/categories",
+                url: "/meli/categories",
                 type: "GET",
                 success: function(response) {
+
                     if (response) {
                         // SHOW ALL RESULT QUERY
                         var index = [];
@@ -1063,7 +903,7 @@
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getCategory(category) {
                 $.ajax({
-                    url: " https://api.mercadolibre.com/categories/" + category,
+                     url: "/meli/subcategories/" + category,
                     type: "GET",
                     success: function(response) {
                         if (response) {
@@ -1081,8 +921,7 @@
 
                             if (index.length <= 1) {
                                 $.ajax({
-                                    url: " https://api.mercadolibre.com/categories/" +
-                                        category + "/attributes",
+                                     url: "/meli/subcategories/attributes/" + category,
                                     type: "GET",
                                     success: function(response) {
                                         if (response) {
@@ -1162,8 +1001,221 @@
                         );
                     }
                 });
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            function atualizarProgresso() {
+                var caracteresDigitados = $('#name').val().length;
+                $('#contador').text(caracteresDigitados + '/60');
+                var progresso = (caracteresDigitados / 60) * 100;
+                $('#progress-bar').css('width', progresso + '%').attr('aria-valuenow', progresso);
+
+                if (caracteresDigitados > 60) {
+                    $('#name').val($('#name').val().substr(0, 60));
+                    $('#contador').text(60 + '/60');
+                    alert("O valor não pode exceder 60 caracteres.");
+                }
+            }
+
+            // Ativar a função quando o usuário digitar
+            $('#name').on('keyup', atualizarProgresso);
+
+
+
+            // Função para atualizar o valor exibido
+            const isPorcemInput = document.getElementById('isPorcem');
+            const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
+            const valorAgregadoInput = document.getElementById('valorAgregadoInput');
+            const valorAgregadoSelect = document.getElementById('editValorAgregado');
+
+            // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
+            precoFixoCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Ativa o campo Preço Fixo
+                    precoFixoInput.disabled = false;
+
+                    // Desativa campos de Valor Agregado
+                    valorAgregadoInput.value = ''; // Limpa o valor
+                    valorAgregadoInput.disabled = true;
+                    valorAgregadoSelect.disabled = true;
+                    isPorcemInput.value = '0'; // Garante que isPorcem seja false
+                } else {
+                    // Desativa o campo Preço Fixo
+                    precoFixoInput.disabled = true;
+                    precoFixoInput.value = ''; // Limpa o valor
+
+                    // Reativa campos de Valor Agregado
+                    valorAgregadoInput.disabled = false;
+                    valorAgregadoSelect.disabled = false;
+                }
+            });
+
+            // Atualiza o placeholder dinamicamente conforme a seleção do select
+            valorAgregadoSelect.addEventListener('change', function() {
+                const selectedOption = valorAgregadoSelect.value;
+
+                switch (selectedOption) {
+                    case 'acrescimo_reais':
+                        valorAgregadoInput.placeholder = 'Digite o acréscimo em R$';
+                        break;
+                    case 'acrescimo_porcentagem':
+                        valorAgregadoInput.placeholder = 'Digite o acréscimo em %';
+                        isPorcemInput.value = '1';
+                        break;
+                    case 'desconto_reais':
+                        valorAgregadoInput.placeholder = 'Digite o desconto em R$';
+                        break;
+                    case 'desconto_porcentagem':
+                        valorAgregadoInput.placeholder = 'Digite o desconto em %';
+                        isPorcemInput.value = '1';
+                        break;
+                    default:
+                        valorAgregadoInput.placeholder = 'Digite o valor';
+                        isPorcemInput.value = '0';
+                        break;
+                }
+            });
+
+            function atualizarValorProduto() {
+
+                const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
+                const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
+                const precoFixo = parseFloat($("#precoFixoInput").val().replace(',', '.')) || 0;
+
+                basePrice = parseFloat($('#precoFinal').val()) || 0; // Preço base do produto
+
+                let novoValor = basePrice; // Começa com o preço base
+
+                // Prioridade para preço fixo
+                if (precoFixo > 0) {
+                    novoValor = precoFixo;
+                } else {
+                    // Aplica o cálculo com base no tipo selecionado
+                    if (tipoAgregado === 'acrescimo_reais') {
+                        novoValor = basePrice + valorAgregado;
+                    } else if (tipoAgregado === 'acrescimo_porcentagem') {
+                        novoValor = basePrice + (basePrice * (valorAgregado / 100));
+                    } else if (tipoAgregado === 'desconto_reais') {
+                        novoValor = basePrice - valorAgregado;
+                    } else if (tipoAgregado === 'desconto_porcentagem') {
+                        novoValor = basePrice - (basePrice * (valorAgregado / 100));
+                    }
+
+                }
+                // Garante que o valor não seja negativo
+                if (novoValor < 0) novoValor = 0;
+                // Atualiza o display do valor
+                $("#valorProdutoDisplay").val(novoValor.toFixed(2).replace('.', ','));
+
 
             }
+
+            // Eventos
+            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
+            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
+            precoFixoInput.addEventListener('input', atualizarValorProduto);
+
+            $('input[name="preco"]').mask('000.000.000,00', {
+                reverse: true
+            });
+
+            $('.botao_integracao').click(function(event) {
+
+                $(".loading-integracao").removeClass('d-none');
+
+                // Obtém a posição do elemento de loading
+                // Altura da janela do navegador
+            });
+
+
+            $("section#linhasProduct").click(function() {
+
+                var id_produto = $(this).find("span:eq(0)").text(); // Obtém o ID do produto
+
+                // Garante que o editor não tenha conteúdo antigo no DOM
+                $('#editor').html(''); // Limpa o conteúdo antigo
+
+                // LIMPA O HISTÓRICO e os campos do formulário
+                $('#id_prodenv').val(''); // Limpa o campo de ID
+                $('#name').val(''); // Limpa o campo de Nome
+                $('#precoFinal').val(''); // Limpa o campo de Preço
+                $('#category_id').val(''); // Limpa o campo de Categoria
+                $(".img_integracao_foto").attr('src', ''); // Remove a imagem
+                $(".img_integracao_title").empty(); // Limpa o título
+                $(".img_integracao_ean").empty(); // Limpa o EAN
+                $(".img_integracao_price").empty(); // Limpa o Preço
+                $(".content_categorias").empty(); // Limpa a lista de categorias
+                $('#editor').val(''); // Limpa o editor
+
+                // LIMPA O HISTORICO
+                $('.adicionarHistorico').empty();
+                $('#id_prodenv').val(id_produto); // ID DO PRODUTO
+
+                var id_user = $('#id_user').val();
+                $.ajax({
+                    url: "/api/v1/product/" + id_produto,
+                    type: "GET",
+                    success: function(response) {
+
+
+                        $("#loading-api").addClass('d-none');
+                        if (response) {
+                            valorProduto = response.priceWithFee;
+                            $("#linkMaterial").attr("href", response.link);
+                            $("#total").val(response.priceWithFee);
+                            $("#name").val(response.title);
+                            $("#precoFinal").val(response.priceWithFee);
+                            $("#category_id").val(response.category_id);
+                            $(".img_integracao_foto").attr('src', response.image);
+                            $(".img_integracao_title").append(response.title);
+                            $(".img_integracao_ean").append("EAN : " + response.ean);
+                            $(".img_integracao_price").append("Preço: " + response
+                                .priceWithFee);
+
+                            // Atualiza o textarea com a descrição
+                            $('#editor').val(response.description);
+                            atualizarProgresso();
+                        }
+                    },
+                    error: function(error) {
+                        $('#result').html(
+                            '<option> Produto Digitado Não Existe! </option>'
+                        );
+                    }
+                });
+
+
+                $.ajax({
+                    url: "/api/v1/getHistoryById",
+                    type: "GET",
+                    data: {
+                        id: id_produto,
+                        id_user: id_user
+                    },
+                    success: function(response) {
+                        if (response) {
+                            var index = [];
+                            $.each(response.dados, function(i, item) {
+                                index[i] = '<li class="list-group-item"> Nome: ' + item
+                                    .name + '  | ID: ' + item.id_ml +
+                                    '   | Criado em : ' + item.created_at + '</li>';
+                            });
+
+                            var arr = jQuery.makeArray(index);
+                            arr.reverse();
+                            $(".adicionarHistorico").append(arr);
+                        }
+                    },
+                    error: function(error) {
+                        $('#result').html(
+                            '<option> Produto Digitado Não Existe! </option>'
+                        );
+                    }
+                });
+            });
 
             $("form").submit(function(event) {
                 // event.preventDefault();

@@ -84,6 +84,7 @@ class productsController extends Controller
         $cacheTime = 5;
 
         $viewData['products'] = Products::getResults($request);
+        $viewData['token'] = token::where('user_id',Auth::user()->id)->first();
 
         $images = [];
         foreach ($viewData['products'] as $produto) {
@@ -2338,5 +2339,44 @@ class productsController extends Controller
         'status' => $response->status()
     ], $response->status());
 }
+
+
+    public function getCategories()
+    {
+         $token = token::where('user_id',Auth::user()->id)->first();
+
+        $response = Http::withToken($token->access_token)
+            ->get("https://api.mercadolibre.com/sites/MLB/categories");
+
+        return response()->json($response->json(), $response->status());
+    }
+
+
+    public function getCategoryById($category){
+
+           $token = token::where('user_id',Auth::user()->id)->first();
+
+            if (!$token) {
+                return response()->json(['error' => 'Token não fornecido'], 400);
+            }
+
+            $response = Http::withToken($token->access_token)
+                ->get("https://api.mercadolibre.com/categories/" . $category);
+
+            return response()->json($response->json(), $response->status());
+    }
+
+        public function getCategoryAttributeById($category){
+
+            $token = token::where('user_id',Auth::user()->id)->first();
+
+            if (!$token) {
+                return response()->json(['error' => 'Token não fornecido'], 400);
+            }
+
+            $response = Http::withToken($token->access_token)
+                ->get("https://api.mercadolibre.com/categories/" . $category."/attributes");
+            return response()->json($response->json(), $response->status());
+    }
 
 }

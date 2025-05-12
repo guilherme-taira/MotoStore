@@ -224,7 +224,10 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
         Route::post('/orders/update-informacoes/{id}', [orderscontroller::class, 'updateInformacoes'])->name('orders.updateInformacoes');
         Route::post('/orders/recadastrar', [productsController::class, 'recadastrar'])->name('orders.recadastrar');
-
+        // web.php ou api.php
+        Route::get('/meli/categories', [productsController::class, 'getCategories']);
+        Route::get('/meli/subcategories/{category}', [productsController::class, 'getCategoryById']);
+        Route::get('/meli/subcategories/attributes/{category}', [productsController::class, 'getCategoryAttributeById']);
     });
 
 

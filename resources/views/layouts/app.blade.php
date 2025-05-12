@@ -383,6 +383,7 @@
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-money"></i></div>
                             Central Vendedor
                         </a>
+
                         <a class="nav-link" href="#">
                             <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i>                            </div>
                             Treinamentos

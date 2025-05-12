@@ -1113,12 +1113,11 @@
                 });
             }
 
-
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getCategory(category) {
                 var domain = "";
                 $.ajax({
-                    url: " https://api.mercadolibre.com/categories/" + category,
+                   url: "/meli/subcategories/" + category,
                     type: "GET",
                     success: function(response) {
 
@@ -1141,8 +1140,7 @@
                                 // Remover a classe d-none para mostrar o elemento select
                                 $(".smartFiled").removeClass('d-none');
                                 $.ajax({
-                                    url: " https://api.mercadolibre.com/categories/" +
-                                        category + "/attributes",
+                                    url: "/meli/subcategories/attributes/" + category,
                                     type: "GET",
                                     success: function(response) {
                                         if (response) {
@@ -1235,7 +1233,7 @@
             }
             var i = 0;
             $.ajax({
-                url: "https://api.mercadolibre.com/sites/MLB/categories",
+               url: "/meli/categories",
                 type: "GET",
                 success: function(response) {
                     if (response) {

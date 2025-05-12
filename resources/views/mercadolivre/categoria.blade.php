@@ -229,7 +229,7 @@
                 </div>
             </div>
 
-            <input type="text" name="token" id="token" />
+            <input type="hidden" name="token" id="token" />
 
             <div id="conteudo"></div>
 
@@ -541,7 +541,7 @@
         // FUNCAO PARA CHAMAR CATEGORIAS
         function getCategory(category) {
             $.ajax({
-                url: " https://api.mercadolibre.com/categories/" + category,
+                url: "/meli/subcategories/" + category,
                 type: "GET",
                 success: function(response) {
                     if (response) {
@@ -568,7 +568,7 @@
         }
         var i = 0;
         $.ajax({
-            url: "https://api.mercadolibre.com/sites/MLB/categories",
+            url: "/meli/categories",
             type: "GET",
             success: function(response) {
                 if (response) {
