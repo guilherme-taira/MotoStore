@@ -159,7 +159,6 @@ class ProdutoConcreto implements Produto
 
 
             $data_json = json_encode($data);
-            Log::alert($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -189,7 +188,7 @@ class ProdutoConcreto implements Produto
 
                 $this->CreateDescription($data,$json->id);
                 // // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch(Auth::user()->id,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
+                EventoCadastroIntegrado::dispatch(Auth::user()->id ,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;
@@ -310,6 +309,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
+
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -340,7 +340,7 @@ class ProdutoConcreto implements Produto
 
                 $this->CreateDescription($data,$json->id);
                 // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch(1,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
+                EventoCadastroIntegrado::dispatch($this->userId->user_id,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
                 $mercado_livre_history = new mercado_livre_history();
                 $mercado_livre_history->name = $json->title;
                 $mercado_livre_history->id_ml = $json->id;

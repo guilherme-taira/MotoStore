@@ -23,6 +23,7 @@ class ProdutoImplementacao extends criadorDeProduto
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ATUALIZADO
         $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado(),$products->atributos_json);
         $data = $produto->integrar($this->getDescricao(),$this->getIdProduct());
+        Log::alert($this->getId());
         if ($data) {
             return ['error_data' => $data];
         } else {

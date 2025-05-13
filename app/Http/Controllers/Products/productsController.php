@@ -2028,7 +2028,7 @@ class productsController extends Controller
 
 
     public function integrarProdutoviaApi(Request $request){
-        // Log::alert(($request->all()));
+        Log::alert(($request->all()));
 
         $isporcem = [2,4];
 
@@ -2058,6 +2058,7 @@ class productsController extends Controller
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;
         $valorSemTaxa = 0;
+        $user_id = $request->user_id;
         $totalInformado = 0;
 
         if($request->category_default && !isset($request->id_categoria)){
@@ -2075,7 +2076,7 @@ class productsController extends Controller
         }
 
         //** MUDAR O 2 DO USUARIO PARA TESTE  */
-        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, 1,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado);
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, $user_id,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado);
         $data = $factory->getProdutoByApi();
 
         return response()->json([
