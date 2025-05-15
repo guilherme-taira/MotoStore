@@ -660,6 +660,7 @@ class productsController extends Controller
             $viewData['images'] = $photos;
             $viewData['imageJson'] = $produto->imageJson;
             $viewData['kitProducts'] = kit::getProductsByKit($produto->id);
+            $viewData['product'] = $produto;
 
             $categorias = [];
             foreach (categorias::all() as $value) {

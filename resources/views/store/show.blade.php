@@ -43,6 +43,34 @@
 
                     <p class="fw-bold">Estoque disponível ✅</p>
 
+                    <!-- Tabela com dados adicionais do produto -->
+                    <h6 class="mt-3 fw-bold">Informações do Produto:</h6>
+                    <table class="table table-bordered mt-2">
+                        <tbody>
+                            <tr class="bg-light">
+                                <td><strong>Peso</strong></td>
+                                <td>{{$viewData['product']->weight ? $viewData['product']->weight : 'N/A'}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Altura</strong></td>
+                                <td>{{$viewData['product']->height ? $viewData['product']->height . " CM": 'N/A'}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td><strong>Largura</strong></td>
+                                <td>{{$viewData['product']->width ? $viewData['product']->width. " CM" : 'N/A'}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Comprimento</strong></td>
+                                <td>{{$viewData['product']->length ? $viewData['product']->length. " CM" : 'N/A'}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td><strong>GTIN / EAN</strong></td>
+                                <td>{{$viewData['product']->gtin ? $viewData['product']->gtin : 'N/A'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
                     <div class="mt-4">
                         <h5 class="fw-bold">Descrição do Produto:</h5>
                         <p class="text-justify">{{ $viewData['product']->getDescription() }}</p>
