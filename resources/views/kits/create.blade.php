@@ -1027,7 +1027,7 @@
 
         function getAllCategorias() {
             $.ajax({
-                url: "https://api.mercadolibre.com/sites/MLB/categories",
+                url: "/meli/categories",
                 type: "GET",
                 success: function(response) {
                     if (response) {
@@ -1070,7 +1070,7 @@
         // FUNCAO PARA CHAMAR CATEGORIAS
         function getCategory(category) {
             $.ajax({
-                url: " https://api.mercadolibre.com/categories/" + category,
+                url: "/meli/subcategories/" + category,
                 type: "GET",
                 success: function(response) {
                     if (response) {
@@ -1088,9 +1088,8 @@
 
                         if (index.length <= 1) {
                             $.ajax({
-                                url: " https://api.mercadolibre.com/categories/" +
-                                    category + "/attributes",
-                                type: "GET",
+                                 url: "/meli/subcategories/attributes/" + category,
+                                 type: "GET",
                                 success: function(response) {
                                     if (response) {
 
