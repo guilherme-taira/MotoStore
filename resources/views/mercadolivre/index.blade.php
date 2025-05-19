@@ -423,7 +423,7 @@
                     // { "domain_id": "MLB-SHORTS" },
                     // { "domain_id": "MLB-LEGGINGS" },
                     // { "domain_id": "MLB-HEELS_AND_WEDGES" },
-                    // { "domain_id": "MLB-SLIPPERS" },
+                    { "domain_id": "MLB-SLIPPERS" },
                     // { "domain_id": "MLB-FLATS" },
                     // { "domain_id": "MLB-ESPADRILLES" },
                     // { "domain_id": "MLB-HIKING_BOOTS" },

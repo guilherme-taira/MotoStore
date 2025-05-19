@@ -50,6 +50,7 @@ use App\Http\Controllers\MercadoLivre\ProdutoConcreto;
 use App\Http\Controllers\MercadoLivre\RefreshTokenController;
 use App\Http\Controllers\MercadoLivre\updatePriceSiteController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSkirts;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSlippers;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSwimwearCreator;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Http\Controllers\MercadoLivreStockController;
@@ -350,6 +351,7 @@ class productsController extends Controller
              curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
              curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$request->token}"]);
              $response = curl_exec($ch);
              $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
              curl_close($ch);
@@ -372,7 +374,8 @@ class productsController extends Controller
              ->setNext(new handlerPants())
              ->setNext(new handlerSkirts())
              ->setNext(new handlerBras())
-             ->setNext(new handlerSwimwearCreator());
+             ->setNext(new handlerSwimwearCreator())
+             ->setNext(new handlerSlippers());
 
              $grid = $handler->Manipular($obj);
 
