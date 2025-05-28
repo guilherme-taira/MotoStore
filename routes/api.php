@@ -124,6 +124,7 @@ Route::prefix('v1')->group(function () {
     Route::get('paginationExtract',[extensaoController::class,'paginarAutomaticamente']);
     Route::get('/visitas-ml/{itemId}', [productsController::class, 'getVisitas']);
 
+
     // financeiro::contareceber(Auth::user()->id);
 });
 

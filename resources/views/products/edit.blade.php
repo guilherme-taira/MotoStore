@@ -1,6 +1,51 @@
 @extends('layouts.app')
 @section('conteudo')
     <style>
+        .variacao-item {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .variacao-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .variacao-item .conteudo-variacao {
+            display: none;
+        }
+
+        .variacao-item.aberta .conteudo-variacao {
+            display: block;
+        }
+
+        /* Aumenta apenas o modal lateral chamado #modalVariacao */
+        #modalVariacao .modal-dialog {
+            max-width: 700px;
+            /* ou qualquer valor desejado */
+            width: 100%;
+        }
+
+        #modalVariacao.modal.right .modal-dialog {
+            position: fixed;
+            right: 0;
+            margin: 0;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        #modalVariacao.modal.right.show .modal-dialog {
+            transform: translateX(0);
+        }
+
+        #modalVariacao .modal-content {
+            height: 100%;
+            overflow-y: auto;
+            border-radius: 0;
+        }
+
         #loading-api {
             /* Garante que o loading fique oculto ao carregar a página */
             position: fixed;
@@ -174,6 +219,102 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
 
     <script>
+        // PARA FILTRAR OS FORNECEDOR DAS VARIAÇÔES
+        let filterApplied = false; // Indica se o filtro já foi aplicado
+        let selectedProducts = [];
+        let currentFornecedor = null;
+
+        $(document).ready(function() {
+            $('#modalNovoProduto').on('shown.bs.modal', function() {
+                loadProducts(1, currentFornecedor);
+            });
+        });
+
+        $(document).on('click', '.variacao-item', function(e) {
+            const isInteractive = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'LABEL'].includes(e.target.tagName);
+
+            if (isInteractive || $(e.target).closest('button, input, select, textarea, label').length) {
+                return; // Não fecha se clicou em um elemento interativo
+            }
+            $(this).toggleClass('aberta');
+        });
+
+
+        function loadProducts(page = 1, fornecedor = null) {
+            $('#produto-list').empty();
+            $('#loader').removeClass('d-none');
+
+            $.get(`/api/v1/produtos?page=${page}&fornecedor_id=${fornecedor}`, function(data) {
+                const products = data.data;
+                const pagination = data.links;
+                $('#loader').addClass('d-none');
+
+                products.forEach(product => {
+                    const isChecked = selectedProducts.includes(product.id.toString()) ? 'checked' : '';
+                    $('#produto-list').append(`
+                    <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
+                        <input class="form-check-input me-2 product-checkbox" type="checkbox" value="${product.id}" id="product-${product.id}" ${isChecked}>
+                        <img src="${product.imagem_url}" alt="${product.title}" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${product.title}</h6>
+                            <span class="text-muted">Preço: R$${product.priceKit.toFixed(2)}</span>
+                            <span class="text-muted ms-3">Estoque: ${product.available_quantity}</span>
+
+                            <!-- Inputs ocultos para uso no script -->
+                            <input type="hidden" id="title-${product.id}" value="${product.title}">
+                            <input type="hidden" id="price-${product.id}" value="${product.priceKit}">
+                            <input type="hidden" id="stock-${product.id}" value="${product.available_quantity}">
+                            <input type="hidden" id="fornecedor-${product.id}" value="${product.fornecedor_id}">
+                        </div>
+                    </li>
+                 `);
+                });
+
+                $('.product-checkbox').on('click', function() {
+                    const productId = $(this).val();
+                    const fornecedorId = $(`#fornecedor-${productId}`).val();
+
+                    if (!filterApplied || currentFornecedor !== fornecedorId) {
+                        loadProducts(page, fornecedorId);
+                        filterApplied = true;
+                        currentFornecedor = fornecedorId;
+                    }
+                });
+
+                $('#pagination').html('');
+
+                if (data.prev_page_url) {
+                    $('#pagination').append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadProducts(${page - 1}, ${fornecedor ? `'${fornecedor}'` : 'null'}); return false;">Anterior</a>
+                </li>
+            `);
+                }
+
+                pagination.forEach(pageLink => {
+                    if (pageLink.label !== 'pagination.previous' && pageLink.label !== 'pagination.next') {
+                        const pageNumber = parseInt(pageLink.label, 10);
+                        if (!isNaN(pageNumber)) {
+                            $('#pagination').append(`
+                        <li class="page-item ${pageLink.active ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadProducts(${pageNumber}, ${fornecedor ? `'${fornecedor}'` : 'null'}); return false;">${pageNumber}</a>
+                        </li>
+                    `);
+                        }
+                    }
+                });
+
+                if (data.next_page_url) {
+                    $('#pagination').append(`
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="loadProducts(${page + 1}, ${fornecedor ? `'${fornecedor}'` : 'null'}); return false;">Próximo</a>
+                </li>
+            `);
+                }
+            });
+        }
+
+
         function serializeFormData() {
             let inputs = document.querySelectorAll("#formContainer input, #formContainer select");
             let formContainer = document.getElementById("formContainer");
@@ -215,8 +356,6 @@
             // Salva no input hidden antes do envio
             document.getElementById("atributos_html").value = formContainerHTML;
         }
-
-
 
         function serializeFormHTML() {
             let inputs = document.querySelectorAll("#formContainer input, #formContainer select");
@@ -621,6 +760,69 @@
                 </div>
             @endif
 
+            <!-- Modal lateral direita -->
+            <div class="modal fade right" id="modalVariacao" tabindex="-1" aria-labelledby="modalVariacaoLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalVariacaoLabel">Criar Nova Variação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Botão para adicionar nova variação -->
+                            <div class="text-end mb-3">
+                                <button type="button" class="btn btn-success btn-sm" id="btnNovaVariacao">+ Nova
+                                    Variação</button>
+                            </div>
+
+                            <!-- Contêiner onde as variações serão inseridas -->
+                            <div id="containerVariacoes"></div>
+
+                            <!-- Template de variação (oculto) -->
+                            <div class="variacao-template d-none">
+                                <div class="card mb-3 variacao-item" data-index="__INDEX__">
+                                    <div class="card-header bg-light">
+                                        <strong>Variação #__INDEX__</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3 row">
+                                            <label class="col-lg-2 col-form-label">Imagem:</label>
+                                            <div class="col-lg-10">
+                                                <input class="form-control input-variacao-foto" type="file"
+                                                    name="variation[__INDEX__][photos][]" multiple>
+                                                <div class="preview-imagens mt-2 d-flex flex-wrap gap-2"></div>
+                                            </div>
+                                        </div>
+                                        <div class="atributos-container">
+                                            <!-- Atributos via AJAX serão injetados aqui -->
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-md-6 mb-2">
+                                                <label>Título da Variação:</label>
+                                                <input type="text" class="form-control"
+                                                    name="variation[__INDEX__][titulo]" placeholder="Título da variação">
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label>Estoque:</label>
+                                                <input type="number" class="form-control"
+                                                    name="variation[__INDEX__][estoque]"
+                                                    placeholder="Quantidade em estoque">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Feedback inicial -->
+                            <div id="resultadoAjax" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <!--- FINAL DO MODAL ---->
             <div id="liveAlertPlaceholder"></div>
 
@@ -674,14 +876,13 @@
                                             <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
                                                 <!-- Checkbox -->
                                                 <input class="form-check-input me-2 kit-checkbox" type="checkbox"
-                                                       value="{{ $product->id }}" id="product-{{ $product->id }}"
-                                                       name="products[{{ $product->id }}][id]" checked>
+                                                    value="{{ $product->id }}" id="product-{{ $product->id }}"
+                                                    name="products[{{ $product->id }}][id]" checked>
 
                                                 <!-- Imagem do Produto -->
-                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) !!}"
-                                                     alt="{{ $product->title }}"
-                                                     class="rounded me-3"
-                                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->id . '/' . $product->image) !!}" alt="{{ $product->title }}"
+                                                    class="rounded me-3"
+                                                    style="width: 80px; height: 80px; object-fit: cover;">
 
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1">{{ $product->title }}</h6>
@@ -691,24 +892,27 @@
                                                         {{ $product->available_quantity }}</span>
 
                                                     <!-- Formulário para atualizar quantidade -->
-                                                    <form action="{{ route('updateQuantidadeNoKit', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
-                                                          method="POST" class="update-quantity-form mt-2">
+                                                    <form
+                                                        action="{{ route('updateQuantidadeNoKit', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
+                                                        method="POST" class="update-quantity-form mt-2">
                                                         @csrf
                                                         <div class="input-group input-group-sm" style="width: 150px;">
                                                             <input name="stock" id="stock-{{ $product->id }}"
-                                                                   value="{{ $product->available_quantity ?? 1 }}"
-                                                                   type="number" class="form-control">
-                                                            <button type="submit" id="btnSalvarQuantidade{{ $product->id }}" class="btn btn-success">
+                                                                value="{{ $product->available_quantity ?? 1 }}"
+                                                                type="number" class="form-control">
+                                                            <button type="submit"
+                                                                id="btnSalvarQuantidade{{ $product->id }}"
+                                                                class="btn btn-success">
                                                                 <i class="bi bi-arrow-clockwise me-1"></i>
                                                             </button>
                                                         </div>
                                                     </form>
 
                                                     <!-- Botão Delete para remover o produto do kit -->
-                                                    <form action="{{ route('kits.deleteProduct', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
-                                                          method="POST"
-                                                          class="mt-2"
-                                                          onsubmit="return confirm('Tem certeza que deseja remover este produto do kit?');">
+                                                    <form
+                                                        action="{{ route('kits.deleteProduct', ['productId' => $product->product_id, 'kitId' => $product->id_product_kit]) }}"
+                                                        method="POST" class="mt-2"
+                                                        onsubmit="return confirm('Tem certeza que deseja remover este produto do kit?');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-danger btn-sm">
@@ -718,13 +922,14 @@
 
                                                     <!-- Inputs ocultos para dados adicionais -->
                                                     <input type="hidden" name="products[{{ $product->id }}][priceKit]"
-                                                           value="{{ $product->priceKit }}">
-                                                    <input type="hidden" name="products[{{ $product->id }}][quantity]" value="1">
-                                                    <input type="hidden" name="products[{{ $product->id }}][available_quantity]"
-                                                           value="{{ $product->available_quantity }}">
+                                                        value="{{ $product->priceKit }}">
+                                                    <input type="hidden" name="products[{{ $product->id }}][quantity]"
+                                                        value="1">
+                                                    <input type="hidden"
+                                                        name="products[{{ $product->id }}][available_quantity]"
+                                                        value="{{ $product->available_quantity }}">
                                                 </div>
                                             </li>
-
                                         @endforeach
                                     </ul>
                                 </div>
@@ -864,14 +1069,131 @@
                                         <input name="brand" type="text" value="{{ $viewData['product']->brand }}"
                                             class="form-control" required>
                                     </div>
+
                                 </div>
+
+                                <div class="d-flex justify-content-end gap-2 mb-3 mt-4">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                        id="btnAdicionarAtributosGlobais">
+                                        + Adicionar Atributo a Todas as Variações
+                                    </button>
+
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#modalNovoProduto">
+                                        + Adicionar Novo Produto
+                                    </button>
+                                </div>
+
+                                <ul class="list-unstyled" id="kitItemList">
+                                    @foreach (json_decode($viewData['product']->variation_data ?? '[]') as $index => $product)
+                                        <li class="variacao-item border rounded shadow-sm p-3"
+                                            data-index="{{ $index }}">
+                                            <div class="cabecalho d-flex align-items-center gap-3">
+                                                @php
+                                                    $imagem = $product->picture_ids[0] ?? null;
+                                                @endphp
+                                                @if ($imagem)
+                                                    <img src="{{ $imagem }}" alt="Imagem"
+                                                        style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                                                @endif
+                                                <h5 class="m-0">Variação #{{ $index + 1 }}</h5>
+                                            </div>
+
+                                            <div class="conteudo-variacao mt-3">
+                                                <div class="text-end">
+                                                    <button type="button"
+                                                        class="btn btn-outline-secondary btn-sm btn-duplicar-variacao">
+                                                        <i class="bi bi-files"></i> Duplicar Variação
+                                                    </button>
+                                                </div>
+
+                                                <div class="text-end mt-2">
+                                                    <button type="button"
+                                                        class="btn btn-danger btn-sm btn-excluir-variacao">
+                                                        <i class="bi bi-trash"></i> Excluir Variação
+                                                    </button>
+                                                </div>
+
+                                                @if (!empty($product->picture_ids))
+                                                    <div class="d-flex flex-wrap gap-2 mt-3 picture-group"
+                                                        data-index="{{ $index }}">
+                                                        @foreach ($product->picture_ids as $i => $url)
+                                                            <div class="position-relative border rounded p-1">
+                                                                <button type="button"
+                                                                    class="btn-close position-absolute top-0 end-0 btn-sm btn-remove-image"
+                                                                    aria-label="Remover"
+                                                                    data-image-index="{{ $i }}"></button>
+                                                                <input type="hidden"
+                                                                    name="variation[{{ $index }}][picture_ids][]"
+                                                                    value="{{ $url }}">
+                                                                <img src="{{ $url }}" alt="Imagem"
+                                                                    style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+
+                                                <input type="hidden" name="variation[{{ $index }}][sku]"
+                                                    value="{{ $product->attributes[0]->value_name ?? '' }}">
+                                                <input type="hidden" name="variation[{{ $index }}][nome]"
+                                                    value="{{ $product->nome ?? '' }}">
+
+                                               <div class="mb-2 mt-3">
+                                                <label>
+                                                    Preço:
+                                                    <button type="button" class="btn btn-sm btn-outline-info"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="O preço inserido na primeira variação será aplicado automaticamente a todas as demais.">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </button>
+                                                </label>
+                                                <input type="number" step="0.01" class="form-control mt-2"
+                                                    name="variation[{{ $index }}][price]"
+                                                    value="{{ $product->price ?? 0 }}">
+                                            </div>
+
+
+
+                                                <div class="mb-2">
+                                                    <label>Estoque:</label>
+                                                    <input type="number" class="form-control"
+                                                        name="variation[{{ $index }}][available_quantity]"
+                                                        value="{{ $product->available_quantity ?? 0 }}">
+                                                </div>
+
+                                                <div class="atributos-list">
+                                                    @foreach ($product->attribute_combinations ?? [] as $i => $combo)
+                                                        <div class="row mb-2 atributo-row">
+                                                            <div class="col">
+                                                                <input type="text"
+                                                                    name="variation[{{ $index }}][atributos_nome][]"
+                                                                    value="{{ $combo->name }}" placeholder="Nome"
+                                                                    class="form-control atributo-nome" required>
+                                                            </div>
+                                                            <div class="col">
+                                                                <input type="text"
+                                                                    name="variation[{{ $index }}][atributos_valor][]"
+                                                                    value="{{ $combo->value_name }}" placeholder="Valor"
+                                                                    class="form-control" required>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-danger btn-sm btn-apagar-atributo"
+                                                                    title="Apagar este atributo de todas as variações">
+                                                                    <i class="bi bi-x"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+
                             </div>
                         </div>
                     </div>
-
-
-
-
 
                     <!-- Preço e Estoque -->
                     <div class="accordion-item">
@@ -888,15 +1210,10 @@
                                     <!-- Preço R$ -->
                                     <div class="col-lg-3">
                                         <label for="precoNormal">Preço R$:</label>
-                                        <input
-                                            name="price"
-                                            id="precoNormal"
+                                        <input name="price" id="precoNormal"
                                             value="{{ $viewData['product']->isKit ? number_format($totalPrice, 2) : $viewData['product']->price }}"
-                                            type="text"
-                                            class="form-control"
-                                            required
-                                            @if(Auth::user()->forncecedor != 1) readonly @endif
-                                        >
+                                            type="text" class="form-control" required
+                                            @if (Auth::user()->forncecedor != 1) readonly @endif>
                                         @error('price')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
@@ -966,7 +1283,6 @@
                                     @enderror
                                 </div>
 
-
                                 <div class="row mb-3 mt-2">
                                     <!-- Botões de Ação -->
                                     <div class="col-lg-6">
@@ -993,7 +1309,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <!-- Atributos -->
                     <div class="accordion-item">
@@ -1058,7 +1373,8 @@
 
                                         @foreach ($tiposAnuncio as $valor => $label)
                                             <option value="{{ $valor }}"
-                                                {{ $tipoAtual == $valor ? 'selected' : '' }}>{{ $label }}</option>
+                                                {{ $tipoAtual == $valor ? 'selected' : '' }}>{{ $label }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -1144,8 +1460,6 @@
                                 </div>
 
                                 <div id="jsonViewer" style="height: 400px; border: 1px solid #ccc;"></div>
-
-
                             </div>
                         </div>
                     </div>
@@ -1186,7 +1500,8 @@
 
                                             <div class="mb-3 row d-none">
 
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído:
+                                                </label>
                                                 <div class="col-lg-3 col-md-6 col-sm-12">
                                                     <input name="valorProdFornecedor"
                                                         value="{{ $viewData['product']->valorProdFornecedor }}"
@@ -1218,7 +1533,8 @@
                                                                 readonly>
                                                         </div>
 
-                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label">Taxa %:
+                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label">Taxa
+                                                            %:
                                                         </label>
                                                         <div class="col-lg-2 col-md-6 col-sm-12">
                                                             <input name="taxaFee" id="taxaFee" type="text"
@@ -1277,7 +1593,8 @@
                                                     <input id="precoFinal" value="{{ old('price') }}" type="text"
                                                         class="form-control">
                                                 </div>
-                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído: </label>
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído:
+                                                </label>
                                                 <div class="col-lg-3 col-md-6 col-sm-12">
                                                     <input name="valorProdFornecedor"
                                                         value="{{ $viewData['product']->valorProdFornecedor }}"
@@ -1289,7 +1606,8 @@
                                                 <div class="col">
                                                     <div class="mb-3 row">
 
-                                                        <label class="col-lg-2 col-md-3 col-sm-12 col-form-label">Taxa %:
+                                                        <label class="col-lg-2 col-md-3 col-sm-12 col-form-label">Taxa
+                                                            %:
                                                         </label>
                                                         <div class="col-lg-1 col-md-6 col-sm-12">
                                                             <input name="taxaFee" id="taxaFee" type="text"
@@ -1320,6 +1638,8 @@
                             </div>
                         @endif
                     </div>
+
+                    <input type="hidden" id="ml-token" value="{{ $viewData['token']->access_token }}">
 
                     <script>
                         document.addEventListener("DOMContentLoaded", function() {
@@ -1357,11 +1677,7 @@
                 aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addProductModalLabel">Adicionar Novo Produto ao Kit</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
+
                         <div class="modal-body">
                             <!-- Campo Hidden para armazenar o ID do produto sendo editado -->
                             <input type="hidden" name="product_id" value="{{ $viewData['product']->id }}">
@@ -1386,8 +1702,31 @@
             </div>
 
 
-
-
+            <!-- Modal grande para Adicionar Novo Produto -->
+            <div class="modal fade" id="modalNovoProduto" tabindex="-1" aria-labelledby="modalNovoProdutoLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalNovoProdutoLabel">Adicionar Novo Produto ao Kit</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul id="produto-list" class="list-unstyled"></ul>
+                            <div id="loader" class="text-center d-none">Carregando...</div>
+                            <nav>
+                                <ul id="pagination" class="pagination justify-content-center mt-3"></ul>
+                            </nav>
+                            <div class="text-end mt-3">
+                                <button type="button" class="btn btn-success d-none" id="btnCriarVariacaoSelecionada">
+                                    <i class="bi bi-plus-circle"></i> Criar Variação com Selecionados
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -1410,6 +1749,408 @@
         const valorAgregadoInput = document.getElementById('valorAgregadoInput');
         const valorAgregadoSelect = document.getElementById('editValorAgregado');
 
+        $(document).ready(function() {
+
+            $(function () {
+             $('[data-bs-toggle="tooltip"]').tooltip();
+            });
+
+
+            let selectedProducts = [];
+
+            $(document).on('click', '.btn-apagar-atributo', function() {
+                const atributoRow = $(this).closest('.atributo-row');
+                const atributoNome = atributoRow.find('.atributo-nome').val();
+
+                if (!atributoNome) return;
+
+                if (confirm(
+                    `Deseja realmente apagar o atributo "${atributoNome}" de todas as variações?`)) {
+                    $('.atributo-row').each(function() {
+                        const nome = $(this).find('.atributo-nome').val();
+                        if (nome === atributoNome) {
+                            $(this).remove();
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '.btn-excluir-variacao', function() {
+                if (confirm('Tem certeza que deseja excluir esta variação?')) {
+                    $(this).closest('.variacao-item').remove();
+                }
+            });
+
+            // Executa ao clicar no checkbox para mostrar o botão de criar variação
+            $(document).on('change', '.product-checkbox', function() {
+                const checkedCount = $('.product-checkbox:checked').length;
+                if (checkedCount > 0) {
+                    if ($('#btnCriarVariacao').length === 0) {
+                        $('#modalNovoProduto .modal-body').append(`
+                        <div class="text-end mt-3">
+                            <button type="button" class="btn btn-success" id="btnCriarVariacao">
+                                Criar Variação
+                            </button>
+                        </div>
+                    `);
+                    }
+                } else {
+                    $('#btnCriarVariacao').parent().remove();
+                }
+            });
+
+
+            function sincronizarAtributos() {
+                let primeira = null;
+
+                // Procura a primeira variação com atributos válidos
+                $('.variacao-item').each(function() {
+                    if ($(this).find('.atributos-list .row').length > 0) {
+                        primeira = $(this);
+                        return false; // break
+                    }
+                });
+
+                if (!primeira) {
+                    console.warn('⚠️ Nenhuma variação com atributos encontrados. Sincronização abortada.');
+                    return;
+                }
+
+                const atributosNomes = [];
+                primeira.find('.atributos-list .row').each(function() {
+                    const nome = $(this).find('input[name*="[atributos_nome]"]').val();
+                    atributosNomes.push(nome);
+                });
+
+                console.log('🟦 Atributos de referência para sincronizar:', atributosNomes);
+
+                // Aplica os atributos a todas as variações
+                $('.variacao-item').each(function() {
+                    const index = $(this).data('index');
+                    const container = $(this).find('.atributos-list');
+
+                    const nomesExistentes = [];
+                    container.find('input[name*="[atributos_nome]"]').each(function() {
+                        nomesExistentes.push($(this).val());
+                    });
+
+                    console.log(`🟨 Variação #${index + 1} - Atributos existentes:`, nomesExistentes);
+
+                    atributosNomes.forEach(function(nomeEsperado) {
+                        if (!nomesExistentes.includes(nomeEsperado)) {
+                            console.warn(
+                                `🔁 Variação #${index + 1}: Atributo "${nomeEsperado}" está faltando. Adicionando.`
+                                );
+
+                            const html = `
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <input type="text" name="variation[${index}][atributos_nome][]" value="${nomeEsperado}" placeholder="Nome" class="form-control" required>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="variation[${index}][atributos_valor][]" value="" placeholder="Valor" class="form-control" required>
+                                </div>
+                            </div>
+                        `;
+                            container.append(html);
+                        } else {
+                            console.log(
+                                `✅ Variação #${index + 1}: Atributo "${nomeEsperado}" já existe.`
+                                );
+                        }
+                    });
+
+                    console.log(`🟩 Final após sincronizar Variação #${index + 1}:`, container.html());
+                });
+
+                console.log('✅ Sincronização concluída com sucesso.');
+            }
+
+            // Quando clicar no botão "Criar Variação"
+            $(document).on('click', '#btnCriarVariacao', function() {
+                $('.product-checkbox:checked').each(function() {
+                    const productId = $(this).val();
+                    const title = $(`#title-${productId}`).val();
+                    const price = parseFloat($(`#price-${productId}`).val()) || 0;
+                    const stock = parseInt($(`#stock-${productId}`).val()) || 0;
+                    const image = $(this).siblings('img').attr('src');
+
+                    const index = $('.variacao-item').length;
+
+                    const novaVariacao = `
+                    <li class="mb-3 p-3 border rounded shadow-sm position-relative variacao-item" data-index="${index}">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Variação #${index + 1}</h5>
+
+                                <input type="hidden" name="variation[${index}][sku]" value="${productId}">
+                                <input type="hidden" name="variation[${index}][nome]" value="${title}">
+
+                                <div class="mb-2">
+                                    <label>Preço:</label>
+                                    <input type="number" step="0.01" class="form-control" name="variation[${index}][price]" value="${price}">
+                                </div>
+
+                                <div class="mb-2">
+                                    <label>Estoque:</label>
+                                    <input type="number" class="form-control" name="variation[${index}][available_quantity]" value="${stock}">
+                                </div>
+
+                                <div class="mb-2">
+                                    <label>Imagem:</label>
+                                    <div class="d-flex gap-2">
+                                        <img src="${image}" style="width: 60px; height: 60px; border: 1px solid #ccc; border-radius: 4px;">
+                                    </div>
+                                </div>
+
+                                <div class="atributos-list">
+
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                `;
+
+                    $('#kitItemList').append(novaVariacao);
+                });
+                sincronizarAtributos();
+                $('#modalNovoProduto').modal('hide');
+            });
+
+            $(document).on('click', '.btn-remove-image', function() {
+                $(this).closest('.position-relative').remove();
+            });
+
+
+            $(document).on('click', '.btn-duplicar-variacao', function() {
+                const originalItem = $(this).closest('.variacao-item');
+                const newIndex = $('.variacao-item').length;
+
+                // Clona o item
+                const cloned = originalItem.clone(true, true); // Clona com eventos
+
+                // Atualiza índice
+                cloned.attr('data-index', newIndex);
+                cloned.find('h6.mb-1').text(`Variação #${newIndex + 1}`);
+
+                // Atualiza os 'name' dos campos clonados
+                cloned.find('input, select, textarea').each(function() {
+                    const oldName = $(this).attr('name');
+                    if (oldName) {
+                        const newName = oldName.replace(/variation\[\d+\]/g,
+                            `variation[${newIndex}]`);
+                        $(this).attr('name', newName);
+                    }
+                });
+
+                // Corrige campos readonly de atributos
+                cloned.find('input[readonly]').each(function() {
+                    const newVal = $(this).val();
+                    $(this).val(newVal); // mantém o valor
+                });
+
+                // Corrige a galeria de imagens
+                const imagens = originalItem.find('.card-atributos img').map(function() {
+                    return $(this).attr('src');
+                }).get();
+
+                const previewContainer = cloned.find('.card-atributos .d-flex.flex-wrap.gap-2');
+                previewContainer.empty();
+
+                imagens.forEach(src => {
+                    const img = $('<img>')
+                        .attr('src', src)
+                        .css({
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                        });
+
+                    previewContainer.append(img);
+                });
+                // Fecha a duplicada por padrão
+                cloned.find('.card-atributos').addClass('d-none');
+
+                // Adiciona ao final da lista
+                $('#kitItemList').append(cloned);
+            });
+
+            // Remover linha de combinação de atributo
+            $(document).on('click', '.btn-remove-combo', function() {
+                $(this).closest('.combo-row').fadeOut(200, function() {
+                    $(this).remove();
+                });
+            });
+
+            // Toggle de variação
+            $('.toggle-variacao').on('click', function() {
+                const parent = $(this).closest('.variacao-item');
+                const icon = $(this).find('.toggle-icon');
+                const card = parent.find('.card-atributos');
+
+                if (card.hasClass('d-none')) {
+                    card.removeClass('d-none').hide().slideDown(200);
+                    icon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                } else {
+                    card.slideUp(200, function() {
+                        card.addClass('d-none');
+                    });
+                    icon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                }
+            });
+
+            // ✅ Adiciona campo de atributo a TODAS as variações
+            $('#btnAdicionarAtributosGlobais').on('click', function() {
+                $('.variacao-item').each(function() {
+                    const wrapper = $(this).find('.atributos-list');
+                    const index = $(this).data('index');
+
+                    const campo = `
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="variation[${index}][atributos_nome][]" placeholder="Nome do atributo" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="variation[${index}][atributos_valor][]" placeholder="Valor do atributo" required>
+                    </div>
+                </div>
+            `;
+                    wrapper.append(campo);
+                });
+            });
+        });
+
+
+        let variacaoIndex = 1;
+
+        // HTML dos atributos que já vieram do AJAX (ex: armazenado em uma variável ou do servidor)
+        let atributosHTML = '';
+
+        // Quando os atributos forem carregados via AJAX, salve o HTML pronto em uma variável
+        function setAtributosHTML(html) {
+            atributosHTML = html;
+        }
+
+
+        $('#btnNovaVariacao').on('click', function() {
+            const index = variacaoIndex++;
+
+            // Clona o template e substitui o índice
+            const template = $('.variacao-template').html().replace(/__INDEX__/g, index);
+            const el = $(template);
+
+            // Insere os atributos já carregados na nova variação
+            el.find('.atributos-container').html(atributosHTML);
+
+            // Adiciona ao container de variações
+            $('#containerVariacoes').append(el);
+
+            // ✅ Ativa o preview das imagens da nova variação
+            el.find('.input-variacao-foto').on('change', function(e) {
+                const files = e.target.files;
+                const previewContainer = $(this).closest('.col-lg-10').find('.preview-imagens');
+                previewContainer.empty(); // limpa prévias antigas
+
+                Array.from(files).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = $('<img>')
+                            .attr('src', event.target.result)
+                            .css({
+                                width: '80px',
+                                height: '80px',
+                                objectFit: 'cover',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc'
+                            });
+
+                        previewContainer.append(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        });
+
+        function setAtributosHTML(html) {
+            atributosHTML = html;
+        }
+
+        $('#btnAbrirVariacao').on('click', function(e) {
+            e.preventDefault();
+            $('#resultadoAjax').html('Carregando atributos...');
+
+            const category = $("#id_categoria").val();
+
+            $.ajax({
+                url: "/meli/subcategories/attributes/" + category,
+                type: "GET",
+                success: function(response) {
+                    if (response) {
+                        const requiredItems = [];
+                        const IncludeAttributes = ['MODEL'];
+
+                        response.forEach(item => {
+                            if (
+                                item.tags &&
+                                item.tags.variation_attribute === true &&
+                                !IncludeAttributes.includes(item.id)
+                            ) {
+                                requiredItems.push(item);
+                            }
+
+                            if (
+                                IncludeAttributes.includes(item.id)
+                            ) {
+                                requiredItems.push(item);
+                            }
+                        });
+
+
+                        let atributosHtmlGerado = '';
+
+                        if (requiredItems.length > 0) {
+                            atributosHtmlGerado += '<div class="row">';
+                            requiredItems.forEach(element => {
+                                atributosHtmlGerado += '<div class="col-md-6 col-sm-12 mb-3">';
+                                atributosHtmlGerado += '<div class="form-group">';
+                                atributosHtmlGerado += `<label>${element.name}</label>`;
+
+                                if (!element.values || element.values.length === 0) {
+                                    atributosHtmlGerado +=
+                                        `<input type="text" name="${element.id}" class="form-control form-control-sm">`;
+                                } else {
+                                    atributosHtmlGerado +=
+                                        `<select name="${element.id}" class="form-control form-control-sm">`;
+                                    atributosHtmlGerado +=
+                                        '<option value="">Selecione uma opção</option>';
+                                    element.values.forEach(value => {
+                                        atributosHtmlGerado +=
+                                            `<option value="${value.id}">${value.name}</option>`;
+                                    });
+                                    atributosHtmlGerado += '</select>';
+                                }
+
+                                atributosHtmlGerado += '</div></div>';
+                            });
+                            atributosHtmlGerado += '</div>';
+                        } else {
+                            atributosHtmlGerado =
+                                '<p class="text-muted">Nenhum atributo de variação encontrado.</p>';
+                        }
+
+                        setAtributosHTML(atributosHtmlGerado);
+                        $('#resultadoAjax').html(
+                            '<div class="alert alert-success">Atributos carregados! Use "+ Nova Variação" para adicioná-los.</div>'
+                        );
+                    }
+                },
+                error: function() {
+                    $('#resultadoAjax').html(
+                        '<div class="alert alert-danger">Erro ao carregar os atributos.</div>');
+                }
+            });
+        });
 
 
         function atualizarValorProduto() {
@@ -1494,9 +2235,8 @@
                     idBlingInput.style.boxShadow = '0px 0px 10px rgba(255, 0, 0, 0.5)';
                 }
             });
-        });
 
-        $(document).ready(function() {
+
 
             // Quando o estoque é alterado
             $('input[name="available_quantity"]').on('input', function() {
@@ -1542,6 +2282,7 @@
                     reader.readAsDataURL(file);
                 });
             });
+
 
             // Função para adicionar imagens ao preview
             function addImageToPreview(imageUrl, fileName, isExisting = false) {
@@ -1939,7 +2680,7 @@
             // FUNCAO PARA CHAMAR CATEGORIAS
             function getNameCategory(category) {
                 $.ajax({
-                    url: " https://api.mercadolibre.com/categories/" + category,
+                    url: "https://api.mercadolibre.com/categories/" + category,
                     type: "GET",
                     success: function(response) {
                         if (response) {

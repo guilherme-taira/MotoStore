@@ -158,7 +158,9 @@ class ProdutoConcreto implements Produto
             }
 
 
+
             $data_json = json_encode($data);
+                        Log::alert($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();

@@ -101,10 +101,12 @@ Route::post('/package/create', [PackageController::class, 'createPackage']);
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
+Route::get('/allProductsByFornecedorVariation',[productsController::class,'todosProdutosWithVariation'])->name('allProductsByFornecedorVariation');
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
 Route::post('/merge-pdfs', [orderscontroller::class, 'mergeLabels'])->name('merge.pdfs');
 Route::get('/exclusivos',[productsController::class,'exclusivos'])->name('products.exclusivos')->middleware('restrict.route');
 Route::post('/salvar-ordem-imagens', [productsController::class, 'salvarOrdem'])->name('salvar.ordem.imagens');
+Route::post('storeWithVariations',[productsController::class,'storeWithVariations'])->name('storeWithVariations');
 Route::delete('/kits/deleteProduct/{productId}/{kitId}', [KitsKitsController::class, 'deleteProduct'])
     ->name('kits.deleteProduct');
 
@@ -230,6 +232,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('/meli/subcategories/{category}', [productsController::class, 'getCategoryById']);
         Route::get('/meli/subcategories/attributes/{category}', [productsController::class, 'getCategoryAttributeById']);
         Route::get('/treinamentos', [TreinamentosController::class, 'index'])->name('treinamentos.index');
+        Route::get('/meli/subcategories/attributes/variation/{category}', [productsController::class, 'getCategoryAttributeByVariation']);
     });
 
 

@@ -165,7 +165,7 @@
                     const productId = $(this).val();
                     const fornecedorId = $(`#fornecedor-${productId}`).val();
                     // Chama novamente a função para recarregar os produtos
-                 // Se o filtro ainda não foi aplicado ou se o fornecedor for diferente, recarregue com o novo filtro
+                    // Se o filtro ainda não foi aplicado ou se o fornecedor for diferente, recarregue com o novo filtro
                     if (!filterApplied || currentFornecedor !== fornecedorId) {
                         loadProducts(page, fornecedorId);
                         filterApplied = true;
@@ -191,8 +191,8 @@
                     `);
                 }
 
-                    // Percorre cada link de paginação
-                    pagination.forEach((pageLink) => {
+                // Percorre cada link de paginação
+                pagination.forEach((pageLink) => {
                     // Se o label for 'pagination.previous' ou 'pagination.next',
                     // podemos tratar separadamente ou simplesmente ignorar aqui.
                     if (pageLink.label === 'pagination.previous' || pageLink.label === 'pagination.next') {
@@ -233,12 +233,11 @@
         }
 
         function clearFilter() {
-    // Reseta o controle de filtro e recarrega a lista sem filtro
-    filterApplied = false;
-    currentFornecedor = null;
-    loadProducts(1, null);
-}
-
+            // Reseta o controle de filtro e recarrega a lista sem filtro
+            filterApplied = false;
+            currentFornecedor = null;
+            loadProducts(1, null);
+        }
     </script>
 
 
@@ -292,21 +291,21 @@
 
 
     @php
-    // Se $produtos for array associativo, reindexamos para pegar o primeiro item;
-    // se for uma Collection, usamos ->first().
-    $firstProduct = null;
-    if (isset($produtos) && count($produtos) > 0) {
-        $firstProduct = is_array($produtos)
-            ? array_values($produtos)[0]  // Reindexa e pega o primeiro
-            : $produtos->first();         // Se for Collection
-    }
+        // Se $produtos for array associativo, reindexamos para pegar o primeiro item;
+        // se for uma Collection, usamos ->first().
+        $firstProduct = null;
+        if (isset($produtos) && count($produtos) > 0) {
+            $firstProduct = is_array($produtos)
+                ? array_values($produtos)[0] // Reindexa e pega o primeiro
+                : $produtos->first(); // Se for Collection
+        }
 
-    // Verifica se há fornecedor definido no primeiro produto
-    $hasFornecedor = false;
-    if ($firstProduct && !empty($firstProduct['fornecedor'])) {
-        $hasFornecedor = true;
-    }
-  @endphp
+        // Verifica se há fornecedor definido no primeiro produto
+        $hasFornecedor = false;
+        if ($firstProduct && !empty($firstProduct['fornecedor'])) {
+            $hasFornecedor = true;
+        }
+    @endphp
 
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
@@ -432,44 +431,45 @@
     <!--- FINAL DO MODAL ---->
 
     <!-- Modal para exibir o catálogo de produtos com checkboxes -->
-<div class="modal fade" id="catalogoModal" tabindex="-1" aria-labelledby="catalogoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="catalogoModalLabel">Catálogo de Produtos</h5>
-                <div class="d-flex">
-                    <!-- Botão de Limpar Filtro (só aparece se NÃO houver fornecedor) -->
-                    @if(!$hasFornecedor)
-                        <button type="button" class="btn btn-danger me-2" onclick="clearFilter()" id="btnLimparFiltro">
-                            <i class="bi bi-x-circle me-2"></i> Limpar Filtro
-                        </button>
-                    @endif
+    <div class="modal fade" id="catalogoModal" tabindex="-1" aria-labelledby="catalogoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="catalogoModalLabel">Catálogo de Produtos</h5>
+                    <div class="d-flex">
+                        <!-- Botão de Limpar Filtro (só aparece se NÃO houver fornecedor) -->
+                        @if (!$hasFornecedor)
+                            <button type="button" class="btn btn-danger me-2" onclick="clearFilter()"
+                                id="btnLimparFiltro">
+                                <i class="bi bi-x-circle me-2"></i> Limpar Filtro
+                            </button>
+                        @endif
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <!-- Loader -->
-                <div id="loader" class="text-center mb-3 d-none">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Carregando...</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                 </div>
+                <div class="modal-body">
+                    <!-- Loader -->
+                    <div id="loader" class="text-center mb-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                    </div>
 
-                <!-- Área onde os produtos serão listados -->
-                <div id="produto-list"></div>
+                    <!-- Área onde os produtos serão listados -->
+                    <div id="produto-list"></div>
 
-                <!-- Botão para adicionar produtos selecionados ao kit e navegação de paginação -->
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <button type="button" class="btn btn-primary" id="adicionarSelecionados">
-                        Adicionar Produtos Selecionados
-                    </button>
-                    <nav aria-label="Navegação de página" id="pagination" class="pagination"></nav>
+                    <!-- Botão para adicionar produtos selecionados ao kit e navegação de paginação -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <button type="button" class="btn btn-primary" id="adicionarSelecionados">
+                            Adicionar Produtos Selecionados
+                        </button>
+                        <nav aria-label="Navegação de página" id="pagination" class="pagination"></nav>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <!--- FINAL DO MODAL ---->
 
@@ -532,10 +532,8 @@
                                     $total += $produto['price'] + $produto['fee'] * $produto['quantidade'];
                                 @endphp
                                 <li class="d-flex align-items-center mb-3 p-3 border rounded shadow-sm">
-                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}"
-                                         alt="{{ $produto['nome'] }}"
-                                         class="rounded me-3"
-                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                    <img src="{!! Storage::disk('s3')->url('produtos/' . $produto['id'] . '/' . $produto['imagem']) !!}" alt="{{ $produto['nome'] }}" class="rounded me-3"
+                                        style="width: 80px; height: 80px; object-fit: cover;">
 
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1">{{ $produto['nome'] ?? '' }}</h6>
@@ -553,15 +551,13 @@
                                         <!-- Campo de quantidade e botão de adicionar -->
                                         <div class="d-flex align-items-center">
                                             <span class="me-2">Quantidade:</span>
-                                            <form action="{{ route('adicionarQuantidadeNoKit', ['id' => $produto['id']]) }}"
-                                                  method="POST"
-                                                  class="d-inline-flex align-items-center">
+                                            <form
+                                                action="{{ route('adicionarQuantidadeNoKit', ['id' => $produto['id']]) }}"
+                                                method="POST" class="d-inline-flex align-items-center">
                                                 @csrf
-                                                <input name="stock"
-                                                       id="stock-{{ $produto['id'] }}"
-                                                       value="{{ $produto['quantidade'] ?? 1 }}"
-                                                       type="number"
-                                                       class="form-control form-control-sm w-25 me-2">
+                                                <input name="stock" id="stock-{{ $produto['id'] }}"
+                                                    value="{{ $produto['quantidade'] ?? 1 }}" type="number"
+                                                    class="form-control form-control-sm w-25 me-2">
                                                 <button id="btnSalvarQuantidade" class="btn btn-success btn-sm">
                                                     Adicionar
                                                 </button>
@@ -570,7 +566,7 @@
                                     </div>
 
                                     <a href="{{ route('deleteSessionRoute', ['id' => $produto['id']]) }}"
-                                       class="btn btn-danger ms-3">
+                                        class="btn btn-danger ms-3">
                                         Remover <i class="bi bi-dash-circle-dotted"></i>
                                     </a>
                                 </li>
@@ -586,711 +582,779 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <label class="me-2"><strong>Total R$:</strong></label>
                     <input name="price" id="total" type="text"
-                           value="{{ number_format($total, 2, ',', '.') }}"
-                           class="form-control w-25" readonly>
-                    <button type="button" class="btn btn-primary ms-2"
-                            id="modalbutton" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
+                        value="{{ number_format($total, 2, ',', '.') }}" class="form-control w-25" readonly>
+                    <button type="button" class="btn btn-primary ms-2" id="modalbutton" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
                         Cadastrar Kit <i class="bi bi-pin-map"></i>
                     </button>
                 </div>
             </div>
 
-@endsection
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
+            <!-- Modal de Escolha -->
+            <div class="modal fade" id="modalEscolha" tabindex="-1" aria-labelledby="modalEscolhaLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEscolhaLabel">O que deseja fazer?</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p class="mb-4">Escolha uma das opções abaixo:</p>
+                            <button type="button" class="btn btn-success me-2" id="btnCriarKit">Criar Kit</button>
+                            <button type="button" class="btn btn-info" id="btnCriarVariacoes">Criar Variações</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        @endsection
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.3/jquery.mask.min.js"></script>
 
 
-<script>
-    $(document).ready(function() {
+        <script>
+            $(document).ready(function() {
 
 
-        let currentFornecedor = null;
-        let filterApplied = false;
+                let currentFornecedor = null;
+                let filterApplied = false;
 
-        // Se existir pelo menos um produto, definimos o fornecedor e marcamos como filtrado
-        @if($firstProduct)
-            currentFornecedor = "{{ $firstProduct['fornecedor'] ?? '' }}";
-            filterApplied = true;
-        @endif
+                // Se existir pelo menos um produto, definimos o fornecedor e marcamos como filtrado
+                @if ($firstProduct)
+                    currentFornecedor = "{{ $firstProduct['fornecedor'] ?? '' }}";
+                    filterApplied = true;
+                @endif
 
 
-        // Faz uma requisição POST para apagar as mensagens da sessão
-        fetch("{{ route('clear.session.messages') }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }).then(response => response.json())
-            .then(data => console.log(data.message)) // Exibe a mensagem no console
-            .catch(error => console.error('Erro ao limpar a sessão:', error));
-
-        // Função para resetar o conteúdo
-        $('#resetButton').on('click', function() {
-            getAllCategorias(); // VOLTA TUDO AS CATEGORIAS
-            // Limpa a lista de categorias selecionadas
-            $('.content_categorias').empty();
-
-            // Limpa o campo de ID de categoria
-            $('#id_categoria').val('');
-            // Reseta o select para a opção padrão
-            $('#categorias').empty();
-        });
-
-        $(document).on('click', '#searchItemButton', function() {
-            const itemId = $('#searchItemInput').val().trim();
-
-            if (itemId === '') {
-                alert('Por favor, insira um ID de item.');
-                return;
-            }
-
-            // URL base da API do Mercado Livre
-            const apiBaseUrl = 'https://api.mercadolibre.com/items/';
-
-            // Função genérica para fazer a requisição AJAX
-            function fetchData(url, successCallback, errorMessage) {
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: successCallback,
-                    error: function() {
-                        $('#searchResult').html(
-                            `<p class="text-danger">${errorMessage}</p>`);
-                    }
-                });
-            }
-
-            // Requisição para os dados do item
-            fetchData(
-                `${apiBaseUrl}${itemId}`,
-                function(response) {
-
-                    $("#titleAnuncio").val(response.title);
-                    $("#precoFinal").val(parseFloat(response.price).toFixed(2).replace('.', ','));
-                    $("#acressimoR").val(0);
-
-                    // Requisição para os dados da categoria
-                    fetchData(
-                        `https://api.mercadolibre.com/categories/${response.category_id}`,
-                        function(categoryResponse) {
-                            $("#categoryName").val(categoryResponse.name);
-
-                            $("#id_categoria").val(categoryResponse.id);
-                            // Exibe o caminho da categoria (path_from_root)
-                            const pathList = categoryResponse.path_from_root.map((category,
-                                index, array) => {
-                                if (index === array.length - 1) {
-                                    return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
-                                } else {
-                                    return `<li class="list-group-item">${category.name}</li>`;
-                                }
-                            }).join('');
-                            $('.content_categorias').append(pathList);
+                // Faz uma requisição POST para apagar as mensagens da sessão
+                fetch("{{ route('clear.session.messages') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
                         },
-                        'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
+                        body: JSON.stringify({})
+                    }).then(response => response.json())
+                    .then(data => console.log(data.message)) // Exibe a mensagem no console
+                    .catch(error => console.error('Erro ao limpar a sessão:', error));
+
+                // Função para resetar o conteúdo
+                $('#resetButton').on('click', function() {
+                    getAllCategorias(); // VOLTA TUDO AS CATEGORIAS
+                    // Limpa a lista de categorias selecionadas
+                    $('.content_categorias').empty();
+
+                    // Limpa o campo de ID de categoria
+                    $('#id_categoria').val('');
+                    // Reseta o select para a opção padrão
+                    $('#categorias').empty();
+                });
+
+                $(document).on('click', '#searchItemButton', function() {
+                    const itemId = $('#searchItemInput').val().trim();
+
+                    if (itemId === '') {
+                        alert('Por favor, insira um ID de item.');
+                        return;
+                    }
+
+                    // URL base da API do Mercado Livre
+                    const apiBaseUrl = 'https://api.mercadolibre.com/items/';
+
+                    // Função genérica para fazer a requisição AJAX
+                    function fetchData(url, successCallback, errorMessage) {
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            success: successCallback,
+                            error: function() {
+                                $('#searchResult').html(
+                                    `<p class="text-danger">${errorMessage}</p>`);
+                            }
+                        });
+                    }
+
+                    // Requisição para os dados do item
+                    fetchData(
+                        `${apiBaseUrl}${itemId}`,
+                        function(response) {
+
+                            $("#titleAnuncio").val(response.title);
+                            $("#precoFinal").val(parseFloat(response.price).toFixed(2).replace('.', ','));
+                            $("#acressimoR").val(0);
+
+                            // Requisição para os dados da categoria
+                            fetchData(
+                                `https://api.mercadolibre.com/categories/${response.category_id}`,
+                                function(categoryResponse) {
+                                    $("#categoryName").val(categoryResponse.name);
+
+                                    $("#id_categoria").val(categoryResponse.id);
+                                    // Exibe o caminho da categoria (path_from_root)
+                                    const pathList = categoryResponse.path_from_root.map((category,
+                                        index, array) => {
+                                        if (index === array.length - 1) {
+                                            return `<li class="list-group-item highlighted-category">${category.name} &rarr;</li>`;
+                                        } else {
+                                            return `<li class="list-group-item">${category.name}</li>`;
+                                        }
+                                    }).join('');
+                                    $('.content_categorias').append(pathList);
+                                },
+                                'Erro ao buscar a categoria. Verifique o ID e tente novamente.'
+                            );
+                        },
+                        'Erro ao buscar o item. Verifique o ID e tente novamente.'
                     );
-                },
-                'Erro ao buscar o item. Verifique o ID e tente novamente.'
-            );
 
-            // Requisição para a descrição do item
-            fetchData(
-                `${apiBaseUrl}${itemId}/description`,
-                function(descriptionResponse) {
-                    $("#description").val(descriptionResponse.plain_text);
-                },
-                'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
-            );
+                    // Requisição para a descrição do item
+                    fetchData(
+                        `${apiBaseUrl}${itemId}/description`,
+                        function(descriptionResponse) {
+                            $("#description").val(descriptionResponse.plain_text);
+                        },
+                        'Erro ao buscar a descrição do item. Verifique o ID e tente novamente.'
+                    );
 
 
-        });
+                });
 
 
-        $('#file').change(function() {
-            var formData = new FormData();
+                $('#file').change(function() {
+                    var formData = new FormData();
 
-            var files = $('#file')[0].files;
-            for (var i = 0; i < files.length; i++) {
-                formData.append('file[]', files[i]);
-            }
+                    var files = $('#file')[0].files;
+                    for (var i = 0; i < files.length; i++) {
+                        formData.append('file[]', files[i]);
+                    }
 
-            $.ajax({
-                url: '/api/v1/fotoPreview', // Rota para o método 'fotoPreview'
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(data) {
-                    $('#imagePreview').empty();
-                    $('#image-count').text('Total de fotos: ' + data.length);
+                    $.ajax({
+                        url: '/api/v1/fotoPreview', // Rota para o método 'fotoPreview'
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(data) {
+                            $('#imagePreview').empty();
+                            $('#image-count').text('Total de fotos: ' + data.length);
 
-                    $.each(data, function(index, image) {
-                        const mainLabel = index === 0 ?
-                            '<span class="main-image-label">Imagem Principal</span>' :
-                            '';
-                        const deleteButton =
-                            `<button type="button" class="delete-button" onclick="removeImage(${index})">Excluir</button>`;
+                            $.each(data, function(index, image) {
+                                const mainLabel = index === 0 ?
+                                    '<span class="main-image-label">Imagem Principal</span>' :
+                                    '';
+                                const deleteButton =
+                                    `<button type="button" class="delete-button" onclick="removeImage(${index})">Excluir</button>`;
 
-                        $('#imagePreview').append(
-                            `<div class="image-item position-relative" data-original-name="${image.originalName}">
+                                $('#imagePreview').append(
+                                    `<div class="image-item position-relative" data-original-name="${image.originalName}">
                         ${mainLabel}
                         <img src="${image.url}" class="img-fluid">
                         ${deleteButton}
                     </div>`
-                        );
-                    });
-
-                    if (data.length > 0) {
-                        $('#clearImages').show();
-                    }
-
-                    // Configura a funcionalidade de sortable e captura a nova ordem
-                    $('#imagePreview').sortable({
-                        axis: "x",
-                        start: function(event, ui) {
-                            $('#imageContainer').css('overflow-x', 'hidden');
-                        },
-                        stop: function(event, ui) {
-                            $('#imageContainer').css('overflow-x', 'auto');
-                        },
-                        update: function(event, ui) {
-
-                            // Remove todas as etiquetas "Imagem Principal"
-                            $('#imagePreview .main-image-label').remove();
-
-                            // Adiciona a etiqueta "Imagem Principal" à primeira imagem
-                            $('#imagePreview .image-item').each(function(
-                                index) {
-                                if (index === 0) {
-                                    $(this).prepend(
-                                        '<span class="main-image-label">Imagem Principal</span>'
-                                    );
-                                }
+                                );
                             });
 
-                            const newOrder = [];
-                            $('#imagePreview .image-item').each(function() {
-                                const imageUrl = $(this).find('img')
-                                    .attr('src');
-                                const originalName = $(this).data(
-                                    'original-name');
-                                newOrder.push({
-                                    url: imageUrl,
-                                    originalName: originalName
-                                });
-                            });
-
-                            console.log(newOrder);
-
-                            // Atualiza o campo hidden com a nova ordem
-                            let imageOrderInput = $('#imageOrder');
-                            if (imageOrderInput.length === 0) {
-                                imageOrderInput = $('<input>', {
-                                    type: 'hidden',
-                                    id: 'imageOrder',
-                                    name: 'imageOrder',
-                                });
-                                $('#imagePreview').append(imageOrderInput);
+                            if (data.length > 0) {
+                                $('#clearImages').show();
                             }
 
-                            imageOrderInput.val(JSON.stringify(newOrder));
-                        },
-                    });
-                },
-            });
-        });
+                            // Configura a funcionalidade de sortable e captura a nova ordem
+                            $('#imagePreview').sortable({
+                                axis: "x",
+                                start: function(event, ui) {
+                                    $('#imageContainer').css('overflow-x', 'hidden');
+                                },
+                                stop: function(event, ui) {
+                                    $('#imageContainer').css('overflow-x', 'auto');
+                                },
+                                update: function(event, ui) {
 
+                                    // Remove todas as etiquetas "Imagem Principal"
+                                    $('#imagePreview .main-image-label').remove();
 
+                                    // Adiciona a etiqueta "Imagem Principal" à primeira imagem
+                                    $('#imagePreview .image-item').each(function(
+                                        index) {
+                                        if (index === 0) {
+                                            $(this).prepend(
+                                                '<span class="main-image-label">Imagem Principal</span>'
+                                            );
+                                        }
+                                    });
 
-        let fileOrder = [];
-
-        $('#file').on('change', function(e) {
-            let files = e.target.files;
-            fileOrder = []; // Reseta a ordem
-
-            for (let i = 0; i < files.length; i++) {
-                fileOrder.push(i); // Registra o índice de cada arquivo
-            }
-        });
-
-        function removePicture(element) {
-            $(element).parent().remove();
-            updateInputFile();
-        }
-
-        // Função para atualizar o input type file
-        function updateInputFile() {
-            var files = [];
-            $("#imagePreview img").each(function() {
-                files.push($(this).attr('src'));
-            });
-
-            // Remover e recriar o input file
-            var inputFile = $('#file');
-            var newInputFile = $('<input class="form-control" type="file" id="file" name="photos[]" multiple>');
-
-            // Substituir o input file antigo pelo novo input file
-            inputFile.replaceWith(newInputFile);
-
-            // Adicionar os URLs das imagens remanescentes como hidden inputs
-            for (var i = 0; i < files.length; i++) {
-                newInputFile.after('<input type="hidden" name="photo_urls[]" value="' + files[i] + '">');
-            }
-        }
-
-        // Evento para remover a imagem quando o botão "X" é clicado
-        $(document).on('click', '.remove-icon', function() {
-            $(this).parent().remove();
-            removePicture(this);
-        });
-
-        // Função para atualizar a contagem de imagens
-        function updateImageCount() {
-            var count = $('.image-item').length;
-            $('#image-count').text('Total de fotos: ' + count);
-        }
-
-        // Função para converter URL de dados em Blob
-        function dataURItoBlob(dataURI) {
-            var byteString = atob(dataURI.split(',')[1]);
-            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            var ab = new ArrayBuffer(byteString.length);
-            var ia = new Uint8Array(ab);
-            for (var i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], {
-                type: mimeString
-            });
-        }
-
-
-
-        // Clique no botão "Adicionar Selecionados"
-        $('#adicionarSelecionados').on('click', function() {
-            // Fecha outros modais se estiverem abertos
-            $('.modal').modal('hide');
-
-            // Abre o modal de progresso
-            $('#progressModal').modal('show');
-
-            if (selectedProducts.length === 0) {
-                alert('Nenhum produto selecionado.');
-                $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
-                return;
-            }
-
-            let completedRequests = 0;
-
-            // Função para atualizar a barra de progresso
-            function updateProgress() {
-                completedRequests++;
-                const progressPercent = (completedRequests / selectedProducts.length) * 100;
-                $('#progressBar').css('width', `${progressPercent}%`);
-                $('#progressBar').text(`${Math.round(progressPercent)}%`);
-                $('#currentProduct').text(completedRequests);
-                $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
-
-                // Fecha o modal quando todos os produtos forem processados
-                if (completedRequests === selectedProducts.length) {
-                    setTimeout(() => {
-                        $('#progressModal').modal('hide');
-                        location.reload(); // Atualiza a página
-                    }, 3000);
-                }
-            }
-
-            // Função para enviar os produtos sequencialmente
-            function processProductsSequentially(index) {
-                if (index >= selectedProducts.length) {
-                    return; // Fim do processamento
-                }
-
-                const item = selectedProducts[index];
-                console.log(`Processando produto: ${item.nome} (${item.id})`);
-
-                // Envia o produto para a rota
-                $.ajax({
-                    url: '/adicionarQuantidade',
-                    type: 'POST',
-                    data: {
-                        products: [item],
-                    },
-                    success: function(response) {
-                        console.log(
-                            `Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
-                        updateProgress();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(
-                            `Erro ao adicionar produto ${item.nome} (${item.id}):`,
-                            error);
-                        updateProgress();
-                    },
-                    complete: function() {
-                        // Chama a próxima iteração após 3 segundos
-                        setTimeout(() => {
-                            processProductsSequentially(index + 1);
-                        }, 3000);
-                    },
-                });
-            }
-
-            // Inicia o processamento sequencial
-            processProductsSequentially(0);
-        });
-
-        // Carregar produtos ao abrir o modal
-        $('#catalogoModal').on('show.bs.modal', function() {
-            loadProducts(1, currentFornecedor);
-        });
-
-        // Evento para adicionar os produtos selecionados ao kit
-        $('#addToKit').on('click', function() {
-            selectedProducts = [];
-            $('#produto-list input:checked').each(function() {
-                selectedProducts.push($(this).val());
-            });
-
-            // Aqui você pode enviar selectedProducts para sua rota ou processá-los
-            console.log(selectedProducts); // Exemplo para verificar os IDs selecionados
-            alert("Produtos adicionados ao kit!");
-            $('#catalogoModal').modal('hide');
-        });
-
-        var valorProduto = 0;
-        var i = 0;
-
-        $("tr#linhasProduct").click(function() {
-            // LIMPA O HISTORICO
-            $('.adicionarHistorico').empty();
-
-            id_produto = $(this).children(".id_product").text();
-            $('#id_product').val(id_produto); // ID DO PRODUTO
-            var id_user = $('#id_user').val();
-            $.ajax({
-                url: "/api/v1/product/" + id_produto,
-                type: "GET",
-                success: function(response) {
-                    if (response) {
-                        valorProduto = response.price;
-                        $("#total").val(response.price);
-                        $("#name").val(response.title);
-                        $("#precoFinal").val(response.price);
-                        $("#unit_price").val(response.priceKit)
-                    }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>'
-                    );
-                }
-            });
-
-            $.ajax({
-                url: "/api/v1/getHistoryById",
-                type: "GET",
-                data: {
-                    id: id_produto,
-                    id_user: id_user
-                },
-                success: function(response) {
-                    if (response) {
-                        var index = [];
-                        $.each(response.dados, function(i, item) {
-                            index[i] = '<li class="list-group-item"> Nome: ' + item
-                                .name + '  | ID: ' + item.id_ml +
-                                ' | Criado em : ' + item.created_at + '</li>';
-                        });
-
-                        var arr = jQuery.makeArray(index);
-                        arr.reverse();
-                        $(".adicionarHistorico").append(arr);
-                    }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>'
-                    );
-                }
-            });
-        });
-
-        getAllCategorias();
-
-        function getAllCategorias() {
-            $.ajax({
-                url: "/meli/categories",
-                type: "GET",
-                success: function(response) {
-                    if (response) {
-                        // SHOW ALL RESULT QUERY
-                        var index = [];
-                        $.each(response, function(i, item) {
-                            index[i] = '<option class="option-size" value=' + item.id +
-                                '>' +
-                                item.name + '</option>';
-                        });
-
-                        if (i == 0) {
-                            // PEGA A ALTERACAO DAS CATEGORIAS
-                            $("#categorias").off("change").on("change", function() {
-                                var ids = $(this).children("option:selected").val();
-                                var name = $(this).children("option:selected").text();
-                                var content_category = '<li class="list-group-item">' +
-                                    name +
-                                    '</li>';
-                                $(".content_categorias").append(content_category);
-                                $("#id_categoria").val(
-                                    ids); // COLOCA O ID DA CATEGORIA NO CAMPO
-                                getCategory(ids);
-                            });
-                        }
-
-                        var arr = jQuery.makeArray(index);
-                        arr.reverse();
-                        $("#categorias").html(arr);
-                    }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>'
-                    );
-                }
-            });
-        }
-
-        // FUNCAO PARA CHAMAR CATEGORIAS
-        function getCategory(category) {
-            $.ajax({
-                url: "/meli/subcategories/" + category,
-                type: "GET",
-                success: function(response) {
-                    if (response) {
-                        // SHOW ALL RESULT QUERY
-                        var index = [];
-                        // Adiciona a primeira opção estática
-                        index.push('<option class="option-size" >Selecionar</option>');
-
-                        $.each(response.children_categories, function(i, item) {
-                            // Crie suas opções dinâmicas aqui
-                            var option = '<option class="option-size" value=' + item.id +
-                                '>' + item.name + '</option>';
-                            index.push(option);
-                        });
-
-                        if (index.length <= 1) {
-                            $.ajax({
-                                 url: "/meli/subcategories/attributes/" + category,
-                                 type: "GET",
-                                success: function(response) {
-                                    if (response) {
-
-                                        const requiredItems = [];
-                                        const requiredAttributeNames = ['BRAND',
-                                            'MODEL', 'LENGTH', 'HEIGHT'
-                                        ];
-                                        response.forEach(item => {
-                                            if (item.tags && item.tags
-                                                .required === true && !
-                                                requiredAttributeNames.includes(
-                                                    item.id)) {
-                                                requiredItems.push(item);
-                                            }
+                                    const newOrder = [];
+                                    $('#imagePreview .image-item').each(function() {
+                                        const imageUrl = $(this).find('img')
+                                            .attr('src');
+                                        const originalName = $(this).data(
+                                            'original-name');
+                                        newOrder.push({
+                                            url: imageUrl,
+                                            originalName: originalName
                                         });
+                                    });
 
-                                        // Adiciona o h2
-                                        var h2 = document.createElement("h2");
-                                        h2.textContent = "Campos Obrigatórios";
-                                        formContainer.appendChild(h2);
+                                    console.log(newOrder);
 
-                                        requiredItems.forEach(element => {
-                                            // Adiciona o label
-                                            var label = document.createElement(
-                                                "label");
-                                            label.textContent = element.name;
-                                            formContainer.appendChild(label);
-
-                                            var selectField = document
-                                                .createElement("select");
-                                            for (var i = 0; i < element.values
-                                                .length; i++) {
-                                                var option = document
-                                                    .createElement("option");
-                                                selectField.className =
-                                                    "form-control";
-                                                selectField.name = element.id;
-                                                option.text = element.values[i]
-                                                    .name;
-                                                option.value = element.values[i]
-                                                    .id;
-                                                selectField.appendChild(option);
-
-                                            }
-                                            formContainer.appendChild(
-                                                selectField);
+                                    // Atualiza o campo hidden com a nova ordem
+                                    let imageOrderInput = $('#imageOrder');
+                                    if (imageOrderInput.length === 0) {
+                                        imageOrderInput = $('<input>', {
+                                            type: 'hidden',
+                                            id: 'imageOrder',
+                                            name: 'imageOrder',
                                         });
+                                        $('#imagePreview').append(imageOrderInput);
                                     }
-                                }
+
+                                    imageOrderInput.val(JSON.stringify(newOrder));
+                                },
                             });
-                        }
-                        $("#categorias").html(index.join(''));
+                        },
+                    });
+                });
+
+
+
+                let fileOrder = [];
+
+                $('#file').on('change', function(e) {
+                    let files = e.target.files;
+                    fileOrder = []; // Reseta a ordem
+
+                    for (let i = 0; i < files.length; i++) {
+                        fileOrder.push(i); // Registra o índice de cada arquivo
                     }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>'
-                    );
+                });
+
+                function removePicture(element) {
+                    $(element).parent().remove();
+                    updateInputFile();
                 }
-            });
 
-        }
+                // Função para atualizar o input type file
+                function updateInputFile() {
+                    var files = [];
+                    $("#imagePreview img").each(function() {
+                        files.push($(this).attr('src'));
+                    });
 
+                    // Remover e recriar o input file
+                    var inputFile = $('#file');
+                    var newInputFile = $('<input class="form-control" type="file" id="file" name="photos[]" multiple>');
 
-        $("form").submit(function(event) {
-            // event.preventDefault();
-            $("#BtnCadastrar").addClass('d-none');
-            $('#carregando').removeClass('d-none');
-        });
+                    // Substituir o input file antigo pelo novo input file
+                    inputFile.replaceWith(newInputFile);
 
-        // VALOR TOTAL
-        var total = parseFloat($('#total').val().replace(',', '.')); // Converte para número
-        if (!isNaN(total)) {
-            var novoTotal = total / 0.95; // Aumenta 5%
-            $('#total').val(novoTotal.toFixed(2).replace('.', ',')); // Atualiza formatado
-        }
-
-        // var totalCalculado = $total;
-        $('#precoFinal').val(novoTotal.toFixed(2).replace('.', ','));
-
-        function calculaPorcentagem(base, porcentagem) {
-            return (base * parseFloat(porcentagem)) / 100;
-        }
-        // Evento para manipular descontos e acréscimos em porcentagem
-        $('#acressimoP, #descontoP').keyup(function() {
-            let totalConvertido = parseFloat(novoTotal.toFixed(10));
-            let valorPorcentagem = parseFloat($(this).val().replace(',', '.'));
-
-            if ($(this).val().length > 0) {
-                if ($(this).attr('id') === 'acressimoP') {
-                    totalCalculado = totalConvertido + calculaPorcentagem(totalConvertido,
-                        valorPorcentagem);
-                } else if ($(this).attr('id') === 'descontoP') {
-                    totalCalculado = totalConvertido - calculaPorcentagem(totalConvertido,
-                        valorPorcentagem);
+                    // Adicionar os URLs das imagens remanescentes como hidden inputs
+                    for (var i = 0; i < files.length; i++) {
+                        newInputFile.after('<input type="hidden" name="photo_urls[]" value="' + files[i] + '">');
+                    }
                 }
-                $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
-            } else {
-                // Volta ao valor original se o campo estiver vazio
-                $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
-            }
 
-            // Desabilita outros campos enquanto um campo é preenchido
-            toggleInputFields(this);
-        });
+                // Evento para remover a imagem quando o botão "X" é clicado
+                $(document).on('click', '.remove-icon', function() {
+                    $(this).parent().remove();
+                    removePicture(this);
+                });
 
-        // Evento para manipular descontos e acréscimos em reais
-        $('#acressimoR, #descontoR').keyup(function() {
-            let totalConvertido = parseFloat(novoTotal.toFixed(10));
-            let valorReais = parseFloat($(this).val().replace(',', '.'));
-
-            if ($(this).val().length > 0) {
-                if ($(this).attr('id') === 'acressimoR') {
-                    totalCalculado = totalConvertido + valorReais;
-                } else if ($(this).attr('id') === 'descontoR') {
-                    totalCalculado = totalConvertido - valorReais;
+                // Função para atualizar a contagem de imagens
+                function updateImageCount() {
+                    var count = $('.image-item').length;
+                    $('#image-count').text('Total de fotos: ' + count);
                 }
-                $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
-            } else {
-                // Volta ao valor original se o campo estiver vazio
-                $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
-            }
 
-            // Desabilita outros campos enquanto um campo é preenchido
-            toggleInputFields(this);
-        });
-
-        // Função para desabilitar/reenabilitar campos
-        function toggleInputFields(currentField) {
-            let fields = ['#acressimoP', '#acressimoR', '#descontoP', '#descontoR'];
-
-            fields.forEach(field => {
-                if (field !== `#${$(currentField).attr('id')}`) {
-                    $(field).prop('disabled', $(currentField).val().length > 0).css('background-color',
-                        $(currentField).val().length > 0 ? 'red' : 'white');
+                // Função para converter URL de dados em Blob
+                function dataURItoBlob(dataURI) {
+                    var byteString = atob(dataURI.split(',')[1]);
+                    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                    var ab = new ArrayBuffer(byteString.length);
+                    var ia = new Uint8Array(ab);
+                    for (var i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    return new Blob([ab], {
+                        type: mimeString
+                    });
                 }
-            });
-        }
-        // TOKEN DE ASSINATURA
-        // let _token = $('meta[name="csrf-token"]').attr('content');
-        // SETA O VALOR TOTAL DO KIT
-        // $('#total').val($('#valorTotalInput').val());
-        /**
-         * FUNCAO QUE PEGA VALOR DIGITADO NO INPUT
-         */
 
-        $("#search").keyup(function() {
 
-            var id = $("#search").val();
 
-            console.log(id);
-            $.ajax({
-                url: "/getProductByName",
-                type: "GET",
-                data: {
-                    id: id,
-                },
-                success: function(response) {
-                    if (response) {
-                        $('#result').removeClass('d-none');
-                        // CONVERT ARRAY IN JSON FOR EACH FUNCTION
-                        var json = $.parseJSON(response.dados);
-                        // SHOW ALL RESULT QUERY
-                        var index = [];
-                        $.each(json, function(i, item) {
-                            index[i] =
-                                '<option class="option-size" value=' +
-                                item
-                                .id + '>' + 'ID: ' + item.id + ' | Nome: ' + item
-                                .title + ' | Estoque: ' + item.available_quantity +
-                                '</option>';
+                // Clique no botão "Adicionar Selecionados"
+                $('#adicionarSelecionados').on('click', function() {
+                    $('#modalEscolha').modal('show');
+                });
+
+                $('#btnCriarKit').on('click', function() {
+                    $('#modalEscolha').modal('hide');
+
+                    // Fecha outros modais se estiverem abertos
+                    $('.modal').modal('hide');
+
+                    // Abre o modal de progresso
+                    $('#progressModal').modal('show');
+
+                    if (selectedProducts.length === 0) {
+                        alert('Nenhum produto selecionado.');
+                        $('#progressModal').modal('hide'); // Fecha o modal se nada foi selecionado
+                        return;
+                    }
+
+                    let completedRequests = 0;
+
+                    // Função para atualizar a barra de progresso
+                    function updateProgress() {
+                        completedRequests++;
+                        const progressPercent = (completedRequests / selectedProducts.length) * 100;
+                        $('#progressBar').css('width', `${progressPercent}%`);
+                        $('#progressBar').text(`${Math.round(progressPercent)}%`);
+                        $('#currentProduct').text(completedRequests);
+                        $('#currentProductName').text(selectedProducts[completedRequests - 1]?.nome || '');
+
+                        // Fecha o modal quando todos os produtos forem processados
+                        if (completedRequests === selectedProducts.length) {
+                            setTimeout(() => {
+                                $('#progressModal').modal('hide');
+                                location.reload(); // Atualiza a página
+                            }, 3000);
+                        }
+                    }
+
+                    // Função para enviar os produtos sequencialmente
+                    function processProductsSequentially(index) {
+                        if (index >= selectedProducts.length) {
+                            return; // Fim do processamento
+                        }
+
+                        const item = selectedProducts[index];
+                        console.log(`Processando produto: ${item.nome} (${item.id})`);
+
+                        // Envia o produto para a rota
+                        $.ajax({
+                            url: '/adicionarQuantidade',
+                            type: 'POST',
+                            data: {
+                                products: [item],
+                            },
+                            success: function(response) {
+                                console.log(
+                                    `Produto ${item.nome} (${item.id}) adicionado com sucesso.`);
+                                updateProgress();
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(
+                                    `Erro ao adicionar produto ${item.nome} (${item.id}):`,
+                                    error);
+                                updateProgress();
+                            },
+                            complete: function() {
+                                // Chama a próxima iteração após 3 segundos
+                                setTimeout(() => {
+                                    processProductsSequentially(index + 1);
+                                }, 3000);
+                            },
                         });
+                    }
 
-                        var arr = jQuery.makeArray(index);
-                        arr.reverse();
-                        $("#result").html(arr);
+                    // Inicia o processamento sequencial
+                    processProductsSequentially(0);
+                });
 
-                        $("select").change(function() {
-                            $('#id').val($(this).children(
-                                "option:selected").val());
-                            $('#name').val($(this).children(
-                                    "option:selected")
-                                .text());
+                $('#btnCriarVariacoes').on('click', function() {
+                        $('#modalEscolha').modal('hide');
+                        $('.modal').modal('hide'); // Fecha todos os modais
+                        $('#progressModal').modal('show'); // Abre o modal de progresso
 
-                            var number = $('#id').val();
-                            if (number > 0) {
-                                $("#btnFinalizar").removeClass(
-                                    'd-none');
-                                $('#name,#id').addClass(
-                                    'p-3 mb-2 bg-warning text-dark');
+                        if (selectedProducts.length === 0) {
+                            alert('Nenhum produto selecionado.');
+                            $('#progressModal').modal('hide');
+                            return;
+                        }
+
+                        // Atualiza os dados do progresso
+                        $('#currentProduct').text(selectedProducts.length);
+                        $('#currentProductName').text('Preparando envio...');
+
+                        // Envia todos os produtos em uma única requisição
+                        $.ajax({
+                            url: "{{ route('storeWithVariations') }}", // Laravel route
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                products: selectedProducts
+                            },
+                            success: function(response) {
+                                $('#progressBar').css('width', '100%');
+                                $('#progressBar').text('100%');
+                                $('#currentProductName').text(
+                                    'Variações criadas com sucesso!');
+                                setTimeout(() => {
+                                    $('#progressModal').modal('hide');
+                                    location.reload();
+                                }, 3000);
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Erro ao criar variações:', error);
+                                $('#progressBar').addClass('bg-danger');
+                                $('#progressBar').text('Erro!');
+                                $('#currentProductName').text('Erro ao criar variações.');
                             }
                         });
+                    });
 
-                    }
-                },
-                error: function(error) {
-                    $('#result').html(
-                        '<option> Produto Digitado Não Existe! </option>');
+
+
+                // Carregar produtos ao abrir o modal
+                $('#catalogoModal').on('show.bs.modal', function() {
+                    loadProducts(1, currentFornecedor);
+                });
+
+                // Evento para adicionar os produtos selecionados ao kit
+                $('#addToKit').on('click', function() {
+                    selectedProducts = [];
+                    $('#produto-list input:checked').each(function() {
+                        selectedProducts.push($(this).val());
+                    });
+
+                    // Aqui você pode enviar selectedProducts para sua rota ou processá-los
+                    console.log(selectedProducts); // Exemplo para verificar os IDs selecionados
+                    alert("Produtos adicionados ao kit!");
+                    $('#catalogoModal').modal('hide');
+                });
+
+                var valorProduto = 0;
+                var i = 0;
+
+                $("tr#linhasProduct").click(function() {
+                    // LIMPA O HISTORICO
+                    $('.adicionarHistorico').empty();
+
+                    id_produto = $(this).children(".id_product").text();
+                    $('#id_product').val(id_produto); // ID DO PRODUTO
+                    var id_user = $('#id_user').val();
+                    $.ajax({
+                        url: "/api/v1/product/" + id_produto,
+                        type: "GET",
+                        success: function(response) {
+                            if (response) {
+                                valorProduto = response.price;
+                                $("#total").val(response.price);
+                                $("#name").val(response.title);
+                                $("#precoFinal").val(response.price);
+                                $("#unit_price").val(response.priceKit)
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>'
+                            );
+                        }
+                    });
+
+                    $.ajax({
+                        url: "/api/v1/getHistoryById",
+                        type: "GET",
+                        data: {
+                            id: id_produto,
+                            id_user: id_user
+                        },
+                        success: function(response) {
+                            if (response) {
+                                var index = [];
+                                $.each(response.dados, function(i, item) {
+                                    index[i] = '<li class="list-group-item"> Nome: ' + item
+                                        .name + '  | ID: ' + item.id_ml +
+                                        ' | Criado em : ' + item.created_at + '</li>';
+                                });
+
+                                var arr = jQuery.makeArray(index);
+                                arr.reverse();
+                                $(".adicionarHistorico").append(arr);
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>'
+                            );
+                        }
+                    });
+                });
+
+                getAllCategorias();
+
+                function getAllCategorias() {
+                    $.ajax({
+                        url: "/meli/categories",
+                        type: "GET",
+                        success: function(response) {
+                            if (response) {
+                                // SHOW ALL RESULT QUERY
+                                var index = [];
+                                $.each(response, function(i, item) {
+                                    index[i] = '<option class="option-size" value=' + item.id +
+                                        '>' +
+                                        item.name + '</option>';
+                                });
+
+                                if (i == 0) {
+                                    // PEGA A ALTERACAO DAS CATEGORIAS
+                                    $("#categorias").off("change").on("change", function() {
+                                        var ids = $(this).children("option:selected").val();
+                                        var name = $(this).children("option:selected").text();
+                                        var content_category = '<li class="list-group-item">' +
+                                            name +
+                                            '</li>';
+                                        $(".content_categorias").append(content_category);
+                                        $("#id_categoria").val(
+                                            ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                        getCategory(ids);
+                                    });
+                                }
+
+                                var arr = jQuery.makeArray(index);
+                                arr.reverse();
+                                $("#categorias").html(arr);
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>'
+                            );
+                        }
+                    });
                 }
-            });
-        });
 
-    });
-</script>
+                // FUNCAO PARA CHAMAR CATEGORIAS
+                function getCategory(category) {
+                    $.ajax({
+                        url: "/meli/subcategories/" + category,
+                        type: "GET",
+                        success: function(response) {
+                            if (response) {
+                                // SHOW ALL RESULT QUERY
+                                var index = [];
+                                // Adiciona a primeira opção estática
+                                index.push('<option class="option-size" >Selecionar</option>');
+
+                                $.each(response.children_categories, function(i, item) {
+                                    // Crie suas opções dinâmicas aqui
+                                    var option = '<option class="option-size" value=' + item.id +
+                                        '>' + item.name + '</option>';
+                                    index.push(option);
+                                });
+
+                                if (index.length <= 1) {
+                                    $.ajax({
+                                        url: "/meli/subcategories/attributes/" + category,
+                                        type: "GET",
+                                        success: function(response) {
+                                            if (response) {
+
+                                                const requiredItems = [];
+                                                const requiredAttributeNames = ['BRAND',
+                                                    'MODEL', 'LENGTH', 'HEIGHT'
+                                                ];
+                                                response.forEach(item => {
+                                                    if (item.tags && item.tags
+                                                        .required === true && !
+                                                        requiredAttributeNames.includes(
+                                                            item.id)) {
+                                                        requiredItems.push(item);
+                                                    }
+                                                });
+
+                                                // Adiciona o h2
+                                                var h2 = document.createElement("h2");
+                                                h2.textContent = "Campos Obrigatórios";
+                                                formContainer.appendChild(h2);
+
+                                                requiredItems.forEach(element => {
+                                                    // Adiciona o label
+                                                    var label = document.createElement(
+                                                        "label");
+                                                    label.textContent = element.name;
+                                                    formContainer.appendChild(label);
+
+                                                    var selectField = document
+                                                        .createElement("select");
+                                                    for (var i = 0; i < element.values
+                                                        .length; i++) {
+                                                        var option = document
+                                                            .createElement("option");
+                                                        selectField.className =
+                                                            "form-control";
+                                                        selectField.name = element.id;
+                                                        option.text = element.values[i]
+                                                            .name;
+                                                        option.value = element.values[i]
+                                                            .id;
+                                                        selectField.appendChild(option);
+
+                                                    }
+                                                    formContainer.appendChild(
+                                                        selectField);
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                                $("#categorias").html(index.join(''));
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>'
+                            );
+                        }
+                    });
+
+                }
+
+
+                $("form").submit(function(event) {
+                    // event.preventDefault();
+                    $("#BtnCadastrar").addClass('d-none');
+                    $('#carregando').removeClass('d-none');
+                });
+
+                // VALOR TOTAL
+                var total = parseFloat($('#total').val().replace(',', '.')); // Converte para número
+                if (!isNaN(total)) {
+                    var novoTotal = total / 0.95; // Aumenta 5%
+                    $('#total').val(novoTotal.toFixed(2).replace('.', ',')); // Atualiza formatado
+                }
+
+                // var totalCalculado = $total;
+                $('#precoFinal').val(novoTotal.toFixed(2).replace('.', ','));
+
+                function calculaPorcentagem(base, porcentagem) {
+                    return (base * parseFloat(porcentagem)) / 100;
+                }
+                // Evento para manipular descontos e acréscimos em porcentagem
+                $('#acressimoP, #descontoP').keyup(function() {
+                    let totalConvertido = parseFloat(novoTotal.toFixed(10));
+                    let valorPorcentagem = parseFloat($(this).val().replace(',', '.'));
+
+                    if ($(this).val().length > 0) {
+                        if ($(this).attr('id') === 'acressimoP') {
+                            totalCalculado = totalConvertido + calculaPorcentagem(totalConvertido,
+                                valorPorcentagem);
+                        } else if ($(this).attr('id') === 'descontoP') {
+                            totalCalculado = totalConvertido - calculaPorcentagem(totalConvertido,
+                                valorPorcentagem);
+                        }
+                        $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
+                    } else {
+                        // Volta ao valor original se o campo estiver vazio
+                        $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
+                    }
+
+                    // Desabilita outros campos enquanto um campo é preenchido
+                    toggleInputFields(this);
+                });
+
+                // Evento para manipular descontos e acréscimos em reais
+                $('#acressimoR, #descontoR').keyup(function() {
+                    let totalConvertido = parseFloat(novoTotal.toFixed(10));
+                    let valorReais = parseFloat($(this).val().replace(',', '.'));
+
+                    if ($(this).val().length > 0) {
+                        if ($(this).attr('id') === 'acressimoR') {
+                            totalCalculado = totalConvertido + valorReais;
+                        } else if ($(this).attr('id') === 'descontoR') {
+                            totalCalculado = totalConvertido - valorReais;
+                        }
+                        $('#precoFinal').val(totalCalculado.toFixed(2).replace('.', ','));
+                    } else {
+                        // Volta ao valor original se o campo estiver vazio
+                        $('#precoFinal').val(totalConvertido.toFixed(2).replace('.', ','));
+                    }
+
+                    // Desabilita outros campos enquanto um campo é preenchido
+                    toggleInputFields(this);
+                });
+
+                // Função para desabilitar/reenabilitar campos
+                function toggleInputFields(currentField) {
+                    let fields = ['#acressimoP', '#acressimoR', '#descontoP', '#descontoR'];
+
+                    fields.forEach(field => {
+                        if (field !== `#${$(currentField).attr('id')}`) {
+                            $(field).prop('disabled', $(currentField).val().length > 0).css('background-color',
+                                $(currentField).val().length > 0 ? 'red' : 'white');
+                        }
+                    });
+                }
+                // TOKEN DE ASSINATURA
+                // let _token = $('meta[name="csrf-token"]').attr('content');
+                // SETA O VALOR TOTAL DO KIT
+                // $('#total').val($('#valorTotalInput').val());
+                /**
+                 * FUNCAO QUE PEGA VALOR DIGITADO NO INPUT
+                 */
+
+                $("#search").keyup(function() {
+
+                    var id = $("#search").val();
+
+                    console.log(id);
+                    $.ajax({
+                        url: "/getProductByName",
+                        type: "GET",
+                        data: {
+                            id: id,
+                        },
+                        success: function(response) {
+                            if (response) {
+                                $('#result').removeClass('d-none');
+                                // CONVERT ARRAY IN JSON FOR EACH FUNCTION
+                                var json = $.parseJSON(response.dados);
+                                // SHOW ALL RESULT QUERY
+                                var index = [];
+                                $.each(json, function(i, item) {
+                                    index[i] =
+                                        '<option class="option-size" value=' +
+                                        item
+                                        .id + '>' + 'ID: ' + item.id + ' | Nome: ' + item
+                                        .title + ' | Estoque: ' + item.available_quantity +
+                                        '</option>';
+                                });
+
+                                var arr = jQuery.makeArray(index);
+                                arr.reverse();
+                                $("#result").html(arr);
+
+                                $("select").change(function() {
+                                    $('#id').val($(this).children(
+                                        "option:selected").val());
+                                    $('#name').val($(this).children(
+                                            "option:selected")
+                                        .text());
+
+                                    var number = $('#id').val();
+                                    if (number > 0) {
+                                        $("#btnFinalizar").removeClass(
+                                            'd-none');
+                                        $('#name,#id').addClass(
+                                            'p-3 mb-2 bg-warning text-dark');
+                                    }
+                                });
+
+                            }
+                        },
+                        error: function(error) {
+                            $('#result').html(
+                                '<option> Produto Digitado Não Existe! </option>');
+                        }
+                    });
+                });
+
+            });
+        </script>

@@ -161,8 +161,6 @@ function importProduct(product) {
 
 
 </script>
-
-
     <div class="offcanvas offcanvas-start" tabindex="-1" id="importSuccessModal" aria-labelledby="importSuccessModalLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="importSuccessModalLabel">Produtos Importados</h5>

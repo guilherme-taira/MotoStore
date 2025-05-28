@@ -540,6 +540,7 @@
             }
 
             pegarToken();
+
             $("#inserir").click(function() {
                 var item = $("#id").val()
 

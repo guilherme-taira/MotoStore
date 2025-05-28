@@ -356,7 +356,7 @@ class productsController extends Controller
              $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
              curl_close($ch);
              $data = json_decode($response,true);
-
+            //  Log::debug($response);
              $try = FALSE;
 
              if($request->categoria){
@@ -390,14 +390,13 @@ class productsController extends Controller
                 }
             }
 
-            $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
+            // $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
 
-            $dataAtual = new DateTime();
-            $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
-            $newToken->resource();
-            $token = token::where('user_id_mercadolivre',$request->user)->first(); // CHAMANDO ANTIGO
+            // $dataAtual = new DateTime();
+            // $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
+            // $newToken->resource();
+            // $token = token::where('user_id_mercadolivre',$request->user)->first(); // CHAMANDO ANTIGO
 
-            Log::alert($data_json);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -405,7 +404,7 @@ class productsController extends Controller
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token->access_token}"]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$request->token}"]);
             $reponse = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -732,6 +731,7 @@ class productsController extends Controller
         $viewData['product'] = $produto;
         $viewData['categoriaSelected'] = sub_category::getNameCategory($produto->subcategoria);
         $viewData['kitProducts'] = kit::getProductsByKit($produto->id);
+        $viewData['token'] = token::where('user_id', Auth::user()->id)->first();
 
         $categorias = [];
         foreach (categorias::all() as $value) {
@@ -759,7 +759,65 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        echo "<pre>";
+        $variations = [];
 
+      $primeiroPreco = null;
+    $primeiraDefinida = false;
+
+    foreach ($request->input('variation', []) as $data) {
+        // Ignora variações vazias ou incompletas
+        if (empty($data['sku'])) {
+            continue;
+        }
+
+        // Pega o preço e estoque da primeira variação válida
+        if (!$primeiraDefinida && isset($data['price'], $data['available_quantity'])) {
+            $primeiroPreco = $data['price'];
+            $primeiraDefinida = true;
+        }
+
+            $attributes = [
+                [
+                    'id' => 'SELLER_SKU',
+                    'value_name' => (string) $data['sku'],
+                ]
+            ];
+
+            $attribute_combinations = [];
+            $nomes = $data['atributos_nome'] ?? [];
+            $valores = $data['atributos_valor'] ?? [];
+
+            for ($i = 0; $i < count($nomes); $i++) {
+                if (!empty($nomes[$i]) && !empty($valores[$i])) {
+                    $attribute_combinations[] = [
+                        'name' => $nomes[$i],
+                        'value_name' => $valores[$i],
+                    ];
+                }
+            }
+
+        // Pega imagens vinculadas ao SKU (product_id)
+        $fotos = Images::where('product_id', $data['sku'])
+            ->orderBy('position', 'asc')
+            ->get();
+
+        $picture_ids = [];
+        foreach ($fotos as $foto) {
+            $picture_ids[] = "https://afilidrop2.s3.amazonaws.com/produtos/{$foto->product_id}/{$foto->url}";
+        }
+
+        $variations[] = [
+            'attributes' => $attributes,
+            'attribute_combinations' => $attribute_combinations,
+            'price' => (float) ($primeiroPreco ?? 0),
+            'available_quantity' => (int) ($data['available_quantity'] ?? 0),
+            'picture_ids' => $picture_ids
+        ];
+
+    }
+
+    // print_r(json_encode($variations,JSON_PRETTY_PRINT));
 
         $request->validate([
             'isPublic' => "required",
@@ -838,6 +896,7 @@ class productsController extends Controller
         ]);
 
         $produto = Products::findOrFail($id);
+        $produto->variation_data = $variations;
         $produto->fill($request->except('products')); // Preenche os dados do produto
 
 
@@ -1646,13 +1705,40 @@ class productsController extends Controller
 
     public function todosProdutos(Request $request)
     {
-        // PRODUTOS EM PROMOÇÂO
-        $data = Products::select('products.*')
-        ->where('products.fornecedor_id', Auth::user()->id)
-        ->where('products.isKit',0)
-        ->where(function ($query) {
-             $query->where('products.owner', Auth::user()->id)
-                   ->orWhereNull('products.owner');
+
+     // PRODUTOS EM PROMOÇÂO
+     $userId = Auth::id(); // Mais limpo e direto
+
+     $data = Products::select('products.*')
+        ->where('products.fornecedor_id', $userId)
+        ->where('products.isKit', 0)
+        ->where(function ($query) use ($userId) {
+            $query->where('products.owner', $userId)
+                ->orWhereNull('products.owner');
+        })
+        ->orderBy('products.id', 'desc')
+        ->paginate(10);
+
+        $viewData = [];
+        $viewData['title'] = "Afilidrop";
+        $viewData['subtitle'] = 'AutoKM';
+        $viewData['products'] = $data;
+
+        return view('orders.fornecedor.produtos')->with('viewData', $viewData);
+    }
+
+    public function todosProdutosWithVariation(Request $request)
+    {
+
+     // PRODUTOS EM PROMOÇÂO
+     $userId = Auth::id(); // Mais limpo e direto
+
+     $data = Products::select('products.*')
+        ->where('products.isKit', 0)
+        ->where('isVariation',1)
+        ->where(function ($query) use ($userId) {
+            $query->where('products.owner', $userId)
+                ->orWhereNull('products.owner');
         })
         ->orderBy('products.id', 'desc')
         ->paginate(10);
@@ -2371,7 +2457,7 @@ class productsController extends Controller
             return response()->json($response->json(), $response->status());
     }
 
-        public function getCategoryAttributeById($category){
+    public function getCategoryAttributeById($category){
 
             $token = token::where('user_id',Auth::user()->id)->first();
 
@@ -2382,6 +2468,92 @@ class productsController extends Controller
             $response = Http::withToken($token->access_token)
                 ->get("https://api.mercadolibre.com/categories/" . $category."/attributes");
             return response()->json($response->json(), $response->status());
+    }
+
+
+    public function getCategoryAttributeByVariation($category){
+
+            $token = token::where('user_id',Auth::user()->id)->first();
+
+            if (!$token) {
+                return response()->json(['error' => 'Token não fornecido'], 400);
+            }
+
+            $response = Http::withToken($token->access_token)
+                ->get("https://api.mercadolibre.com/categories/" . $category."/attributes");
+            return response()->json($response->json(), $response->status());
+    }
+
+
+    public function storeWithVariations(Request $request){
+
+        $jsonMercadoLivre = [];
+
+        $produtoDados = [];
+        foreach($request->products as $key => $produto){
+
+        $data = Products::where('id',$produto['id'])->first();
+
+        $fotos = Images::where('product_id', $produto['id'])
+        ->orderBy('position', 'asc') // Ordena pela posição em ordem crescente
+        ->get();
+
+        $photos = [];
+
+            foreach ($fotos as $foto) {
+                $photoUrl = "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url;
+                array_push($photos,$photoUrl);
+            }
+
+            $jsonMercadoLivre[] = [
+                'sku' => $data['id'],
+                'nome' => $data['title'],
+                'picture_ids' => $photos,
+                'price' => $data['priceWithFee'],
+                'available_quantity' => $data['estoque_afiliado'],
+            ];
+
+            if($key == 0){
+                $produtoDados = [
+                     'sku' => $data['id'],
+                     'nome' => $data['title'],
+                     'picture_ids' => $photos,
+                     'price' => $data['priceWithFee'],
+                     'stock' => $data['stock'],
+                     'available_quantity' => $data['estoque_afiliado'],
+                     'category_id' => $data['category_id'],
+                     'brand' => $data['brand'],
+                     'ean' => $data['ean'],
+                     'image' => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $data->id . '/' . $data->image,
+                     'categoria' => $data['subcategoria'],
+                     'fornecedor' => $data['fornecedor_id'],
+
+                ];
+            }
+
+        }
+
+        $produto = new Products();
+        $produto->price =  $produtoDados['price'];
+        $produto->title = $produtoDados['nome'];
+        $produto->description = "...";
+        $produto->available_quantity = $produtoDados['stock'];
+        $produto->priceWithFee = $produtoDados['price'];
+        $produto->category_id = $produtoDados['category_id'];
+        $produto->subcategoria = $produtoDados['categoria'];
+        $produto->brand = $produtoDados['brand'];
+        $produto->gtin = $produtoDados['ean'];
+        $produto->image = $produtoDados['image'];
+        $produto->fornecedor_id = $produtoDados['fornecedor'];
+        $produto->termometro = 100;
+        $produto->isVariation = 1;
+        $produto->variation_data = json_encode($jsonMercadoLivre);
+        $produto->save();
+
+         return redirect()
+        ->route('products.edit', ['id' => $produto->id])
+        ->with('success', 'Produto com variações criado com sucesso!');
+
     }
 
 }

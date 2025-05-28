@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -347,6 +348,7 @@ class Products extends Model
         $query = Products::query();
         $query->where('isPublic','=',1);
         $query->where('isExclusivo','=', 0);
+
         // Verifica se o filtro 'nome' está preenchido
         if ($request->filled('nome')) {
             $query->where('title', 'like', '%' . $request->nome . '%');
