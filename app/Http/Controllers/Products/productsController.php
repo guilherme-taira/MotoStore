@@ -759,11 +759,11 @@ class productsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        echo "<pre>";
+        // echo "<pre>";
         $variations = [];
 
       $primeiroPreco = null;
-    $primeiraDefinida = false;
+      $primeiraDefinida = false;
 
     foreach ($request->input('variation', []) as $data) {
         // Ignora variações vazias ou incompletas
