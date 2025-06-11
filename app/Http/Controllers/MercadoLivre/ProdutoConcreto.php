@@ -133,8 +133,9 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
-
-            $data['variations'] = $this->getVariations();
+            if($this->getVariations() != null){
+                $data['variations'] = $this->getVariations();
+            }
 
             $jsonData = json_decode($this->getProduto()->atributos_json, true);
             $jsonData = is_array($jsonData) ? $jsonData : [];
