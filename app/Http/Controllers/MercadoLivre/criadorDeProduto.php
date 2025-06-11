@@ -22,8 +22,9 @@ abstract class criadorDeProduto
     private float $totalInformado;
     private $dadosIntegrado; // DADOS PARA GUARDAR DEPOIS DE INTEGRAR
     private $json;
+    private $variation;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null,$json = null)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null,$json = null, $variation = null)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -37,6 +38,7 @@ abstract class criadorDeProduto
         $this->totalInformado = $totalInformado;
         $this->dadosIntegrado = $dadosIntegrado;
         $this->json = $json;
+        $this->variation = $variation;
     }
 
 
@@ -237,5 +239,13 @@ abstract class criadorDeProduto
     public function getJson()
     {
         return $this->json;
+    }
+
+    /**
+     * Get the value of variation
+     */
+    public function getVariation()
+    {
+        return $this->variation;
     }
 }

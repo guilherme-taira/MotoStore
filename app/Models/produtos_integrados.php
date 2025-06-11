@@ -58,6 +58,13 @@ class produtos_integrados extends Model
     return $data;
     }
 
+    // no model ProdutosIntegrados
+    public function variacoes()
+    {
+        return $this->hasMany(Variacao::class, 'id_mercadolivre', 'id_mercadolivre');
+    }
+
+
     public static function cadastrar($name,$image,$id_prod){
         $integrado = new produtos_integrados();
         $integrado->name = $name;

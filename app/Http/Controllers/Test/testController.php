@@ -13,6 +13,7 @@ use App\Http\Controllers\MercadoLivreHandler\getDomainController;
 use App\Http\Controllers\SaiuPraEntrega\SaiuPraEntregaService;
 use App\Http\Controllers\SaiuPraEntrega\SendNotificationPraEntregaController;
 use App\Http\Controllers\SaiuPraEntrega\TypeMessageController;
+use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Shopify\LineItem;
 use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
@@ -78,47 +79,14 @@ class testController extends Controller
 
         public function teste(Request $request) {
 
-            $este = User::GetDataUserAndToken(16);
-            print_r($este);
-            // $users = FcmToken::leftJoin('users', 'fcm_tokens.user_id', 'users.id')->get();
+                $data = [
+                    "order_site_id" => "37362",
+                    "product_id" => 464,
+                    "integrated_product_id" => "MLB4032381839",
+                    "quantity_sold" => 5,
+                ];
 
-            // foreach ($users as $value) {
-            //     Log::alert(json_encode($value));
-
-            //     if ($value && $value->token) { // 🔥 Verifica se o usuário tem token FCM
-
-            //         // 🔥 Criar apenas UMA instância do Factory para Firebase
-            //         $factory = (new Factory)
-            //             ->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')))
-            //             ->withDatabaseUri("https://afilidrop-33bcf-default-rtdb.firebaseio.com");
-
-            //         // 🔥 Criar instâncias do Firebase Database e Messaging
-            //         $database = $factory->createDatabase();
-            //         $messaging = $factory->createMessaging();
-
-            //         // 🔥 Salvar a notificação no Realtime Database
-            //         $database->getReference("notificacoes/{$value->id}")->push([
-            //             'mensagem' => "Olá Davi Santos",
-            //             'body' => "Você Vendeu Bucha de lavar Pratos..",
-            //             'timestamp' => now()->format('Y-m-d H:i:s'),
-            //             'lida' => false
-            //         ]);
-
-            //         // 🔥 Enviar notificação via FCM
-            //         $message = CloudMessage::withTarget('token', $value->token)
-            //             ->withNotification(Notification::create(
-            //                 "Olá Davi Santos",
-            //                 "Você Vendeu Bucha de lavar Pratos.."
-            //             ))
-            //             ->withData([
-            //                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-            //             ]);
-
-            //         $messaging->send($message);
-
-            //         // 🔥 Retorna apenas uma resposta final
-            //         return response()->json(["success" => true, "message" => "Notificação enviada!"]);
-            //     }
-            // }
+                $retirarEstoque = new SalesReportController();
+                $retirarEstoque->processSale($data);
         }
 }

@@ -60,6 +60,12 @@ class Products extends Model
         $this->priceKit = $valor;
     }
 
+    public function isBloqueado()
+    {
+        return $this->isKit || $this->isVariation;
+    }
+
+
     public function getPriceKit(){
         return $this->priceKit;
     }

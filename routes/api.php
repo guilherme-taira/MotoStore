@@ -14,6 +14,7 @@ use App\Http\Controllers\Marketing\BannerController;
 use App\Http\Controllers\MercadoLivre\GetTokenForApi;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoNotification;
 use App\Http\Controllers\Orders\orderscontroller;
+use App\Http\Controllers\PaginationController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Store\StoreController;
@@ -123,8 +124,8 @@ Route::prefix('v1')->group(function () {
     Route::get('getNumberOrder', [orderscontroller::class, 'buscarVendas']);
     Route::get('paginationExtract',[extensaoController::class,'paginarAutomaticamente']);
     Route::get('/visitas-ml/{itemId}', [productsController::class, 'getVisitas']);
-
-
+    Route::get('/coletar-paginas', [PaginationController::class, 'coletarPaginas']);
+     Route::get('/paginar', [extensaoController::class, 'coletarTodasPaginasEProcessar']);
     // financeiro::contareceber(Auth::user()->id);
 });
 

@@ -15,13 +15,10 @@ class ProdutoImplementacao extends criadorDeProduto
 {
     public function getProduto()
     {
-
         $products = Products::where('id', $this->getIdProduct())->first();
-        // $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ANTIGO
 
-        // $dataAtual = new DateTime();
         $token = token::where('user_id', $this->getId())->first(); // CHAMANDO ATUALIZADO
-        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado(),$products->atributos_json);
+        $produto = new ProdutoConcreto($products, $this->getIdCategoria(), $this->getPrice(), $token,$this->getName(),$this->getTipoAnuncio(),$this->getDados(),$this->getValorSemTaxa(),$this->getTotalInformado(),$this->getDadosIntegrado(),$products->atributos_json,$this->getVariation());
         $data = $produto->integrar($this->getDescricao(),$this->getIdProduct());
         Log::alert($this->getId());
         if ($data) {

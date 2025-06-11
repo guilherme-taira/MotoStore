@@ -37,6 +37,7 @@ use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
 use App\Http\Controllers\image\image;
+use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBras;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
@@ -56,6 +57,7 @@ use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Http\Controllers\MercadoLivreStockController;
 use App\Jobs\UpdateStockJob;
 use App\Models\kit;
+use App\Models\KitProductVariation;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
 use Carbon\Carbon;
@@ -701,8 +703,7 @@ class productsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
 
         $produto = Products::where('id', $id)->first();
         EventoNavegacao::dispatch($produto);
@@ -726,6 +727,7 @@ class productsController extends Controller
             ]);
         }
 
+        $viewData['fornecedor_id'] = KitProductVariation::where('kit_id',$id)->first();
         $viewData['photos'] = $photos;
         $viewData['title'] = "Afilidrop" . $produto->getName();
         $viewData['product'] = $produto;
@@ -757,32 +759,19 @@ class productsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        // echo "<pre>";
+    public function update(Request $request, $id){
         $variations = [];
+        $firstFornecedor = null;
+        $firstPrice = null;
 
-      $primeiroPreco = null;
-      $primeiraDefinida = false;
+        foreach ($request->input('variation', []) as $data) {
+            if (empty($data['sku'])) continue;
 
-    foreach ($request->input('variation', []) as $data) {
-        // Ignora variações vazias ou incompletas
-        if (empty($data['sku'])) {
-            continue;
-        }
-
-        // Pega o preço e estoque da primeira variação válida
-        if (!$primeiraDefinida && isset($data['price'], $data['available_quantity'])) {
-            $primeiroPreco = $data['price'];
-            $primeiraDefinida = true;
-        }
-
-            $attributes = [
-                [
-                    'id' => 'SELLER_SKU',
-                    'value_name' => (string) $data['sku'],
-                ]
-            ];
+            // Atribuições básicas
+            $attributes = [[
+                'id' => 'SELLER_SKU',
+                'value_name' => (string) $data['sku'],
+            ]];
 
             $attribute_combinations = [];
             $nomes = $data['atributos_nome'] ?? [];
@@ -797,108 +786,149 @@ class productsController extends Controller
                 }
             }
 
-        // Pega imagens vinculadas ao SKU (product_id)
-        $fotos = Images::where('product_id', $data['sku'])
-            ->orderBy('position', 'asc')
-            ->get();
+            // Imagens
+            $fotos = Images::where('product_id', $data['sku'])
+                ->orderBy('position', 'asc')
+                ->get();
 
-        $picture_ids = [];
-        foreach ($fotos as $foto) {
-            $picture_ids[] = "https://afilidrop2.s3.amazonaws.com/produtos/{$foto->product_id}/{$foto->url}";
+            $picture_ids = [];
+            foreach ($fotos as $foto) {
+                $picture_ids[] = "https://afilidrop2.s3.amazonaws.com/produtos/{$foto->product_id}/{$foto->url}";
+            }
+
+            // Define o preço da primeira variação
+            if (is_null($firstPrice)) {
+                $firstPrice = $data['price'] ?? 0;
+            }
+
+            // Aplica o mesmo preço em todas
+            $precoAplicado = $firstPrice;
+
+            $variations[] = [
+                'attributes' => $attributes,
+                'attribute_combinations' => $attribute_combinations,
+                'price' => (float) $precoAplicado,
+                'available_quantity' => (int) ($data['available_quantity'] ?? 0),
+                'picture_ids' => $picture_ids,
+                'fornecedor_id' => $data['fornecedor_id'] ?? null
+            ];
         }
 
-        $variations[] = [
-            'attributes' => $attributes,
-            'attribute_combinations' => $attribute_combinations,
-            'price' => (float) ($primeiroPreco ?? 0),
-            'available_quantity' => (int) ($data['available_quantity'] ?? 0),
-            'picture_ids' => $picture_ids
-        ];
+            $request->validate([
+                'isPublic' => "required",
+                "title" => "required|max:255",
+                "description" => "required",
+                "available_quantity" => "required|numeric|min:0",
+                "category_id" => "required|max:20",
+                'subcategoria' => "required",
+                "brand" => "max:100",
+                // 'image' => 'required',
+                "gtin" => "required|numeric",
+                "tipo_anuncio" => "required|max:50",
+                'pricePromotion' => 'numeric',
+                'termometro' => 'numeric',
+                'taxaFee' => "required|numeric|gt:0",
+                'priceWithFee' =>  "required|numeric|gt:0",
+                'height' =>  "required|numeric|gt:0",
+                'width' =>  "required|numeric|gt:0",
+                'length' =>  "required|numeric|gt:0",
+                'price' => "required|numeric|gt:0",
+                'priceKit' => "required|numeric|gt:0",
+                'valorProdFornecedor' => "required|numeric",
+                'owner' => 'required',
 
-    }
+                // Novos Campos
+                'estoque_minimo_afiliado' => "required|numeric|gte:0",
+                'percentual_estoque' => "required|numeric|between:0,100",
+                'estoque_afiliado' => "required|numeric|gte:0",
+                'min_unidades_kit' => "required|numeric|gte:0",
+                'acao' => "nullable|string|max:50"
+            ], [
+                'owner.required' => "O campo owner é obrigatório",
+                'subcategoria.required' => "O campo Categoria é obrigatório",
+                'isPublic.required' => "O campo ativo é obrigatório.",
+                'title.required' => 'O campo Nome é obrigatório.',
+                'title.max' => 'O Nome não pode ter mais de 255 caracteres.',
+                'description.required' => 'A descrição é obrigatória.',
+                'available_quantity.required' => 'O campo Estoque é obrigatório.',
+                'available_quantity.numeric' => 'O campo Estoque deve ser um número.',
+                'available_quantity.min' => 'O campo Estoque deve ser maior ou igual a 0.',
+                'category_id.required' => 'A Categoria Mercado Livre é obrigatória.',
+                'brand.max' => 'A Marca não pode ter mais de 100 caracteres.',
+                // 'image.required' => 'O campo Imagem deve ser uma imagem válida.',
+                'gtin.required' => 'O código EAN é obrigatório.',
+                'gtin.numeric' => 'O campo EAN deve ser numérico.',
+                'tipo_anuncio.required' => 'O Tipo de Anúncio é obrigatório.',
+                'pricePromotion.numeric' => 'O campo Preço Promocional deve ser numérico.',
+                'termometro.numeric' => 'O campo Termômetro deve ser numérico.',
+                'taxaFee.required' => 'O campo Taxa Fee é obrigatório.',
+                'priceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
+                'height.required' => 'O campo Altura é obrigatório.',
+                'width.required' => 'O campo Largura é obrigatório.',
+                'length.required' => 'O campo Comprimento é obrigatório.',
+                'price.required' => 'O campo Preço é obrigatório.',
+                'priceKit.required' => 'O campo Preço Kit é obrigatório.',
+                'priceKit.numeric' => 'O campo Preço Kit deve ser numérico.',
+                'priceKit.gt' => 'O campo Preço Kit deve ser maior que 0.',
+                'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
+                'valorProdFornecedor.required' => "O campo acressímo é obrigatório",
+                'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico",
+                // Mensagens dos Novos Campos
+                'estoque_minimo_afiliado.required' => 'O campo Estoque Mínimo Afiliado é obrigatório.',
+                'estoque_minimo_afiliado.numeric' => 'O campo Estoque Mínimo Afiliado deve ser um número.',
+                'estoque_minimo_afiliado.gte' => 'O campo Estoque Mínimo Afiliado deve ser maior ou igual a 0.',
+                'percentual_estoque.required' => 'O campo Percentual de Estoque é obrigatório.',
+                'percentual_estoque.numeric' => 'O campo Percentual de Estoque deve ser numérico.',
+                'percentual_estoque.between' => 'O campo Percentual de Estoque deve estar entre 0 e 100.',
+                'estoque_afiliado.required' => 'O campo Estoque do Afiliado é obrigatório.',
+                'estoque_afiliado.numeric' => 'O campo Estoque do Afiliado deve ser numérico.',
+                'estoque_afiliado.gte' => 'O campo Estoque do Afiliado deve ser maior ou igual a 0.',
+                'min_unidades_kit.required' => 'O campo Mínimo de Unidades no Kit é obrigatório.',
+                'min_unidades_kit.numeric' => 'O campo Mínimo de Unidades no Kit deve ser numérico.',
+                'min_unidades_kit.gte' => 'O campo Mínimo de Unidades no Kit deve ser maior ou igual a 0.',
+                'acao.string' => 'O campo Ação deve ser um texto.',
+                'acao.max' => 'O campo Ação não pode ter mais de 50 caracteres.',
+            ]);
 
-    // print_r(json_encode($variations,JSON_PRETTY_PRINT));
+            $produto = Products::findOrFail($id);
+            $produto->variation_data = $variations;
+            $produto->fill($request->except('products')); // Preenche os dados do produto
 
-        $request->validate([
-            'isPublic' => "required",
-            "title" => "required|max:255",
-            "description" => "required",
-            "available_quantity" => "required|numeric|gt:0",
-            "category_id" => "required|max:20",
-            'subcategoria' => "required",
-            "brand" => "max:100",
-            'image' => 'required',
-            "gtin" => "required|numeric",
-            "tipo_anuncio" => "required|max:50",
-            'pricePromotion' => 'numeric',
-            'termometro' => 'numeric',
-            'taxaFee' => "required|numeric|gt:0",
-            'priceWithFee' =>  "required|numeric|gt:0",
-            'height' =>  "required|numeric|gt:0",
-            'width' =>  "required|numeric|gt:0",
-            'length' =>  "required|numeric|gt:0",
-            'price' => "required|numeric|gt:0",
-            'priceKit' => "required|numeric|gt:0",
-            'valorProdFornecedor' => "required|numeric",
-            'owner' => 'required',
+            $kitId = $produto->id;
 
-            // Novos Campos
-            'estoque_minimo_afiliado' => "required|numeric|gte:0",
-            'percentual_estoque' => "required|numeric|between:0,100",
-            'estoque_afiliado' => "required|numeric|gte:0",
-            'min_unidades_kit' => "required|numeric|gte:0",
-            'acao' => "nullable|string|max:50"
-        ], [
-            'owner.required' => "O campo owner é obrigatório",
-            'subcategoria.required' => "O campo Categoria é obrigatório",
-            'isPublic.required' => "O campo ativo é obrigatório.",
-            'title.required' => 'O campo Nome é obrigatório.',
-            'title.max' => 'O Nome não pode ter mais de 255 caracteres.',
-            'description.required' => 'A descrição é obrigatória.',
-            'available_quantity.required' => 'O campo Estoque é obrigatório.',
-            'available_quantity.numeric' => 'O campo Estoque deve ser um número.',
-            'available_quantity.gt' => 'O campo Estoque deve ser maior que 0.',
-            'category_id.required' => 'A Categoria Mercado Livre é obrigatória.',
-            'brand.max' => 'A Marca não pode ter mais de 100 caracteres.',
-            'image.required' => 'O campo Imagem deve ser uma imagem válida.',
-            'gtin.required' => 'O código EAN é obrigatório.',
-            'gtin.numeric' => 'O campo EAN deve ser numérico.',
-            'tipo_anuncio.required' => 'O Tipo de Anúncio é obrigatório.',
-            'pricePromotion.numeric' => 'O campo Preço Promocional deve ser numérico.',
-            'termometro.numeric' => 'O campo Termômetro deve ser numérico.',
-            'taxaFee.required' => 'O campo Taxa Fee é obrigatório.',
-            'priceWithFee.required' => 'O campo Preço com Taxa é obrigatório.',
-            'height.required' => 'O campo Altura é obrigatório.',
-            'width.required' => 'O campo Largura é obrigatório.',
-            'length.required' => 'O campo Comprimento é obrigatório.',
-            'price.required' => 'O campo Preço é obrigatório.',
-            'priceKit.required' => 'O campo Preço Kit é obrigatório.',
-            'priceKit.numeric' => 'O campo Preço Kit deve ser numérico.',
-            'priceKit.gt' => 'O campo Preço Kit deve ser maior que 0.',
-            'priceKit.required' => 'O campo Preço do Kit é obrigatório.',
-            'valorProdFornecedor.required' => "O campo acressímo é obrigatório",
-            'valorProdFornecedor.numeric' => "O campo acressímo deve ser numerico",
-             // Mensagens dos Novos Campos
-            'estoque_minimo_afiliado.required' => 'O campo Estoque Mínimo Afiliado é obrigatório.',
-            'estoque_minimo_afiliado.numeric' => 'O campo Estoque Mínimo Afiliado deve ser um número.',
-            'estoque_minimo_afiliado.gte' => 'O campo Estoque Mínimo Afiliado deve ser maior ou igual a 0.',
-            'percentual_estoque.required' => 'O campo Percentual de Estoque é obrigatório.',
-            'percentual_estoque.numeric' => 'O campo Percentual de Estoque deve ser numérico.',
-            'percentual_estoque.between' => 'O campo Percentual de Estoque deve estar entre 0 e 100.',
-            'estoque_afiliado.required' => 'O campo Estoque do Afiliado é obrigatório.',
-            'estoque_afiliado.numeric' => 'O campo Estoque do Afiliado deve ser numérico.',
-            'estoque_afiliado.gte' => 'O campo Estoque do Afiliado deve ser maior ou igual a 0.',
-            'min_unidades_kit.required' => 'O campo Mínimo de Unidades no Kit é obrigatório.',
-            'min_unidades_kit.numeric' => 'O campo Mínimo de Unidades no Kit deve ser numérico.',
-            'min_unidades_kit.gte' => 'O campo Mínimo de Unidades no Kit deve ser maior ou igual a 0.',
-            'acao.string' => 'O campo Ação deve ser um texto.',
-            'acao.max' => 'O campo Ação não pode ter mais de 50 caracteres.',
-        ]);
+            $skusAtualizados = [];
 
-        $produto = Products::findOrFail($id);
-        $produto->variation_data = $variations;
-        $produto->fill($request->except('products')); // Preenche os dados do produto
+            foreach ($variations as $var) {
+                $sku = $var['attributes'][0]['value_name'];
+                $skusAtualizados[] = $sku;
 
+                $product = products::where('id', $sku)->first();
+
+                if ($product) {
+                    DB::table('kit_product_variations')->updateOrInsert(
+                        [
+                            'kit_id' => $kitId,
+                            'product_id' => $product->id,
+                            'sku' => $sku,
+                        ],
+                        [
+                            'custom_price' => $var['price'],
+                            'quantity' => $var['available_quantity'],
+                            'attribute_combinations' => json_encode($var['attribute_combinations']),
+                            'picture_ids' => json_encode($var['picture_ids']),
+                            'fornecedor_id' => $product->fornecedor_id,
+                            'updated_at' => now(),
+                            'created_at' => now(),
+                        ]
+                    );
+                }
+            }
+
+        // Remover da tabela os SKUs que não estão mais nas variações
+        DB::table('kit_product_variations')
+        ->where('kit_id', $kitId)
+        ->whereNotIn('sku', $skusAtualizados)
+        ->delete();
 
         // MANIPULA O PREÇO DAS INTEGRAÇÔES
         $precoNew = new ManipuladorProdutosIntegrados($id,number_format($request->priceWithFee,2));
@@ -907,7 +937,7 @@ class productsController extends Controller
         // Disparando o Job
         UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
 
-      // MANIPULA O ESTOQUE DAS INTEGRAÇÕES
+        // MANIPULA O ESTOQUE DAS INTEGRAÇÕES
         try {
             if ($request->hasFile('photos')) {
                 $firstImage = true; // Flag para identificar a primeira imagem nova
@@ -1439,6 +1469,7 @@ class productsController extends Controller
             $data['priceKit'] = $product->priceKit;
             $data['link'] = $product->link;
             $data['ean'] = $product->gtin;
+            $data['variation_data'] = $product->variation_data;
             $data['tags'] = [
                 "immediate_payment",
             ];
@@ -1480,6 +1511,67 @@ class productsController extends Controller
         $datasDB = Products::where('title', 'like', '%' . $dados->title . '%')->get();
 
         return response()->json(["products" => $datasDB]);
+    }
+
+
+    public function IntegrarProdutoVariation(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5|max:60',
+            'tipo_anuncio' => 'required',
+            'price' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $dadosIntegrado = [];
+        if (isset($request->precoFixo)) {
+            // Mantém o valor fixo se estiver preenchido
+            $dadosIntegrado['precofixo'] = $request->precoFixo;
+        } else {
+            $dadosIntegrado['valor_tipo'] = $request->valor_tipo;
+            $dadosIntegrado['isPorcem'] = $request->isPorcem;
+            $dadosIntegrado['valor'] = $request->valor_agregado;
+        }
+
+        $name = $request->name;
+        $tipo_anuncio = $request->tipo_anuncio;
+        $price = str_replace(',', '.', $request->input('totalInformado'));
+        $id_categoria = $request->id_categoria;
+        $id_product = $request->id_prodenv;
+        $descricao = $request->editor;
+        $valorSemTaxa = 0;
+        $totalInformado = 0;
+        $variation = $request->filled('variacoes_json') ? json_decode($request->input('variacoes_json'), true) : [];
+
+        if($request->category_default && !isset($request->id_categoria)){
+            $id_categoria = $request->category_id;
+        }
+
+        $array = [];
+        // Itera sobre os dados recebidos
+        foreach ($request->all() as $key => $value) {
+            // Verifica se a chave possui letras maiúsculas
+            if (preg_match('/[A-Z]/', $key)) {
+                // Adiciona o parâmetro ao array de parâmetros com letras maiúsculas
+                array_push($array,["id" => $key,"value" => $value, "values" => [["id" => $value,"name" => $value]]]);
+            }
+        }
+
+        $factory = new ProdutoImplementacao($name, $tipo_anuncio, $price, $id_categoria, $id_product, Auth::user()->id,$descricao,$array,$valorSemTaxa,$totalInformado,$dadosIntegrado,null,$variation);
+        $data = $factory->getProduto();
+
+        if ($data) {
+            return redirect()->back()->withErrors($data);
+        }
+
+        $request->session()->put('msg', 'Produto Cadstrado com Sucesso!');
+        return redirect()->back();
+
     }
 
     public function IntegrarProduto(Request $request)
@@ -2524,6 +2616,10 @@ class productsController extends Controller
                      'category_id' => $data['category_id'],
                      'brand' => $data['brand'],
                      'ean' => $data['ean'],
+                     'width' => $data['width'],
+                     'length' => $data['length'],
+                     'weight' => $data['weight'],
+                     'height'=> $data['height'],
                      'image' => "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $data->id . '/' . $data->image,
                      'categoria' => $data['subcategoria'],
                      'fornecedor' => $data['fornecedor_id'],
@@ -2543,7 +2639,13 @@ class productsController extends Controller
         $produto->subcategoria = $produtoDados['categoria'];
         $produto->brand = $produtoDados['brand'];
         $produto->gtin = $produtoDados['ean'];
-        $produto->image = $produtoDados['image'];
+        $produto->width = $produtoDados['width'];
+        $produto->weight = $produtoDados['weight'];
+        $produto->length = $produtoDados['length'];
+        $produto->height = $produtoDados['height'];
+
+
+        $produto->image = $data->image;
         $produto->fornecedor_id = $produtoDados['fornecedor'];
         $produto->termometro = 100;
         $produto->isVariation = 1;

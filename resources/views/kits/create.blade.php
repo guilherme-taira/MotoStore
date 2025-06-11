@@ -997,7 +997,7 @@
                                     'Variações criadas com sucesso!');
                                 setTimeout(() => {
                                     $('#progressModal').modal('hide');
-                                    location.reload();
+                                    window.location.href = "{{ route('allProductsByFornecedorVariation') }}"; // Redireciona
                                 }, 3000);
                             },
                             error: function(xhr, status, error) {

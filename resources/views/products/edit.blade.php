@@ -223,10 +223,12 @@
         let filterApplied = false; // Indica se o filtro já foi aplicado
         let selectedProducts = [];
         let currentFornecedor = null;
-
         $(document).ready(function() {
             $('#modalNovoProduto').on('shown.bs.modal', function() {
-                loadProducts(1, currentFornecedor);
+                let fornecedorInput = $('input[name="fornecedor_id"]').val();
+                let fornecedorFinal = fornecedorInput && fornecedorInput.trim() !== '' ? fornecedorInput : currentFornecedor;
+
+                loadProducts(1, fornecedorFinal);
             });
         });
 
@@ -1016,8 +1018,8 @@
                                 </div>
 
 
-                                <div class="row mb-3">
-                                    <div class="col {{ $viewData['product']->isKit ? 'd-none' : null }}">
+                                <div class="row mb-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
+                                    <div class="col">
                                         <label for="isPublic">Ativo / Público:</label>
                                         <select name="isPublic" class="form-control" required>
                                             <option value="1"
@@ -1026,14 +1028,16 @@
                                                 {{ $viewData['product']->isPublic == 0 ? 'selected' : '' }}>NÃO</option>
                                         </select>
                                     </div>
-                                    <div class="col">
+
+                                    <div class="col {{ $viewData['product']->isKit ? 'd-none' : null }}">
                                         <label for="isNft">NFT:</label>
                                         <select name="isNft" class="form-control" required>
                                             <option value="1">SIM</option>
                                             <option value="0" selected>NÃO</option>
                                         </select>
                                     </div>
-                                    <div class="col">
+
+                                    <div class="col {{ $viewData['product']->isKit ? 'd-none' : null }}">
                                         <label for="isExclusivo">Exclusivo</label>
                                         <select name="isExclusivo" class="form-control" required>
                                             <option value="1"
@@ -1042,7 +1046,7 @@
                                                 {{ $viewData['product']->isExclusivo == 0 ? 'selected' : '' }}>NÃO</option>
                                         </select>
                                     </div>
-                                    <div class="col mb-3">
+                                    <div class="col mb-3 {{ $viewData['product']->isKit ? 'd-none' : null }}">
                                         <label for="informacaoadicional" class="form-label">Informações
                                             Adicionais:</label>
                                         <input name="informacaoadicional" type="text"
@@ -1050,7 +1054,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                     <div class="col-md-12">
                                         <label for="link" class="form-label">Link do Material:</label>
                                         <input name="link" type="text" value="{{ $viewData['product']->link }}"
@@ -1083,6 +1087,8 @@
                                         + Adicionar Novo Produto
                                     </button>
                                 </div>
+
+                               <input type="hidden" name="fornecedor_id" value="{{ optional($viewData['fornecedor_id'])->fornecedor_id }}">
 
                                 <ul class="list-unstyled" id="kitItemList">
                                     @foreach (json_decode($viewData['product']->variation_data ?? '[]') as $index => $product)
@@ -1221,23 +1227,24 @@
 
 
                                     <!-- Preço Promocional -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="pricePromotion">Preço Promocional:</label>
                                         <input name="pricePromotion" value="0" type="text" class="form-control">
                                     </div>
 
                                     <!-- Estoque -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="available_quantity">Estoque:</label>
                                         <input name="available_quantity" type="number"
-                                            value="{{ $viewData['product']->available_quantity }}" class="form-control"
+                                            value="{{ old('available_quantity', $viewData['product']->available_quantity ?? '1') }}"
+                                            class="form-control"
                                             required>
                                     </div>
                                 </div>
 
                                 <div class="row mb-3">
                                     <!-- Estoque Mínimo Afiliado -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="estoque_minimo_afiliado">Estoque Mínimo Afiliado:</label>
                                         <input name="estoque_minimo_afiliado" id="estoque_minimo_afiliado"
                                             value="{{ $viewData['product']->estoque_minimo_afiliado }}" type="number"
@@ -1245,37 +1252,40 @@
                                     </div>
 
                                     <!-- Percentual de Estoque -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="percentual_estoque">Percentual de Estoque:</label>
                                         <input name="percentual_estoque" id="percentual_estoque"
-                                            value="{{ $viewData['product']->percentual_estoque }}" type="text"
-                                            class="form-control">
+                                        value="{{ old('percentual_estoque', $viewData['product']->percentual_estoque ?? 10) }}"
+                                        type="text"
+                                        class="form-control">
                                     </div>
 
                                     <!-- Estoque do Afiliado -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="estoque_afiliado">Estoque do Afiliado:</label>
-                                        <input name="estoque_afiliado" id="estoque_afiliado"
-                                            value="{{ $viewData['product']->estoque_afiliado }}" type="number"
-                                            class="form-control" readonly>
+                                       <input name="estoque_afiliado" id="estoque_afiliado"
+                                            value="{{ old('estoque_afiliado', $viewData['product']->estoque_afiliado ?? '1') }}"
+                                            type="number"
+                                            class="form-control"
+                                            readonly>
                                     </div>
                                 </div>
 
                                 <div class="row mb-3">
                                     <!-- Mínimo de Unidades no Kit -->
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="min_unidades_kit">Mínimo de Unidades no Kit:</label>
-                                        <input name="min_unidades_kit" id="min_unidades_kit"
-                                            value="{{ $viewData['product']->min_unidades_kit }}" type="number"
-                                            class="form-control">
+                                        <input name="min_unidades_kit" id="min_unidades_kit" value="{{ old('min_unidades_kit', $viewData['product']->min_unidades_kit ?? 10) }}"
+                                        type="number"
+                                        class="form-control">
                                     </div>
                                 </div>
 
-                                <div class="col-lg-4">
+                                <div class="col-lg-4 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                     <label for="id_bling" class="form-label font-weight-bold">ID Bling
                                         (Obrigatório):</label>
                                     <input name="id_bling" id="id_bling"
-                                        value="{{ $viewData['product']->id_bling ?? old('id_bling') }}" type="text"
+                                        value="{{ old('id_bling', $viewData['product']->id_bling ?? 1) }}" type="text"
                                         class="form-control border-danger text-danger bg-light font-weight-bold" required
                                         style="border-width: 2px; font-size: 1.2rem; box-shadow: 0px 0px 10px rgba(255,0,0,0.5);">
                                     @error('id_bling')
@@ -1283,7 +1293,7 @@
                                     @enderror
                                 </div>
 
-                                <div class="row mb-3 mt-2">
+                                <div class="row mb-3 mt-2 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                     <!-- Botões de Ação -->
                                     <div class="col-lg-6">
                                         <label for="acao" class="form-label">Ação:</label>
@@ -1329,7 +1339,7 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-2 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                         <label for="termometro">Valor Termômetro:</label>
                                         <input type="number" name="termometro" id="termometro" value="100"
                                             min="0" max="150" class="form-control">
@@ -1359,7 +1369,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-3">
+                                <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
                                     <label for="tipo_anuncio">Tipo de Anúncio:</label>
                                     <select name="tipo_anuncio" id="tipo_anuncio" class="form-control"
                                         aria-label=".form-select-sm example" required>
@@ -1455,11 +1465,11 @@
                                     </div>
                                 </div>
 
-                                <div id="formContainer">
+                                <div id="formContainer" class="{{ $viewData['product']->isKit ? 'd-none' : null }}">
                                     {!! $viewData['product']->atributos_html !!}
                                 </div>
 
-                                <div id="jsonViewer" style="height: 400px; border: 1px solid #ccc;"></div>
+                                <div id="jsonViewer" style="height: 400px; border: 1px solid #ccc;" class="{{ $viewData['product']->isKit ? 'd-none' : null }}"></div>
                             </div>
                         </div>
                     </div>
@@ -1671,7 +1681,6 @@
                     </div>
             </form>
 
-
             <!-- Modal para Adicionar Novo Produto ao Kit -->
             <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
                 aria-hidden="true">
@@ -1708,7 +1717,7 @@
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modalNovoProdutoLabel">Adicionar Novo Produto ao Kit</h5>
+                            <h5 class="modal-title" id="modalNovoProdutoLabel">Adicionar Nova Variação</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Fechar"></button>
                         </div>
@@ -1727,9 +1736,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
@@ -1755,7 +1764,6 @@
              $('[data-bs-toggle="tooltip"]').tooltip();
             });
 
-
             let selectedProducts = [];
 
             $(document).on('click', '.btn-apagar-atributo', function() {
@@ -1775,11 +1783,26 @@
                 }
             });
 
-            $(document).on('click', '.btn-excluir-variacao', function() {
+
+           $(document).on('click', '.btn-excluir-variacao', function () {
                 if (confirm('Tem certeza que deseja excluir esta variação?')) {
+                    // Remove a variação
                     $(this).closest('.variacao-item').remove();
+
+                    // Reconta as variações
+                    let totalVariacoes = $('.variacao-item').length;
+                    // Se não houver nenhuma, limpa o campo fornecedor_id
+                    if (totalVariacoes === 1) {
+                        $('input[name="fornecedor_id"]').val('');
+                    }
+
+                    // (Opcional) Reindexar numeração das variações se houver cabeçalhos como "Variação #1"
+                    $('.variacao-item').each(function (index) {
+                        $(this).find('h5').text('Variação #' + (index + 1));
+                    });
                 }
             });
+
 
             // Executa ao clicar no checkbox para mostrar o botão de criar variação
             $(document).on('change', '.product-checkbox', function() {
@@ -2031,7 +2054,6 @@
         function setAtributosHTML(html) {
             atributosHTML = html;
         }
-
 
         $('#btnNovaVariacao').on('click', function() {
             const index = variacaoIndex++;

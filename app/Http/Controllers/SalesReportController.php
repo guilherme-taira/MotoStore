@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\UpdateStockJob;
 use App\Models\Products;
 use App\Models\produtos_integrados;
 use App\Models\SalesReport;
 use App\Models\User;
 use App\Notifications\StockMinimumReached;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SalesReportController extends Controller
@@ -18,16 +20,19 @@ class SalesReportController extends Controller
      */
     public function processSale($dados)
     {
-        // $data = [
-        //     "order_site_id" => $id_order,
-        //     "product_id" => $produto['id'],
-        //     "integrated_product_id" => $response->json()['id'],
-        //     "quantity_sold" => intVal($items->quantity),
-        // ];
+        // TESTA SE FOR KIT
+         $kit = DB::table('kit')
+        ->where('product_id', $dados['product_id'])
+        ->first();
 
-        // Busca os produtos no banco
-        $product = Products::findOrFail($dados['product_id']);
+        if ($kit) {
+            $product = Products::findOrFail($kit->id_product_kit);
+        } else {
+            $product = Products::findOrFail($dados['product_id']);
+        }
+
         $integratedProduct = produtos_integrados::where('id_mercadolivre',$dados['integrated_product_id'])->first();
+
 
         // Quantidade anterior
         $quantityBeforeProduct = $product->available_quantity;
@@ -36,7 +41,9 @@ class SalesReportController extends Controller
         $product->available_quantity -= $dados['quantity_sold'];
         $product->save();
 
-        // // Recalcula o estoque do afiliado baseado no percentual configurado no banco
+
+
+        // Recalcula o estoque do afiliado baseado no percentual configurado no banco
         $percentualEstoque = $product->percentual_estoque; // Certifique-se de que este campo exista na tabela products
         $estoqueAfiliado = floor(($product->available_quantity * $percentualEstoque) / 100);
 
@@ -73,12 +80,9 @@ class SalesReportController extends Controller
             'quantity_after' => $product->available_quantity,
         ]);
 
-        return response()->json([
-            'message' => 'Venda processada, estoque atualizado, e estoque do afiliado recalculado com sucesso!',
-            'estoque_afiliado' => $estoqueAfiliado,
-            'estoque_atual' => $product->available_quantity,
-        ]);
-    }
+        UpdateStockJob::dispatch($product->product_id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
+
+ }
 
     public function pausarAnuncios($integratedProduct){
 

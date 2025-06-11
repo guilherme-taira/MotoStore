@@ -15,22 +15,35 @@
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="modalTermosLabel">Termos e Condições de Uso da Plataforma AfiliDrop</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <h6 class="text-muted mb-3">Atualizado em: 30/04/2025</h6>
 
-                    <p>Estes Termos e Condições de Uso regulam a prestação de serviços entre <strong>Maximo Company LTDA</strong>, inscrita no CNPJ 48.930.389/0001-09, com sede à R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490, titular da marca <strong>AfiliDrop</strong>, doravante denominada AfiliDrop, e a pessoa física ou jurídica identificada no momento do cadastro na plataforma, doravante denominada Afiliado(a).</p>
+                    <p>Estes Termos e Condições de Uso regulam a prestação de serviços entre <strong>Maximo Company
+                            LTDA</strong>, inscrita no CNPJ 48.930.389/0001-09, com sede à R. Maj. Arthur Franco Mourão,
+                        1043 - Centro, Leme - SP, 13611-490, titular da marca <strong>AfiliDrop</strong>, doravante
+                        denominada AfiliDrop, e a pessoa física ou jurídica identificada no momento do cadastro na
+                        plataforma, doravante denominada Afiliado(a).</p>
 
-                    <p>Ao clicar em “Li e Aceito os Termos”, o Afiliado declara ter lido, compreendido e aceitado integralmente as disposições deste documento. Caso não concorde com qualquer cláusula, o uso da plataforma deve ser imediatamente interrompido.</p>
+                    <p>Ao clicar em “Li e Aceito os Termos”, o Afiliado declara ter lido, compreendido e aceitado
+                        integralmente as disposições deste documento. Caso não concorde com qualquer cláusula, o uso da
+                        plataforma deve ser imediatamente interrompido.</p>
 
                     <h5>Cláusula 1 – Objeto</h5>
                     <ul>
-                        <li>Comercializar produtos fornecidos exclusivamente por fornecedores cadastrados na AfiliDrop em plataformas de e-commerce, respeitando as políticas da plataforma.</li>
-                        <li>Utilizar o endereço logístico da AfiliDrop (R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme - SP, 13611-490) para fins de conferência, postagem, devolução e logística reversa dos produtos vendidos.</li>
+                        <li>Comercializar produtos fornecidos exclusivamente por fornecedores cadastrados na AfiliDrop em
+                            plataformas de e-commerce, respeitando as políticas da plataforma.</li>
+                        <li>Utilizar o endereço logístico da AfiliDrop (R. Maj. Arthur Franco Mourão, 1043 - Centro, Leme -
+                            SP, 13611-490) para fins de conferência, postagem, devolução e logística reversa dos produtos
+                            vendidos.</li>
                     </ul>
-                    <p>A AfiliDrop não é proprietária dos produtos ofertados no catálogo da plataforma. Os produtos são disponibilizados por fornecedores parceiros. A AfiliDrop atua apenas como intermediadora entre fornecedor e Afiliado.</p>
-                    <p>Atrasos, avarias ou falhas logísticas cometidas pelo fornecedor não são de responsabilidade da AfiliDrop. No entanto, a AfiliDrop buscará resolver a situação junto ao fornecedor.</p>
+                    <p>A AfiliDrop não é proprietária dos produtos ofertados no catálogo da plataforma. Os produtos são
+                        disponibilizados por fornecedores parceiros. A AfiliDrop atua apenas como intermediadora entre
+                        fornecedor e Afiliado.</p>
+                    <p>Atrasos, avarias ou falhas logísticas cometidas pelo fornecedor não são de responsabilidade da
+                        AfiliDrop. No entanto, a AfiliDrop buscará resolver a situação junto ao fornecedor.</p>
 
                     <h5>Cláusula 2 – Cadastro e Condições de Uso</h5>
                     <ul>
@@ -91,16 +104,20 @@
                     </ul>
 
                     <h5 class="mt-4">Aceite</h5>
-                    <p>Declaro que li, compreendi e aceito os Termos e Condições de Uso acima descritos, autorizando a Maximo Company LTDA a realizar o tratamento das minhas informações nos termos da legislação vigente e a prestar os serviços conforme estabelecido neste documento.</p>
+                    <p>Declaro que li, compreendi e aceito os Termos e Condições de Uso acima descritos, autorizando a
+                        Maximo Company LTDA a realizar o tratamento das minhas informações nos termos da legislação vigente
+                        e a prestar os serviços conforme estabelecido neste documento.</p>
 
                     <div class="form-check my-3">
                         <input type="checkbox" class="form-check-input" id="aceitarTermos" required>
                         <label class="form-check-label" for="aceitarTermos">
-                            Eu li e concordo com os <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos">Termos e Condições</a>.
+                            Eu li e concordo com os <a href="#" data-bs-toggle="modal"
+                                data-bs-target="#modalTermos">Termos e Condições</a>.
                         </label>
                     </div>
 
-                    <button type="button" class="btn btn-success" id="btnAceitarTermos">Confirmar Aceite dos Termos</button>
+                    <button type="button" class="btn btn-success" id="btnAceitarTermos">Confirmar Aceite dos
+                        Termos</button>
 
 
                 </div>
@@ -119,21 +136,25 @@
         <div aria-live="polite" aria-atomic="true" class="position-relative">
             <div class="toast-container position-absolute top-50 end-0 translate-middle-y p-3">
                 <!-- Toast de Sucesso -->
-                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
                     <div class="d-flex">
                         <div class="toast-body">
                             Conta Integrada com Sucesso!
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
                     </div>
                 </div>
                 <!-- Toast de Erro -->
-                <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
                     <div class="d-flex">
                         <div class="toast-body">
                             Erro ao integrar a conta!
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
                     </div>
                 </div>
             </div>
@@ -229,7 +250,7 @@
                     </div>
                 </div>
                 <div class="mt-5 d-flex justify-content-center">
-                    <canvas id="salesChart"></canvas>
+                    <div id="salesChart" style="width: 100%; height: 500px;"></div>
                 </div>
             </div>
             <div class="card mt-3">
@@ -251,14 +272,14 @@
                         </thead>
                         <tbody>
                             @foreach ($viewData['orders'] as $order)
-                            <tr>
-                                <td>{{$order->cliente}}</td>
-                                <td>{{$order->email}}</td>
-                                <td>R$ {{$order->valorVenda}}</td>
-                                <td>R$ {{$order->fee}}</td>
-                                <td>{{$order->dataVenda}}</td>
-                                <td>{{$order->numeropedido}}</td>
-                            </tr>
+                                <tr>
+                                    <td>{{ $order->cliente }}</td>
+                                    <td>{{ $order->email }}</td>
+                                    <td>R$ {{ $order->valorVenda }}</td>
+                                    <td>R$ {{ $order->fee }}</td>
+                                    <td>{{ $order->dataVenda }}</td>
+                                    <td>{{ $order->numeropedido }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -266,8 +287,8 @@
             </div>
         </div>
 
-          <!-- Hero Start -->
-        <input type="hidden" name="id_user" id="id_user" value="{{Auth::user()->id}}">
+        <!-- Hero Start -->
+        <input type="hidden" name="id_user" id="id_user" value="{{ Auth::user()->id }}">
 
         <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
         <!-- jQuery -->
@@ -278,103 +299,107 @@
         <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+
         <script>
+            $(document).ready(function() {
+                @if ($viewData['mostrarModalTermos'])
+                    var modalTermos = new bootstrap.Modal(document.getElementById('modalTermos'));
+                    modalTermos.show();
+                @endif
+            });
 
-        $(document).ready(function() {
-            @if ($viewData['mostrarModalTermos'])
-                var modalTermos = new bootstrap.Modal(document.getElementById('modalTermos'));
-                modalTermos.show();
-            @endif
-        });
-
-        $('form').on('submit', function(e) {
-            if (!$('#aceitarTermos').is(':checked')) {
-                e.preventDefault();
-                alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
-            }
-        });
-
-        $('#btnAceitarTermos').on('click', function() {
-        if ($('#aceitarTermos').is(':checked')) {
-            $.ajax({
-                url: "{{ route('aceitarTermos') }}",
-                method: "POST",
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                success: function(response) {
-                    alert(response.message);
-                    // Pode desabilitar o botão após aceite, para evitar múltiplas gravações
-                    $('#btnAceitarTermos').prop('disabled', true).text('Termos aceitos');
-                },
-                error: function() {
-                    alert('Houve um erro ao registrar o aceite. Tente novamente.');
+            $('form').on('submit', function(e) {
+                if (!$('#aceitarTermos').is(':checked')) {
+                    e.preventDefault();
+                    alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
                 }
             });
-        } else {
-            alert('Você deve aceitar os Termos antes de continuar.');
-        }
-    });
+
+            $('#btnAceitarTermos').on('click', function() {
+                if ($('#aceitarTermos').is(':checked')) {
+                    $.ajax({
+                        url: "{{ route('aceitarTermos') }}",
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            alert(response.message);
+                            // Pode desabilitar o botão após aceite, para evitar múltiplas gravações
+                            $('#btnAceitarTermos').prop('disabled', true).text('Termos aceitos');
+                        },
+                        error: function() {
+                            alert('Houve um erro ao registrar o aceite. Tente novamente.');
+                        }
+                    });
+                } else {
+                    alert('Você deve aceitar os Termos antes de continuar.');
+                }
+            });
 
 
 
-        // Ou para seu AJAX específico:
-        $('#seuBotaoIntegracao').on('click', function(e) {
-            if (!$('#aceitarTermos').is(':checked')) {
-                e.preventDefault();
-                alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
-                return;
+            // Ou para seu AJAX específico:
+            $('#seuBotaoIntegracao').on('click', function(e) {
+                if (!$('#aceitarTermos').is(':checked')) {
+                    e.preventDefault();
+                    alert('Você deve aceitar os Termos e Condições antes de prosseguir.');
+                    return;
+                }
+                // Chamada AJAX aqui
+            });
+            // Função para exibir o toast
+            function showToast(toastId) {
+                var toastElement = document.getElementById(toastId);
+                var toast = new bootstrap.Toast(toastElement, {
+                    autohide: false
+                }); // Garante que o autohide está desativado
+                toast.show();
             }
-            // Chamada AJAX aqui
-        });
-        // Função para exibir o toast
-        function showToast(toastId) {
-            var toastElement = document.getElementById(toastId);
-            var toast = new bootstrap.Toast(toastElement, { autohide: false }); // Garante que o autohide está desativado
-            toast.show();
-        }
 
 
             var getUrlParameter = function getUrlParameter(sParam) {
-                    var sPageURL = window.location.search.substring(1),
-                        sURLVariables = sPageURL.split('&'),
-                        sParameterName,
-                        i;
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
 
-                    for (i = 0; i < sURLVariables.length; i++) {
-                        sParameterName = sURLVariables[i].split('=');
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
 
-                        if (sParameterName[0] === sParam) {
-                            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-                        }
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
                     }
-                    return false;
-                };
-
-
-                var code = getUrlParameter('code');
-                if (code) {
-                    var id = $('#id_user').val();
-                    $.ajax({
-                        url: "/api/v1/code",
-                        type: "POST",
-                        data: {
-                            code: code,
-                            id: id,
-                        },
-                        success: function(response) {
-                            if (response) {
-                                if (response.dados.status == 400) {
-                                    showToast('errorToast'); // Mostra o toast de erro
-                                } else {
-                                    showToast('successToast'); // Mostra o toast de sucesso
-                                }
-                            }
-                        },
-                        error: function(error) {
-                            showToast('errorToast'); // Mostra o toast de erro
-                        }
-                    });
                 }
+                return false;
+            };
+
+
+            var code = getUrlParameter('code');
+            if (code) {
+                var id = $('#id_user').val();
+                $.ajax({
+                    url: "/api/v1/code",
+                    type: "POST",
+                    data: {
+                        code: code,
+                        id: id,
+                    },
+                    success: function(response) {
+                        if (response) {
+                            if (response.dados.status == 400) {
+                                showToast('errorToast'); // Mostra o toast de erro
+                            } else {
+                                showToast('successToast'); // Mostra o toast de sucesso
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        showToast('errorToast'); // Mostra o toast de erro
+                    }
+                });
+            }
 
             var canvas = document.getElementById('salesChart');
             canvas.width = 3000;
@@ -409,7 +434,7 @@
             // Função para obter a data de ontem no formato YYYY-MM-DD
             function getYesterdayDate() {
                 const today = new Date();
-                today.setDate(today.getDate() - 7);
+                today.setDate(today.getDate() - 30);
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
                 const day = String(today.getDate()).padStart(2, '0');
@@ -419,6 +444,7 @@
 
             var idUser = $("#id_user").val();
 
+            // Ajax para buscar os dados dinâmicos
             $.ajax({
                 url: 'https://afilidrop.com.br/api/v1/sales-data',
                 method: 'GET',
@@ -428,59 +454,113 @@
                     'user_id': idUser
                 },
                 success: function(response) {
-                    // Log para depuração
-                    // var canvas = document.getElementById('salesChart');
-                    // canvas.width = 3000;
-                    // canvas.height =
-                    // 1000;
-                    // Simulação de dados para o gráfico
-                    var ctx = document.getElementById('salesChart').getContext('2d');
-                    var salesChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: response.labels,
-                            datasets: response.datasets
+                    const labels = response.labels;
+                    const datasets = response.datasets;
+
+                    // Verifica e ajusta se houver apenas 1 ponto
+                    let finalLabels = labels;
+                    if (labels.length === 1) {
+                        const onlyDate = labels[0];
+                        let d = new Date(onlyDate);
+                        d.setDate(d.getDate() - 1);
+                        let before = d.toISOString().split('T')[0];
+                        d.setDate(d.getDate() + 2);
+                        let after = d.toISOString().split('T')[0];
+                        finalLabels = [before, onlyDate, after];
+
+                        // Preenche dados com zeros para manter proporção
+                        datasets.forEach(ds => {
+                            if (ds.data.length === 1) {
+                                ds.data = [0, ds.data[0], 0];
+                            }
+                        });
+                    }
+
+                    const chartDom = document.getElementById('salesChart');
+                    const myChart = echarts.init(chartDom);
+
+                    const option = {
+                        title: {
+                            text: 'Vendas e Tarifas',
+                            left: 'center',
+                            textStyle: {
+                                color: '#FFAE00FF'
+                            }
                         },
-                        options: {
-                            interaction: {
-                                mode: 'index',
-                                intersect: false
-                            },
-                            plugins: {
-                                tooltip: {
-                                    mode: 'index',
-                                    intersect: false,
-                                    callbacks: {
-                                        title: function(tooltipItems) {
-                                            return tooltipItems[0].label;
-                                        },
-                                        label: function(tooltipItem) {
-                                            var dataset = tooltipItem.dataset;
-                                            var label = dataset.label || '';
-                                            if (label) {
-                                                label += ': ';
-                                            }
-                                            label += Math.round(tooltipItem
-                                                .parsed.y * 100) / 100;
-                                            return label;
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true
+                        backgroundColor: '#FFFFFFFF',
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                label: {
+                                    backgroundColor: '#FFBF00F5'
                                 }
                             }
-                        }
-                    });
-                    // });
-                },
-                //     error: function(error) {
-                //         console.log(error);
-                //     }
-            });
+                        },
+                        legend: {
+                            data: datasets.map(ds => ds.label),
+                            top: 30,
+                            textStyle: {
+                                color: '#ccc'
+                            }
+                        },
+                        toolbox: {
+                            feature: {
+                                saveAsImage: {}
+                            }
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: [{
+                            type: 'category',
+                            boundaryGap: false,
+                            data: finalLabels,
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#ccc'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#ccc'
+                            }
+                        }],
+                        yAxis: [{
+                            type: 'value',
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#ccc'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#ccc',
+                                formatter: function(value) {
+                                    return 'R$ ' + value;
+                                }
+                            }
+                        }],
+                        series: datasets.map(ds => ({
+                            name: ds.label,
+                            type: 'line',
+                            stack: 'total',
+                            areaStyle: {},
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: ds.data,
+                            color: ds.borderColor || '#3399ff'
+                        }))
+                    };
 
+                    myChart.setOption(option);
+                },
+                error: function(error) {
+                    console.error('Erro ao buscar dados:', error);
+                }
+            });
 
             // Inicializando o daterangepicker
             $('#daterange').daterangepicker({
@@ -565,6 +645,5 @@
                     // Aqui você obtém o src da foto
                 });
             });
-
         </script>
     @endsection

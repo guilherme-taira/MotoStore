@@ -33,6 +33,7 @@ use App\Http\Controllers\NotaFiscalController;
 use App\Http\Controllers\Notification\NotificationSistemaController;
 use App\Http\Controllers\notificationController;
 use App\Http\Controllers\Orders\orderscontroller;
+use App\Http\Controllers\PaginationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\planos\planosController;
 use App\Http\Controllers\Products\ProductByFornecedor;
@@ -99,6 +100,7 @@ Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.a
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
 Route::post('/package/create', [PackageController::class, 'createPackage']);
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
+Route::post('/IntegrarProdutoVariation',[productsController::class,'IntegrarProdutoVariation'])->name('IntegrarProdutoVariation');
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
 Route::get('/allProductsByFornecedorVariation',[productsController::class,'todosProdutosWithVariation'])->name('allProductsByFornecedorVariation');

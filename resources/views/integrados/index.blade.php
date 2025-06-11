@@ -115,8 +115,6 @@
                     </div>
 
                     @csrf
-
-
                     <!-- Select para Valor Agregado -->
                     <div class="mb-3">
                         <label for="editValorAgregado" class="form-label">Valor Agregado</label>

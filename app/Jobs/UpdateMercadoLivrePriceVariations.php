@@ -2,8 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\MercadoLivre\MercadoLivrePriceUpdater;
-use App\Models\produtos_integrados;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class UpdateMercadoLivrePrice implements ShouldQueue
+class UpdateMercadoLivrePriceVariations implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -21,18 +19,20 @@ class UpdateMercadoLivrePrice implements ShouldQueue
     protected $newPrice;
     protected $accessToken;
     protected $agregado;
+    protected $variations;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($productId, $newPrice, $accessToken,$agregado)
+    public function __construct($productId, $newPrice, $accessToken,$agregado,$variations)
     {
         $this->productId = $productId;
         $this->newPrice = $newPrice;
         $this->accessToken = $accessToken;
         $this->agregado = $agregado;
+        $this->variations = $variations;
     }
 
     /**
@@ -42,17 +42,14 @@ class UpdateMercadoLivrePrice implements ShouldQueue
      */
     public function handle()
     {
-
-        $valor = $this->agregado;
         $endpoint = "https://api.mercadolibre.com/items/{$this->productId}";
-        $payload = [
-            'price' => (float) $valor,
-        ];
+        $payload = $this->variations;
 
         try {
             // Enviar a requisição para a API do Mercado Livre
             $response = Http::withToken($this->accessToken)
                 ->put($endpoint, $payload);
+
 
             // Verificar se a requisição foi bem-sucedida
             if ($response->successful()) {

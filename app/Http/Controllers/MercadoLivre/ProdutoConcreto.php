@@ -9,6 +9,7 @@ use App\Models\mercado_livre_history;
 use App\Models\Products;
 use App\Models\produtos_integrados;
 use App\Models\token;
+use App\Models\Variacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -27,8 +28,9 @@ class ProdutoConcreto implements Produto
     private float $totalInformado;
     private $dadosIntegrado;
     private $json;
+    private $variations;
 
-    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado,$json = null)
+    public function __construct(Products $produto, $categoria, $price, token $userId,$name,$tipo_anuncio,$opcionais,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado,$json = null,$variations = null)
     {
         $this->produto = $produto;
         $this->categoria = $categoria;
@@ -41,6 +43,7 @@ class ProdutoConcreto implements Produto
         $this->totalInformado = $totalInformado;
         $this->dadosIntegrado = $dadosIntegrado;
         $this->json = $json;
+        $this->variations = $variations;
     }
 
     public function integrar($descricao,$id_prod)
@@ -72,12 +75,16 @@ class ProdutoConcreto implements Produto
             $data['tags'] = [
                 "immediate_payment",
             ];
-            $data['attributes'] = [
-                ...$jsonData,
-                [
+
+            if($this->getVariations()){
+                $data['attributes'][] =     [
                     "id" => "SELLER_SKU",
                     "value_name" =>  $this->getProduto()->id
-                ],
+                ];
+            }
+
+            $data['attributes'] = [
+                ...$jsonData,
                 [
                     "id" => "BRAND",
                     "value_name" => $this->getProduto()->brand,
@@ -126,6 +133,9 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
+
+            $data['variations'] = $this->getVariations();
+
             $jsonData = json_decode($this->getProduto()->atributos_json, true);
             $jsonData = is_array($jsonData) ? $jsonData : [];
             $jsonData = array_filter($jsonData, function ($attribute) {
@@ -160,7 +170,7 @@ class ProdutoConcreto implements Produto
 
 
             $data_json = json_encode($data);
-                        Log::alert($data_json);
+            Log::alert($data_json);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -175,7 +185,7 @@ class ProdutoConcreto implements Produto
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-            Log::alert($reponse);
+
             if ($httpCode == 400) {
                 if (empty($json->cause)) {
                     $error_message = $json->message;
@@ -187,6 +197,28 @@ class ProdutoConcreto implements Produto
                 }
                 return $error_message;
             } else if ($httpCode == 201) {
+
+
+                // SALVAR AS VARIAÇOES. -- >
+             foreach ($json->variations as $var) {
+
+                $meliId = $var->id;
+                $sku = optional(collect($var->attributes)->firstWhere('id', 'SELLER_SKU'))->value_name ?? null;
+
+                if (!$sku) continue;
+                    Variacao::updateOrCreate(
+                        ['meli_variation_id' => $meliId],
+                        [
+                            'id_mercadolivre' => $json->id,
+                            'sku' => $sku,
+                            'price' => $var->price,
+                            'available_quantity' => $var->available_quantity,
+                            'attribute_combinations' => json_encode($var->attribute_combinations),
+                            'picture_ids' => json_encode($var->picture_ids),
+                        ]
+                    );
+            }
+                // FINALIZAR AS VARIAÇÔES -- <
 
                 $this->CreateDescription($data,$json->id);
                 // // evento cadastra produto no historico
@@ -285,6 +317,7 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
+
             // Agora adiciona os opcionais (também filtrando precoFixo)
             if (count($this->getOpcionais()) >= 1) {
                 foreach ($this->getOpcionais() as $key => $dados) {
@@ -311,7 +344,7 @@ class ProdutoConcreto implements Produto
             }
 
             $data_json = json_encode($data);
-
+            Log::alert($data);
             // GET TOKEN
             $token = json_decode($this->getUserId())->access_token;
             $ch = curl_init();
@@ -518,5 +551,13 @@ class ProdutoConcreto implements Produto
     public function getJson()
     {
         return $this->json;
+    }
+
+    /**
+     * Get the value of variations
+     */
+    public function getVariations()
+    {
+        return $this->variations;
     }
 }

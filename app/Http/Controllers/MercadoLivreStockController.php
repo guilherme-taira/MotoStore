@@ -69,7 +69,6 @@ class MercadoLivreStockController extends Controller
             $response = Http::withToken($token->access_token)
                 ->put($url, $payload);
             // Retornando a resposta
-
             if ($response->successful()) {
                 Log::info("Estoque atualizado com sucesso para o produto ", [
                     'response' => $response->json()]);

@@ -74,7 +74,6 @@ class ProductByFornecedor extends Controller
                 'estoque_minimo' => 'nullable'
             ]);
 
-
             // // Encontra o produto pelo ID
             $product = produtos_integrados::findOrFail($validated['id']);
             $product->isPorcem = $validated['isPorcem'];

@@ -27,6 +27,7 @@ use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
 use App\Models\financeiro;
 use App\Models\IntegracaoBling;
+use App\Models\kit;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
@@ -100,7 +101,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -248,9 +249,9 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $id_order = $cliente->saveClient($json,$this->getSellerId());
 
                                 $fornecedor = User::GetDataUserAndToken($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
-                                FacadesLog::alert($fornecedor->name);
+                                // FacadesLog::alert($fornecedor->name);
                                 $vendedor = User::GetDataUserAndToken($user->user_id); // Certifique-se de que este ID é o do usuário correto
-                                FacadesLog::alert($vendedor->name);
+                                // FacadesLog::alert($vendedor->name);
 
                                 if ($fornecedor) {
                                 // Envia Notificação de Venda
@@ -277,16 +278,34 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 // }
 
                                 try {
-                                    // Dados para enviar no corpo da requisição
-                                    $data = [
-                                        "order_site_id" => $id_order,
-                                        "product_id" => $produto['id'],
-                                        "integrated_product_id" => $response->json()['id'],
-                                        "quantity_sold" => intVal($items->quantity),
-                                    ];
 
-                                    $retirarEstoque = new SalesReportController();
-                                    $retirarEstoque->processSale($data);
+                                    $isKit = kit::where('product_id',$produto['id'])->first();
+
+                                    if($isKit){
+                                        foreach ($json->order_items as $items) {
+                                           $data = [
+                                            "order_site_id" => $id_order,
+                                            "product_id" => $produto['id'],
+                                            "integrated_product_id" => $items->item->id,
+                                            "quantity_sold" => intVal($isKit->available_quantity),
+                                             ];
+
+                                            $retirarEstoque = new SalesReportController();
+                                            $retirarEstoque->processSale($data);
+                                        }
+                                        // Dados para enviar no corpo da requisição
+
+                                    }else{
+                                        $data = [
+                                            "order_site_id" => $id_order,
+                                            "product_id" => $produto['id'],
+                                            "integrated_product_id" => $items->item->id,
+                                            "quantity_sold" => intVal($items->quantity),
+                                        ];
+
+                                        $retirarEstoque = new SalesReportController();
+                                        $retirarEstoque->processSale($data);
+                                    }
 
                                 } catch (\Throwable $th) {
                                     FacadesLog::alert($th->getMessage());
