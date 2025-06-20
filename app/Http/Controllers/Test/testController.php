@@ -25,6 +25,8 @@ use App\Models\Contato;
 use App\Models\FcmToken;
 use App\Models\IntegracaoBling;
 use App\Models\order_site;
+use App\Models\Products;
+use App\Models\produtos_integrados;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
@@ -32,6 +34,7 @@ use App\Models\User;
 use App\Notifications\PushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -87,8 +90,8 @@ class testController extends Controller
                 "quantity_sold" => 5,
             ];
 
-
             $retirarEstoque = new SalesReportController();
             $retirarEstoque->processSale($data);
+
         }
 }

@@ -118,5 +118,36 @@ class UpdateStockJob implements ShouldQueue
             $estoqueNew->updateStockByDirectProduct();
         }
 
+
+         $registro = DB::table('kit')
+            ->where('id_product_kit', $this->id)
+            ->first();
+
+        if ($registro) {
+            // Agora busca o produto com base no product_id obtido
+            $kits = DB::table('produtos_integrados')
+                ->where('product_id', $registro->product_id)
+                ->get();
+
+            foreach ($kits as $kit) {
+            if($this->estoque_afiliado < 0) {
+                    $this->estoque_afiliado = 0;
+            }
+                // Instancia o controlador
+                $ativo = $product->active;
+                $estoqueNew = new MercadoLivreStockController(
+                    $kit->id_mercadolivre,
+                    $this->estoque_afiliado,
+                    $ativo,
+                    $this->estoque_minimo_afiliado,
+                    $kit->user_id,
+                    $kit->estoque_minimo
+                );
+                // Atualiza o estoque
+                $estoqueNew->updateStockByDirectProduct();
+            }
+        }
+
+
     }
 }
