@@ -37,7 +37,9 @@ class produtos_integrados extends Model
                 'produtos_integrados.isPorcem',
                 'produtos_integrados.precofixo',
                 'produtos_integrados.active',
-                'produtos_integrados.estoque_minimo'
+                'produtos_integrados.estoque_minimo',
+                'products.variation_data',
+                'products.isVariation'
             )
             ->where('user_id', $user)
             ->orderBy('produtos_integrados.created_at', 'desc')

@@ -825,6 +825,27 @@
             </div>
 
 
+            <!-- Modal -->
+            <div class="modal fade" id="atributoGlobalModal" tabindex="-1" aria-labelledby="atributoGlobalModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content rounded-3 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="atributoGlobalModalLabel">Adicionar Atributo Global</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="nomeAtributoGlobal" class="form-label">Nome do Atributo</label>
+                    <input type="text" class="form-control" id="nomeAtributoGlobal" placeholder="Ex: Cor, Tamanho..." required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarAtributoGlobal">Adicionar</button>
+                </div>
+                </div>
+            </div>
+            </div>
+
+
             <!--- FINAL DO MODAL ---->
             <div id="liveAlertPlaceholder"></div>
 
@@ -1153,12 +1174,13 @@
                                                         <i class="bi bi-info-circle"></i>
                                                     </button>
                                                 </label>
-                                                <input type="number" step="0.01" class="form-control mt-2"
+                                                <input type="text"
+                                                    step="0.01"
+                                                    class="form-control mt-2"
                                                     name="variation[{{ $index }}][price]"
-                                                    value="{{ $product->price ?? 0 }}">
-                                            </div>
-
-
+                                                    value="{{ $product->price ?? 0 }}"
+                                                    @if ($index === 0) id="firstVariationPrice" @endif>
+                                                </div>
 
                                                 <div class="mb-2">
                                                     <label>Estoque:</label>
@@ -1196,7 +1218,6 @@
                                         </li>
                                     @endforeach
                                 </ul>
-
                             </div>
                         </div>
                     </div>
@@ -1219,12 +1240,11 @@
                                         <input name="price" id="precoNormal"
                                             value="{{ $viewData['product']->isKit ? number_format($totalPrice, 2) : $viewData['product']->price }}"
                                             type="text" class="form-control" required
-                                            @if (Auth::user()->forncecedor != 1) readonly @endif>
+                                            @if (Auth::user()->id !== $viewData['product']->fornecedor_id) readonly @endif>
                                         @error('price')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
-
 
                                     <!-- Preço Promocional -->
                                     <div class="col-lg-3 {{ $viewData['product']->isBloqueado() ? 'd-none' : null }}">
@@ -1509,7 +1529,6 @@
                                             </div>
 
                                             <div class="mb-3 row d-none">
-
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído:
                                                 </label>
                                                 <div class="col-lg-3 col-md-6 col-sm-12">
@@ -1518,7 +1537,6 @@
                                                         id="precoLiquido" type="hidden" class="form-control" readonly>
                                                 </div>
                                             </div>
-
 
                                             <div class="col-md-12">
                                                 <div class="col">
@@ -1551,8 +1569,6 @@
                                                                 value="4.99" class="form-control" readonly>
                                                         </div>
 
-                                                        {{-- <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
-                                                        </label> --}}
                                                         <div class="col-lg-2 col-md-3 col-sm-12 d-none">
                                                             <input name="priceWithFee" id="PriceWithFee" type="hidden"
                                                                 class="form-control"
@@ -1564,7 +1580,94 @@
                                                         <div class="col-lg-2 col-md-3 col-sm-12">
                                                             <input name="priceKit" id="priceKit" type="text"
                                                                 class="form-control"
-                                                                value="{{ number_format(($viewData['product']->priceKit ? $viewData['product']->priceKit : $viewData['product']->price + $fee) / 0.95, 2, '.', '') }}"
+                                                                readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @elseif ($viewData['product']->isVariation == 1)
+                           <div id="collapseFees" class="accordion-collapse collapse" aria-labelledby="headingFees"
+                                data-bs-parent="#productFormAccordion">
+                                <div class="accordion-body">
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            {{-- <p class="col-lg-2 col-md-6 col-sm-12 col-form-label">Acréssimo </p> --}}
+                                            <div class="col d-none">
+                                                <div class="mb-3 row">
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoP" name="valorProdFornecedor"
+                                                            class="form-control porcem" value="{{ old('acressimoP') }}"
+                                                            type="hidden" readonly>
+                                                    </div>
+                                                    <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
+                                                    <div class="col-lg-3 col-md-6 col-sm-6">
+                                                        <input id="acressimoR" name="valorProdFornecedor" type="hidden"
+                                                            class="form-control porcem"
+                                                            value="{{ $viewData['product']->isKit ? $fee : $viewData['product']->valorProdFornecedor }}"
+                                                            readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3 row d-none">
+
+                                                <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído:
+                                                </label>
+                                                <div class="col-lg-3 col-md-6 col-sm-12">
+                                                    <input name="valorProdFornecedor"
+                                                        value="0"
+                                                        id="precoLiquido" type="hidden" class="form-control" readonly>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="col">
+                                                    <!-- Mensagem de cálculo -->
+                                                    <div id="calculoMensagem" class="mt-2 p-2 text-center fw-bold"
+                                                        style="background-color: black; color: #FFD700; border-radius: 5px; font-size: 16px;">
+                                                         Preço por anunciar.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mt-3">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+
+                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label d-none">Tarifa
+                                                            R$: </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12 d-none">
+                                                            <input name="fee" value="0" id="fee" type="text" class="form-control" readonly>
+                                                        </div>
+
+                                                        <label class="col-lg-1 col-md-3 col-sm-12 col-form-label">Taxa
+                                                            %:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-6 col-sm-12">
+                                                            <input name="taxaFee" id="taxaFee" type="text"
+                                                                value="4.99" class="form-control" readonly>
+                                                        </div>
+
+                                                        {{-- <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
+                                                        </label> --}}
+                                                        <div class="col-lg-2 col-md-3 col-sm-12 d-none">
+                                                            <input  type="hidden" name="priceKit"
+                                                                class="form-control"
+                                                                value="{{ $viewData['product']->price }}" readonly>
+                                                        </div>
+
+                                                        <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço
+                                                            Kit + Tarifas:
+                                                        </label>
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="priceWithFee" id="PriceWithFee" type="text"
+                                                                class="form-control"
+                                                                value=""
                                                                 readonly>
                                                         </div>
                                                     </div>
@@ -1626,18 +1729,15 @@
 
                                                         <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                         </label>
-                                                        <div class="col-lg-2 col-md-3 col-sm-12">
-                                                            <input name="priceWithFee" id="PriceWithFee" type="text"
-                                                                class="form-control"
-                                                                value="{{ $viewData['product']->priceWithFee }}">
-                                                        </div>
+
                                                         <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço
                                                             Kit:
                                                         </label>
                                                         <div class="col-lg-2 col-md-3 col-sm-12">
-                                                            <input name="priceKit" id="priceKit" type="text"
+                                                            <input name="priceWithFee" id="
+                                                            " type="text"
                                                                 class="form-control"
-                                                                value="{{ $viewData['product']->priceKit }}">
+                                                                value="{{ $viewData['product']->priceWithFee }}">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1763,6 +1863,13 @@
             $(function () {
              $('[data-bs-toggle="tooltip"]').tooltip();
             });
+
+            $('#precoNormal').mask('#.##0,00', {reverse: true});
+
+            if ($('#firstVariationPrice').length) {
+                $('#firstVariationPrice').mask('#.##0,00', { reverse: true });
+            }
+
 
             let selectedProducts = [];
 
@@ -2186,11 +2293,12 @@
             if ($("#precoNormal").val() > 0) {
                 var result = (novoValor + tarifaTotal) / 0.95;
                 $("#priceKit").val(result.toFixed(2));
+                 $("#PriceWithFee").val(result.toFixed(2));
             }
+
         }
 
         atualizarValorProduto();
-
 
         (function() {
             let devtoolsOpen = false;
@@ -2415,14 +2523,46 @@
                 }
             }
 
-
             updateMainImageLabel(); // Garante que o rótulo seja atualizado ao carregar a página
             // Ativar a função quando houver alteração no campo #precoNormal
+            $('#firstVariationPrice').on('blur', function () {
+                const acressimoRField = $('#acressimoR');
+
+                let rawValue = $(this).val();
+                let numericValue = parseFloat(
+                    rawValue.replace(/\./g, '').replace(',', '.')
+                );
+
+                if (!isNaN(numericValue)) {
+                    $('#precoNormal').val(
+                        numericValue.toLocaleString('pt-BR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })
+                    );
+                }
+
+                const currentValue = acressimoRField.val();
+                acressimoRField.val('');
+                setTimeout(() => {
+                    acressimoRField.val(currentValue);
+                    acressimoRField.trigger('keyup');
+                }, 50);
+
+                $('#taxesTabButton').addClass('blink-tab');
+                setTimeout(() => {
+                    $('#taxesTabButton').removeClass('blink-tab');
+                }, 2000);
+            });
+
+
+
             $('#precoNormal').on('input', function() {
                 const acressimoRField = $('#acressimoR'); // Campo que deve ser acionado
 
                 // Simula uma interação manual para ativar o evento keyup no campo #acressimoR
                 const currentValue = acressimoRField.val();
+
                 acressimoRField.val(''); // Limpa temporariamente o valor
                 setTimeout(() => {
                     acressimoRField.val(currentValue); // Reinsere o valor
@@ -2824,9 +2964,7 @@
 
             $('#precoFinal').val(parseFloat(total).toFixed(2));
 
-
             $('#acressimoP').keyup(function() {
-
                 total = $('#precoNormal').val();
                 $('#precoFinal').val(parseFloat(total).toFixed(2));
 
@@ -2844,7 +2982,7 @@
                     });
                     $('#descontoP').prop("disabled", true).css({
                         'background-color': '#cecece'
-                    });;
+                    });
                     $('#descontoR').prop("disabled", true).css({
                         'background-color': '#cecece'
                     });
@@ -2869,19 +3007,16 @@
 
 
             $('#acressimoR').keyup(function() {
-
-                total = $('#precoNormal').val();
-                precoFinal = $('#precoFinal').val(parseFloat(total).toFixed(2));
-
+                total = $('#precoNormal').val().replace(/\./g, '').replace(',', '.');
+                // precoFinal = $('#precoFinal').val(parseFloat(total).toFixed(2));
 
                 if ($('#acressimoR').val().length >= 1) {
                     var reais = $('#acressimoR').val();
                     totalCalculado = parseFloat(total) + parseFloat(reais);
 
                     $('#precoFinal').val(parseFloat(totalCalculado).toFixed(2));
-
                     // valor com as taxas calculo final
-                    valorProduto = (parseFloat($("#precoFinal").val()) / 0.95);
+                    valorProduto = (parseFloat(total) / 0.95);
 
                     valorKit = (parseFloat(total) / 0.90);
                     $("#priceKit").val(parseFloat(valorKit).toFixed(2));
@@ -2889,7 +3024,6 @@
                     totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
                     // preço liquido final
                     $("#precoLiquido").val(totalLiquido.toFixed(2));
-
                     // coloca o valor final
                     $("#PriceWithFee").val(parseFloat(valorProduto).toFixed(2));
 
@@ -2913,11 +3047,8 @@
                     });;
                     $('#descontoR').prop("disabled", false).css({
                         'background-color': 'white'
-
                     });
                 }
-
-
             });
         });
     </script>

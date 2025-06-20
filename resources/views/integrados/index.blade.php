@@ -70,6 +70,44 @@
             /* border-radius: 10px; */
             overflow: hidden;
         }
+
+        .circle-pizza {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ccc;
+        }
+
+        .slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Divide em 4 quadrantes */
+        .slice-1 {
+            top: 0;
+            left: 0;
+        }
+
+        .slice-2 {
+            top: 0;
+            right: 0;
+        }
+
+        .slice-3 {
+            bottom: 0;
+            left: 0;
+        }
+
+        .slice-4 {
+            bottom: 0;
+            right: 0;
+        }
     </style>
 
 
@@ -198,7 +236,8 @@
                         <!-- Input para o campo 'estoque_minimo' -->
                         <div class="col-md-6">
                             <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
-                            <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control" placeholder="Digite o estoque mínimo" min="0" value="0">
+                            <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control"
+                                placeholder="Digite o estoque mínimo" min="0" value="0">
                         </div>
                     </div>
 
@@ -222,6 +261,7 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">Nome</th>
+                                <th scope="col">Variação</th>
                                 <th scope="col">Imagem</th>
                                 <th scope="col">Integrações</th>
                                 <th scope="col">ID Loja</th>
@@ -230,14 +270,40 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <pre>
                             @foreach ($viewData['products'] as $product)
+
                                 <tr class="hover-row">
                                     <td class="fw-bold">{{ $product->id }}</td>
-                                    <td>{{ $product->name }}</td>
-                                    <td>
-                                        <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
-                                            class="rounded-circle border border-secondary shadow-sm"
-                                            style="width: 60px; height: 60px; object-fit: cover;">
+                                    <th>{{$product->name}}</th>
+                                    <td><span class="badge text-bg-{{ $product->isVariation ? 'success' : 'warning' }}">{{ $product->isVariation ? "SIM" : "NÃO" }}</span></td>
+                                    @if ($product->image)
+                                        <td>
+                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
+                                                class="rounded-circle border border-secondary shadow-sm"
+                                                style="width: 60px; height: 60px; object-fit: cover;">
+                                        </td>
+                                    @else
+                                        <td>
+                                            @php
+                                                $variationImages = [];
+                                                foreach (json_decode($product->variation_data, true) ?? [] as $v) {
+                                                    foreach ($v['picture_ids'] ?? [] as $pic) {
+                                                        if (count($variationImages) < 4) {
+                                                            $variationImages[] = $pic;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+
+                                            <div class="circle-pizza">
+                                                @foreach (array_slice($variationImages, 0, 4) as $index => $url)
+                                                    <div class="slice slice-{{ $index + 1 }}"
+                                                        style="background-image: url('{{ $url }}');"></div>
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-success">{{ $product->id_mercadolivre }}</span>
@@ -362,7 +428,8 @@
                     const activeStatus = this.getAttribute('data-active');
                     const estoqueMinimo = this.getAttribute('data-estoque_minimo');
 
-                    basePrice = parseFloat(button.getAttribute('data-price')) || 0; // Preço base do produto
+                    basePrice = parseFloat(button.getAttribute('data-price')) ||
+                        0; // Preço base do produto
                     // Preenchendo os campos do modal
 
                     document.getElementById('editId').value = id;
@@ -390,41 +457,41 @@
 
 
 
-      // Função para atualizar o valor exibido
-    function atualizarValorProduto() {
-        const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
-        const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
-        const precoFixo = parseFloat(precoFixoInput.value) || 0;
+            // Função para atualizar o valor exibido
+            function atualizarValorProduto() {
+                const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
+                const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
+                const precoFixo = parseFloat(precoFixoInput.value) || 0;
 
-        let novoValor = basePrice; // Começa com o preço base
+                let novoValor = basePrice; // Começa com o preço base
 
-        // Prioridade para preço fixo
-        if (precoFixo > 0) {
-            novoValor = precoFixo;
-        } else {
-            // Aplica o cálculo com base no tipo selecionado
-            if (tipoAgregado === 'acrescimo_reais') {
-                novoValor = basePrice + valorAgregado;
-            } else if (tipoAgregado === 'acrescimo_porcentagem') {
-                novoValor = basePrice + (basePrice * (valorAgregado / 100));
-            } else if (tipoAgregado === 'desconto_reais') {
-                novoValor = basePrice - valorAgregado;
-            } else if (tipoAgregado === 'desconto_porcentagem') {
-                novoValor = basePrice - (basePrice * (valorAgregado / 100));
+                // Prioridade para preço fixo
+                if (precoFixo > 0) {
+                    novoValor = precoFixo;
+                } else {
+                    // Aplica o cálculo com base no tipo selecionado
+                    if (tipoAgregado === 'acrescimo_reais') {
+                        novoValor = basePrice + valorAgregado;
+                    } else if (tipoAgregado === 'acrescimo_porcentagem') {
+                        novoValor = basePrice + (basePrice * (valorAgregado / 100));
+                    } else if (tipoAgregado === 'desconto_reais') {
+                        novoValor = basePrice - valorAgregado;
+                    } else if (tipoAgregado === 'desconto_porcentagem') {
+                        novoValor = basePrice - (basePrice * (valorAgregado / 100));
+                    }
+                }
+
+                // Garante que o valor não seja negativo
+                if (novoValor < 0) novoValor = 0;
+
+                // Atualiza o display do valor
+                valorProdutoDisplay.innerText = novoValor.toFixed(2).replace('.', ',');
             }
-        }
 
-        // Garante que o valor não seja negativo
-        if (novoValor < 0) novoValor = 0;
-
-        // Atualiza o display do valor
-        valorProdutoDisplay.innerText = novoValor.toFixed(2).replace('.', ',');
-    }
-
-    // Eventos
-    valorAgregadoInput.addEventListener('input', atualizarValorProduto);
-    valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
-    precoFixoInput.addEventListener('input', atualizarValorProduto);
+            // Eventos
+            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
+            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
+            precoFixoInput.addEventListener('input', atualizarValorProduto);
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>

@@ -19,6 +19,7 @@ use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
+use App\Jobs\UpdateStockJob;
 use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
 use App\Models\FcmToken;
@@ -79,14 +80,6 @@ class testController extends Controller
 
         public function teste(Request $request) {
 
-                $data = [
-                    "order_site_id" => "37362",
-                    "product_id" => 464,
-                    "integrated_product_id" => "MLB4032381839",
-                    "quantity_sold" => 5,
-                ];
-
-                $retirarEstoque = new SalesReportController();
-                $retirarEstoque->processSale($data);
+            UpdateStockJob::dispatch(474,15,1);
         }
 }

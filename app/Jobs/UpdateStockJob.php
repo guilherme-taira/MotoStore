@@ -53,15 +53,12 @@ class UpdateStockJob implements ShouldQueue
         ->get();
 
 
-        $estoque_minimo = 0;
         foreach ($variacoes as $product) {
             // Instancia o controlador
             $ativo = $product->active;
               // Busca todas as variações com o mesmo ID do anúncio
             foreach ($variacoes as $produto) {
-
                 $variacoesProds = Variacao::where('id_mercadolivre', $produto->id_mercadolivre)->get();
-
                 $payload = [
                     'variations' => []
                 ];
@@ -84,7 +81,6 @@ class UpdateStockJob implements ShouldQueue
                             'picture_ids' => json_decode($var->picture_ids, true),
                         ];
                 }
-
                 }
                     // Para visualizar ou usar com Guzzle/cURL/etc.
                     $jsonPayload = $payload;

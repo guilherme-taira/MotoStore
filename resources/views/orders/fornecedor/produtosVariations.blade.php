@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title', $viewData['title'])
 @section('conteudo')
+<!-- Estilos -->
+<link rel="stylesheet" href="{{ asset('css/layout_integracao.css') }}">
     <style>
         .offcanvas {
             width: 300px;
@@ -44,6 +46,44 @@
         .list-group-item div {
             font-size: 14px;
             /* Tamanho consistente para o texto */
+        }
+
+        .circle-pizza {
+            position: relative;
+            width: 80px;
+            height: 80px;
+
+            overflow: hidden;
+            border: 2px solid #ccc;
+        }
+
+        .slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Divide em 4 quadrantes */
+        .slice-1 {
+            top: 0;
+            left: 0;
+        }
+
+        .slice-2 {
+            top: 0;
+            right: 0;
+        }
+
+        .slice-3 {
+            bottom: 0;
+            left: 0;
+        }
+
+        .slice-4 {
+            bottom: 0;
+            right: 0;
         }
     </style>
 
@@ -181,34 +221,6 @@
 
     <!--- MODAL QUE SELECIONA O MOTORISTA --->
 
-    @if ($errors->any())
-        <div class="error-container">
-            <div class="error-card">
-                <div class="error-content">
-                    <span class="close-btn" onclick="closeError()">×</span>
-                    <h3>Erro ao Integrar o produto</h3>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(() => {
-                closeError();
-            }, 15000); // Fecha automaticamente em 7s
-
-            function closeError() {
-                let msg = document.querySelector(".error-container");
-                if (msg) msg.style.display = "none";
-            }
-        </script>
-    @endif
-
-
     @if (session('msg'))
         <div class="message-container">
             <div class="message-card">
@@ -271,24 +283,6 @@
                                     <form method="POST" id="formIntegracao"
                                         action="{{ route('IntegrarProdutoVariation') }}" enctype="multipart/form-data">
                                         @csrf
-
-                                        <!-- Card do Produto -->
-                                        <div class="card mb-4 product-form-card">
-                                            <div class="row g-0">
-                                                <!-- Imagem do Produto -->
-                                                <div class="col-md-4 text-center">
-                                                    <img class="img-fluid rounded-start img_integracao_foto" alt="Produto">
-                                                </div>
-                                                <!-- Informações do Produto -->
-                                                <div class="col-md-8">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title img_integracao_title">Nome do Produto</h5>
-                                                        <p class="card-text img_integracao_ean">EAN: 123456789</p>
-                                                        <p class="card-text img_integracao_price">Preço: R$ 0,00</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <ul id="listaVariacoes" class="list-unstyled"></ul>
 
@@ -543,53 +537,98 @@
                 Gerenciar Variações
             </div>
             <div class="card-body">
-                <table class="table table-bordered table-striped">
-                    <thead>
+                <table class="table table-hover border rounded shadow-sm overflow-hidden">
+                    <thead class="text-white" style="background-color: #4a69bd; border-radius: 12px;">
                         <tr>
-                            <th scope="col">Imagem</th>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Preço Fornecedor</th>
-                            <th scope="col">Preço Afiliado</th>
-                            <th scope="col">Integrar</th>
-                            <th scope="col">Ver Variações</th>
-                            <th scope="col">Edit</th>
-                            {{-- <th scope="col">Delete</th> --}}
+                            <th scope="col" class="py-3 px-3">Variações</th>
+                            <th scope="col" class="py-3 px-3">ID</th>
+                            <th scope="col" class="py-3 px-3">Nome</th>
+                            <th scope="col" class="py-3 px-3">Preço Afiliado</th>
+                            <th scope="col" class="py-3 px-3">Integrar</th>
+                            <th scope="col" class="py-3 px-3">Ver Variações</th>
+                            <th scope="col" class="py-3 px-3">Edit</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white">
                         @foreach ($viewData['products'] as $product)
-                            <tr id="linhasProduct">
-                                <td style="width: 100px;"><img src="{!! Storage::disk('s3')->url('produtos/' . $product['id'] .'/'.$product['image']) !!}"
-                                                                alt="{{ $product->getName() }}"
-                                        style="width: 120px; height: auto;" alt="{{ $product->getName() }}"></td>
+                            <tr class="align-middle" id="linhasProduct">
+                                @php
+                                    $variations = json_decode($product['variation_data'], true);
+                                    $firstImage = $variations[0]['picture_ids'][0] ?? null;
+                                    $variationCount = count($variations);
+                                @endphp
+
+                                @if ($product->image)
+                                    <td style="width: 150px;" class="py-3">
+                                        <div class="position-relative d-inline-block">
+                                            @if ($firstImage)
+                                                <img src="{{ $firstImage }}" alt="Imagem"
+                                                    style="width: 80px; height: auto; border-radius: 8px; border: 1px solid #dee2e6;">
+                                            @else
+                                                <span class="text-muted">Sem imagem</span>
+                                            @endif
+
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                + {{ $variationCount }}
+                                            </span>
+                                        </div>
+                                    @else
+                                    <td>
+                                        @php
+                                            $variationImages = [];
+                                            foreach (json_decode($product->variation_data, true) ?? [] as $v) {
+                                                foreach ($v['picture_ids'] ?? [] as $pic) {
+                                                    if (count($variationImages) < 4) {
+                                                        $variationImages[] = $pic;
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+
+                                        <div class="position-relative d-inline-block">
+                                            <div class="circle-pizza">
+                                                @foreach (array_slice($variationImages, 0, 4) as $index => $url)
+                                                    <div class="slice slice-{{ $index + 1 }}"
+                                                        style="background-image: url('{{ $url }}');"></div>
+                                                @endforeach
+                                            </div>
+
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                                + {{ $variationCount }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                @endif
                                 <td class="id_product">{{ $product->getId() }}</td>
                                 <td>{{ $product->getName() }}</td>
-                                <td>R$: {{ number_format($product->getPrice(), 2) }}</td>
                                 <td>R$: {{ number_format($product->getPriceWithFeeMktplace(), 2) }}</td>
                                 <td>
-                                    <button class="btn btn-success btn-sm integrar-btn" style="border-radius: 20px;"
+                                    <button class="btn btn-success btn-sm px-3 integrar-btn" style="border-radius: 20px;"
                                         data-bs-toggle="modal" data-bs-target="#exampleModalToggle">
                                         Integrar
                                     </button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm ver-variacoes" style="border-radius: 20px;"
+                                    <button class="btn btn-primary btn-sm px-3 ver-variacoes" style="border-radius: 20px;"
                                         data-json="{{ $product->variation_data }}">
                                         Produtos <i class="bi bi-basket"></i>
                                     </button>
                                 </td>
-                                <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
-                                            class="btn btn-primary btn-sm"><i
-                                                class="bi bi-pencil-square"></i>Editar</button>
-                                    </a></td>
-                                {{-- <td><a href="{{ route('products.edit', ['id' => $product->getId()]) }}"><button
-                                            class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>Deletar</button> </a>
-                                </td> --}}
+                                <td>
+                                    <a href="{{ route('products.edit', ['id' => $product->getId()]) }}">
+                                        <button class="btn btn-outline-primary btn-sm px-3" style="border-radius: 20px;">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+
+                <input type="hidden" name="auth" id="auth" value="{{ $viewData['token']->access_token }}">
                 <div class="d-flex">
                     {!! $viewData['products']->links() !!}
                 </div>
@@ -620,8 +659,8 @@
                     return;
                 }
 
-               let html = '';
-                $.each(data, function (index, variation) {
+                let html = '';
+                $.each(data, function(index, variation) {
                     // Pega SKU de attributes
                     let sku = 'Sem SKU';
                     if (variation.attributes && Array.isArray(variation.attributes)) {
@@ -638,8 +677,9 @@
                     let imagens = '';
                     if (variation.picture_ids && variation.picture_ids.length > 0) {
                         imagens += '<div class="d-flex flex-wrap gap-2">';
-                        $.each(variation.picture_ids, function (i, url) {
-                            imagens += `<img src="${url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`;
+                        $.each(variation.picture_ids, function(i, url) {
+                            imagens +=
+                                `<img src="${url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`;
                         });
                         imagens += '</div>';
                     } else {
@@ -674,7 +714,6 @@
 
         $(document).on('click', '.integrar-btn', function(e) {
             e.preventDefault();
-
             // Localiza a seção que contém os dados do produto
             var $section = $(this).closest('.linhasProduct');
             // Pega o texto do td que contém o id (garanta que o td tenha a classe id_product)
@@ -687,6 +726,7 @@
                 url: "/api/v1/product/" + id_produto,
                 type: "GET",
                 success: function(response) {
+                    console.log(response);
                     $("#loading-api").addClass('d-none');
                     if (response) {
                         $('#id_prodenv').val(id_produto); // ID DO PRODUTO
@@ -756,7 +796,7 @@
 
                                     <div class="mb-2 mt-3">
                                         <label>Preço:</label>
-                                        <input type="number" step="0.01" class="form-control mt-2" name="variation[${index}][price]" value="${variacao.price || 0}">
+                                        <input type="number" step="0.01" class="form-control mt-2 price-var" name="variation[${index}][price]" value="${variacao.price || 0}">
                                     </div>
 
                                     <div class="mb-2">
@@ -823,6 +863,266 @@
 
             // Preenche o campo oculto
             $('#variacoes_json').val(JSON.stringify(variations));
+        });
+
+           // Função para atualizar o valor exibido
+            const isPorcemInput = document.getElementById('isPorcem');
+            const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
+            const valorAgregadoInput = document.getElementById('valorAgregadoInput');
+            const valorAgregadoSelect = document.getElementById('editValorAgregado');
+
+            // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
+            precoFixoCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Ativa o campo Preço Fixo
+                    precoFixoInput.disabled = false;
+
+                    // Desativa campos de Valor Agregado
+                    valorAgregadoInput.value = ''; // Limpa o valor
+                    valorAgregadoInput.disabled = true;
+                    valorAgregadoSelect.disabled = true;
+                    isPorcemInput.value = '0'; // Garante que isPorcem seja false
+                } else {
+                    // Desativa o campo Preço Fixo
+                    precoFixoInput.disabled = true;
+                    precoFixoInput.value = ''; // Limpa o valor
+
+                    // Reativa campos de Valor Agregado
+                    valorAgregadoInput.disabled = false;
+                    valorAgregadoSelect.disabled = false;
+                }
+            });
+
+            // Atualiza o placeholder dinamicamente conforme a seleção do select
+            valorAgregadoSelect.addEventListener('change', function() {
+                const selectedOption = valorAgregadoSelect.value;
+
+                switch (selectedOption) {
+                    case 'acrescimo_reais':
+                        valorAgregadoInput.placeholder = 'Digite o acréscimo em R$';
+                        break;
+                    case 'acrescimo_porcentagem':
+                        valorAgregadoInput.placeholder = 'Digite o acréscimo em %';
+                        isPorcemInput.value = '1';
+                        break;
+                    case 'desconto_reais':
+                        valorAgregadoInput.placeholder = 'Digite o desconto em R$';
+                        break;
+                    case 'desconto_porcentagem':
+                        valorAgregadoInput.placeholder = 'Digite o desconto em %';
+                        isPorcemInput.value = '1';
+                        break;
+                    default:
+                        valorAgregadoInput.placeholder = 'Digite o valor';
+                        isPorcemInput.value = '0';
+                        break;
+                }
+            });
+
+            function atualizarValorProduto() {
+
+                const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
+                const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
+                const precoFixo = parseFloat($("#precoFixoInput").val().replace(',', '.')) || 0;
+
+                basePrice = parseFloat($('#precoFinal').val()) || 0; // Preço base do produto
+
+                let novoValor = basePrice; // Começa com o preço base
+
+                // Prioridade para preço fixo
+                if (precoFixo > 0) {
+                    novoValor = precoFixo;
+                } else {
+                    // Aplica o cálculo com base no tipo selecionado
+                    if (tipoAgregado === 'acrescimo_reais') {
+                        novoValor = basePrice + valorAgregado;
+                    } else if (tipoAgregado === 'acrescimo_porcentagem') {
+                        novoValor = basePrice + (basePrice * (valorAgregado / 100));
+                    } else if (tipoAgregado === 'desconto_reais') {
+                        novoValor = basePrice - valorAgregado;
+                    } else if (tipoAgregado === 'desconto_porcentagem') {
+                        novoValor = basePrice - (basePrice * (valorAgregado / 100));
+                    }
+
+                }
+                // Garante que o valor não seja negativo
+                if (novoValor < 0) novoValor = 0;
+                // Atualiza o display do valor
+                $("#valorProdutoDisplay").val(novoValor.toFixed(2).replace('.', ','));
+            }
+
+            let ultimoValor = null;
+
+            setInterval(function () {
+                let atual = $('#valorProdutoDisplay').val();
+                if (atual !== ultimoValor) {
+                    ultimoValor = atual;
+                    let valorNumerico = atual.replace(',', '.');
+                    $('.price-var').val(valorNumerico);
+                }
+            }, 300); // Verifica a cada 300ms
+
+
+            // Eventos
+            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
+            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
+            precoFixoInput.addEventListener('input', atualizarValorProduto);
+
+            $('input[name="preco"]').mask('000.000.000,00', {
+                reverse: true
+            });
+
+
+             var token = $('#auth').val();
+
+             $(document).ready(function() {
+            var valorProduto = 0;
+            var i = 0;
+
+            var token = $('#auth').val();
+
+
+            $.ajax({
+                url: "/meli/categories",
+                type: "GET",
+                success: function(response) {
+
+                    if (response) {
+                        // SHOW ALL RESULT QUERY
+                        var index = [];
+                        $.each(response, function(i, item) {
+                            index[i] = '<option class="option-size" value=' + item.id + '>' +
+                                item.name + '</option>';
+                        });
+
+                        if (i == 0) {
+                            // PEGA A ALTERACAO DAS CATEGORIAS
+                            $("#categorias").change(function() {
+                                var ids = $(this).children("option:selected").val();
+                                var name = $(this).children("option:selected").text();
+                                var content_category = '<li class="list-group-item">' + name +
+                                    '</li>';
+                                $(".content_categorias").append(content_category);
+                                $("#id_categoria").val(
+                                    ids); // COLOCA O ID DA CATEGORIA NO CAMPO
+                                getCategory(ids);
+                            });
+                        }
+
+                        var arr = jQuery.makeArray(index);
+                        arr.reverse();
+                        $("#categorias").html(arr);
+                    }
+                },
+                error: function(error) {
+                    $('#result').html(
+                        '<option> Produto Digitado Não Existe! </option>'
+                    );
+                }
+            });
+
+            // FUNCAO PARA CHAMAR CATEGORIAS
+            function getCategory(category) {
+                $.ajax({
+                     url: "/meli/subcategories/" + category,
+                    type: "GET",
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            var index = [];
+                            // Adiciona a primeira opção estática
+                            index.push('<option class="option-size" >Selecionar</option>');
+
+                            $.each(response.children_categories, function(i, item) {
+                                // Crie suas opções dinâmicas aqui
+                                var option = '<option class="option-size" value=' + item.id +
+                                    '>' + item.name + '</option>';
+                                index.push(option);
+                            });
+
+                            if (index.length <= 1) {
+                                $.ajax({
+                                     url: "/meli/subcategories/attributes/" + category,
+                                    type: "GET",
+                                    success: function(response) {
+                                        if (response) {
+
+                                            const requiredItems = [];
+                                            const requiredAttributeNames = ['BRAND',
+                                                'MODEL', 'LENGTH', 'HEIGHT'
+                                            ];
+                                            response.forEach(item => {
+                                                if (item.tags && item.tags
+                                                    .required === true && !
+                                                    requiredAttributeNames.includes(
+                                                        item.id)) {
+                                                    requiredItems.push(item);
+                                                }
+                                            });
+
+                                            // Adiciona o h2
+                                            var h2 = document.createElement("h2");
+                                            h2.textContent = "Campos Obrigatórios";
+                                            formContainer.appendChild(h2);
+
+                                            requiredItems.forEach(element => {
+                                                // Adiciona o label
+                                                var label = document.createElement(
+                                                    "label");
+                                                label.textContent = element.name;
+                                                formContainer.appendChild(label);
+
+                                                if (!element.values) {
+                                                    var input = document
+                                                        .createElement("input");
+                                                    // Define o tipo do input como "text"
+                                                    input.type = "text";
+                                                    input.className =
+                                                        "form-control";
+                                                    input.name = element.id;
+                                                    // Define um ID para o input (opcional)
+                                                    // Adiciona o input ao corpo do documento (ou a qualquer outro elemento desejado)
+                                                    formContainer.appendChild(
+                                                        input);
+                                                } else {
+                                                    var selectField = document
+                                                        .createElement("select");
+                                                    for (var i = 0; i < element
+                                                        .values.length; i++) {
+                                                        var option = document
+                                                            .createElement(
+                                                                "option");
+                                                        selectField.className =
+                                                            "form-control";
+                                                        selectField.name = element
+                                                            .id;
+                                                        option.text = element
+                                                            .values[i].name;
+                                                        option.value = element
+                                                            .values[i].id;
+                                                        selectField.appendChild(
+                                                            option);
+
+                                                    }
+                                                    formContainer.appendChild(
+                                                        selectField);
+                                                }
+
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                            $("#categorias").html(index.join(''));
+                        }
+                    },
+                    error: function(error) {
+                        $('#result').html(
+                            '<option> Produto Digitado Não Existe! </option>'
+                        );
+                    }
+                });
+            }
         });
     </script>
 

@@ -743,8 +743,6 @@ class productsController extends Controller
             ];
         }
 
-        $subCategoria = [];
-
         sub_category::getAllCategory($produto->subcategoria);
 
         $viewData['fornecedor'] = User::where('forncecedor', 1)->get();
@@ -761,7 +759,6 @@ class productsController extends Controller
      */
     public function update(Request $request, $id){
         $variations = [];
-        $firstFornecedor = null;
         $firstPrice = null;
 
         foreach ($request->input('variation', []) as $data) {
@@ -813,6 +810,24 @@ class productsController extends Controller
                 'fornecedor_id' => $data['fornecedor_id'] ?? null
             ];
         }
+
+        $request->merge([
+            'price' => str_replace(',', '.', $request->input('price')),
+            'priceKit' => str_replace(',', '.', $request->input('priceKit')),
+            'priceWithFee' => str_replace(',', '.', $request->input('priceWithFee')),
+            'taxaFee' => str_replace(',', '.', $request->input('taxaFee')),
+            'pricePromotion' => str_replace(',', '.', $request->input('pricePromotion')),
+            'termometro' => str_replace(',', '.', $request->input('termometro')),
+            'valorProdFornecedor' => str_replace(',', '.', $request->input('valorProdFornecedor')),
+            'height' => str_replace(',', '.', $request->input('height')),
+            'width' => str_replace(',', '.', $request->input('width')),
+            'length' => str_replace(',', '.', $request->input('length')),
+            'estoque_minimo_afiliado' => str_replace(',', '.', $request->input('estoque_minimo_afiliado')),
+            'percentual_estoque' => str_replace(',', '.', $request->input('percentual_estoque')),
+            'estoque_afiliado' => str_replace(',', '.', $request->input('estoque_afiliado')),
+            'min_unidades_kit' => str_replace(',', '.', $request->input('min_unidades_kit')),
+        ]);
+
 
             $request->validate([
                 'isPublic' => "required",
@@ -893,6 +908,10 @@ class productsController extends Controller
             $produto = Products::findOrFail($id);
             $produto->variation_data = $variations;
             $produto->fill($request->except('products')); // Preenche os dados do produto
+                // Após o loop, se $firstPrice estiver definido, salva no produto
+            if (!is_null($firstPrice) && $firstPrice > 0) {
+                $produto->price = (float) $firstPrice;
+            }
 
             $kitId = $produto->id;
 
@@ -1824,6 +1843,7 @@ class productsController extends Controller
 
      // PRODUTOS EM PROMOÇÂO
      $userId = Auth::id(); // Mais limpo e direto
+     $token = token::where('user_id', Auth::user()->id)->first();
 
      $data = Products::select('products.*')
         ->where('products.isKit', 0)
@@ -1839,8 +1859,9 @@ class productsController extends Controller
         $viewData['title'] = "Afilidrop";
         $viewData['subtitle'] = 'AutoKM';
         $viewData['products'] = $data;
+        $viewData['token'] = $token;
 
-        return view('orders.fornecedor.produtos')->with('viewData', $viewData);
+        return view('orders.fornecedor.produtosVariations')->with('viewData', $viewData);
     }
 
     public function updateProduct()
@@ -2579,37 +2600,64 @@ class productsController extends Controller
 
     public function storeWithVariations(Request $request){
 
-        $jsonMercadoLivre = [];
+     $variations = [];
+     $firstPrice = null;
 
         $produtoDados = [];
         foreach($request->products as $key => $produto){
 
         $data = Products::where('id',$produto['id'])->first();
+            // Atribuições básicas
+            $attributes = [[
+                'id' => 'SELLER_SKU',
+                'value_name' => (string) $produto['id'],
+            ]];
 
-        $fotos = Images::where('product_id', $produto['id'])
-        ->orderBy('position', 'asc') // Ordena pela posição em ordem crescente
-        ->get();
+            $attribute_combinations = [];
+            $nomes = $data['atributos_nome'] ?? [];
+            $valores = $data['atributos_valor'] ?? [];
 
-        $photos = [];
-
-            foreach ($fotos as $foto) {
-                $photoUrl = "https://afilidrop2.s3.us-east-1.amazonaws.com/produtos/" . $foto->product_id . '/' . $foto->url;
-                array_push($photos,$photoUrl);
+            for ($i = 0; $i < count($nomes); $i++) {
+                if (!empty($nomes[$i]) && !empty($valores[$i])) {
+                    $attribute_combinations[] = [
+                        'name' => $nomes[$i],
+                        'value_name' => $valores[$i],
+                    ];
+                }
             }
 
-            $jsonMercadoLivre[] = [
-                'sku' => $data['id'],
-                'nome' => $data['title'],
-                'picture_ids' => $photos,
-                'price' => $data['priceWithFee'],
-                'available_quantity' => $data['estoque_afiliado'],
+            // Imagens
+            $fotos = Images::where('product_id', $produto['id'])
+                ->orderBy('position', 'asc')
+                ->get();
+
+            $picture_ids = [];
+            foreach ($fotos as $foto) {
+                $picture_ids[] = "https://afilidrop2.s3.amazonaws.com/produtos/{$foto->product_id}/{$foto->url}";
+            }
+
+            // Define o preço da primeira variação
+            if (is_null($firstPrice)) {
+                $firstPrice = $data['price'] ?? 0;
+            }
+
+            // Aplica o mesmo preço em todas
+            $precoAplicado = $firstPrice;
+
+            $variations[] = [
+                'attributes' => $attributes,
+                'attribute_combinations' => $attribute_combinations,
+                'price' => (float) $precoAplicado,
+                'available_quantity' => (int) ($data['available_quantity'] ?? 0),
+                'picture_ids' => $picture_ids,
+                'fornecedor_id' => $data['fornecedor_id'] ?? null
             ];
 
             if($key == 0){
                 $produtoDados = [
                      'sku' => $data['id'],
                      'nome' => $data['title'],
-                     'picture_ids' => $photos,
+                     'picture_ids' => $picture_ids,
                      'price' => $data['priceWithFee'],
                      'stock' => $data['stock'],
                      'available_quantity' => $data['estoque_afiliado'],
@@ -2632,7 +2680,7 @@ class productsController extends Controller
         $produto = new Products();
         $produto->price =  $produtoDados['price'];
         $produto->title = $produtoDados['nome'];
-        $produto->description = "...";
+        $produto->description = "Descrição.";
         $produto->available_quantity = $produtoDados['stock'];
         $produto->priceWithFee = $produtoDados['price'];
         $produto->category_id = $produtoDados['category_id'];
@@ -2649,7 +2697,7 @@ class productsController extends Controller
         $produto->fornecedor_id = $produtoDados['fornecedor'];
         $produto->termometro = 100;
         $produto->isVariation = 1;
-        $produto->variation_data = json_encode($jsonMercadoLivre);
+        $produto->variation_data = json_encode($variations);
         $produto->save();
 
          return redirect()

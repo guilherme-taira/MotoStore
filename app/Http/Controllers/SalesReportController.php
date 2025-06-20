@@ -33,14 +33,12 @@ class SalesReportController extends Controller
 
         $integratedProduct = produtos_integrados::where('id_mercadolivre',$dados['integrated_product_id'])->first();
 
-
         // Quantidade anterior
         $quantityBeforeProduct = $product->available_quantity;
 
         // Atualiza o estoque do produto
         $product->available_quantity -= $dados['quantity_sold'];
         $product->save();
-
 
 
         // Recalcula o estoque do afiliado baseado no percentual configurado no banco
@@ -80,8 +78,7 @@ class SalesReportController extends Controller
             'quantity_after' => $product->available_quantity,
         ]);
 
-        UpdateStockJob::dispatch($product->product_id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
-
+      UpdateStockJob::dispatch($product->id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
  }
 
     public function pausarAnuncios($integratedProduct){

@@ -317,7 +317,7 @@
                                 <a class="nav-link" href="{{ route('products.index') }}">Catálogo de Produtos</a>
                                 <a class="nav-link" href="{{ route('products.exclusivos') }}">Produtos Exclusivos
                                 <a class="nav-link" href="{{ route('allProductsByFornecedor') }}">Meus Produtos</a>
-                                {{-- <a class="nav-link" href="{{ route('allProductsByFornecedorVariation') }}"><i class="bi bi-star-fill"></i> &nbsp; Variações</a> --}}
+                                <a class="nav-link" href="{{ route('allProductsByFornecedorVariation') }}"><i class="bi bi-star-fill"></i> &nbsp; Variações</a>
                                 <a class="nav-link" href="{{ route('kits.index') }}">Meus Kits</a>
                                 {{-- <a class="nav-link" href="{{ route('categorias.index') }}">Categorias</a>
                                 <nav class="sb-sidenav-menu-nested nav">

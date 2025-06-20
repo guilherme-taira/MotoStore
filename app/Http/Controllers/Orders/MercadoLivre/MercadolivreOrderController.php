@@ -282,6 +282,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                     $isKit = kit::where('product_id',$produto['id'])->first();
 
                                     if($isKit){
+                                        FacadesLog::alert("È KIT");
                                         foreach ($json->order_items as $items) {
                                            $data = [
                                             "order_site_id" => $id_order,
@@ -296,6 +297,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         // Dados para enviar no corpo da requisição
 
                                     }else{
+                                        FacadesLog::alert("NÃO KIT");
                                         $data = [
                                             "order_site_id" => $id_order,
                                             "product_id" => $produto['id'],
@@ -318,7 +320,6 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                         $contatoEfornecedor = BlingCreateUserByFornecedor::ifExistFornecedor($fornecedor->id,$contato->id);
 
                                         if($contatoEfornecedor){
-
                                             $data = [
                                                 "data" => date('Y-m-d'),
                                                 "numeroPedidoCompra" => $json->id,
