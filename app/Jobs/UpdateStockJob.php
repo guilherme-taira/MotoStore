@@ -46,11 +46,14 @@ class UpdateStockJob implements ShouldQueue
     {
         $jobs = produtos_integrados::where('product_id',$this->id)->get();
         // 2. Busca as variações com esse mesmo product_id
-        $variacoes = DB::table('variacoes')
-        ->Join('produtos_integrados', 'variacoes.id_mercadolivre', '=', 'produtos_integrados.id_mercadolivre')
-        ->where('variacoes.sku', $this->id)
-        ->select('*') // ou adicione campos específicos
-        ->get();
+
+        try {
+
+             $variacoes = DB::table('variacoes')
+            ->Join('produtos_integrados', 'variacoes.id_mercadolivre', '=', 'produtos_integrados.id_mercadolivre')
+            ->where('variacoes.sku', $this->id)
+            ->select('*') // ou adicione campos específicos
+            ->get();
 
 
         foreach ($variacoes as $product) {
@@ -99,8 +102,12 @@ class UpdateStockJob implements ShouldQueue
             // // Atualiza o estoque
             $estoqueNew->updateStock();
         }
+        } catch (\Exception $th) {
+            Log::alert($th->getMessage());
+        }
 
-        foreach ($jobs as $product) {
+       try {
+         foreach ($jobs as $product) {
            if($this->estoque_afiliado < 0) {
                 $this->estoque_afiliado = 0;
            }
@@ -118,8 +125,12 @@ class UpdateStockJob implements ShouldQueue
             $estoqueNew->updateStockByDirectProduct();
         }
 
+       } catch (\Throwable $th) {
+            Log::alert($th->getMessage());
+       }
 
-         $registro = DB::table('kit')
+        try {
+             $registro = DB::table('kit')
             ->where('id_product_kit', $this->id)
             ->first();
 
@@ -146,6 +157,9 @@ class UpdateStockJob implements ShouldQueue
                 // Atualiza o estoque
                 $estoqueNew->updateStockByDirectProduct();
             }
+        }
+        } catch (\Exception $th) {
+            Log::alert($th->getMessage());
         }
 
 
