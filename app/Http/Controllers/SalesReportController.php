@@ -65,8 +65,13 @@ class SalesReportController extends Controller
             // Pausa todos os anúncios relacionados
             $this->pausarAnuncios($dados['product_id']);
         }
-
         }
+
+       try {
+         UpdateStockJob::dispatch($product->id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
+       } catch (\Exception $th) {
+            Log::alert($th->getMessage());
+       }
 
         // Grava o relatório de vendas
         SalesReport::create([
@@ -77,8 +82,6 @@ class SalesReportController extends Controller
             'quantity_before' => $quantityBeforeProduct,
             'quantity_after' => $product->available_quantity,
         ]);
-
-      UpdateStockJob::dispatch($product->id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
  }
 
     public function pausarAnuncios($integratedProduct){

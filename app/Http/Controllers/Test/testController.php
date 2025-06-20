@@ -80,6 +80,15 @@ class testController extends Controller
 
         public function teste(Request $request) {
 
-            UpdateStockJob::dispatch(474,15,1);
+           $data = [
+                "order_site_id" => "38315",
+                "product_id" => "361",
+                "integrated_product_id" => "MLB3961559561",
+                "quantity_sold" => 5,
+            ];
+
+
+            $retirarEstoque = new SalesReportController();
+            $retirarEstoque->processSale($data);
         }
 }
