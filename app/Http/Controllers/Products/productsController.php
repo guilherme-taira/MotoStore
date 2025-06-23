@@ -795,9 +795,10 @@ class productsController extends Controller
 
             // Define o preço da primeira variação
             if (is_null($firstPrice)) {
-                $firstPrice = $data['price'] ?? 0;
+                $firstPrice = (float) $data['price'] ?? 0;
             }
 
+            Log::alert($firstPrice);
             // Aplica o mesmo preço em todas
             $precoAplicado = $firstPrice;
 

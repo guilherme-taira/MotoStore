@@ -1730,14 +1730,20 @@
                                                         <label class="col-lg-1 col-md-6 col-sm-12 col-form-label">Final:
                                                         </label>
 
+                                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input name="priceWithFee" id="PriceWithFeeSingle" type="text"
+                                                                class="form-control"
+                                                                value="{{ $viewData['product']->priceWithFee }}">
+                                                        </div>
+
                                                         <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Preço
                                                             Kit:
                                                         </label>
-                                                        <div class="col-lg-2 col-md-3 col-sm-12">
-                                                            <input name="priceWithFee" id="
-                                                            " type="text"
+
+                                                           <div class="col-lg-2 col-md-3 col-sm-12">
+                                                            <input  type="text" name="priceKit" id="priceKit"
                                                                 class="form-control"
-                                                                value="{{ $viewData['product']->priceWithFee }}">
+                                                                value="{{ $viewData['product']->price }}" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3022,10 +3028,12 @@
                     $("#priceKit").val(parseFloat(valorKit).toFixed(2));
                     // claculo do valor liquido
                     totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
+                    valorFinal = ( (parseFloat(total) + parseFloat(totalLiquido)) / 0.95);
                     // preço liquido final
                     $("#precoLiquido").val(totalLiquido.toFixed(2));
                     // coloca o valor final
                     $("#PriceWithFee").val(parseFloat(valorProduto).toFixed(2));
+                    $("#PriceWithFeeSingle").val(parseFloat(valorFinal).toFixed(2));
 
                     $('#acressimoP').prop("disabled", true).css({
                         'background-color': '#cecece'

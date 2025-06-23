@@ -185,6 +185,7 @@ class ContatoController extends Controller
            'situacao' => $validated['situacao'],
            'celular' => $validated['celular'],
            'email' => $validated['email'],
+           'ie' => $validated['ie'],
            'rg' => $validated['rg'] ?? null,
            'endereco' => [
                'geral' => [

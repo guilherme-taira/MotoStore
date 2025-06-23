@@ -734,7 +734,7 @@
                         $("#linkMaterial").attr("href", response.link);
                         $("#total").val(response.priceWithFee);
                         $("#name").val(response.title);
-                        $("#precoFinal").val(response.priceKit);
+                        $("#precoFinal").val(response.priceWithFee);
                         $("#category_id").val(response.category_id);
                         $(".img_integracao_foto").attr('src', response.image);
                         $(".img_integracao_title").html(response.title);
@@ -794,14 +794,14 @@
                                     <input type="hidden" name="variation[${index}][sku]" value="${variacao.attributes?.[0]?.value_name || ''}">
                                     <input type="hidden" name="variation[${index}][nome]" value="${variacao.attribute_combinations?.map(a => a.value_name).join(' ') || ''}">
 
-                                    <div class="mb-2 mt-3">
+                                    <div class="mb-2 mt-3 d-none">
                                         <label>Preço:</label>
-                                        <input type="number" step="0.01" class="form-control mt-2 price-var" name="variation[${index}][price]" value="${variacao.price || 0}">
+                                        <input type="number" step="0.01" class="form-control mt-2 price-var" name="variation[${index}][price]" value="${variacao.price || 0}" readonly>
                                     </div>
 
                                     <div class="mb-2">
                                         <label>Estoque:</label>
-                                        <input type="number" class="form-control" name="variation[${index}][available_quantity]" value="${variacao.available_quantity || 0}">
+                                        <input type="number" class="form-control" name="variation[${index}][available_quantity]" value="${variacao.available_quantity || 0}" readonly>
                                     </div>
 
                                     <div class="atributos-list">${atributos}</div>

@@ -4,6 +4,7 @@ use App\Events\sendProduct;
 use App\Http\Controllers\aliexpress\authController;
 use App\Http\Controllers\ApiBlingProductsController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\bi\RelatorioController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Categorias\categorias;
 use App\Http\Controllers\email\sendEmail;
@@ -52,6 +53,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/bling/orders', [ApiBlingProductsController::class, 'createOrder'])->name('bling.createOrder');
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
+
     Route::post('/notificationBling',[MercadoPagoNotification::class,'notificationBling']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);
@@ -92,6 +94,14 @@ Route::prefix('v1')->group(function () {
     Route::get('getPedidosById',[productsController::class,'getPedidosById']);
     Route::post('dataHome',[productsController::class,'dataHome']);
     Route::get('/sales-data', [productsController::class, 'getSalesData']);
+
+    // RELATORIO BI
+
+    Route::get('/dadosVendas',[RelatorioController::class,'vendas']);
+    Route::get('/clientes',[RelatorioController::class,'users']);
+    Route::get('/vendas',[RelatorioController::class,'orders']);
+    Route::get('/produtosBiWeb',[RelatorioController::class,'produtosBiWeb']);
+
 
     Route::get('/teste2',[productsController::class,'teste']);
     // ROTAS DE API PARA PAGAMENTOS
