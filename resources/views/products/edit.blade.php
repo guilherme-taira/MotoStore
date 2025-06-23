@@ -1179,14 +1179,14 @@
                                                     class="form-control mt-2"
                                                     name="variation[{{ $index }}][price]"
                                                     value="{{ $product->price ?? 0 }}"
-                                                    @if ($index === 0) id="firstVariationPrice" @endif>
+                                                    @if ($index === 0) id="firstVariationPrice" @endif readonly>
                                                 </div>
 
                                                 <div class="mb-2">
                                                     <label>Estoque:</label>
                                                     <input type="number" class="form-control"
                                                         name="variation[{{ $index }}][available_quantity]"
-                                                        value="{{ $product->available_quantity ?? 0 }}">
+                                                        value="{{ $product->available_quantity ?? 0 }}" readonly>
                                                 </div>
 
                                                 <div class="atributos-list">
@@ -1600,28 +1600,26 @@
                                                 <div class="mb-3 row">
                                                     <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">%</label>
                                                     <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="acressimoP" name="valorProdFornecedor"
+                                                        <input id="acressimoP"
                                                             class="form-control porcem" value="{{ old('acressimoP') }}"
-                                                            type="hidden" readonly>
+                                                            type="number" value="0" readonly>
                                                     </div>
                                                     <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">R$</label>
                                                     <div class="col-lg-3 col-md-6 col-sm-6">
-                                                        <input id="acressimoR" name="valorProdFornecedor" type="hidden"
+                                                        <input id="acressimoR" type="text"
                                                             class="form-control porcem"
-                                                            value="{{ $viewData['product']->isKit ? $fee : $viewData['product']->valorProdFornecedor }}"
+                                                            value="0"
                                                             readonly>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="mb-3 row d-none">
-
                                                 <label class="col-lg-2 col-md-6 col-sm-12 col-form-label">Liquído:
                                                 </label>
                                                 <div class="col-lg-3 col-md-6 col-sm-12">
                                                     <input name="valorProdFornecedor"
-                                                        value="0"
-                                                        id="precoLiquido" type="hidden" class="form-control" readonly>
+                                                        value="1" id="precoLiquido" type="number" class="form-control" readonly>
                                                 </div>
                                             </div>
 
@@ -2533,19 +2531,21 @@
             // Ativar a função quando houver alteração no campo #precoNormal
             $('#firstVariationPrice').on('blur', function () {
                 const acressimoRField = $('#acressimoR');
-
                 let rawValue = $(this).val();
-                let numericValue = parseFloat(
-                    rawValue.replace(/\./g, '').replace(',', '.')
-                );
+
+                // Converte para número com ponto
+                let numericValue = parseFloat(rawValue.replace(/\./g, '').replace(',', '.'));
 
                 if (!isNaN(numericValue)) {
+                    // Mostra valor com vírgula para o usuário
                     $('#precoNormal').val(
                         numericValue.toLocaleString('pt-BR', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                         })
                     );
+                    // Envia valor com ponto para o backend
+                    $('#preco_formatado').val(numericValue.toFixed(2)); // ex: 86.99
                 }
 
                 const currentValue = acressimoRField.val();
@@ -2560,6 +2560,7 @@
                     $('#taxesTabButton').removeClass('blink-tab');
                 }, 2000);
             });
+
 
 
 
@@ -3028,6 +3029,10 @@
                     $("#priceKit").val(parseFloat(valorKit).toFixed(2));
                     // claculo do valor liquido
                     totalLiquido = parseFloat($('#precoFinal').val()) - parseFloat($('#precoNormal').val());
+
+                    if (isNaN(totalLiquido)) {
+                        totalLiquido = 0;
+                    }
                     valorFinal = ( (parseFloat(total) + parseFloat(totalLiquido)) / 0.95);
                     // preço liquido final
                     $("#precoLiquido").val(totalLiquido.toFixed(2));

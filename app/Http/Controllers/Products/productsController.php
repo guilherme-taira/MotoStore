@@ -758,6 +758,7 @@ class productsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id){
+
         $variations = [];
         $firstPrice = null;
 
@@ -795,23 +796,23 @@ class productsController extends Controller
 
             // Define o preço da primeira variação
             if (is_null($firstPrice)) {
-                $firstPrice = (float) $data['price'] ?? 0;
+                $firstPrice = str_replace(',', '.', $request->input('price')) ?? 0;
             }
-
-            Log::alert($firstPrice);
             // Aplica o mesmo preço em todas
             $precoAplicado = $firstPrice;
 
+            Log::alert($precoAplicado);
             $variations[] = [
                 'attributes' => $attributes,
                 'attribute_combinations' => $attribute_combinations,
-                'price' => (float) $precoAplicado,
+                'price' => $precoAplicado,
                 'available_quantity' => (int) ($data['available_quantity'] ?? 0),
                 'picture_ids' => $picture_ids,
                 'fornecedor_id' => $data['fornecedor_id'] ?? null
             ];
         }
 
+        Log::alert(json_encode($variations));
         $request->merge([
             'price' => str_replace(',', '.', $request->input('price')),
             'priceKit' => str_replace(',', '.', $request->input('priceKit')),
@@ -828,7 +829,6 @@ class productsController extends Controller
             'estoque_afiliado' => str_replace(',', '.', $request->input('estoque_afiliado')),
             'min_unidades_kit' => str_replace(',', '.', $request->input('min_unidades_kit')),
         ]);
-
 
             $request->validate([
                 'isPublic' => "required",
@@ -909,11 +909,7 @@ class productsController extends Controller
             $produto = Products::findOrFail($id);
             $produto->variation_data = $variations;
             $produto->fill($request->except('products')); // Preenche os dados do produto
-                // Após o loop, se $firstPrice estiver definido, salva no produto
-            if (!is_null($firstPrice) && $firstPrice > 0) {
-                $produto->price = (float) $firstPrice;
-            }
-
+            // Após o loop, se $firstPrice estiver definido, salva no produto
             $kitId = $produto->id;
 
             $skusAtualizados = [];
@@ -932,7 +928,7 @@ class productsController extends Controller
                             'sku' => $sku,
                         ],
                         [
-                            'custom_price' => $var['price'],
+                            'custom_price' => $request->price,
                             'quantity' => $var['available_quantity'],
                             'attribute_combinations' => json_encode($var['attribute_combinations']),
                             'picture_ids' => json_encode($var['picture_ids']),
