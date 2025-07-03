@@ -132,7 +132,7 @@ class MercadoPagoNotification extends Controller
         // if(isset($request->_id)){
             // Verifica se é 'topic' ou 'type' e atribui à variável $eventType
             $eventType = $request->topic ?? $request->type;
-            Log::debug(json_encode($request->all()));
+
             if($userML){
                 $dataAtual = new DateTime();
                 // GET NEW TOKEN
@@ -149,6 +149,7 @@ class MercadoPagoNotification extends Controller
                             \App\Jobs\getOrderMercadoLivre::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
                             break;
                         case 'shipments':
+                            Log::debug(json_encode($request->all()));
                               \App\Jobs\shippingHandler::dispatch($request->resource,$request->topic,$request->user_id, $userML->access_token)->delay(Carbon::now()->addSeconds(20));
                             break;
                             case 'items':

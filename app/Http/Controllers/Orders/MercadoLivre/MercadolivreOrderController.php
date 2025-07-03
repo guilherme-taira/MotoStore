@@ -101,7 +101,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
         // echo "<pre>";
 
         // IMPLEMENTA MARKETPLACE FEE
-        FacadesLog::critical($reponse);
+        // FacadesLog::critical($reponse);
 
         try {
             if ($httpCode == 200) {
@@ -231,7 +231,6 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                              */
 
                             if(isset($produto)){
-
                                 $image = "";
                                 $url = "https://api.mercadolibre.com/items/{$items->item->id}";
                                 // Envia a requisição GET
@@ -251,7 +250,7 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
                                 $fornecedor = User::GetDataUserAndToken($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
                                 // FacadesLog::alert($fornecedor->name);
                                 $vendedor = User::GetDataUserAndToken($user->user_id); // Certifique-se de que este ID é o do usuário correto
-                                // FacadesLog::alert($vendedor->name);
+
 
                                 if ($fornecedor) {
                                 // Envia Notificação de Venda
