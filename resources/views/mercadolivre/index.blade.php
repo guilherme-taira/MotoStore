@@ -407,7 +407,9 @@
                     {
                         "domain_id": "MLB-DRESSES"
                     },
-                    // { "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES" },
+                    {
+                        "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES"
+                    },
                     // { "domain_id": "MLB-BLOUSES" },
                     {
                         "domain_id": "MLB-SHIRTS"
@@ -423,7 +425,9 @@
                     // { "domain_id": "MLB-SHORTS" },
                     // { "domain_id": "MLB-LEGGINGS" },
                     // { "domain_id": "MLB-HEELS_AND_WEDGES" },
-                    { "domain_id": "MLB-SLIPPERS" },
+                    {
+                        "domain_id": "MLB-SLIPPERS"
+                    },
                     // { "domain_id": "MLB-FLATS" },
                     // { "domain_id": "MLB-ESPADRILLES" },
                     // { "domain_id": "MLB-HIKING_BOOTS" },
@@ -1118,7 +1122,7 @@
             function getCategory(category) {
                 var domain = "";
                 $.ajax({
-                   url: "/meli/subcategories/" + category,
+                    url: "/meli/subcategories/" + category,
                     type: "GET",
                     success: function(response) {
 
@@ -1234,7 +1238,7 @@
             }
             var i = 0;
             $.ajax({
-               url: "/meli/categories",
+                url: "/meli/categories",
                 type: "GET",
                 success: function(response) {
                     if (response) {

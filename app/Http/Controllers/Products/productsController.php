@@ -40,6 +40,7 @@ use App\Http\Controllers\image\image;
 use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBras;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartSweatShirtsSandHoodies;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerShoes;
@@ -377,7 +378,8 @@ class productsController extends Controller
              ->setNext(new handlerSkirts())
              ->setNext(new handlerBras())
              ->setNext(new handlerSwimwearCreator())
-             ->setNext(new handlerSlippers());
+             ->setNext(new handlerSlippers())
+             ->setNext(new handlerChartSweatShirtsSandHoodies());
 
              $grid = $handler->Manipular($obj);
 
@@ -392,12 +394,8 @@ class productsController extends Controller
                 }
             }
 
-            // $token = token::where('user_id_mercadolivre', $request->user)->first(); // CHAMANDO ANTIGO
 
-            // $dataAtual = new DateTime();
-            // $newToken = new RefreshTokenController($token->refresh_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", $token->user_id_mercadolivre);
-            // $newToken->resource();
-            // $token = token::where('user_id_mercadolivre',$request->user)->first(); // CHAMANDO ANTIGO
+         Log::alert($data_json);
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
