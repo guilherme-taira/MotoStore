@@ -2226,7 +2226,6 @@ class productsController extends Controller
 
 
     public function integrarProdutoviaApi(Request $request){
-        exit(0);
 
         $isporcem = [2,4];
 
