@@ -343,7 +343,7 @@ class productsController extends Controller
 
     public function tradeCategoriaApiNew(Request $request){
 
-        exit(1);
+        Log::alert("GUIZAOE RROO ");
         if($request->via = "alterador"){
 
              // ENDPOINT PARA REQUISICAO
@@ -396,7 +396,7 @@ class productsController extends Controller
             }
 
 
-         Log::alert($data_json);
+            Log::alert($data_json);
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -423,7 +423,7 @@ class productsController extends Controller
                 }
 
             }
-           }
+        }
     }
  }
 
