@@ -68,7 +68,7 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 use Illuminate\Support\Facades\Http;
 
-set_time_limit(0);
+set_time_limit(60);
 
 class productsController extends Controller
 {
