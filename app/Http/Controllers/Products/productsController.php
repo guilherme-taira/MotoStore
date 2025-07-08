@@ -338,12 +338,13 @@ class productsController extends Controller
 
 
     public function tradeCategoria(Request $request){
+        exit;
         return $this->getAttributesTrade($request);
     }
 
     public function tradeCategoriaApiNew(Request $request){
 
-        Log::alert("GUIZAOE RROO ");
+        exit;
         if($request->via = "alterador"){
 
              // ENDPOINT PARA REQUISICAO
