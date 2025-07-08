@@ -343,6 +343,7 @@ class productsController extends Controller
 
     public function tradeCategoriaApiNew(Request $request){
 
+        exit(1);
         if($request->via = "alterador"){
 
              // ENDPOINT PARA REQUISICAO
