@@ -68,7 +68,7 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 use Illuminate\Support\Facades\Http;
 
-set_time_limit(60);
+set_time_limit(30);
 
 class productsController extends Controller
 {
@@ -342,6 +342,7 @@ class productsController extends Controller
     }
 
     public function tradeCategoriaApiNew(Request $request){
+
         if($request->via = "alterador"){
 
              // ENDPOINT PARA REQUISICAO
@@ -408,7 +409,7 @@ class productsController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-            Log::alert($reponse);
+            // Log::alert($reponse);
             if ($httpCode == '200') {
                 logAlteracao::dispatch('TROCA DE CATEGORIA',$request->user,$reponse,true);
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
