@@ -1,8 +1,8 @@
 @extends('layouts.loginNew')
 @section('conteudo')
     <h3 class="mb-4 text-center text-white">Registrar</h3>
-    {{-- <form method="POST" action="{{ route('register') }}"> --}}
-        <form action="#" method="post"></form>
+    <form method="POST" action="{{ route('register') }}">
+        {{-- <form action="#" method="post"></form> --}}
         @csrf
 
           <!-- Campo Confirmar Senha -->

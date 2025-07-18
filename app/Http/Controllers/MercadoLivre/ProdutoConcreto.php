@@ -76,13 +76,6 @@ class ProdutoConcreto implements Produto
                 "immediate_payment",
             ];
 
-            if($this->getVariations()){
-                $data['attributes'][] =     [
-                    "id" => "SELLER_SKU",
-                    "value_name" =>  $this->getProduto()->id
-                ];
-            }
-
             $data['attributes'] = [
                 ...$jsonData,
                 [
@@ -133,9 +126,18 @@ class ProdutoConcreto implements Produto
                 ],
             ];
 
+             if(empty($this->getVariations())){
+                $data['attributes'][] =     [
+                    "id" => "SELLER_SKU",
+                    "value_name" =>  $this->getProduto()->id
+                ];
+            }
+
             if($this->getVariations() != null){
                 $data['variations'] = $this->getVariations();
             }
+
+            Log::alert(json_encode($data['attributes']));
 
             $jsonData = json_decode($this->getProduto()->atributos_json, true);
             $jsonData = is_array($jsonData) ? $jsonData : [];
@@ -172,66 +174,66 @@ class ProdutoConcreto implements Produto
 
             $data_json = json_encode($data);
             Log::alert($data_json);
-            // GET TOKEN
-            $token = json_decode($this->getUserId())->access_token;
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token}"]);
-            $reponse = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            $json = json_decode($reponse);
+            // // GET TOKEN
+            // $token = json_decode($this->getUserId())->access_token;
+            // $ch = curl_init();
+            // curl_setopt($ch, CURLOPT_URL, "https://api.mercadolibre.com/items");
+            // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json', 'Accept: application/json', "Authorization: Bearer {$token}"]);
+            // $reponse = curl_exec($ch);
+            // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            // curl_close($ch);
+            // $json = json_decode($reponse);
 
-            if ($httpCode == 400) {
-                if (empty($json->cause)) {
-                    $error_message = $json->message;
+            // if ($httpCode == 400) {
+            //     if (empty($json->cause)) {
+            //         $error_message = $json->message;
 
-                } else {
-                    foreach ($json->cause as $erros) {
-                        array_push($error_message, $erros->message);
-                    }
-                }
-                return $error_message;
-            } else if ($httpCode == 201) {
+            //     } else {
+            //         foreach ($json->cause as $erros) {
+            //             array_push($error_message, $erros->message);
+            //         }
+            //     }
+            //     return $error_message;
+            // } else if ($httpCode == 201) {
 
 
-                // SALVAR AS VARIAÇOES. -- >
-             foreach ($json->variations as $var) {
+            //     // SALVAR AS VARIAÇOES. -- >
+            //  foreach ($json->variations as $var) {
 
-                $meliId = $var->id;
-                $sku = optional(collect($var->attributes)->firstWhere('id', 'SELLER_SKU'))->value_name ?? null;
+            //     $meliId = $var->id;
+            //     $sku = optional(collect($var->attributes)->firstWhere('id', 'SELLER_SKU'))->value_name ?? null;
 
-                if (!$sku) continue;
-                    Variacao::updateOrCreate(
-                        ['meli_variation_id' => $meliId],
-                        [
-                            'id_mercadolivre' => $json->id,
-                            'sku' => $sku,
-                            'price' => $var->price,
-                            'available_quantity' => $var->available_quantity,
-                            'attribute_combinations' => json_encode($var->attribute_combinations),
-                            'picture_ids' => json_encode($var->picture_ids),
-                        ]
-                    );
-            }
-                // FINALIZAR AS VARIAÇÔES -- <
+            //     if (!$sku) continue;
+            //         Variacao::updateOrCreate(
+            //             ['meli_variation_id' => $meliId],
+            //             [
+            //                 'id_mercadolivre' => $json->id,
+            //                 'sku' => $sku,
+            //                 'price' => $var->price,
+            //                 'available_quantity' => $var->available_quantity,
+            //                 'attribute_combinations' => json_encode($var->attribute_combinations),
+            //                 'picture_ids' => json_encode($var->picture_ids),
+            //             ]
+            //         );
+            // }
+            //     // FINALIZAR AS VARIAÇÔES -- <
 
-                $this->CreateDescription($data,$json->id);
-                // // evento cadastra produto no historico
-                EventoCadastroIntegrado::dispatch(Auth::user()->id ,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
-                $mercado_livre_history = new mercado_livre_history();
-                $mercado_livre_history->name = $json->title;
-                $mercado_livre_history->id_ml = $json->id;
-                $mercado_livre_history->id_user = Auth::user()->id;
-                $mercado_livre_history->product_id = $this->getProduto()->id;
-                $mercado_livre_history->priceNotFee = $this->getValorSemTaxa();
-                $mercado_livre_history->save();
-            }
+            //     $this->CreateDescription($data,$json->id);
+            //     // // evento cadastra produto no historico
+            //     EventoCadastroIntegrado::dispatch(Auth::user()->id ,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());
+            //     $mercado_livre_history = new mercado_livre_history();
+            //     $mercado_livre_history->name = $json->title;
+            //     $mercado_livre_history->id_ml = $json->id;
+            //     $mercado_livre_history->id_user = Auth::user()->id;
+            //     $mercado_livre_history->product_id = $this->getProduto()->id;
+            //     $mercado_livre_history->priceNotFee = $this->getValorSemTaxa();
+            //     $mercado_livre_history->save();
+            // }
         }
 
     public function integrarViaApi($descricao,$id_prod)

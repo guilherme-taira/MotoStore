@@ -108,7 +108,6 @@ class LoginController extends Controller
                 'error' => 'Token não encontrado para este usuário.'
             ], 404);
         }
-
     }
 
     public function register(Request $request)
