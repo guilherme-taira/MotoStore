@@ -9,16 +9,15 @@ use Illuminate\Support\Facades\Http;
 
 class TikTokOAuthController extends Controller
 {
-    public function redirect(){
-
+    public function redirect()
+    {
         $clientId = config('services.tiktok.client_id');
         $redirectUri = config('services.tiktok.redirect_uri');
         $scope = 'order product';
         $state = csrf_token();
-        dd(config('services.tiktok.client_id'));
 
-        $url = "https://auth.tiktok-shops.com/oauth/authorize?" . http_build_query([
-            'client_id' => $clientId,
+        $url = "https://auth.tiktok-shops.com/oauth/authorize/seller?" . http_build_query([
+            'app_key' => $clientId, // ATENÇÃO: aqui é app_key, não client_id
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => $scope,
