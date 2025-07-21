@@ -15,6 +15,7 @@ class TikTokOAuthController extends Controller
         $redirectUri = config('services.tiktok.redirect_uri');
         $scope = 'order product';
         $state = csrf_token();
+        dd(config('services.tiktok.client_id'));
 
         $url = "https://auth.tiktok-shops.com/oauth/authorize?" . http_build_query([
             'client_id' => $clientId,
