@@ -9,12 +9,10 @@ use Illuminate\Support\Facades\Http;
 
 class TikTokOAuthController extends Controller
 {
-    public function redirect()
-    {
-        dd(config('services.tiktok.redirect_uri'));
+    public function redirect(){
 
         $clientId = config('services.tiktok.client_id');
-        $redirectUri = route('tiktok.callback');
+        $redirectUri = config('services.tiktok.redirect_uri');
         $scope = 'order product';
         $state = csrf_token();
 
@@ -28,6 +26,7 @@ class TikTokOAuthController extends Controller
 
         return redirect()->away($url);
     }
+
     public function callback(Request $request) {
         $code = $request->get('code');
         $clientId = config('services.tiktok.client_id');
