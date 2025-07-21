@@ -9,17 +9,25 @@ use Illuminate\Support\Facades\Http;
 
 class TikTokOAuthController extends Controller
 {
-    public function redirect() {
+    public function redirect()
+    {
+        dd(config('services.tiktok.redirect_uri'));
 
         $clientId = config('services.tiktok.client_id');
         $redirectUri = route('tiktok.callback');
-        $scope = 'order product'; // Escopos que seu app precisa
+        $scope = 'order product';
         $state = csrf_token();
-        $url = "https://auth.tiktok-shops.com/oauth/authorize?client_id={$clientId}&redirect_uri={$redirectUri}&response_type=code&scope={$scope}&state={$state}";
 
-        return redirect($url);
+        $url = "https://auth.tiktok-shops.com/oauth/authorize?" . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'response_type' => 'code',
+            'scope' => $scope,
+            'state' => $state,
+        ]);
+
+        return redirect()->away($url);
     }
-
     public function callback(Request $request) {
         $code = $request->get('code');
         $clientId = config('services.tiktok.client_id');
