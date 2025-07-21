@@ -220,7 +220,6 @@ class ProdutoConcreto implements Produto
                     );
             }
                 // FINALIZAR AS VARIAÇÔES -- <
-
                 $this->CreateDescription($data,$json->id);
                 // // evento cadastra produto no historico
                 EventoCadastroIntegrado::dispatch(Auth::user()->id ,$json->title,$json->thumbnail,$json->id,$this->getProduto()->id,$this->getValorSemTaxa(),$this->getDadosIntegrado());

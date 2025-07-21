@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\SellerAccount;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+class TikTokOAuthController extends Controller
+{
+    public function redirect() {
+
+        $clientId = config('services.tiktok.client_id');
+        $redirectUri = route('tiktok.callback');
+        $scope = 'order product'; // Escopos que seu app precisa
+        $state = csrf_token();
+        $url = "https://auth.tiktok-shops.com/oauth/authorize?client_id={$clientId}&redirect_uri={$redirectUri}&response_type=code&scope={$scope}&state={$state}";
+
+        return redirect($url);
+    }
+
+    public function callback(Request $request) {
+        $code = $request->get('code');
+        $clientId = config('services.tiktok.client_id');
+        $clientSecret = config('services.tiktok.client_secret');
+        $redirectUri = route('tiktok.callback');
+
+        $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => $redirectUri,
+            'code' => $code,
+        ]);
+
+        $tokenData = $response->json();
+
+        if (isset($tokenData['access_token'])) {
+            SellerAccount::updateOrCreate(
+                ['seller_id' => $tokenData['open_id']],
+                [
+                    'access_token' => $tokenData['access_token'],
+                    'refresh_token' => $tokenData['refresh_token'],
+                    'expires_in' => now()->addSeconds($tokenData['expires_in']),
+                ]
+            );
+
+            return response()->json(['status' => 'success', 'message' => 'Conta autorizada com sucesso!']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Falha na autorização', 'details' => $tokenData], 400);
+    }
+}

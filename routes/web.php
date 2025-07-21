@@ -46,6 +46,8 @@ use App\Http\Controllers\Status\StatusController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\Test\testController;
+use App\Http\Controllers\TikTokOAuthController;
+use App\Http\Controllers\TikTokWebhookController;
 use App\Http\Controllers\TreinamentosController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Usuarios\FornecedorController as UsuariosFornecedorController;
@@ -238,18 +240,22 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
     });
 
 
-Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);
-Route::get('/conta-integrada', function () {
-    return view('layouts.integracao');
-});
+    Route::get('/tiktok/oauth/redirect', [TikTokOAuthController::class, 'redirect'])->name('tiktok.redirect');
+    Route::get('/tiktok/oauth/callback', [TikTokOAuthController::class, 'callback'])->name('tiktok.callback');
+    Route::post('/tiktok/webhook', [TikTokWebhookController::class, 'handleWebhook']);
 
-Route::post('/clear-session-messages', function () {
-    session()->forget('success');
-    session()->forget('error');
-    return response()->json(['message' => 'Mensagens removidas com sucesso']);
-})->name('clear.session.messages');
+    Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);
+    Route::get('/conta-integrada', function () {
+        return view('layouts.integracao');
+    });
 
-// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::post('/clear-session-messages', function () {
+        session()->forget('success');
+        session()->forget('error');
+        return response()->json(['message' => 'Mensagens removidas com sucesso']);
+    })->name('clear.session.messages');
 
-// Auth::routes(['register' => true]);
-Auth::routes();
+    // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+    // Auth::routes(['register' => true]);
+    Auth::routes();
