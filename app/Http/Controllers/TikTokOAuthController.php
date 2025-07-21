@@ -32,7 +32,8 @@ class TikTokOAuthController extends Controller
         $code = $request->get('code');
         $clientId = config('services.tiktok.client_id');
         $clientSecret = config('services.tiktok.client_secret');
-        $redirectUri = route('tiktok.callback');
+        $redirectUri = config('services.tiktok.redirect_uri');
+
 
         $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
             'client_id' => $clientId,
