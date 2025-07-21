@@ -239,10 +239,10 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('/meli/subcategories/attributes/variation/{category}', [productsController::class, 'getCategoryAttributeByVariation']);
     });
 
-
     Route::get('/tiktok/oauth/redirect', [TikTokOAuthController::class, 'redirect'])->name('tiktok.redirect');
     Route::get('/tiktok/oauth/callback', [TikTokOAuthController::class, 'callback'])->name('tiktok.callback');
     Route::post('/tiktok/webhook', [TikTokWebhookController::class, 'handleWebhook']);
+
 
     Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);
     Route::get('/conta-integrada', function () {
