@@ -14,18 +14,19 @@ class TikTokOAuthController extends Controller
         $clientId = config('services.tiktok.client_id');
         $redirectUri = config('services.tiktok.redirect_uri');
         $scope = 'order product';
-        $state = csrf_token();
+        $ttsState = csrf_token(); // Ou qualquer outro token de sessão
 
         $url = "https://auth.tiktok-shops.com/oauth/authorize/seller?" . http_build_query([
-            'app_key' => $clientId, // ATENÇÃO: aqui é app_key, não client_id
+            'app_key' => $clientId,
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
             'scope' => $scope,
-            'state' => $state,
+            'tts_state' => $ttsState, // OBRIGATÓRIO!
         ]);
 
         return redirect()->away($url);
     }
+
 
     public function callback(Request $request) {
         $code = $request->get('code');
