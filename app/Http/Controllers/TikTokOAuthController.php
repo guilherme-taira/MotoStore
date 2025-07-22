@@ -33,7 +33,7 @@ public function callback(Request $request) {
     $clientSecret = config('services.tiktok.client_secret');
     $redirectUri = config('services.tiktok.redirect_uri');
 
-    $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
+    $response = Http::asForm()->post('https://sandbox-apis.tiktok-shops.com/oauth/token', [
         'client_id' => $clientId,
         'client_secret' => $clientSecret,
         'grant_type' => 'authorization_code',
