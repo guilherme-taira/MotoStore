@@ -42,21 +42,21 @@ public function callback(Request $request)
 
     $clientId     = config('services.tiktok.client_id');
     $clientSecret = config('services.tiktok.client_secret');
-    $redirectUri  = config('services.tiktok.redirect_uri');
 
-    $response = Http::asForm()->post('https://auth.tiktok-shops.com/api/v2/token', [
-        'app_key'      => $clientId,
-        'app_secret'   => $clientSecret,
-        'grant_type'   => 'authorized_code',
-        'auth_code'    => $code,
-        'redirect_uri' => $redirectUri,
-    ]);
+    $url = 'https://auth.tiktok-shops.com/api/v2/token/get';
+    $params = [
+        'app_key'    => $clientId,
+        'app_secret' => $clientSecret,
+        'grant_type' => 'authorized_code',
+        'auth_code'  => $code,
+    ];
 
+    $response = Http::get($url, $params);
     $body = $response->json();
 
     Log::info('Resposta TikTok token', ['body' => $body]);
 
-    if ($response->failed() || !isset($body['data']['access_token'], $body['data']['seller_id'])) {
+    if ($response->failed() || !isset($body['data']['access_token'], $body['data']['seller_name'])) {
         return response()->json([
             'status' => 'error',
             'message' => 'Token ou seller_id não encontrado na resposta.',
@@ -66,22 +66,23 @@ public function callback(Request $request)
 
     $data = $body['data'];
 
-    // Aqui você salva o token em sua tabela SellerAccount
+    // Salvar na tabela SellerAccount
     SellerAccount::updateOrCreate(
-        ['seller_id' => $data['seller_id']],
+        ['seller_id' => $data['seller_name']],
         [
             'access_token'  => $data['access_token'],
             'refresh_token' => $data['refresh_token'] ?? null,
-            'expires_in'    => now()->addSeconds($data['expires_in'] ?? 0),
+            'expires_in'    => now()->addSeconds($data['access_token_expire_in'] - time()),
         ]
     );
 
     return response()->json([
-        'status' => 'success',
-        'message' => 'Conta autorizada com sucesso!',
-        'seller_id' => $data['seller_id'],
+        'status'    => 'success',
+        'message'   => 'Conta autorizada com sucesso!',
+        'seller_id' => $data['seller_name'],
     ]);
 }
+
 
 
 }
