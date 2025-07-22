@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SellerAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TikTokOAuthController extends Controller
 {
@@ -27,12 +28,22 @@ class TikTokOAuthController extends Controller
         return redirect()->away($url);
     }
 
-public function callback(Request $request) {
+   public function callback(Request $request) {
     $code = $request->get('code');
     $clientId = config('services.tiktok.client_id');
     $clientSecret = config('services.tiktok.client_secret');
     $redirectUri = config('services.tiktok.redirect_uri');
 
+    // Verifica se o código foi recebido
+    if (!$code) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Código de autorização não encontrado na requisição.',
+            'details' => $request->all(),
+        ], 400);
+    }
+
+    // Realiza a requisição para trocar o código por um token
     $response = Http::asForm()->post('https://sandbox-apis.tiktok-shops.com/oauth/token', [
         'client_id' => $clientId,
         'client_secret' => $clientSecret,
@@ -41,17 +52,21 @@ public function callback(Request $request) {
         'code' => $code,
     ]);
 
-    // Veja o conteúdo completo da resposta da API
+    // Para fins de depuração: registra a resposta no log
+    Log::info('TikTok token response', ['body' => $response->body()]);
+
+    // Verifica se houve falha na requisição
     if ($response->failed()) {
         return response()->json([
             'status' => 'error',
-            'message' => 'Falha na autorização',
-            'details' => $response->json(), // <-- Aqui mostra o erro real
+            'message' => 'Falha na autorização (resposta HTTP inválida)',
+            'details' => $response->json(),
         ], 400);
     }
 
     $tokenData = $response->json();
 
+    // Verifica se a resposta contém access_token
     if (isset($tokenData['access_token'])) {
         SellerAccount::updateOrCreate(
             ['seller_id' => $tokenData['open_id']],
@@ -67,7 +82,7 @@ public function callback(Request $request) {
 
     return response()->json([
         'status' => 'error',
-        'message' => 'Token não encontrado',
+        'message' => 'Token não encontrado na resposta.',
         'details' => $tokenData,
     ], 400);
 }
