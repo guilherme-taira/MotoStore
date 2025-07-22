@@ -146,6 +146,18 @@
                             aria-label="Close"></button>
                     </div>
                 </div>
+
+                <div id="successToast2" class="toast align-items-center text-bg-success border-0" role="alert"
+                    aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Conta Autorizada com Sucesso!
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+
                 <!-- Toast de Erro -->
                 <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert"
                     aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
@@ -406,6 +418,9 @@
             if (status) {
                 if(status == 1){
                     showToast('successToast'); // Mostra o toast de sucesso
+                }
+                if(status == 2){
+                    showToast('successToast2'); // Mostra o toast de sucesso
                 }
             }
             var canvas = document.getElementById('salesChart');

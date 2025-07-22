@@ -183,7 +183,8 @@ public function getAuthorizedShops()
             ]);
         }
 
-        return response()->json($body);
+          // Redirecionar para a home após sucesso
+        return redirect()->to('/home?status=2')->with('success', 'Conta TikTok autorizada com sucesso!');
     }
 
     Log::error('Erro TikTok – authorization shops', ['body' => $response->body()]);
