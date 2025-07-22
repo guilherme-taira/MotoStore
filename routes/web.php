@@ -47,6 +47,7 @@ use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\subcategoria\SubCategoriaController;
 use App\Http\Controllers\Test\testController;
 use App\Http\Controllers\TikTokOAuthController;
+use App\Http\Controllers\TikTokProductController;
 use App\Http\Controllers\TikTokWebhookController;
 use App\Http\Controllers\TreinamentosController;
 use App\Http\Controllers\User\UserController;
@@ -229,6 +230,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::resource('status','App\Http\Controllers\Status\StatusController')->names('status')->parameters(['status' => 'id']);
         Route::resource('global_messages', 'App\Http\Controllers\GlobalMessageController')->names('global_messages')->parameters(['global_messages' => 'id']);
         Route::get('integracaomeli',[configuracaoController::class,'integracaoMeli'])->name('integracaoml');
+        Route::get('tiktokshop',[configuracaoController::class,'integracaoTikTok'])->name('integracaoTikTok');
         Route::post('/orders/update-informacoes/{id}', [orderscontroller::class, 'updateInformacoes'])->name('orders.updateInformacoes');
         Route::post('/orders/recadastrar', [productsController::class, 'recadastrar'])->name('orders.recadastrar');
         // web.php ou api.php
@@ -242,6 +244,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
     Route::get('/tiktok/oauth/redirect', [TikTokOAuthController::class, 'redirect'])->name('tiktok.redirect');
     Route::get('/tiktok/oauth/callback', [TikTokOAuthController::class, 'callback'])->name('tiktok.callback');
     Route::post('/tiktok/webhook', [TikTokWebhookController::class, 'handleWebhook']);
+    Route::get('/tiktok/autorizar/loja', [TikTokProductController::class, 'getAuthorizedShops'])->name('tiktok.autorizar.loja');
 
 
     Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);

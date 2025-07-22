@@ -344,6 +344,7 @@
                                     data-bs-parent="#sidenavAccordionPages">
                                     <nav class="sb-sidenav-menu-nested nav">
                                         <a class="nav-link" href="{{ route('integracaoml') }}">Mercado Livre</a>
+                                        <a class="nav-link" href="{{ route('integracaoTikTok') }}">TikTok Shop</a>
                                         <a class="nav-link" href="">Shopee</a>
                                         <a class="nav-link" href="{{route('shopify.create')}}">Shopify</a>
                                         <a class="nav-link" href="{{route('bling.index')}}">Bling</a>

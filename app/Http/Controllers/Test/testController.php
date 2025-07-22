@@ -19,6 +19,7 @@ use App\Http\Controllers\Shopify\Order;
 use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
+use App\Http\Controllers\TikTokProductController;
 use App\Jobs\UpdateStockJob;
 use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
@@ -27,6 +28,7 @@ use App\Models\IntegracaoBling;
 use App\Models\order_site;
 use App\Models\Products;
 use App\Models\produtos_integrados;
+use App\Models\SellerAccount;
 use App\Models\ShippingUpdate;
 use App\Models\Shopify;
 use App\Models\token;
@@ -83,15 +85,11 @@ class testController extends Controller
 
         public function teste(Request $request) {
 
-           $data = [
-                "order_site_id" => "38315",
-                "product_id" => "361",
-                "integrated_product_id" => "MLB3961559561",
-                "quantity_sold" => 5,
-            ];
+            $data = new TikTokProductController();
+            $data->getOrderDetails();
 
-            $retirarEstoque = new SalesReportController();
-            $retirarEstoque->processSale($data);
-
+            print_r($data);
         }
+
+
 }

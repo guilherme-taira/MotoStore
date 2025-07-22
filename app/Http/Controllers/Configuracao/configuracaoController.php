@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Configuracao;
 use App\Http\Controllers\Controller;
 use App\Models\endereco;
 use App\Models\logo;
+use App\Models\SellerAccount;
 use App\Models\token;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -169,6 +170,15 @@ class configuracaoController extends Controller
         $viewData['title'] = "Integração Mercado Livre";
         $viewData['integrado'] = token::where('user_id',Auth::user()->id)->first();
         return view('mercadolivre.integracao',[
+            'viewData' => $viewData
+        ]);
+    }
+
+        public function integracaoTikTok(){
+        $viewData = [];
+        $viewData['title'] = "Integração TikTok Shop";
+        $viewData['integrado'] = SellerAccount::where('user_id',Auth::user()->id)->first();
+        return view('layouts.tiktok.tiktokshop',[
             'viewData' => $viewData
         ]);
     }
