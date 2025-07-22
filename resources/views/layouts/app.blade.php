@@ -260,7 +260,6 @@
                         @endforeach
                     @endif
                 @endif
-
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-center" href="{{ route('notifications') }}">Ver todas as notificações</a></li>
                 </ul>
@@ -446,7 +445,6 @@
         </div>
     </div>
 
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
     </script>
@@ -457,7 +455,5 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
         crossorigin="anonymous"></script>
     <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
-
 </body>
-
 </html>

@@ -401,6 +401,13 @@
                 });
             }
 
+
+            var status = getUrlParameter('status');
+            if (status) {
+                if(status == 1){
+                    showToast('successToast'); // Mostra o toast de sucesso
+                }
+            }
             var canvas = document.getElementById('salesChart');
             canvas.width = 3000;
             canvas.height = 1000;

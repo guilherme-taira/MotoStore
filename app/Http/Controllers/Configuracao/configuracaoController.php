@@ -164,7 +164,6 @@ class configuracaoController extends Controller
         return redirect()->route('address')->with('msg', 'Endereço Cadastrada com sucesso!');
     }
 
-
     public function integracaoMeli(){
         $viewData = [];
         $viewData['title'] = "Integração Mercado Livre";

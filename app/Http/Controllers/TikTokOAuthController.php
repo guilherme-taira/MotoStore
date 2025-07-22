@@ -77,7 +77,7 @@ public function redirect()
         );
 
         // Redirecionar para a home após sucesso
-        return redirect()->to('/home')->with('success', 'Conta TikTok autorizada com sucesso!');
+        return redirect()->to('/home?status=1')->with('success', 'Conta TikTok autorizada com sucesso!');
     }
 
 
