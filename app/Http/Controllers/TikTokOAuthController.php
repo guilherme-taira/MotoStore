@@ -39,7 +39,7 @@ class TikTokOAuthController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Código não encontrado'], 400);
         }
 
-        $response = Http::asForm()->post('https://sandbox-apis.tiktok-shops.com/oauth/token', [
+        $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
             'grant_type' => 'authorization_code',
@@ -47,7 +47,8 @@ class TikTokOAuthController extends Controller
             'code' => $code,
         ]);
 
-          Log::info('Resposta TikTok token', ['response' => $response->body()]);
+
+        Log::info('Resposta TikTok token', ['response' => $response->body()]);
 
         if ($response->failed()) {
             return response()->json([
