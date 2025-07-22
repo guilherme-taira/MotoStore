@@ -27,37 +27,48 @@ class TikTokOAuthController extends Controller
         return redirect()->away($url);
     }
 
+public function callback(Request $request) {
+    $code = $request->get('code');
+    $clientId = config('services.tiktok.client_id');
+    $clientSecret = config('services.tiktok.client_secret');
+    $redirectUri = config('services.tiktok.redirect_uri');
 
-    public function callback(Request $request) {
-        $code = $request->get('code');
-        $clientId = config('services.tiktok.client_id');
-        $clientSecret = config('services.tiktok.client_secret');
-        $redirectUri = config('services.tiktok.redirect_uri');
+    $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
+        'client_id' => $clientId,
+        'client_secret' => $clientSecret,
+        'grant_type' => 'authorization_code',
+        'redirect_uri' => $redirectUri,
+        'code' => $code,
+    ]);
 
-
-        $response = Http::asForm()->post('https://auth.tiktok-shops.com/oauth/token', [
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret,
-            'grant_type' => 'authorization_code',
-            'redirect_uri' => $redirectUri,
-            'code' => $code,
-        ]);
-
-        $tokenData = $response->json();
-
-        if (isset($tokenData['access_token'])) {
-            SellerAccount::updateOrCreate(
-                ['seller_id' => $tokenData['open_id']],
-                [
-                    'access_token' => $tokenData['access_token'],
-                    'refresh_token' => $tokenData['refresh_token'],
-                    'expires_in' => now()->addSeconds($tokenData['expires_in']),
-                ]
-            );
-
-            return response()->json(['status' => 'success', 'message' => 'Conta autorizada com sucesso!']);
-        }
-
-        return response()->json(['status' => 'error', 'message' => 'Falha na autorização', 'details' => $tokenData], 400);
+    // Veja o conteúdo completo da resposta da API
+    if ($response->failed()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Falha na autorização',
+            'details' => $response->json(), // <-- Aqui mostra o erro real
+        ], 400);
     }
+
+    $tokenData = $response->json();
+
+    if (isset($tokenData['access_token'])) {
+        SellerAccount::updateOrCreate(
+            ['seller_id' => $tokenData['open_id']],
+            [
+                'access_token' => $tokenData['access_token'],
+                'refresh_token' => $tokenData['refresh_token'],
+                'expires_in' => now()->addSeconds($tokenData['expires_in']),
+            ]
+        );
+
+        return response()->json(['status' => 'success', 'message' => 'Conta autorizada com sucesso!']);
+    }
+
+    return response()->json([
+        'status' => 'error',
+        'message' => 'Token não encontrado',
+        'details' => $tokenData,
+    ], 400);
+}
 }
