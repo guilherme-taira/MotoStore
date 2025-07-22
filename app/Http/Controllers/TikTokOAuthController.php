@@ -28,58 +28,60 @@ public function redirect()
         return redirect()->away($url);
     }
 
-    public function callback(Request $request) {
+
+public function callback(Request $request)
+{
     $code = $request->get('code');
-    $clientId = config('services.tiktok.client_id');
-    $clientSecret = config('services.tiktok.client_secret');
-    $redirectUri = config('services.tiktok.redirect_uri');
 
     if (!$code) {
         return response()->json([
             'status' => 'error',
-            'message' => 'Código ausente na URL',
-            'details' => $request->all()
+            'message' => 'Código de autorização não encontrado.',
         ], 400);
     }
+
+    $clientId     = config('services.tiktok.client_id');
+    $clientSecret = config('services.tiktok.client_secret');
+    $redirectUri  = config('services.tiktok.redirect_uri');
 
     $response = Http::asForm()->post('https://auth.tiktok-shops.com/api/v2/token', [
         'app_key'      => $clientId,
         'app_secret'   => $clientSecret,
-        'grant_type'   => 'authorized_code', // correto
+        'grant_type'   => 'authorized_code',
         'auth_code'    => $code,
         'redirect_uri' => $redirectUri,
     ]);
 
-    $json = $response->json();
+    $body = $response->json();
 
-    if ($response->failed() || !isset($json['data']['access_token'], $json['data']['seller_id'])) {
-        Log::error('Falha ao obter token da TikTok', [
-            'response_body' => $response->body(),
-            'code' => $code
-        ]);
+    Log::info('Resposta TikTok token', ['body' => $body]);
 
+    if ($response->failed() || !isset($body['data']['access_token'], $body['data']['seller_id'])) {
         return response()->json([
             'status' => 'error',
             'message' => 'Token ou seller_id não encontrado na resposta.',
-            'details' => $json,
+            'details' => $body,
         ], 400);
     }
 
-    // ✅ Salva na base de dados
+    $data = $body['data'];
+
+    // Aqui você salva o token em sua tabela SellerAccount
     SellerAccount::updateOrCreate(
-        ['seller_id' => $json['data']['seller_id']],
+        ['seller_id' => $data['seller_id']],
         [
-            'access_token'  => $json['data']['access_token'],
-            'refresh_token' => $json['data']['refresh_token'] ?? null,
-            'expires_in'    => now()->addSeconds($json['data']['expire_in'] ?? 3600),
+            'access_token'  => $data['access_token'],
+            'refresh_token' => $data['refresh_token'] ?? null,
+            'expires_in'    => now()->addSeconds($data['expires_in'] ?? 0),
         ]
     );
 
     return response()->json([
         'status' => 'success',
         'message' => 'Conta autorizada com sucesso!',
-        'seller_id' => $json['data']['seller_id']
+        'seller_id' => $data['seller_id'],
     ]);
 }
+
 
 }
