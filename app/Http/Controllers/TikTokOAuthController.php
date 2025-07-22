@@ -28,62 +28,54 @@ class TikTokOAuthController extends Controller
         return redirect()->away($url);
     }
 
-   public function callback(Request $request) {
-    $code = $request->get('code');
-    $clientId = config('services.tiktok.client_id');
-    $clientSecret = config('services.tiktok.client_secret');
-    $redirectUri = config('services.tiktok.redirect_uri');
+    public function callback(Request $request) {
+        $code = $request->get('code');
+        $clientId = config('services.tiktok.client_id');
+        $clientSecret = config('services.tiktok.client_secret');
+        $redirectUri = config('services.tiktok.redirect_uri');
 
-    // Verifica se o código foi recebido
-    if (!$code) {
+        if (!$code) {
+            Log::error('Código de autorização ausente', ['request' => $request->all()]);
+            return response()->json(['status' => 'error', 'message' => 'Código não encontrado'], 400);
+        }
+
+        $response = Http::asForm()->post('https://sandbox-apis.tiktok-shops.com/oauth/token', [
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => $redirectUri,
+            'code' => $code,
+        ]);
+
+          Log::info('Resposta TikTok token', ['response' => $response->body()]);
+
+        if ($response->failed()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Falha na autorização',
+                'details' => $response->json(),
+            ], 400);
+        }
+
+        $tokenData = $response->json();
+
+        if (isset($tokenData['access_token'], $tokenData['open_id'])) {
+            SellerAccount::updateOrCreate(
+                ['seller_id' => $tokenData['open_id']],
+                [
+                    'access_token' => $tokenData['access_token'],
+                    'refresh_token' => $tokenData['refresh_token'] ?? null,
+                    'expires_in' => now()->addSeconds($tokenData['expires_in'] ?? 3600),
+                ]
+            );
+
+            return response()->json(['status' => 'success', 'message' => 'Conta autorizada com sucesso!']);
+        }
+
         return response()->json([
             'status' => 'error',
-            'message' => 'Código de autorização não encontrado na requisição.',
-            'details' => $request->all(),
+            'message' => 'Token ou open_id não encontrado',
+            'details' => $tokenData,
         ], 400);
     }
-
-    // Realiza a requisição para trocar o código por um token
-    $response = Http::asForm()->post('https://sandbox-apis.tiktok-shops.com/oauth/token', [
-        'client_id' => $clientId,
-        'client_secret' => $clientSecret,
-        'grant_type' => 'authorization_code',
-        'redirect_uri' => $redirectUri,
-        'code' => $code,
-    ]);
-
-    // Para fins de depuração: registra a resposta no log
-    Log::info('TikTok token response', ['body' => $response->body()]);
-
-    // Verifica se houve falha na requisição
-    if ($response->failed()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Falha na autorização (resposta HTTP inválida)',
-            'details' => $response->json(),
-        ], 400);
-    }
-
-    $tokenData = $response->json();
-
-    // Verifica se a resposta contém access_token
-    if (isset($tokenData['access_token'])) {
-        SellerAccount::updateOrCreate(
-            ['seller_id' => $tokenData['open_id']],
-            [
-                'access_token' => $tokenData['access_token'],
-                'refresh_token' => $tokenData['refresh_token'],
-                'expires_in' => now()->addSeconds($tokenData['expires_in']),
-            ]
-        );
-
-        return response()->json(['status' => 'success', 'message' => 'Conta autorizada com sucesso!']);
-    }
-
-    return response()->json([
-        'status' => 'error',
-        'message' => 'Token não encontrado na resposta.',
-        'details' => $tokenData,
-    ], 400);
-}
 }
