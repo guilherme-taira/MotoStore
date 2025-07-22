@@ -14,6 +14,7 @@ class SellerAccount extends Model
         'access_token',
         'refresh_token',
         'expires_in',
+        'user_id'
         // adicione outros campos se existirem na tabela
     ];
 }
