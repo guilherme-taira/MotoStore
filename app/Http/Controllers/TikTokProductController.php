@@ -93,8 +93,8 @@ private function generateSign(array $qs, string $path, string $appSecret): strin
     return hash_hmac('sha256', $signString, $appSecret);
 }
 
-public function getOrderDetails()
-{
+public function getOrderDetails(){
+
     $seller = SellerAccount::first();
     $appKey = config('services.tiktok.client_id');
     $appSecret = config('services.tiktok.client_secret');
@@ -121,24 +121,45 @@ public function getOrderDetails()
         'Content-Type'       => 'application/json',
     ])->get('https://open-api.tiktokglobalshop.com' . $path, $qs);
 
-    if ($response->successful()) {
-        Log::info('Resposta TikTok', [
-            'body' => $response->json(),
+     if ($response->successful()) {
+        $data = $response->json()['data']['orders'][0];
+
+        // ✅ Cliente
+        $cliente = [
+            'nome'         => $data['recipient_address']['name'] ?? '',
+            'email'        => $data['buyer_email'] ?? '',
+            'cpf'          => $data['cpf'] ?? '',
+            'telefone'     => $data['recipient_address']['phone_number'] ?? '',
+            'endereco'     => $data['recipient_address']['full_address'] ?? '',
+            'cep'          => $data['recipient_address']['postal_code'] ?? '',
+        ];
+
+        // ✅ Produto (pegando o primeiro item)
+        $item = $data['line_items'][0];
+        $produto = [
+            'nome'             => $item['product_name'],
+            'sku'              => $item['seller_sku'],
+            'preco_unitario'   => $item['sale_price'],
+            'quantidade'       => 1, // TikTok não retorna quantidade, ajustar se necessário
+            'sku_id'           => $item['sku_id'],
+            'imagem'           => $item['sku_image'],
+            'nome_variacao'    => $item['sku_name'],
+        ];
+
+        // ✅ Pagamento
+        $pagamento = [
+            'total'          => $data['payment']['total_amount'],
+            'frete'          => $data['payment']['shipping_fee'],
+            'forma_pagamento'=> $data['payment_method_name'],
+            'data_pagamento' => $data['paid_time'],
+        ];
+
+        return response()->json([
+            'cliente'   => $cliente,
+            'produto'   => $produto,
+            'pagamento' => $pagamento,
         ]);
-        return response()->json($response->json());
     }
-
-    Log::error('Erro TikTok – get orders', [
-        'url' => $path,
-        'params' => $qs,
-        'body' => $response->body()
-    ]);
-
-    return response()->json([
-        'status'  => 'error',
-        'message' => 'Erro ao buscar pedidos',
-        'details' => $response->json(),
-    ], $response->status());
 }
 
 public function getAuthorizedShops()
@@ -176,10 +197,12 @@ public function getAuthorizedShops()
 
         // Verifica e salva o cipher da loja
         $cipher = $body['data']['shops'][0]['cipher'] ?? null;
+        $shopId = $body['data']['shops'][0]['id'] ?? null;
 
         if ($cipher) {
             SellerAccount::where('user_id', Auth::id())->update([
-                'shop_cipher' => $cipher
+                'shop_cipher' => $cipher,
+                'shop_id' => $shopId
             ]);
         }
 

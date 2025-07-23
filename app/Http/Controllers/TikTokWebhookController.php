@@ -54,16 +54,7 @@ class TikTokWebhookController extends Controller
     {
         Log::info('Novo pedido criado:', $data);
 
-        // Exemplo de salvamento do pedido
-        TikTokOrder::updateOrCreate(
-            ['order_id' => $data['order_id']],
-            [
-                'status'       => $data['order_status'] ?? 'UNKNOWN',
-                'buyer_name'   => $data['buyer_name'] ?? '',
-                'total_amount' => $data['total_amount'] ?? 0,
-                'items'        => json_encode($data['items'] ?? []),
-            ]
-        );
+
     }
 
     /**

@@ -15,7 +15,8 @@ class SellerAccount extends Model
         'refresh_token',
         'expires_in',
         'user_id',
-        'shop_cipher'
+        'shop_cipher'.
+        'shop_id'
         // adicione outros campos se existirem na tabela
     ];
 }
