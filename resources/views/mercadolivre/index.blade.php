@@ -84,7 +84,7 @@
         </div>
 
         <h2>Mercado Livre Alterador de Categoria:</h2>
-
+        <input type="hidden" name="tokenAccessMaster" id="tokenAccessMaster">
         <!-- Modal -->
         <div class="modal fade mt-2" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
@@ -536,6 +536,7 @@
                 try {
                     // Aguarde a conclusão da requisição assíncrona usando await
                     var resposta = await getToken();
+                    var respostaMaster = await getTokenMaster();
                     var user = await getUserID();
                 } catch (error) {
                     // Lidar com erros
@@ -717,7 +718,6 @@
 
             }
 
-
             $("#botao_anuncio").click(function() {
                 setTimeout(() => {
                     var data = getAllProducts($("#user").val(), "", "active");
@@ -845,6 +845,25 @@
                             // SHOW ALL RESULT QUERY
                             let tokenAccess = response.token;
                             $("#token").val(tokenAccess);
+                        }
+                    },
+                });
+            }
+
+                // FUNCAO PARA CHAMAR TOKE
+            function getTokenMaster() {
+                // console.log({{ Auth::user()->id }});
+                $.ajax({
+                    url: "/api/v1/getTokenMl",
+                    type: "GET",
+                    data: {
+                        "id": 2
+                    },
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            let tokenAccessMaster = response.token;
+                            $("#tokenAccessMaster").val(tokenAccessMaster);
                         }
                     },
                 });
@@ -1056,7 +1075,7 @@
                 });
             }
 
-            //https://api.mercadolibre.com/items/MLB3226359198
+
             // FUNCAO PARA CHAMAR PRODUTO
             function getProduct(product) {
                 // $("#foto_anuncio").empty();
@@ -1066,9 +1085,10 @@
                     url: "https://api.mercadolibre.com/items/" + product,
                     type: "GET",
                     headers: {
-                        "Authorization": `Bearer ${$("#token").val()}`
+                        "Authorization": `Bearer ${("#tokenAccessMaster").val()}`
                     },
                     success: function(response) {
+                        console.log(response);
                         if (response) {
                             if (response.variations.length > 0) {
                                 $("#variacao").prop("checked", true);
