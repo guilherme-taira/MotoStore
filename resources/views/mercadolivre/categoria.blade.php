@@ -259,6 +259,7 @@
         </form>
     </div>
 
+    <input type="hidden" name="tokenAccessMaster" id="tokenAccessMaster">
     <!-- jQuery e jQuery UI (se necessário) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
@@ -287,6 +288,7 @@
             try {
                 // Aguarde a conclusão da requisição assíncrona usando await
                 var resposta = await getToken();
+                var respostaMaster = await getTokenMaster();
             } catch (error) {
                 // Lidar com erros
                 console.log('Erro:', error);
@@ -524,8 +526,8 @@
             $.ajax({
                 url: "https://api.mercadolibre.com/items/" + product,
                 type: "GET",
-                headers: {
-                    "Authorization": `Bearer ${$("#token").val()}`
+                  headers: {
+                        "Authorization": `Bearer ${$("#tokenAccessMaster").val()}`
                 },
                 success: function(response) {
                     if (response) {
@@ -537,6 +539,26 @@
                 },
             });
         }
+
+        // FUNCAO PARA CHAMAR TOKE
+        function getTokenMaster() {
+                // console.log({{ Auth::user()->id }});
+                $.ajax({
+                    url: "/api/v1/getTokenMl",
+                    type: "GET",
+                    data: {
+                        "id": 2
+                    },
+                    success: function(response) {
+                        if (response) {
+                            // SHOW ALL RESULT QUERY
+                            let tokenAccessMaster = response.token;
+                            $("#tokenAccessMaster").val(tokenAccessMaster);
+                        }
+                    },
+                });
+            }
+
 
         // FUNCAO PARA CHAMAR CATEGORIAS
         function getCategory(category) {

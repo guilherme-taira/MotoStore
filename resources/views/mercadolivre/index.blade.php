@@ -1085,7 +1085,7 @@
                     url: "https://api.mercadolibre.com/items/" + product,
                     type: "GET",
                     headers: {
-                        "Authorization": `Bearer ${("#tokenAccessMaster").val()}`
+                        "Authorization": `Bearer ${$("#tokenAccessMaster").val()}`
                     },
                     success: function(response) {
                         console.log(response);
