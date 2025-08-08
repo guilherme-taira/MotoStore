@@ -32,7 +32,7 @@ use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+
 use PhpParser\Parser\Tokens;
 use Throwable;
 use App\Events\logAlteracao;
@@ -61,14 +61,19 @@ use App\Models\kit;
 use App\Models\KitProductVariation;
 use App\Models\order_site;
 use App\Models\produtos_integrados;
+use App\Models\SellerAccount;
+use App\Models\TikTokProduct;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-set_time_limit(30);
+set_time_limit(60);
 
 class productsController extends Controller
 {
@@ -443,7 +448,7 @@ class productsController extends Controller
 
     public function getAttributesTrade(Request $request)
     {
-        $token = token::where('user_id_mercadolivre',$request->user)->first();
+        $token = token::where('user_id',2)->first();
 
         if($request->base){
              // ENDPOINT PARA REQUISICAO
@@ -601,7 +606,6 @@ class productsController extends Controller
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
             } else {
                 echo "<li class='list-group-item bg-danger text-white'><i class='bi bi-exclamation-circle-fill'></i> Arrumando Pendências..</li>";
-                // Log::notice($data_json);
                 try {
                     $domain = new getDomainController('12',$data['attributes']);
                     $concreto = new ConcretoDomainController($domain);
@@ -1528,6 +1532,7 @@ class productsController extends Controller
     }
 
 
+
     public function IntegrarProdutoVariation(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -1587,6 +1592,136 @@ class productsController extends Controller
         return redirect()->back();
 
     }
+public function IntegrarProdutoTikTok(Request $request)
+{
+    Log::alert($request->all());
+
+    // Se houver buffer antigo, limpa (não obrigatório, mas seguro)
+    if (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+
+    $response = new StreamedResponse(function () use ($request) {
+        // Validação
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:5|max:60',
+            'tipo_anuncio' => 'required',
+            'price' => 'required',
+            'totalInformado' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            $payload = [
+                'status' => 'error',
+                'message' => 'Erro de validação.',
+                'details' => $errors,
+            ];
+            echo "data: " . json_encode($payload, JSON_UNESCAPED_UNICODE) . "\n\n";
+            flush();
+            return;
+        }
+
+        // Preparação dos dados
+        $dadosIntegrado = [];
+        if ($request->filled('precoFixo')) {
+            $dadosIntegrado['precofixo'] = $request->precoFixo;
+        } else {
+            $dadosIntegrado['valor_tipo'] = $request->valor_tipo;
+            $dadosIntegrado['isPorcem'] = $request->isPorcem;
+            $dadosIntegrado['valor'] = $request->valor_agregado;
+        }
+
+        $name = $request->name;
+        $tipo_anuncio = $request->tipo_anuncio;
+        $price = str_replace(',', '.', $request->input('totalInformado'));
+        $id_categoria = $request->id_categoria;
+        $id_product = $request->id_prodenv;
+        $descricao = $request->editor;
+        $valorSemTaxa = 0;
+        $totalInformado = 0;
+
+        if ($request->filled('category_default') && empty($request->id_categoria)) {
+            $id_categoria = $request->category_id;
+        }
+
+        $array = [];
+        foreach ($request->all() as $key => $value) {
+            if (preg_match('/[A-Z]/', $key)) {
+                $array[] = [
+                    "id" => $key,
+                    "value" => $value,
+                    "values" => [
+                        ["id" => $value, "name" => $value]
+                    ]
+                ];
+            }
+        }
+
+        // Instancia a classe e inicia o processo
+        $factory = new ProdutoImplementacao(
+            $name,
+            $tipo_anuncio,
+            $price,
+            $id_categoria,
+            $id_product,
+            Auth::user()->id,
+            $descricao,
+            $array,
+            $valorSemTaxa,
+            $totalInformado,
+            $dadosIntegrado
+        );
+
+        $raw = $factory->integrarProdutoComStream();
+
+        $inner = $raw;
+        if (is_array($raw) && array_key_exists(0, $raw) && is_array($raw[0])) {
+            $inner = $raw[0];
+        }
+        if (is_array($inner) && isset($inner['resposta']) && is_array($inner['resposta'])) {
+            $inner = $inner['resposta'];
+        }
+
+        // Monta payload
+        if (!empty($inner['code']) || !empty($inner['message'])) {
+            $topMessage = 'Erro na integração.';
+            if (!empty($inner['message'])) {
+                $topMessage .= ' — ' . $inner['message'];
+                if (!empty($inner['code'])) {
+                    $topMessage .= " (Código: {$inner['code']})";
+                }
+            }
+
+            $payload = [
+                'status' => 'error',
+                'message' => $topMessage,
+                'details' => [
+                    'code' => $inner['code'] ?? null,
+                    'message' => $inner['message'] ?? null,
+                    'request_id' => $inner['request_id'] ?? null,
+                ],
+            ];
+        } else {
+            $payload = [
+                'status' => 'success',
+                'message' => 'Produto cadastrado com sucesso!',
+            ];
+        }
+
+
+        // envia SSE
+        echo "data: " . json_encode($payload, JSON_UNESCAPED_UNICODE) . "\n\n";
+        flush();
+    });
+
+    // Cabeçalhos SSE
+    $response->headers->set('Content-Type', 'text/event-stream');
+    $response->headers->set('Cache-Control', 'no-cache');
+    $response->headers->set('X-Accel-Buffering', 'no');
+
+    return $response;
+}
 
     public function IntegrarProduto(Request $request)
     {
@@ -1603,7 +1738,6 @@ class productsController extends Controller
                 ->withInput();
         }
 
-
         $dadosIntegrado = [];
         if (isset($request->precoFixo)) {
             // Mantém o valor fixo se estiver preenchido
@@ -1613,7 +1747,6 @@ class productsController extends Controller
             $dadosIntegrado['isPorcem'] = $request->isPorcem;
             $dadosIntegrado['valor'] = $request->valor_agregado;
         }
-
 
         $name = $request->name;
         $tipo_anuncio = $request->tipo_anuncio;
@@ -2179,16 +2312,36 @@ class productsController extends Controller
     }
 
 
-    public function integrados(){
+public function integrados($marketplace) {
 
-        $viewData = [];
+    $viewData = [];
+    $viewData['title'] = "Produtos Integrados";
+
+    if ($marketplace === 'mercadolivre') {
+        // Lógica para buscar produtos do Mercado Livre
+        // Exemplo: $viewData['products'] = MercadoLivreProduct::where('user_id', Auth::user()->id)->get();
+        // Substitua 'MercadoLivreProduct' e a lógica de busca conforme o seu modelo de dados
         $viewData['products'] = produtos_integrados::getProdutos(Auth::user()->id);
-        $viewData['title'] = "Produtos Integrados";
+        $viewData['marketplace'] = "Mercado Livre";
 
-        return view('integrados.index',[
-            'viewData' => $viewData
-        ]);
+    } elseif ($marketplace === 'tiktok') {
+        // Lógica para buscar produtos do TikTok
+        // Exemplo: $viewData['products'] = TikTokProduct::where('user_id', Auth::user()->id)->get();
+        // Substitua 'TikTokProduct' e a lógica de busca conforme o seu modelo de dados
+        $viewData['products'] = TikTokProduct::getProdutos(Auth::user()->id);
+        $viewData['marketplace'] = "TikTok";
+
+    } else {
+        // Caso o parâmetro seja inválido, retorne uma página de erro ou redirecione
+        // return redirect()->route('alguma.outra.rota');
+        $viewData['products'] = [];
+        $viewData['marketplace'] = "Marketplace Inválido";
     }
+
+    return view('integrados.index', [
+        'viewData' => $viewData
+    ]);
+}
 
 
     public function exclusivos(Request $request)
