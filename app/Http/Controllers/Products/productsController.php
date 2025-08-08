@@ -600,7 +600,7 @@ class productsController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-            Log::critical($reponse);
+
             if ($httpCode == '200') {
                 logAlteracao::dispatch('TROCA DE CATEGORIA',$user,$reponse,true);
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
@@ -1165,7 +1165,7 @@ class productsController extends Controller
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
 
-        $token = token::where('user_id', $request->auth)->first();
+        $token = token::where('user_id',2)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
 
         try {
             $ch = curl_init();
