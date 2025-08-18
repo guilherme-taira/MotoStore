@@ -53,8 +53,6 @@ public function redirect()
         $response = Http::get($url, $params);
         $body = $response->json();
 
-        Log::info('Resposta TikTok token', ['body' => $body]);
-
         if ($response->failed() || !isset($body['data']['access_token'], $body['data']['seller_name'])) {
             return response()->json([
                 'status' => 'error',

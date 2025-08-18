@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\SellerAccount;
 use App\Models\TikTokOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,18 +16,16 @@ class TikTokWebhookController extends Controller
     public function handleWebhook(Request $request)
     {
         $payload = $request->all();
-
         // Log básico do payload recebido
         Log::info('Webhook TikTok recebido:', $payload);
 
         // Verifica se veio um evento
-        if (isset($payload['event'])) {
-            $event = $payload['event'];
+        if (isset($payload['type'])) {
+            $event = $payload['type'];
             $data = $payload['data'] ?? [];
-
             switch ($event) {
-                case 'ORDER_CREATED':
-                    $this->handleOrderCreated($data);
+                case '1':
+                    $this->handleOrderCreated($payload);
                     break;
 
                 case 'ORDER_CANCELLED':
@@ -36,7 +35,6 @@ class TikTokWebhookController extends Controller
                 case 'PACKAGE_UPDATED':
                     $this->handlePackageUpdated($data);
                     break;
-
                 // Adicione mais casos conforme necessário
                 default:
                     Log::warning("Evento TikTok não tratado: {$event}");
@@ -50,11 +48,13 @@ class TikTokWebhookController extends Controller
     /**
      * Trata o evento de novo pedido.
      */
-    protected function handleOrderCreated(array $data)
+    protected function handleOrderCreated($data)
     {
         Log::info('Novo pedido criado:', $data);
-
-
+        // PEGA A VENDA
+        $venda = new TikTokProductController();
+        $seller = SellerAccount::where('shop_id',$data['shop_id'])->first();
+        $venda->getOrderDetails($data['data']['order_id'],$seller);
     }
 
     /**
