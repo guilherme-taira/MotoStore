@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\MercadoLivre\Cliente;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SalesReportController;
+use App\Models\kit;
 use App\Models\order_site;
 use App\Models\pivot_site;
 use App\Models\product_site;
@@ -183,6 +185,104 @@ class InterfaceClienteController implements ClienteController
         }
 
 
+    }
+
+
+
+     function saveClientTikTok($result,$sellerid,$produtos)
+    {
+        try {
+            foreach ($produtos as $item) {
+
+            if (order_site::VerificarVenda($result['id']) == false) {
+                // Tenta encontrar ou criar o pedido com base no campo numeropedido
+                $pedidos = order_site::firstOrCreate(
+                    ['numeropedido' => $result['id']],
+                    [
+                        'local'               => 'TikTok Shop',
+                        'valorVenda'          => $result['payment']['original_total_product_price'] * $item['quantity'],
+                        'valorProdutos'       => $result['payment']['original_total_product_price'] * $item['quantity'],
+                        'dataVenda' => date('Y-m-d', $result['create_time']),
+                        'cliente'             => $result['cpf_name'],
+                        'status_id'           => 3,
+                        'preferenceId'        => $this->getPreferenceId(),
+                        'external_reference'  => $this->getExeternalReference(),
+                        'status_mercado_livre'=> "0",
+                        'id_pagamento'        => 0,
+                        'link_pagamento'      => $this->getLinkPagamento(),
+                        'fee'                 => $this->getFee(),
+                        'buyer'               => $this->getComprador(),
+                    ]
+                );
+            }
+
+           // Se o pedido foi recém-criado, insere os produtos e relaciona via pivot_site
+            if ($pedidos->wasRecentlyCreated) {
+                Log::alert($pedidos->id);
+
+                    if (product_site::getVerifyProduct($item['seller_sku']) == true) {
+                        // Cria o produto
+                        $produto = new product_site();
+                        $produto->nome       = $item['product_name'];
+                        $produto->codigo     = $item['seller_sku'] ?? 0;
+                        $produto->valor      = $item['price'];
+                        $produto->quantidade = $item['quantity'];
+                        $produto->seller_sku = $item['product_id'] ?? 0;
+                        $produto->image      = $item['sku_image'];
+                        $produto->save();
+                        // Cria o registro na tabela pivot
+                        $userid = token::getId($sellerid);
+                        $venda_pivot = new pivot_site();
+                        $venda_pivot->order_id   = $pedidos->id;
+                        $venda_pivot->product_id = $produto->id;
+                        $venda_pivot->id_user    = $userid;
+                        $venda_pivot->save();
+
+                        try {
+                        $isKit = kit::where('product_id',$produto['id'])->first();
+
+                        if($isKit){
+                            Log::alert("È KIT");
+
+                                $data = [
+                                "order_site_id" => $pedidos->id,
+                                "product_id" => $item['seller_sku'],
+                                "integrated_product_id" => $item['seller_sku'],
+                                "quantity_sold" => $item['quantity'],
+                                ];
+
+                                $retirarEstoque = new SalesReportController();
+                                $retirarEstoque->processSaleTikTok($data);
+                        }else{
+                            Log::alert("NÃO KIT");
+                            $data = [
+                                "order_site_id" => $pedidos->id,
+                                "product_id" => $item['seller_sku'],
+                                "integrated_product_id" => $item['seller_sku'],
+                                "quantity_sold" => $item['quantity'],
+                            ];
+
+                        $retirarEstoque = new SalesReportController();
+                        $retirarEstoque->processSaleTikTok($data);
+                    }
+
+                } catch (\Throwable $th) {
+                    Log::alert($th->getMessage());
+                }
+
+                // Remove o estoque do produto
+                produtos_integrados::removeStockProduct($item['seller_sku'], $produto['quantity']);
+
+
+            }
+            // Retorna o ID do pedido (novo ou existente)
+            return $pedidos->id;
+
+            }
+        }
+        } catch (\Exception $th) {
+           Log::critical($th->getMessage());
+        }
     }
 
     public function getPicture($id){
