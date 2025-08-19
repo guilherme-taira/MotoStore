@@ -76,6 +76,17 @@ class User extends Authenticatable
     }
 
 
+    public static function GetDataUserFornecedor($id) {
+    $data = DB::table('users')
+            ->leftJoin('token', 'users.id', '=', 'token.user_id')
+            ->where('users.id', $id)
+            ->select('*')
+            ->first();
+        return $data;
+    }
+
+
+
 
     public function orders(){
         return $this->belongsToMany(Orders::class, 'order_user','user','order');
