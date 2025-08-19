@@ -414,7 +414,7 @@ public function listarWarehousesTikTok()
         ];
 
         // Gerar assinatura
-        $sign = $this->generateSign($params, $path, $appSecret);
+        $sign = $this->generateSign($path,$params,$appSecret);
         $params['sign'] = $sign;
 
         // Log::debug('TikTok Params', ['url' => $path, 'params' => $params]);
