@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MercadoLivre\Cliente\InterfaceClienteController;
-use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoCesta;
+use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoCesta;
 use App\Http\Controllers\Mercadopago\Pagamento\MercadoPagoItem;
 use App\Http\Controllers\MercadoPago\Pagamento\MercadoPagoPreference;
 use App\Http\Controllers\Yapay\ProdutoMercadoLivre;
