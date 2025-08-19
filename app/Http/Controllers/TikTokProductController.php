@@ -614,7 +614,7 @@ public function getOrderDetails(string $orderId, SellerAccount $seller) {
         //      * IMPLEMENTAÇÃO DO SELLER ID PARA PEGAR OS DADOS PARA GERAR O PIX NA CONTA
         //      * DADOS ESSES COMO ENDEREÇO COMPLETO E DADOS PESSOAIS COMO NOME, CPF OU CNPJ
         //      */
-
+            $paymentData = [];
             $fornecedor = User::GetDataUserFornecedor($produto['fornecedor_id']); // Certifique-se de que este ID é o do usuário correto
             $vendedor = User::GetDataUserFornecedor($seller->user_id); // Certifique-se de que este ID é o do usuário correto
 
@@ -629,7 +629,7 @@ public function getOrderDetails(string $orderId, SellerAccount $seller) {
                 if (!empty($orders) && is_array($orders)) {
                     // O primeiro item do array de pedidos é o pedido que você quer
                     $firstOrder = $orders[0];
-
+                    Log::emergency([$firstOrder]);
                     // Verifique se a chave 'payment' existe nesse pedido
                     if (isset($firstOrder['payment'])) {
                         $paymentData = $firstOrder['payment'];
