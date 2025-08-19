@@ -22,8 +22,8 @@ class RefreshTikTokTokens extends Command
     {
         $this->info('Iniciando atualização dos tokens...');
 
-        // Busca contas que expiram nas próximas 24h
-        $accounts = SellerAccount::where('expires_in', '<', now()->addDay())->get();
+        // Busca contas que expiram nas próximas 5h
+        $accounts = SellerAccount::where('expires_in', '<', now()->addHours(5))->get();
 
         foreach ($accounts as $account) {
             $this->refreshToken($account);
@@ -46,10 +46,8 @@ class RefreshTikTokTokens extends Command
         $body = $response->body();
         $tokenData = $response->json();
 
-        Log::alert($body);
 
         // Verifica se a resposta é um JSON válido e se o token foi retornado
-        // O nome do campo de expiração foi corrigido para 'access_token_expire_in'
         if ($response->successful() && isset($tokenData['data']['access_token'])) {
 
             // Converte o timestamp Unix para um objeto Carbon
@@ -57,9 +55,8 @@ class RefreshTikTokTokens extends Command
 
             $account->update([
                 'access_token' => $tokenData['data']['access_token'],
-                // A API retorna o 'refresh_token_expire_in' também, você pode salvá-lo para controle
                 'refresh_token' => $tokenData['data']['refresh_token'] ?? $account->refresh_token,
-                'expires_in' => $accessTokenExpiresAt, // Agora salva a data correta de expiração
+                'expires_in' => $accessTokenExpiresAt,
             ]);
 
             $this->info("Token atualizado para seller: {$account->seller_id}");

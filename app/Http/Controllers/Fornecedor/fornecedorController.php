@@ -52,7 +52,7 @@ class fornecedorController extends Controller
             $viewData['orders'][$key]['estimated_handling_limit'] = $this->getShipmentDelays($value->shipping_id,$token->access_token);
         }
         }catch(\Exception $th){
-
+            Log::alert($th->getMessage());
         }
 
         $statusApp = StatusApp::all();

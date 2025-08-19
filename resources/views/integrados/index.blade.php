@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', $viewData['title'])
 @section('conteudo')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Label fixo no topo */
@@ -143,8 +144,8 @@
                     <img id="editImage" src="" alt="Imagem do Produto" class="img-fluid rounded mb-2"
                         style="width: 100px;">
                 </div>
-                <form id="editForm" method="POST" action="{{ route('productIntegrado') }}">
-                    @csrf <!-- Proteção CSRF -->
+                <form id="editForm">
+                    @csrf
                     <input type="hidden" id="editId" name="id">
 
                     <div class="mb-3">
@@ -152,8 +153,6 @@
                         <input type="text" readonly class="form-control" id="editName" name="name">
                     </div>
 
-                    @csrf
-                    <!-- Select para Valor Agregado -->
                     <div class="mb-3">
                         <label for="editValorAgregado" class="form-label">Valor Agregado</label>
                         <select id="editValorAgregado" class="form-select" name="valor_tipo">
@@ -165,14 +164,12 @@
                         </select>
                     </div>
 
-                    <!-- Input para o valor agregado -->
                     <div class="mb-3">
                         <label for="valorAgregadoInput" class="form-label">Valor</label>
                         <input type="text" class="form-control" id="valorAgregadoInput" name="valor_agregado"
                             placeholder="Digite o valor" value="0">
                     </div>
 
-                    <!-- Campos adicionais apenas para leitura -->
                     <div class="mb-3">
                         <label for="editAcrescimoReais" class="form-label">Acréscimo (R$)</label>
                         <input type="text" class="form-control" id="editAcrescimoReais" disabled>
@@ -207,24 +204,19 @@
                         <label for="editIntegracao" class="form-label">Integração</label>
                         <input type="text" class="form-control" id="editIntegracao" readonly>
                     </div>
-                    <!-- Checkbox para preço fixo -->
+
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="precoFixoCheckbox" name="precoFixo">
                         <label class="form-check-label" for="precoFixoCheckbox">Ativar Preço Fixo</label>
                     </div>
 
-                    <!-- Input para Preço Fixo -->
                     <div class="mb-3">
                         <label for="precoFixoInput" class="form-label">Preço Fixo</label>
                         <input type="text" class="form-control" id="precoFixoInput" name="precoFixo"
                             placeholder="Digite o preço fixo" disabled>
                     </div>
 
-
-                    <!-- Outros campos do formulário -->
-
                     <div class="row">
-                        <!-- Select para o campo 'active' -->
                         <div class="col-md-6">
                             <label for="active" class="form-label">Status do Produto</label>
                             <select id="active" name="active" class="form-select">
@@ -233,7 +225,6 @@
                             </select>
                         </div>
 
-                        <!-- Input para o campo 'estoque_minimo' -->
                         <div class="col-md-6">
                             <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
                             <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control"
@@ -241,10 +232,9 @@
                         </div>
                     </div>
 
-                    <!-- Hidden input para isPorcem -->
                     <input type="hidden" id="isPorcem" name="isPorcem" value="0">
 
-                    <button type="submit" class="btn btn-success mt-4">Salvar Alterações</button>
+                    <button type="submit" id="saveButton" class="btn btn-success mt-4">Salvar Alterações</button>
                 </form>
 
             </div>
@@ -271,120 +261,155 @@
                         </thead>
                         <tbody>
                             <pre>
-                            @foreach ($viewData['products'] as $product)
+                                                        @foreach ($viewData['products'] as $product)
+    <tr class="hover-row">
+                                                        <td class="fw-bold">{{ $product->id }}</td>
+                                                        <th>{{ $product->name }}</th>
+                                                        <td><span class="badge text-bg-{{ $product->isVariation ? 'success' : 'warning' }}">{{ $product->isVariation ? 'SIM' : 'NÃO' }}</span></td>
+                                                        @if ($product->image)
+    <td>
+                                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
+                                                                    class="rounded-circle border border-secondary shadow-sm"
+                                                                    style="width: 60px; height: 60px; object-fit: cover;">
+                                                            </td>
+@else
+    <td>
+                                                                    @php
+                                                                        $variationImages = [];
+                                                                        foreach (
+                                                                            json_decode(
+                                                                                $product->variation_data,
+                                                                                true,
+                                                                            ) ?? []
+                                                                            as $v
+                                                                        ) {
+                                                                            foreach ($v['picture_ids'] ?? [] as $pic) {
+                                                                                if (count($variationImages) < 4) {
+                                                                                    $variationImages[] = $pic;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    @endphp
 
-                                <tr class="hover-row">
-                                    <td class="fw-bold">{{ $product->id }}</td>
-                                    <th>{{$product->name}}</th>
-                                    <td><span class="badge text-bg-{{ $product->isVariation ? 'success' : 'warning' }}">{{ $product->isVariation ? "SIM" : "NÃO" }}</span></td>
-                                    @if ($product->image)
-                                        <td>
-                                            <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
-                                                class="rounded-circle border border-secondary shadow-sm"
-                                                style="width: 60px; height: 60px; object-fit: cover;">
-                                        </td>
-                                    @else
-                                        <td>
-                                            @php
-                                                $variationImages = [];
-                                                foreach (json_decode($product->variation_data, true) ?? [] as $v) {
-                                                    foreach ($v['picture_ids'] ?? [] as $pic) {
-                                                        if (count($variationImages) < 4) {
-                                                            $variationImages[] = $pic;
-                                                        }
-                                                    }
-                                                }
-                                            @endphp
-
-                                            <div class="circle-pizza">
-                                                @foreach (array_slice($variationImages, 0, 4) as $index => $url)
-                                                    <div class="slice slice-{{ $index + 1 }}"
-                                                        style="background-image: url('{{ $url }}');"></div>
-                                                @endforeach
+                                                                    <div class="circle-pizza">
+                                                                        @foreach (array_slice($variationImages, 0, 4) as $index => $url)
+    <div class="slice slice-{{ $index + 1 }}"
+                                                                                style="background-image: url('{{ $url }}');"></div>
+    @endforeach
+                                                                    </div>
+                                                                </td>
+    @endif
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-success">{{ $product->id_mercadolivre }}</span>
+                                                            </td>
+                                                            <td>{{ $product->product_id }}</td>
+                                                            <td>{{ $product->created_at }}</td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-primary edit-btn"
+                                                                    data-id="{{ $product->id }}" data-name="{{ $product->name }}"
+                                                                    data-price="{{ $product->priceNotFee }}"
+                                                                    data-image="{{ Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) }}"
+                                                                    data-id-loja="{{ $product->product_id }}"
+                                                                    data-created="{{ $product->created_at }}"
+                                                                    data-integracao="{{ $product->id_mercadolivre ?? '' }}"
+                                                                    data-acrescimo-reais="{{ $product->acrescimo_reais ?? '' }}"
+                                                                    data-acrescimo-porcentagem="{{ $product->acrescimo_porcentagem ?? '' }}"
+                                                                    data-desconto-reais="{{ $product->desconto_reais ?? '' }}"
+                                                                    data-desconto-porcentagem="{{ $product->desconto_porcentagem ?? '' }}"
+                                                                    data-active="{{ $product->active }}"
+                                                                    data-precofixo="{{ $product->precofixo ?? '' }}"
+                                                                    data-estoque_minimo="{{ $product->estoque_minimo }}">
+                                                                    <i class="fas fa-edit"></i> Editar
+                                                                </button>
+                                                            </td>
+                                                            </tr>
+    @endforeach
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                        </td>
-                                    @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-success">{{ $product->id_mercadolivre }}</span>
-                                    </td>
-                                    <td>{{ $product->product_id }}</td>
-                                    <td>{{ $product->created_at }}</td>
-                                    <td>
+                                                <div class="card-footer text-center">
+                                                    <nav aria-label="Pagination">
+                                                        <ul class="pagination justify-content-center mb-0">
+                                                            {!! $viewData['products']->links() !!}
+                                                        </ul>
+                                                    </nav>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                        <button class="btn btn-sm btn-outline-primary edit-btn"
-                                            data-id="{{ $product->id }}" data-name="{{ $product->name }}"
-                                            data-price="{{ $product->priceNotFee }}"
-                                            data-image="{{ Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) }}"
-                                            data-id-loja="{{ $product->product_id }}"
-                                            data-created="{{ $product->created_at }}"
-                                            data-integracao="{{ $product->id_mercadolivre ?? '' }}"
-                                            data-acrescimo-reais="{{ $product->acrescimo_reais ?? '' }}"
-                                            data-acrescimo-porcentagem="{{ $product->acrescimo_porcentagem ?? '' }}"
-                                            data-desconto-reais="{{ $product->desconto_reais ?? '' }}"
-                                            data-desconto-porcentagem="{{ $product->desconto_porcentagem ?? '' }}"
-                                            data-active="{{ $product->active }}"
-                                            data-precofixo="{{ $product->precofixo ?? '' }}"
-                                            data-estoque_minimo="{{ $product->estoque_minimo }}">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card-footer text-center">
-                    <nav aria-label="Pagination">
-                        <ul class="pagination justify-content-center mb-0">
-                            {!! $viewData['products']->links() !!}
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-
+                                    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="responseModalLabel">Status da Operação</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p id="responseMessage"></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
     @endsection
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ====================================================================
+        // DECLARAÇÃO DE VARIÁVEIS DO FORMULÁRIO
+        // ====================================================================
+        const isPorcemInput = document.getElementById('isPorcem');
+        const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
+        const precoFixoInput = document.getElementById('precoFixoInput');
+        const valorAgregadoInput = document.getElementById('valorAgregadoInput');
+        const valorAgregadoSelect = document.getElementById('editValorAgregado');
+        const valorProdutoDisplay = document.getElementById('valorProdutoDisplay');
+        const editForm = document.getElementById('editForm');
+        const saveButton = document.getElementById('saveButton');
+        const editModalElement = document.getElementById('editModal');
+        // Instâncias do Bootstrap devem ser criadas no escopo global do listener
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('editModal'));
+        const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
 
 
-            const isPorcemInput = document.getElementById('isPorcem');
-            const precoFixoCheckbox = document.getElementById('precoFixoCheckbox');
-            const valorAgregadoInput = document.getElementById('valorAgregadoInput');
-            const valorAgregadoSelect = document.getElementById('editValorAgregado');
+        let basePrice = 0; // Inicializa a variável para o cálculo do preço base
 
 
-            // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
+        // ====================================================================
+        // FUNÇÕES DE LÓGICA DO FORMULÁRIO (CÁLCULOS E EVENTOS)
+        // ====================================================================
+
+        // Função para bloquear/desbloquear campos quando Preço Fixo é ativado
+        if (precoFixoCheckbox) {
             precoFixoCheckbox.addEventListener('change', function() {
                 if (this.checked) {
-                    // Ativa o campo Preço Fixo
                     precoFixoInput.disabled = false;
-
-                    // Desativa campos de Valor Agregado
-                    valorAgregadoInput.value = ''; // Limpa o valor
+                    valorAgregadoInput.value = '';
                     valorAgregadoInput.disabled = true;
                     valorAgregadoSelect.disabled = true;
-                    isPorcemInput.value = '0'; // Garante que isPorcem seja false
+                    isPorcemInput.value = '0';
                 } else {
-                    // Desativa o campo Preço Fixo
                     precoFixoInput.disabled = true;
-                    precoFixoInput.value = ''; // Limpa o valor
-
-                    // Reativa campos de Valor Agregado
+                    precoFixoInput.value = '';
                     valorAgregadoInput.disabled = false;
                     valorAgregadoSelect.disabled = false;
                 }
+                atualizarValorProduto();
             });
+        }
 
-            // Atualiza o placeholder dinamicamente conforme a seleção do select
+        // Atualiza o placeholder dinamicamente conforme a seleção do select
+        if (valorAgregadoSelect) {
             valorAgregadoSelect.addEventListener('change', function() {
                 const selectedOption = valorAgregadoSelect.value;
-
                 switch (selectedOption) {
                     case 'acrescimo_reais':
                         valorAgregadoInput.placeholder = 'Digite o acréscimo em R$';
+                        isPorcemInput.value = '0';
                         break;
                     case 'acrescimo_porcentagem':
                         valorAgregadoInput.placeholder = 'Digite o acréscimo em %';
@@ -392,6 +417,7 @@
                         break;
                     case 'desconto_reais':
                         valorAgregadoInput.placeholder = 'Digite o desconto em R$';
+                        isPorcemInput.value = '0';
                         break;
                     case 'desconto_porcentagem':
                         valorAgregadoInput.placeholder = 'Digite o desconto em %';
@@ -402,98 +428,220 @@
                         isPorcemInput.value = '0';
                         break;
                 }
+                atualizarValorProduto();
             });
+        }
 
-            const editModal = document.getElementById('editModal');
-            if (editModal) {
-                editModal.style.width = '800px';
+        // Função para atualizar o valor exibido
+        function atualizarValorProduto() {
+            const tipoAgregado = valorAgregadoSelect ? valorAgregadoSelect.value : '';
+            const valorAgregado = parseFloat(valorAgregadoInput ? valorAgregadoInput.value : 0) || 0;
+            const precoFixo = parseFloat(precoFixoInput ? precoFixoInput.value : 0) || 0;
+            let novoValor = basePrice;
+
+            if (precoFixo > 0 && precoFixoCheckbox && precoFixoCheckbox.checked) {
+                novoValor = precoFixo;
+            } else {
+                if (tipoAgregado === 'acrescimo_reais') {
+                    novoValor = basePrice + valorAgregado;
+                } else if (tipoAgregado === 'acrescimo_porcentagem') {
+                    novoValor = basePrice + (basePrice * (valorAgregado / 100));
+                } else if (tipoAgregado === 'desconto_reais') {
+                    novoValor = basePrice - valorAgregado;
+                } else if (tipoAgregado === 'desconto_porcentagem') {
+                    novoValor = basePrice - (basePrice * (valorAgregado / 100));
+                }
             }
-            const editButtons = document.querySelectorAll('.edit-btn');
+
+            if (novoValor < 0) novoValor = 0;
+            if (valorProdutoDisplay) {
+                valorProdutoDisplay.innerText = novoValor.toFixed(2).replace('.', ',');
+            }
+        }
+
+        // Eventos para acionar a função de atualização
+        if (valorAgregadoInput) {
+            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
+        }
+        if (precoFixoInput) {
+            precoFixoInput.addEventListener('input', atualizarValorProduto);
+        }
+
+        // ====================================================================
+        // LÓGICA AJAX PARA O ENVIO DO FORMULÁRIO
+        // ====================================================================
+        if (editForm && saveButton && editModalElement) {
+            editForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                saveButton.disabled = true;
+                saveButton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
+
+                const formData = new FormData(editForm);
+                const data = Object.fromEntries(formData.entries());
+                const url = '/productIntegrado/tiktok'; // <-- Rota corrigida
+
+                fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        // O primeiro .then() verifica o status da resposta
+                        if (!response.ok) {
+                            // Se a resposta não for OK, lança um erro para o .catch()
+                            throw new Error('Erro de rede ou servidor: ' + response.statusText);
+                        }
+                        // Se a resposta for OK, retorna o JSON
+                        return response.json();
+                    }).then(result => {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = 'Salvar Alterações';
+
+                        const responseModal = new bootstrap.Modal(document.getElementById(
+                            'responseModal'));
+                        const responseMessageElement = document.getElementById('responseMessage');
+                        const modalTitleElement = document.getElementById('responseModalLabel');
+
+                        let mensagens = [];
+                        let temErro = false;
+
+                        // Função recursiva para percorrer qualquer estrutura de array
+                        function extrairMensagens(item) {
+                            if (Array.isArray(item)) {
+                                item.forEach(subItem => extrairMensagens(subItem));
+                            } else if (typeof item === 'object' && item !== null) {
+                                mensagens.push(item.message || 'Sem mensagem');
+                                if (!item.success) {
+                                    temErro = true;
+                                }
+                            }
+                        }
+
+                        extrairMensagens(result);
+
+                        // Monta o conteúdo do modal
+                        if (mensagens.length === 0) {
+                            mensagens.push('Nenhuma mensagem recebida do servidor.');
+                        }
+
+                        responseMessageElement.innerHTML = mensagens.map(m => `• ${m}`).join(
+                        '<br>');
+                        modalTitleElement.innerText = temErro ? 'Erro!' : 'Sucesso!';
+
+                        // Ajusta cor
+                        responseMessageElement.classList.remove('text-success', 'text-danger');
+                        responseMessageElement.classList.add(temErro ? 'text-danger' :
+                            'text-success');
+
+                        responseModal.show();
+                    })
+                    .catch(error => {
+                        // Este bloco é executado se houver um erro de rede ou se a resposta não for JSON
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = 'Salvar Alterações';
+
+                        const responseModal = new bootstrap.Modal(document.getElementById(
+                            'responseModal'));
+                        const responseMessageElement = document.getElementById('responseMessage');
+                        const modalTitleElement = document.getElementById('responseModalLabel');
+
+                        responseMessageElement.innerText = 'Erro na requisição: ' + error.message;
+                        modalTitleElement.innerText = 'Erro!';
+                        responseMessageElement.classList.remove('text-success');
+                        responseMessageElement.classList.add('text-danger');
+
+                        responseModal.show();
+                    });
+            });
+        }
+
+        // ====================================================================
+        // LÓGICA DE ABERTURA DO MODAL
+        // ====================================================================
+        const editButtons = document.querySelectorAll('.edit-btn');
+        if (editButtons) {
+
+            if (editModalElement) {
+                editModalElement.style.width = '800px';
+            }
 
             editButtons.forEach(button => {
                 button.addEventListener('click', function() {
-
-                    // Extraindo valores dos atributos data-*
                     const id = button.getAttribute('data-id');
                     const name = button.getAttribute('data-name');
-                    const price = button.getAttribute('data-price');
                     const image = button.getAttribute('data-image');
                     const created = button.getAttribute('data-created');
                     const integracao = button.getAttribute('data-integracao');
                     const acrescimoReais = button.getAttribute('data-acrescimo-reais');
-                    const acrescimoPorcentagem = button.getAttribute('data-acrescimo-porcentagem');
+                    const acrescimoPorcentagem = button.getAttribute(
+                        'data-acrescimo-porcentagem');
                     const descontoReais = button.getAttribute('data-desconto-reais');
-                    const descontoPorcentagem = button.getAttribute('data-desconto-porcentagem');
+                    const descontoPorcentagem = button.getAttribute(
+                        'data-desconto-porcentagem');
                     const precoFixo = button.getAttribute('data-precofixo');
                     const activeStatus = this.getAttribute('data-active');
                     const estoqueMinimo = this.getAttribute('data-estoque_minimo');
 
-                    basePrice = parseFloat(button.getAttribute('data-price')) ||
-                        0; // Preço base do produto
-                    // Preenchendo os campos do modal
+                    basePrice = parseFloat(button.getAttribute('data-price')) || 0;
 
-                    document.getElementById('editId').value = id;
-                    document.getElementById('editName').value = name;
-                    document.getElementById('editImage').src = image; // Se tiver uma tag <img>
-                    document.getElementById('editCreated').value = created;
-                    document.getElementById('editIntegracao').value = integracao;
-                    // Preenchendo os valores adicionais
-                    document.getElementById('editAcrescimoReais').value = acrescimoReais || '0.00';
-                    document.getElementById('editAcrescimoPorcentagem').value =
-                        acrescimoPorcentagem || '0.00';
-                    document.getElementById('editDescontoReais').value = descontoReais || '0.00';
-                    document.getElementById('editDescontoPorcentagem').value =
-                        descontoPorcentagem || '0.00';
-                    document.getElementById('editPrecoFixo').value = precoFixo || '0.00';
-                    // Define o valor do campo 'active'
-                    document.getElementById('active').value = activeStatus;
-                    document.getElementById('estoque_minimo').value = estoqueMinimo;
+                    if (document.getElementById('editId')) {
+                        document.getElementById('editId').value = id;
+                    }
+                    if (document.getElementById('editName')) {
+                        document.getElementById('editName').value = name;
+                    }
+                    if (document.getElementById('editImage')) {
+                        document.getElementById('editImage').src = image;
+                    }
+                    if (document.getElementById('editCreated')) {
+                        document.getElementById('editCreated').value = created;
+                    }
+                    if (document.getElementById('editIntegracao')) {
+                        document.getElementById('editIntegracao').value = integracao;
+                    }
+                    if (document.getElementById('editAcrescimoReais')) {
+                        document.getElementById('editAcrescimoReais').value = acrescimoReais ||
+                            '0.00';
+                    }
+                    if (document.getElementById('editAcrescimoPorcentagem')) {
+                        document.getElementById('editAcrescimoPorcentagem').value =
+                            acrescimoPorcentagem || '0.00';
+                    }
+                    if (document.getElementById('editDescontoReais')) {
+                        document.getElementById('editDescontoReais').value = descontoReais ||
+                            '0.00';
+                    }
+                    if (document.getElementById('editDescontoPorcentagem')) {
+                        document.getElementById('editDescontoPorcentagem').value =
+                            descontoPorcentagem || '0.00';
+                    }
+                    if (document.getElementById('editPrecoFixo')) {
+                        document.getElementById('editPrecoFixo').value = precoFixo || '0.00';
+                    }
+                    if (document.getElementById('active')) {
+                        document.getElementById('active').value = activeStatus;
+                    }
+                    if (document.getElementById('estoque_minimo')) {
+                        document.getElementById('estoque_minimo').value = estoqueMinimo;
+                    }
 
-                    // Abre o modal
-                    const editModal = new bootstrap.Offcanvas(document.getElementById('editModal'));
+                    atualizarValorProduto();
+
+                    const editModal = new bootstrap.Offcanvas(document.getElementById(
+                        'editModal'));
                     editModal.show();
                 });
             });
+        }
 
-
-
-            // Função para atualizar o valor exibido
-            function atualizarValorProduto() {
-                const tipoAgregado = valorAgregadoSelect.value; // Opção selecionada (R$ ou %)
-                const valorAgregado = parseFloat(valorAgregadoInput.value) || 0;
-                const precoFixo = parseFloat(precoFixoInput.value) || 0;
-
-                let novoValor = basePrice; // Começa com o preço base
-
-                // Prioridade para preço fixo
-                if (precoFixo > 0) {
-                    novoValor = precoFixo;
-                } else {
-                    // Aplica o cálculo com base no tipo selecionado
-                    if (tipoAgregado === 'acrescimo_reais') {
-                        novoValor = basePrice + valorAgregado;
-                    } else if (tipoAgregado === 'acrescimo_porcentagem') {
-                        novoValor = basePrice + (basePrice * (valorAgregado / 100));
-                    } else if (tipoAgregado === 'desconto_reais') {
-                        novoValor = basePrice - valorAgregado;
-                    } else if (tipoAgregado === 'desconto_porcentagem') {
-                        novoValor = basePrice - (basePrice * (valorAgregado / 100));
-                    }
-                }
-
-                // Garante que o valor não seja negativo
-                if (novoValor < 0) novoValor = 0;
-
-                // Atualiza o display do valor
-                valorProdutoDisplay.innerText = novoValor.toFixed(2).replace('.', ',');
-            }
-
-            // Eventos
-            valorAgregadoInput.addEventListener('input', atualizarValorProduto);
-            valorAgregadoSelect.addEventListener('change', atualizarValorProduto);
-            precoFixoInput.addEventListener('input', atualizarValorProduto);
-        });
-    </script>
+    });
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.css" rel="stylesheet" />

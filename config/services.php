@@ -34,5 +34,9 @@ return [
         'client_secret' => env('TIKTOK_CLIENT_SECRET'),
         'redirect_uri' => env('TIKTOK_REDIRECT_URI'),
     ],
+    'tiktok_research' => [
+        'client_id' => env('TIKTOK_RESEARCH_CLIENT_ID'),
+        'client_secret' => env('TIKTOK_RESEARCH_CLIENT_SECRET'),
+    ],
 
 ];

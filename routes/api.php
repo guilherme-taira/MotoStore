@@ -19,6 +19,7 @@ use App\Http\Controllers\PaginationController;
 use App\Http\Controllers\Products\productsController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Store\StoreController;
+use App\Http\Controllers\TikTokProductController;
 use App\Http\Controllers\Usuarios\FornecedorController;
 use App\Models\Products;
 use App\Models\ShippingNotification;
@@ -54,6 +55,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/productsBling', [ApiBlingProductsController::class, 'index'])->name('productsBling');
     Route::post('/notification',[MercadoPagoNotification::class,'notification']);
 
+    Route::get('/tiktok/categories', [TikTokProductController::class, 'getCategoriesTikTok'])->name('tiktok.categories.ajax');
     Route::post('/notificationBling',[MercadoPagoNotification::class,'notificationBling']);
     Route::post('/notificationTraking',[MercadoPagoNotification::class,'notificationTraking']);
     Route::post('/notificationTrakingMelhorEnvio',[MercadoPagoNotification::class,'notificationTrakingMelhorEnvio']);

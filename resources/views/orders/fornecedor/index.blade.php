@@ -545,13 +545,9 @@
                                                                     <label for="{{ $order->financeiroId }}"
                                                                         class="p-3 d-block"
                                                                         style="border: 2px dashed gray; border-radius: 10px; padding: 10px; cursor: pointer;">
-                                                                        <i class="bi bi-file-earmark-plus"
-                                                                            style="font-size: 24px;"></i>
-                                                                        <p class="mb-0 fw-bold">Anexar NF</p>
+                                                                        <p class="mb-0 fw-bold">Canal: {{$order->local}}</p>
                                                                     </label>
-                                                                    <input type="file" name="nota_fiscal"
-                                                                        id="{{ $order->financeiroId }}" class="d-none"
-                                                                        onchange="this.form.submit()">
+
                                                                 </form>
                                                             @endif
                                                         </div>

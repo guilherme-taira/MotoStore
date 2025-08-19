@@ -49,6 +49,8 @@ class produtos_integrados extends Model
     }
 
 
+
+
     public static function getProdutosByApi($user){
         $data = DB::table('products')
         ->join('produtos_integrados', 'products.id', '=', 'produtos_integrados.product_id')

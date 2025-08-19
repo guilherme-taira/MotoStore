@@ -103,6 +103,7 @@ Route::post('/user/order', [StoreController::class, 'setUser'])->name('setUser.a
 Route::post('/cadastrarKit',[KitsKitsController::class,'addKit'])->name('kitadd');
 Route::post('/package/create', [PackageController::class, 'createPackage']);
 Route::post('/IntegrarProduto',[productsController::class,'IntegrarProduto'])->name('IntegrarProduto');
+Route::get('/IntegrarProdutoTikTok',[productsController::class,'IntegrarProdutoTikTok'])->name('IntegrarProdutoTikTok');
 Route::post('/IntegrarProdutoVariation',[productsController::class,'IntegrarProdutoVariation'])->name('IntegrarProdutoVariation');
 Route::get('/imprimirEtiqueta/{shipping_id}',[orderscontroller::class,'ImprimirEtiqueta'])->name('imprimir');
 Route::get('/allProductsByFornecedor',[productsController::class,'todosProdutos'])->name('allProductsByFornecedor');
@@ -138,7 +139,7 @@ Route::get('/breve', function () {
 // Aplicação do Middleware `auth` às rotas protegidas
 Route::middleware('auth')->group(function () {
 Route::post('/upload-nf/{order_id}', [NotaFiscalController::class, 'uploadNotaFiscal'])->name('upload.nf');
-Route::get('/produtosintegrados', [productsController::class, 'integrados'])->name('integrados');
+Route::get('/produtosintegrados/{marketplace}', [productsController::class, 'integrados'])->name('integrados');
 Route::get('/cart/status', [CartController::class, 'status'])->name('cart.status');
 Route::get('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
 Route::get('/cart/deleteOne/{id}', [CartController::class, 'deleteOneCarrinho'])->name('cart.deleteCarrinho');
@@ -179,7 +180,8 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('marcar.lido',[notificationController::class,'readNotification'])->name('marcar.lido');
         Route::get('/test',[testController::class,'teste']);
         Route::get('/feedback',[orderscontroller::class,'feedback']);
-        Route::post('/productIntegrado',[ProductByFornecedor::class,'update'])->name('productIntegrado');
+        // Rota para o Mercado Livre e TikTok
+        Route::post('/productIntegrado/{marketplace}', [ProductByFornecedor::class, 'update'])->name('productIntegrado');
         Route::get('/ProductByFornecedor/{id}',[ProductByFornecedor::class,'getProductsByFornecedor'])->name('getAllproductByForncedor');
         Route::get("/categoriasMercadolivre",[CategoryTest::class,'index'])->name("categoryML");
         Route::get("/categorias2",[CategoryTest::class,'categoria']);
@@ -240,7 +242,7 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
         Route::get('/treinamentos', [TreinamentosController::class, 'index'])->name('treinamentos.index');
         Route::get('/meli/subcategories/attributes/variation/{category}', [productsController::class, 'getCategoryAttributeByVariation']);
     });
-
+    Route::get('/tiktok/warehouses', [TikTokProductController::class, 'listarWarehousesTikTok']);
     Route::get('/tiktok/oauth/redirect', [TikTokOAuthController::class, 'redirect'])->name('tiktok.redirect');
     Route::get('/tiktok/oauth/callback', [TikTokOAuthController::class, 'callback'])->name('tiktok.callback');
     Route::post('/tiktok/webhook', [TikTokWebhookController::class, 'handleWebhook']);

@@ -133,7 +133,6 @@ public function updateOriginalPrice(string $productId, string $skuId, $config): 
 }
 
 
-
 public function listarWarehousesTikTok()
 {
     $seller = SellerAccount::where('user_id', Auth::user()->id)->first();
@@ -147,25 +146,26 @@ public function listarWarehousesTikTok()
     $appKey      = config('services.tiktok.client_id');
     $appSecret   = config('services.tiktok.client_secret');
     $shopId      = $seller->seller_id;
-    $shopCipher  = $seller->shop_cipher; // útil p/ seu banco, mas NÃO vai na query deste endpoint
+    $shopCipher  = $seller->shop_cipher;
     $timestamp   = Carbon::now()->timestamp;
     $version     = '202309';
 
     // Host e endpoint
-    $host   = 'open-api.tiktokglobalshop.com';
-    $path   = "/logistics/{$version}/global_warehouses";
-    $url    = "https://{$host}{$path}";
+    $host  = 'open-api.tiktokglobalshop.com';
+    $path  = "/logistics/{$version}/warehouses"; // Endpoint corrigido
+    $url   = "https://{$host}{$path}";
 
-    // Query (sem shop_cipher)
+    // Query para a requisição
     $qs = [
         'access_token' => $accessToken,
         'app_key'      => $appKey,
         'shop_id'      => $shopId,
+        'shop_cipher'  => $shopCipher, // Adicionado para a requisição
         'timestamp'    => $timestamp,
         'version'      => $version,
     ];
 
-    // GET → body vazio na assinatura
+    // Gera o sign (GET request sem corpo JSON)
     $sign = $this->generateSign($path, $qs, $appSecret);
 
     $qs['sign'] = $sign;
@@ -178,39 +178,31 @@ public function listarWarehousesTikTok()
 
     if (!$response->successful()) {
         $json = $response->json();
-        // Dica específica se alguém voltar a colocar shop_cipher na query
-        if (($json['code'] ?? null) == 36009004) {
-            $json['hint'] = "Remova 'shop_cipher' da query para este endpoint.";
-        }
         return $json;
     }
 
     $json = $response->json();
 
     Log::alert([$json]);
-    // Aceita múltiplos formatos de payload
-    $list = $json['data']['global_warehouses']
-        ?? $json['data']['warehouses']
-        ?? $json['warehouses']
-        ?? (is_array($json) && array_key_exists(0, $json) ? $json : []);
 
-    // Normaliza saída
+    $list = $json['data']['warehouses'] ?? []; // Ajustado para pegar o array 'warehouses'
+
+    // Normaliza a saída
     $warehouses = collect($list)->map(function ($wh) {
         $id   = $wh['id'] ?? $wh['warehouse_id'] ?? null;
         $name = $wh['name'] ?? $wh['warehouse_name'] ?? ($id ?? 'Sem nome');
         $own  = $wh['ownership'] ?? null;
 
-        // Tenta inferir status habilitado
         $statusRaw = $wh['status'] ?? $wh['warehouse_status'] ?? $wh['enable_status'] ?? $wh['enabled'] ?? null;
         $statusStr = is_bool($statusRaw) ? ($statusRaw ? 'ENABLED' : 'DISABLED') : strtoupper((string)$statusRaw);
-        $enabled   = in_array($statusStr, ['ENABLED','ACTIVE','1','TRUE',''], true);
+        $enabled   = in_array($statusStr, ['ENABLED', 'ACTIVE', '1', 'TRUE', ''], true);
 
         return [
             'id'        => $id,
             'name'      => $name,
             'ownership' => $own,
             'enabled'   => $enabled,
-            'raw'       => $wh, // útil para depuração/log
+            'raw'       => $wh,
         ];
     })->filter(fn ($i) => !is_null($i['id']))->values()->all();
 

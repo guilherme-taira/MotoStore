@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\financeiro;
+use App\Models\order_site;
 use App\Models\SellerAccount;
 use App\Models\TikTokOrder;
 use Illuminate\Http\Request;
@@ -28,7 +30,7 @@ class TikTokWebhookController extends Controller
                     $this->handleOrderCreated($payload);
                     break;
 
-                case 'ORDER_CANCELLED':
+                case '2':
                     $this->handleOrderCancelled($data);
                     break;
 
@@ -63,6 +65,18 @@ class TikTokWebhookController extends Controller
     protected function handleOrderCancelled(array $data)
     {
         Log::info('Pedido cancelado:', $data);
+
+        // 1. Atualizar a tabela 'order_site'
+        // O campo para o status é 'status_id'
+        order_site::where('numeropedido', $data['order_id'])->update([
+            'status_id' => 5
+        ]);
+
+        // 2. Atualizar a tabela 'financeiro'
+        // O campo para o status é 'status'
+        financeiro::where('token_transaction', $data['order_id'])->update([
+            'status' => 5
+        ]);
 
         TikTokOrder::where('order_id', $data['order_id'])->update([
             'status' => 'CANCELLED'

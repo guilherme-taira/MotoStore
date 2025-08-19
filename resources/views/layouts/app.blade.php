@@ -358,7 +358,8 @@
                                 <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne"
                                     data-bs-parent="#sidenavAccordionPages">
                                     <nav class="sb-sidenav-menu-nested nav">
-                                        <a class="nav-link" href="{{ route('integrados') }}">Mercado Livre</a>
+                                        <a class="nav-link" href="{{ route('integrados', ['marketplace' => 'mercadolivre']) }}">Mercado Livre</a>
+                                        <a class="nav-link" href="{{ route('integrados', ['marketplace' => 'tiktok']) }}">Tiktok</a>
                                     </nav>
                                 </div>
                             </nav>

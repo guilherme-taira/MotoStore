@@ -317,3 +317,107 @@
         box-shadow: 0 0 30px rgba(255, 0, 0, 1);
     }
 }
+
+
+.custom-category-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.custom-category-display {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 800px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.dropdown-item:hover {
+    background: #f0f4fb;
+}
+
+.segment-parent {
+    color: #6c757d;
+    font-size: 0.85em;
+}
+
+.segment-current {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.separator {
+    margin: 0 4px;
+    color: #999;
+}
+
+.small-note {
+    flex: 1 1 100%;
+    font-size: 0.75em;
+    color: #555;
+}
+
+.category-status-marker {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    /* Espaço entre o marcador e o texto */
+}
+
+.status-available {
+    background-color: #28a745;
+    /* Verde para disponível */
+}
+
+.status-unavailable {
+    background-color: #dc3545;
+    /* Vermelho para indisponível */
+}
+
+.status-default {
+    background-color: #6c757d;
+    /* Cinza para status desconhecido */
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+/* Adicione estas classes para definir o estilo base do marcador */
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px; /* Espaço entre o marcador e o texto */
+}
+
+/* Classes para as cores (você já as tem, mas é bom conferir) */
+.status-available {
+    background-color: #28a745; /* Verde para disponível */
+}
+
+.status-default {
+    background-color: #6c757d; /* Cinza para status desconhecido */
+}

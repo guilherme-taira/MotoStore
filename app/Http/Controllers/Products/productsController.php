@@ -1592,10 +1592,10 @@ class productsController extends Controller
         return redirect()->back();
 
     }
+
+
 public function IntegrarProdutoTikTok(Request $request)
 {
-    Log::alert($request->all());
-
     // Se houver buffer antigo, limpa (não obrigatório, mas seguro)
     if (ob_get_level() > 0) {
         @ob_end_clean();
@@ -1638,6 +1638,7 @@ public function IntegrarProdutoTikTok(Request $request)
         $id_categoria = $request->id_categoria;
         $id_product = $request->id_prodenv;
         $descricao = $request->editor;
+        $warehouse = $request->warehouse_id;
         $valorSemTaxa = 0;
         $totalInformado = 0;
 
@@ -1670,7 +1671,7 @@ public function IntegrarProdutoTikTok(Request $request)
             $array,
             $valorSemTaxa,
             $totalInformado,
-            $dadosIntegrado
+            $dadosIntegrado,null,null,$warehouse
         );
 
         $raw = $factory->integrarProdutoComStream();
