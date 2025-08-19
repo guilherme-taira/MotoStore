@@ -18,5 +18,6 @@ class SalesReport extends Model
         'quantity_sold',
         'quantity_before',
         'quantity_after',
+        'integrated_product_type'
     ];
 }

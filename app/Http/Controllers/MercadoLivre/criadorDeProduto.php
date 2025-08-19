@@ -23,8 +23,9 @@ abstract class criadorDeProduto
     private $dadosIntegrado; // DADOS PARA GUARDAR DEPOIS DE INTEGRAR
     private $json;
     private $variation;
+    private String $warehouse;
 
-    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null,$json = null, $variation = null)
+    public function __construct($name,$tipo_anuncio,$price,$id_categoria,$id_product,$id,$descricao,$dados,$valorSemTaxa = 0,$totalInformado = 0,$dadosIntegrado = null,$json = null, $variation = null,$warehouse = 100)
     {
         $this->name = $name;
         $this->tipo_anuncio = $tipo_anuncio;
@@ -39,6 +40,7 @@ abstract class criadorDeProduto
         $this->dadosIntegrado = $dadosIntegrado;
         $this->json = $json;
         $this->variation = $variation;
+        $this->warehouse = $warehouse;
     }
 
 
@@ -247,5 +249,13 @@ abstract class criadorDeProduto
     public function getVariation()
     {
         return $this->variation;
+    }
+
+    /**
+     * Get the value of warehouse
+     */
+    public function getWarehouse()
+    {
+        return $this->warehouse;
     }
 }

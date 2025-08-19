@@ -47,6 +47,7 @@ class financeiro extends Model
             ->join('users', 'pivot_site.id_user', '=', 'users.id')
             ->join('product_site', 'pivot_site.product_id', '=', 'product_site.id')
             ->join('products', 'product_site.codigo', '=', 'products.id')
+            // ->rightjoin('tiktok_products', 'products.id', '=', 'tiktok_products.local_product_id')
             ->select(
                 'financeiro.status as statusf',
                 'order_site.*',
