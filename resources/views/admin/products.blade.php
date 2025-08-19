@@ -354,7 +354,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="row form-section gap-3">
+                                        <div class="row form-section gap-3 d-none">
                                             <div class="col-md-6 mb-4">
                                                 <p class="col-lg-4 col-md-6 col-sm-12 col-form-label">Tipo de Anúncio</p>
                                                 <div class="col">
