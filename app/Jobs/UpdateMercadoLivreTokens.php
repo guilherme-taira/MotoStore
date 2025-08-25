@@ -69,7 +69,7 @@ class UpdateMercadoLivreTokens implements ShouldQueue
                             'refresh_token' => $dados['refresh_token'], // Salve o novo refresh_token
                             'datamodify' => now()->addHours(6)->format('Y-m-d H:i:s'),
                         ]);
-
+                        Log::alert([$dados]);
                         Log::info("Token atualizado com sucesso para User ID: {$acesso->user_id_mercadolivre}");
                     } else {
                         Log::error("Erro ao atualizar token para User ID: {$acesso->user_id_mercadolivre}: " . json_encode($dados));
