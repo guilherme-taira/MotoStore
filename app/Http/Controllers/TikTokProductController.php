@@ -29,6 +29,73 @@ use Illuminate\Support\Facades\Log;
 
 class TikTokProductController extends Controller {
 
+
+    public function updateOriginalPriceTikTok(string $productId, string $skuId, string $newPrice, $config): array {
+
+    try {
+        $accessToken = $config['access_token'] ?? env('TIKTOK_ACCESS_TOKEN');
+        $shopCipher = $config['shop_cipher'] ?? env('TIKTOK_SHOP_CIPHER');
+        $shopId = $config['shop_id'] ?? env('TIKTOK_SHOP_ID');
+        $appKey = config('services.tiktok.client_id');
+        $appSecret = config('services.tiktok.client_secret');
+        $version = '202309';
+        $timestamp = now()->timestamp;
+        $path = "/product/{$version}/products/{$skuId}/prices/update";
+        $url = "https://open-api.tiktokglobalshop.com" . $path;
+
+        $payload = [
+            'skus' => [
+                [
+                    'id' => $productId,
+                    'price' => [
+                        'currency' => 'BRL',
+                        'amount' => (string) max($newPrice,0),
+                    ],
+                ],
+            ],
+        ];
+
+        $qs = [
+            'access_token' => $accessToken,
+            'app_key' => $appKey,
+            'shop_cipher' => $shopCipher,
+            'shop_id' => $shopId,
+            'timestamp' => $timestamp,
+            'version' => $version,
+        ];
+
+        $sign = $this->generateSign($path, $qs, $appSecret, $payload);
+        $qs['sign'] = $sign;
+
+        // Tenta fazer a requisição à API do TikTok
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-tts-access-token' => $accessToken,
+        ])->post($url . '?' . http_build_query($qs), $payload);
+
+        $response->throw(); // Lança exceção para status 4xx ou 5xx
+
+        return ['success' => true, 'message' => 'Preço atualizado com sucesso!', 'response' => $response->json()];
+
+    } catch (\Illuminate\Http\Client\RequestException $e) {
+        // Captura exceções da requisição HTTP (erros 4xx, 5xx)
+        Log::error('Erro ao atualizar preço na API do TikTok: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Erro ao comunicar com a API do TikTok.',
+            'error_details' => $e->response->json(),
+        ];
+    } catch (\Exception $e) {
+        // Captura qualquer outra exceção (produto não encontrado, etc.)
+        Log::error('Erro inesperado na chamada da API: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Erro inesperado: ' . $e->getMessage(),
+        ];
+    }
+}
+
+
 public function updateOriginalPrice(string $productId, string $skuId, $config): array
 {
     try {
@@ -91,6 +158,8 @@ public function updateOriginalPrice(string $productId, string $skuId, $config): 
                 ],
             ],
         ];
+
+         Log::alert([$payload]);
 
         $qs = [
             'access_token' => $accessToken,
@@ -182,8 +251,6 @@ public function listarWarehousesTikTok()
     }
 
     $json = $response->json();
-
-    Log::alert([$json]);
 
     $list = $json['data']['warehouses'] ?? []; // Ajustado para pegar o array 'warehouses'
 

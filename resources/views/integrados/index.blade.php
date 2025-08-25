@@ -225,7 +225,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
                             <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control"
                                 placeholder="Digite o estoque mínimo" min="0" value="0">
@@ -260,100 +260,100 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <pre>
-                                                        @foreach ($viewData['products'] as $product)
-    <tr class="hover-row">
-                                                        <td class="fw-bold">{{ $product->id }}</td>
-                                                        <th>{{ $product->name }}</th>
-                                                        <td><span class="badge text-bg-{{ $product->isVariation ? 'success' : 'warning' }}">{{ $product->isVariation ? 'SIM' : 'NÃO' }}</span></td>
-                                                        @if ($product->image)
-    <td>
-                                                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
-                                                                    class="rounded-circle border border-secondary shadow-sm"
-                                                                    style="width: 60px; height: 60px; object-fit: cover;">
-                                                            </td>
-@else
-    <td>
-                                                                    @php
-                                                                        $variationImages = [];
-                                                                        foreach (
-                                                                            json_decode(
-                                                                                $product->variation_data,
-                                                                                true,
-                                                                            ) ?? []
-                                                                            as $v
-                                                                        ) {
-                                                                            foreach ($v['picture_ids'] ?? [] as $pic) {
-                                                                                if (count($variationImages) < 4) {
-                                                                                    $variationImages[] = $pic;
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    @endphp
+                    <pre>
+                        @foreach ($viewData['products'] as $product)
+                    <tr class="hover-row">
+                        <td class="fw-bold">{{ $product->id }}</td>
+                        <th>{{ $product->name }}</th>
+                        <td><span class="badge text-bg-{{ $product->isVariation ? 'success' : 'warning' }}">{{ $product->isVariation ? 'SIM' : 'NÃO' }}</span></td>
+                        @if ($product->image)
+                    <td>
+                                <img src="{!! Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) !!}" alt="{{ $product->image }}"
+                                    class="rounded-circle border border-secondary shadow-sm"
+                                    style="width: 60px; height: 60px; object-fit: cover;">
+                            </td>
+                    @else
+                    <td>
+                                    @php
+                                        $variationImages = [];
+                                        foreach (
+                                            json_decode(
+                                                $product->variation_data,
+                                                true,
+                                            ) ?? []
+                                            as $v
+                                        ) {
+                                            foreach ($v['picture_ids'] ?? [] as $pic) {
+                                                if (count($variationImages) < 4) {
+                                                    $variationImages[] = $pic;
+                                                }
+                                            }
+                                        }
+                                    @endphp
 
-                                                                    <div class="circle-pizza">
-                                                                        @foreach (array_slice($variationImages, 0, 4) as $index => $url)
-    <div class="slice slice-{{ $index + 1 }}"
-                                                                                style="background-image: url('{{ $url }}');"></div>
-    @endforeach
-                                                                    </div>
-                                                                </td>
-    @endif
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-success">{{ $product->id_mercadolivre }}</span>
-                                                            </td>
-                                                            <td>{{ $product->product_id }}</td>
-                                                            <td>{{ $product->created_at }}</td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-outline-primary edit-btn"
-                                                                    data-id="{{ $product->id }}" data-name="{{ $product->name }}"
-                                                                    data-price="{{ $product->priceNotFee }}"
-                                                                    data-image="{{ Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) }}"
-                                                                    data-id-loja="{{ $product->product_id }}"
-                                                                    data-created="{{ $product->created_at }}"
-                                                                    data-integracao="{{ $product->id_mercadolivre ?? '' }}"
-                                                                    data-acrescimo-reais="{{ $product->acrescimo_reais ?? '' }}"
-                                                                    data-acrescimo-porcentagem="{{ $product->acrescimo_porcentagem ?? '' }}"
-                                                                    data-desconto-reais="{{ $product->desconto_reais ?? '' }}"
-                                                                    data-desconto-porcentagem="{{ $product->desconto_porcentagem ?? '' }}"
-                                                                    data-active="{{ $product->active }}"
-                                                                    data-precofixo="{{ $product->precofixo ?? '' }}"
-                                                                    data-estoque_minimo="{{ $product->estoque_minimo }}">
-                                                                    <i class="fas fa-edit"></i> Editar
-                                                                </button>
-                                                            </td>
-                                                            </tr>
-    @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                                <div class="card-footer text-center">
-                                                    <nav aria-label="Pagination">
-                                                        <ul class="pagination justify-content-center mb-0">
-                                                            {!! $viewData['products']->links() !!}
-                                                        </ul>
-                                                    </nav>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="circle-pizza">
+                                @foreach (array_slice($variationImages, 0, 4) as $index => $url)
+                    <div class="slice slice-{{ $index + 1 }}"
+                                        style="background-image: url('{{ $url }}');"></div>
+                    @endforeach
+                            </div>
+                        </td>
+                    @endif
+                    </td>
+                    <td>
+                        <span class="badge bg-success">{{ $product->id_mercadolivre }}</span>
+                    </td>
+                    <td>{{ $product->product_id }}</td>
+                    <td>{{ $product->created_at }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary edit-btn"
+                            data-id="{{ $product->id }}" data-name="{{ $product->name }}"
+                            data-price="{{ $product->priceNotFee }}"
+                            data-image="{{ Storage::disk('s3')->url('produtos/' . $product->product_id . '/' . $product->image) }}"
+                            data-id-loja="{{ $product->product_id }}"
+                            data-created="{{ $product->created_at }}"
+                            data-integracao="{{ $product->id_mercadolivre ?? '' }}"
+                            data-acrescimo-reais="{{ $product->acrescimo_reais ?? '' }}"
+                            data-acrescimo-porcentagem="{{ $product->acrescimo_porcentagem ?? '' }}"
+                            data-desconto-reais="{{ $product->desconto_reais ?? '' }}"
+                            data-desconto-porcentagem="{{ $product->desconto_porcentagem ?? '' }}"
+                            data-active="{{ $product->active }}"
+                            data-precofixo="{{ $product->precofixo ?? '' }}"
+                            data-estoque_minimo="{{ $product->estoque_minimo }}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </td>
+                    </tr>
+                      @endforeach
+                    </tbody>
+                </table>
+            </div>
+                <div class="card-footer text-center">
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {!! $viewData['products']->links() !!}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
 
-                                    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="responseModalLabel">Status da Operação</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p id="responseMessage"></p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responseModalLabel">Status da Operação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="responseMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     @endsection
 
 <script>

@@ -21,6 +21,7 @@ use App\Http\Controllers\Shopify\SendOrder;
 use App\Http\Controllers\Shopify\ShippingAddress;
 use App\Http\Controllers\Shopify\ShopifyProduct;
 use App\Http\Controllers\TikTokProductController;
+use App\Jobs\UpdateProductPriceTikTok;
 use App\Jobs\UpdateStockJob;
 use App\Models\BlingCreateUserByFornecedor;
 use App\Models\Contato;
@@ -86,11 +87,7 @@ class testController extends Controller {
 
 
         public function teste(Request $request) {
-            $tiktok = new TikTokProductController();
-            $response = $tiktok->listarWarehousesTikTok();
-            echo "<pre>";
-            print_r($response);
-
+            UpdateProductPriceTikTok::dispatch('517',100);
         }
 
 function getTikTokPublicProduct(string $productId, array $fields = ['title', 'price', 'images', 'shop_id', 'category', 'stock']): array

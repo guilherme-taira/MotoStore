@@ -56,7 +56,9 @@ use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSlippers;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerSwimwearCreator;
 use App\Http\Controllers\MercadoLivre\ManipuladorProdutosIntegrados;
 use App\Http\Controllers\MercadoLivreStockController;
+use App\Http\Controllers\TikTokProductController;
 use App\Jobs\UpdateStockJob;
+use App\Jobs\UpdateStockJobTiktok;
 use App\Models\kit;
 use App\Models\KitProductVariation;
 use App\Models\order_site;
@@ -814,7 +816,6 @@ class productsController extends Controller
             ];
         }
 
-        Log::alert(json_encode($variations));
         $request->merge([
             'price' => str_replace(',', '.', $request->input('price')),
             'priceKit' => str_replace(',', '.', $request->input('priceKit')),
@@ -954,7 +955,7 @@ class productsController extends Controller
 
         // Disparando o Job
         UpdateStockJob::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
-
+        UpdateStockJobTiktok::dispatch($produto->id,$produto->estoque_afiliado,$produto->estoque_minimo_afiliado);
         // MANIPULA O ESTOQUE DAS INTEGRAÇÕES
         try {
             if ($request->hasFile('photos')) {

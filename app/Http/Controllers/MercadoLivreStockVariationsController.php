@@ -58,8 +58,8 @@ class MercadoLivreStockVariationsController extends Controller
                 ->put($url, $payload);
             // Retornando a resposta
             if ($response->successful()) {
-                Log::info("Estoque atualizado com sucesso para o produto ", [
-                    'response' => $response->json()]);
+                // Log::info("Estoque atualizado com sucesso para o produto ", [
+                //     'response' => $response->json()]);
                 return response()->json([
                     'success' => true,
                     'message' => 'Estoque atualizado com sucesso.',

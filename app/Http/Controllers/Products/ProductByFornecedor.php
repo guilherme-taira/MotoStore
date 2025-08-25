@@ -145,7 +145,7 @@ public function update(Request $request, $marketplace)
                 $precoNew = new ManipuladorProdutosIntegrados($validated['id'], 0);
                 $precoNew->atualizarOnlyProduct();
                 break;
-            case 'tiktok':
+                case 'tiktok':
                 // CÓDIGO CORRIGIDO
                 $seller = SellerAccount::where('user_id', Auth::user()->id)->first();
                 // Lógica de atualização de estoque e preço para o TikTok

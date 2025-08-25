@@ -248,7 +248,6 @@ Route::middleware(['auth', 'check.profile','admin','admin_msg'])->group(function
     Route::post('/tiktok/webhook', [TikTokWebhookController::class, 'handleWebhook']);
     Route::get('/tiktok/autorizar/loja', [TikTokProductController::class, 'getAuthorizedShops'])->name('tiktok.autorizar.loja');
 
-
     Route::post('/orders/recadastrarExtensao', [productsController::class, 'recadastrarExtensao']);
     Route::get('/conta-integrada', function () {
         return view('layouts.integracao');

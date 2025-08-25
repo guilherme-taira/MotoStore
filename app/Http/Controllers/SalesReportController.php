@@ -138,6 +138,8 @@ class SalesReportController extends Controller
 
        try {
          UpdateStockJobTiktok::dispatch($product->id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
+              // Disparando o Job
+        UpdateStockJob::dispatch($product->id,$product->estoque_afiliado,$product->estoque_minimo_afiliado);
        } catch (\Exception $th) {
             Log::alert($th->getMessage());
        }

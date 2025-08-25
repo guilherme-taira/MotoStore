@@ -223,6 +223,8 @@ class MercadolivreOrderController implements InterfaceMercadoLivre
 
                             if (order_site::VerificarVenda($json->id) == false) {
 
+
+
                                   // * FORMA DE PAGAMENTO NOVA *//
                             /**
                              * IMPLANTACAO DO SISTEMA DE PAGAMENTO SPLI MERCADO PAGO

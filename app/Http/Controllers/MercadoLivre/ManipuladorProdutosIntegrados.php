@@ -174,6 +174,8 @@ class ManipuladorProdutosIntegrados extends Controller
             }
         }
 
+        \App\Jobs\UpdateProductPriceTikTok::dispatch($this->productId,$basePrice);
+
         return ['success' => true, 'message' => 'Manipulação de produtos concluída.'];
     }
 

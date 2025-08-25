@@ -66,6 +66,7 @@ class UpdateMercadoLivreTokens implements ShouldQueue
                     if (isset($dados['access_token'])) {
                         $acesso->update([
                             'access_token' => $dados['access_token'],
+                            'refresh_token' => $dados['refresh_token'], // Salve o novo refresh_token
                             'datamodify' => now()->addHours(6)->format('Y-m-d H:i:s'),
                         ]);
 
