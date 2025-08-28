@@ -19,7 +19,6 @@ class CategoryTest extends Controller
         ]);
     }
 
-
     public function categoria(){
         $viewData = [];
         $viewData["title"] = "Alterador de Categoria";

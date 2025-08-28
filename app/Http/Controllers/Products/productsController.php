@@ -1166,7 +1166,7 @@ class productsController extends Controller
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
 
-        $token = token::where('user_id',2)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
+        $token = token::where('user_id',$request->auth)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
 
         try {
             $ch = curl_init();
@@ -1258,6 +1258,91 @@ class productsController extends Controller
         }
 
     }
+
+
+        public function getProductByApi($id)
+        {
+            try {
+                // Validação básica do ID para garantir que é um valor válido
+                if (empty($id)) {
+                    Log::warning('ID do produto não fornecido.');
+                    return ['error' => 'ID do produto não pode ser vazio.'];
+                }
+
+                $token = Token::where('user_id', 2)->first();
+
+                // Verifica se o token existe antes de fazer a requisição
+                if (!$token) {
+                    Log::error('Token de autenticação não encontrado para o usuário.');
+                    return ['error' => 'Token de autenticação não encontrado.'];
+                }
+
+                $endpoint = "https://api.mercadolibre.com/items/{$id}";
+
+                // Inicializa a sessão cURL
+                $ch = curl_init();
+
+                // Configura as opções do cURL
+                curl_setopt($ch, CURLOPT_URL, $endpoint);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                // Melhoria: Adiciona um tempo limite para evitar que a requisição fique travada
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15); // 15 segundos
+
+                // Define os headers de forma mais limpa
+                $headers = [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    "Authorization: Bearer {$token->access_token}"
+                ];
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                // Desabilitar a verificação SSL em produção não é uma boa prática de segurança.
+                // O Mercado Livre usa um certificado SSL válido. Mantenha isso ativado.
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+                // Executa a requisição
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                // Captura erros da requisição cURL
+                if (curl_errno($ch)) {
+                    $error_msg = curl_error($ch);
+                    curl_close($ch);
+                    Log::error("Erro cURL: {$error_msg}");
+                    return ['error' => 'Erro na requisição à API do Mercado Livre.'];
+                }
+
+                curl_close($ch);
+
+                // Verifica o código de status HTTP da resposta
+                if ($httpCode !== 200) {
+                    Log::warning("Resposta da API com erro. Status: {$httpCode}, Corpo da resposta: {$response}");
+                    return ['error' => "Erro da API do Mercado Livre. Status: {$httpCode}."];
+                }
+
+                // Decodifica a resposta JSON para um array PHP
+                $responseData = json_decode($response, true);
+
+                // Verifica se a decodificação JSON foi bem-sucedida
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $jsonError = json_last_error_msg();
+                    Log::error("Erro ao decodificar JSON: {$jsonError}. Resposta: {$response}");
+                    return ['error' => 'Erro ao processar resposta da API.'];
+                }
+
+                Log::info('Requisição da API do Mercado Livre bem-sucedida.');
+                return $responseData;
+
+            } catch (\Exception $e) {
+                // Captura exceções inesperadas (ex: erro de banco de dados no find do token)
+                Log::error('Exceção inesperada: ' . $e->getMessage());
+                return ['error' => 'Ocorreu um erro interno.'];
+            }
+        }
+
 
     public function cadastrarAnuncio($base,$auth,$data)
     {
@@ -1517,6 +1602,81 @@ class productsController extends Controller
             return response()->json($data);
         }
     }
+
+
+public function getProductByApiMercadoLivre(Request $request)
+{
+    Log::alert($request->all());
+    try {
+        if (empty($request->id)) {
+            Log::warning('ID do produto não fornecido.');
+            return ['error' => 'ID do produto não pode ser vazio.'];
+        }
+
+        // $token = Token::where('user_id', 2)->first();
+
+        // if (!$token) {
+        //     Log::error('Token de autenticação não encontrado para o usuário.');
+        //     return ['error' => 'Token de autenticação não encontrado.'];
+        // }
+
+        $endpoint = "https://api.mercadolibre.com/items/{$request->id}";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+        // Headers da requisição
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            "Authorization: Bearer APP_USR-913646034584081-082716-add41b142926cd34b4e69cbaa43dc2d7-141075614"
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // 🔹 Configuração do Proxy (seus dados da tela)
+        curl_setopt($ch, CURLOPT_PROXY, "p.webshare.io");
+        curl_setopt($ch, CURLOPT_PROXYPORT, 80);
+        curl_setopt($ch, CURLOPT_PROXYUSERPWD, "cpqqmrld-rotate:77zqoq0jryir");
+        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, true);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error_msg = curl_error($ch);
+            curl_close($ch);
+            Log::error("Erro cURL: {$error_msg}");
+            return ['error' => 'Erro na requisição à API do Mercado Livre.'];
+        }
+
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            Log::warning("Resposta da API com erro. Status: {$httpCode}, Corpo da resposta: {$response}");
+            return ['error' => "Erro da API do Mercado Livre. Status: {$httpCode}.", 'body' => $response];
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $jsonError = json_last_error_msg();
+            Log::error("Erro ao decodificar JSON: {$jsonError}. Resposta: {$response}");
+            return ['error' => 'Erro ao processar resposta da API.'];
+        }
+
+        Log::info('Requisição da API do Mercado Livre bem-sucedida via proxy.');
+        return $responseData;
+
+    } catch (\Exception $e) {
+        Log::error('Exceção inesperada: ' . $e->getMessage());
+        return ['error' => 'Ocorreu um erro interno.'];
+    }
+}
+
+
 
     public function getAllProductByTipoAnuncio(Request $request)
     {
@@ -2701,6 +2861,7 @@ public function integrados($marketplace) {
         $response = Http::withToken($token->access_token)
             ->get("https://api.mercadolibre.com/sites/MLB/categories");
 
+        Log::alert($response);
         return response()->json($response->json(), $response->status());
     }
 

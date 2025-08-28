@@ -444,20 +444,26 @@ class orderscontroller extends Controller
         return response()->json(['data' => $result]);
     }
 
-    public function buscarVendas(Request $request)
-    {
+
+    public function buscarVendas(Request $request) {
         $url = $request->input('url');
+        Log::alert($url);
 
         if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
             return response()->json(['error' => 'URL inválida'], 400);
         }
 
         // Configurações do proxy rotativo Webshare
-        $proxyUrl = 'http://jwcxnvon-rotate:zpkdrpl7n7as@p.webshare.io:80';
+        $proxyUrl = 'http://cpqqmrld-rotate:77zqq0jryjr@p.webshare.io:80';
 
         try {
             $client = new \GuzzleHttp\Client([
-                'allow_redirects' => true,
+                'allow_redirects' => [
+                    'max' => 10,          // Segue até 10 redirecionamentos
+                    'strict' => true,
+                    'referer' => true,
+                    'protocols' => ['http', 'https'],
+                ],
                 'timeout' => 20,
                 'proxy' => $proxyUrl,
                 'headers' => [
@@ -467,16 +473,16 @@ class orderscontroller extends Controller
                 ]
             ]);
 
+            // Requisição final (segue redirecionamentos)
             $response = $client->request('GET', $url);
 
             $finalUrl = $response->getHeader('X-Guzzle-Effective-URL')[0] ?? $url;
             $html = (string) $response->getBody();
 
-            // Regex para extrair vendas (com mil ou milhões)
-            preg_match('/<span class="ui-pdp-subtitle">[^|]+\|\s*\+?([\d.,]+)\s*(milh(?:õ|o)es?|mil)?\s+vendid[oa]s?<\/span>/i', $html, $matches);
             $vendidos = 0;
 
-            if (isset($matches[1])) {
+            // Regex para pegar +50 vendidos, +1,2 mil ou +2 milhões
+            if (preg_match('/\+([\d.,]+)\s*(milh(?:ão|oes)?|mil)?\s+vendid[oa]s?/i', $html, $matches)) {
                 $valor = str_replace(['.', ','], ['', '.'], $matches[1]);
                 $numero = (float) $valor;
 
@@ -490,6 +496,8 @@ class orderscontroller extends Controller
                     $vendidos = (int) $numero;
                 }
             }
+
+            Log::alert('Vendas encontradas: ' . $vendidos);
 
             return response()->json([
                 'vendidos' => $vendidos,
@@ -506,9 +514,6 @@ class orderscontroller extends Controller
             return response()->json(['error' => 'Erro: ' . $e->getMessage()], 500);
         }
     }
-
-
-
 
     public function getSalesLastMont(Request $request)
     {

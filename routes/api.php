@@ -79,6 +79,8 @@ Route::prefix('v1')->group(function () {
     Route::get('product/{id}', [productsController::class,'getProduct']);
     Route::get('categorias', [categorias::class,'getAllCategories']);
     Route::get('categoria/{id}',[categorias::class,'getAllProductByCategorieID']);
+    Route::get('getProductByApi/{id}', [productsController::class,'getProduct']);
+    Route::post('getProductByApiMercadoLivre', [productsController::class,'getProductByApiMercadoLivre']);
     Route::get('banners',[BannerController::class,'getAllBanner']);
     Route::get('tipoanuncio/{id}',[productsController::class,'getAllProductByTipoAnuncio']);
     Route::get('product',[productsController::class,'getParametersByName']);

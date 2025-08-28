@@ -1012,7 +1012,6 @@
                         "Content-Type": 'application/json',
                         'Accept': 'application/json'
                     },
-
                     success: function(response) {
                         if (response) {
                             $("#dataAnuncio").empty();
