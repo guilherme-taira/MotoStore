@@ -467,6 +467,15 @@
             precoFixoInput.addEventListener('input', atualizarValorProduto);
         }
 
+        // Pega a parte da URL após "/produtosintegrados/"
+        const path = window.location.pathname;
+        // Exemplo: "/produtosintegrados/mercadolivre"
+        const parts = path.split('/');
+        const plataforma = parts[2]; // pega "mercadolivre" ou "tiktok"
+
+        // Monta a URL dinâmica
+        const url = `/productIntegrado/${plataforma}`;
+
         // ====================================================================
         // LÓGICA AJAX PARA O ENVIO DO FORMULÁRIO
         // ====================================================================
@@ -480,7 +489,6 @@
 
                 const formData = new FormData(editForm);
                 const data = Object.fromEntries(formData.entries());
-                const url = '/productIntegrado/tiktok'; // <-- Rota corrigida
 
                 fetch(url, {
                         method: 'POST',
@@ -500,6 +508,7 @@
                         // Se a resposta for OK, retorna o JSON
                         return response.json();
                     }).then(result => {
+
                         saveButton.disabled = false;
                         saveButton.innerHTML = 'Salvar Alterações';
 

@@ -137,13 +137,15 @@ public function update(Request $request, $marketplace)
         // Lógica específica para cada marketplace
         switch ($marketplace) {
             case 'mercadolivre':
+                $response = [];
                 // Lógica de atualização de estoque e preço para o Mercado Livre
                 $dadosDoProdutoOriginal = Products::where('id', $product->product_id)->first();
                 $estoqueNew = new MercadoLivreStockController($product->id_mercadolivre, $dadosDoProdutoOriginal->estoque_afiliado, $validated['active'], $validated['estoque_minimo'], $product->user_id, $dadosDoProdutoOriginal->estoque_minimo_afiliado);
                 $estoqueNew->updateStock();
 
                 $precoNew = new ManipuladorProdutosIntegrados($validated['id'], 0);
-                $precoNew->atualizarOnlyProduct();
+                $response[] = $precoNew->atualizarOnlyProduct();
+                return response()->json($response);
                 break;
                 case 'tiktok':
                 // CÓDIGO CORRIGIDO

@@ -234,7 +234,7 @@ class ManipuladorProdutosIntegrados extends Controller
             Log::error("Erro ao atualizar produto integrado ID {$produtoIntegrado->id}: " . $e->getMessage());
         }
 
-        return ['success' => true, 'message' => 'Manipulação de produtos concluída.'];
+        return ['success' => true, 'message' => 'atualização concluída.'];
     }
 
     /**

@@ -46,7 +46,7 @@ class UpdateMercadoLivrePrice implements ShouldQueue
         $valor = $this->agregado;
         $endpoint = "https://api.mercadolibre.com/items/{$this->productId}";
         $payload = [
-            'price' => (float) $valor,
+            'price' => round((float)$valor, 2),
         ];
 
         try {
