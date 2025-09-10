@@ -28,8 +28,9 @@ class ImplementSendNoteOrderClient extends SendNoteOrderClient
         $type = "POST";
 
         if($this->getIdMeli() != NULL){
-            $type = "PUT";
-            $endpoint = "https://api.mercadolibre.com/orders/".$this->getNumeroPedido()."/notes/".$this->getIdMeli();
+            // $type = "PUT";
+            // $endpoint = "https://api.mercadolibre.com/orders/".$this->getNumeroPedido()."/notes/".$this->getIdMeli();
+            $endpoint = "https://api.mercadolibre.com/orders/".$this->getNumeroPedido()."/notes";
         }else{
             $endpoint = "https://api.mercadolibre.com/orders/".$this->getNumeroPedido()."/notes";
         }
