@@ -40,6 +40,7 @@ use App\Http\Controllers\image\image;
 use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBras;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartBlouses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartSweatShirtsSandHoodies;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
@@ -386,7 +387,8 @@ class productsController extends Controller
              ->setNext(new handlerBras())
              ->setNext(new handlerSwimwearCreator())
              ->setNext(new handlerSlippers())
-             ->setNext(new handlerChartSweatShirtsSandHoodies());
+             ->setNext(new handlerChartSweatShirtsSandHoodies())
+             ->setNext(new handlerChartBlouses());
 
              $grid = $handler->Manipular($obj);
 
@@ -1165,7 +1167,7 @@ class productsController extends Controller
     {
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
-
+        // FAZER AQUI
         $token = token::where('user_id',$request->auth)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
 
         try {
@@ -1377,7 +1379,6 @@ class productsController extends Controller
     public function PutAttributes($ids, $data, $base, $auth, $descricao)
     {
         $token = token::where('user_id', $auth)->first();
-
 
         // ENDPOINT PARA REQUISICAO
         if (count($ids) > 1) {

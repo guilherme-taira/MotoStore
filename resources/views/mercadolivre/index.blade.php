@@ -410,7 +410,7 @@
                     {
                         "domain_id": "MLB-SWEATSHIRTS_AND_HOODIES"
                     },
-                    // { "domain_id": "MLB-BLOUSES" },
+                    { "domain_id": "MLB-BLOUSES" },
                     {
                         "domain_id": "MLB-SHIRTS"
                     },
