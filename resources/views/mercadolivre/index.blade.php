@@ -456,7 +456,7 @@
                     // { "domain_id": "MLB-RUGBY_JERSEYS" },
                     // { "domain_id": "MLB-SCHOOL_SMOCKS" },
                     // { "domain_id": "MLB-NIGHTGOWNS" },
-                    // { "domain_id": "MLB-SPORT_PANTS" },
+                    { "domain_id": "MLB-SPORT_PANTS"},
                     // { "domain_id": "MLB-WADERS" },
                     // { "domain_id": "MLB-FISHING_PANTS" },
                     // { "domain_id": "MLB-TACTICAL_PANTS" },

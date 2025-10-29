@@ -41,6 +41,7 @@ use App\Http\Controllers\Kits\kitsController;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBooties;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerBras;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartBlouses;
+use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartSportPants;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerChartSweatShirtsSandHoodies;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerDresses;
 use App\Http\Controllers\MercadoLivre\alteradorCategoriaNovo\handlerPants;
@@ -388,7 +389,8 @@ class productsController extends Controller
              ->setNext(new handlerSwimwearCreator())
              ->setNext(new handlerSlippers())
              ->setNext(new handlerChartSweatShirtsSandHoodies())
-             ->setNext(new handlerChartBlouses());
+             ->setNext(new handlerChartBlouses())
+             ->setNext(new handlerChartSportPants());
 
              $grid = $handler->Manipular($obj);
 
@@ -418,7 +420,7 @@ class productsController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $json = json_decode($reponse);
-            // Log::alert($reponse);
+            Log::alert($reponse);
             if ($httpCode == '200') {
                 logAlteracao::dispatch('TROCA DE CATEGORIA',$request->user,$reponse,true);
                 echo "<li class='list-group-item bg-success text-white'><i class='bi bi-check-circle-fill'></i> Alterado com Sucesso</li>";
@@ -1168,7 +1170,7 @@ class productsController extends Controller
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
         // FAZER AQUI
-        $token = token::where('user_id',$request->auth)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
+        $token = token::where('user_id',38)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
 
         try {
             $ch = curl_init();
@@ -1223,7 +1225,8 @@ class productsController extends Controller
                         "currency_id" => "BRL",
                         "listing_type_id" => "gold_special",
                         "title" => $request->title,
-                        "available_quantity" => 0
+                        "available_quantity" => 0,
+                        "family_name" => "modificar"
                     ];
 
                     // CADASTRA UM NOVO ANUNCIO
@@ -1354,7 +1357,7 @@ class productsController extends Controller
 
         if (isset($data)) {
             $data_json = json_encode($data);
-
+            Log::alert($data_json);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $endpoint);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -2347,7 +2350,7 @@ public function IntegrarProdutoTikTok(Request $request)
         $newToken->resource();
 
         // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
-        $acesso = token::where('user_id','38')->first();
+        $acesso = token::where('user_id',$request->auth)->first();
         try {
 
             $context = stream_context_create([
