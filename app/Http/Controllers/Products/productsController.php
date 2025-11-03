@@ -454,7 +454,7 @@ class productsController extends Controller
 
     public function getAttributesTrade(Request $request)
     {
-        $token = token::where('user_id',2)->first();
+        $token = token::where('user_id',38)->first();
 
         if($request->base){
              // ENDPOINT PARA REQUISICAO
@@ -471,13 +471,13 @@ class productsController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $data = json_decode($response,true);
-
         // CADASTRA UM NOVO ANUNCIO
         foreach ($request->id as $id) {
            return $this->refazerRequest($id,$request->user,$data,$data['domain_id'],$request->newtitle);
         }
 
         }else{
+
             // ENDPOINT PARA REQUISICAO
             $endpoint = 'https://api.mercadolibre.com/items/'.$request->id;
 
@@ -491,7 +491,6 @@ class productsController extends Controller
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             $data = json_decode($response,true);
-
             if($request->categoria){
                 // TROCAR A CATEGORIA
                 $this->TrocarCategoriaRequest($data,FALSE,$data['id'],$request->categoria,$request->user,$request->newtitle,$request->required);
@@ -1167,10 +1166,12 @@ class productsController extends Controller
 
     public function getAttributes(Request $request)
     {
+        // Log::alert($request->all());
+
         // ENDPOINT PARA REQUISICAO
         $endpoint = 'https://api.mercadolibre.com/items/' . $request->base;
         // FAZER AQUI
-        $token = token::where('user_id',38)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
+        $token = token::where('user_id',$request->auth)->first(); // FOI ALTERADO PARA USAR NO MODIFICADOR
 
         try {
             $ch = curl_init();
@@ -1226,7 +1227,7 @@ class productsController extends Controller
                         "listing_type_id" => "gold_special",
                         "title" => $request->title,
                         "available_quantity" => 0,
-                        "family_name" => "modificar"
+                        // "family_name" => "modificar"
                     ];
 
                     // CADASTRA UM NOVO ANUNCIO
