@@ -2916,9 +2916,10 @@ public function integrados($marketplace) {
     public function storeWithVariations(Request $request){
 
      $variations = [];
-     $firstPrice = null;
+     $HighPrice = 0;
 
         $produtoDados = [];
+        echo "<pre>";
         foreach($request->products as $key => $produto){
 
         $data = Products::where('id',$produto['id'])->first();
@@ -2951,13 +2952,15 @@ public function integrados($marketplace) {
                 $picture_ids[] = "https://afilidrop2.s3.amazonaws.com/produtos/{$foto->product_id}/{$foto->url}";
             }
 
+
             // Define o preço da primeira variação
-            if (is_null($firstPrice)) {
-                $firstPrice = $data['price'] ?? 0;
+            if($HighPrice <= $data['priceWithFee']){
+                $HighPrice = $data['priceWithFee'];
             }
 
+
             // Aplica o mesmo preço em todas
-            $precoAplicado = $firstPrice;
+            $precoAplicado = $HighPrice;
 
             $variations[] = [
                 'attributes' => $attributes,
@@ -2992,12 +2995,18 @@ public function integrados($marketplace) {
 
         }
 
+        $variations = array_map(function ($variation) use ($HighPrice) {
+            $variation['price'] = (float) $HighPrice;
+            return $variation;
+        }, $variations);
+
+
         $produto = new Products();
-        $produto->price =  $produtoDados['price'];
+        $produto->price =  (float) $HighPrice;
         $produto->title = $produtoDados['nome'];
         $produto->description = "Descrição.";
         $produto->available_quantity = $produtoDados['stock'];
-        $produto->priceWithFee = $produtoDados['price'];
+        $produto->priceWithFee = (float) $HighPrice;;
         $produto->category_id = $produtoDados['category_id'];
         $produto->subcategoria = $produtoDados['categoria'];
         $produto->brand = $produtoDados['brand'];
