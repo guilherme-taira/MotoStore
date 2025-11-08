@@ -2346,17 +2346,11 @@ public function IntegrarProdutoTikTok(Request $request)
 
     public function getVisits(Request $request){
 
-        $dataAtual = new DateTime();
-        $newToken = new RefreshTokenController($request->access_token, $dataAtual, "3029233524869952", "y5kbVGd5JmbodNQEwgCrHBVWSbFkosjV", '38');
-        $newToken->resource();
-
-        // TESTE PARA VER SE O TOKEN ESTA EXPIRADO
-        $acesso = token::where('user_id',$request->auth)->first();
         try {
 
             $context = stream_context_create([
                 "http" => [
-                    "header" => "Authorization: Bearer $acesso->access_token"
+                    "header" => "Authorization: Bearer $request->access_token"
                 ]
             ]);
 
@@ -2923,6 +2917,7 @@ public function integrados($marketplace) {
         foreach($request->products as $key => $produto){
 
         $data = Products::where('id',$produto['id'])->first();
+        Log::alert(json_encode($data));
             // Atribuições básicas
             $attributes = [[
                 'id' => 'SELLER_SKU',
@@ -2961,6 +2956,7 @@ public function integrados($marketplace) {
 
             // Aplica o mesmo preço em todas
             $precoAplicado = $HighPrice;
+            Log::alert($precoAplicado);
 
             $variations[] = [
                 'attributes' => $attributes,
@@ -3001,32 +2997,32 @@ public function integrados($marketplace) {
         }, $variations);
 
 
-        $produto = new Products();
-        $produto->price =  (float) $HighPrice;
-        $produto->title = $produtoDados['nome'];
-        $produto->description = "Descrição.";
-        $produto->available_quantity = $produtoDados['stock'];
-        $produto->priceWithFee = (float) $HighPrice;;
-        $produto->category_id = $produtoDados['category_id'];
-        $produto->subcategoria = $produtoDados['categoria'];
-        $produto->brand = $produtoDados['brand'];
-        $produto->gtin = $produtoDados['ean'];
-        $produto->width = $produtoDados['width'];
-        $produto->weight = $produtoDados['weight'];
-        $produto->length = $produtoDados['length'];
-        $produto->height = $produtoDados['height'];
+        // $produto = new Products();
+        // $produto->price =  (float) $HighPrice;
+        // $produto->title = $produtoDados['nome'];
+        // $produto->description = "Descrição.";
+        // $produto->available_quantity = $produtoDados['stock'];
+        // $produto->priceWithFee = (float) $HighPrice;;
+        // $produto->category_id = $produtoDados['category_id'];
+        // $produto->subcategoria = $produtoDados['categoria'];
+        // $produto->brand = $produtoDados['brand'];
+        // $produto->gtin = $produtoDados['ean'];
+        // $produto->width = $produtoDados['width'];
+        // $produto->weight = $produtoDados['weight'];
+        // $produto->length = $produtoDados['length'];
+        // $produto->height = $produtoDados['height'];
 
 
-        $produto->image = $data->image;
-        $produto->fornecedor_id = $produtoDados['fornecedor'];
-        $produto->termometro = 100;
-        $produto->isVariation = 1;
-        $produto->variation_data = json_encode($variations);
-        $produto->save();
+        // $produto->image = $data->image;
+        // $produto->fornecedor_id = $produtoDados['fornecedor'];
+        // $produto->termometro = 100;
+        // $produto->isVariation = 1;
+        // $produto->variation_data = json_encode($variations);
+        // $produto->save();
 
-         return redirect()
-        ->route('products.edit', ['id' => $produto->id])
-        ->with('success', 'Produto com variações criado com sucesso!');
+        //  return redirect()
+        // ->route('products.edit', ['id' => $produto->id])
+        // ->with('success', 'Produto com variações criado com sucesso!');
 
     }
 
