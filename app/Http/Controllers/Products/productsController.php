@@ -2997,32 +2997,32 @@ public function integrados($marketplace) {
         }, $variations);
 
 
-        // $produto = new Products();
-        // $produto->price =  (float) $HighPrice;
-        // $produto->title = $produtoDados['nome'];
-        // $produto->description = "Descrição.";
-        // $produto->available_quantity = $produtoDados['stock'];
-        // $produto->priceWithFee = (float) $HighPrice;;
-        // $produto->category_id = $produtoDados['category_id'];
-        // $produto->subcategoria = $produtoDados['categoria'];
-        // $produto->brand = $produtoDados['brand'];
-        // $produto->gtin = $produtoDados['ean'];
-        // $produto->width = $produtoDados['width'];
-        // $produto->weight = $produtoDados['weight'];
-        // $produto->length = $produtoDados['length'];
-        // $produto->height = $produtoDados['height'];
+        $produto = new Products();
+        $produto->price =  (float) $HighPrice;
+        $produto->title = $produtoDados['nome'];
+        $produto->description = "Descrição.";
+        $produto->available_quantity = $produtoDados['stock'];
+        $produto->priceWithFee = (float) $HighPrice;;
+        $produto->category_id = $produtoDados['category_id'];
+        $produto->subcategoria = $produtoDados['categoria'];
+        $produto->brand = $produtoDados['brand'];
+        $produto->gtin = $produtoDados['ean'];
+        $produto->width = $produtoDados['width'];
+        $produto->weight = $produtoDados['weight'];
+        $produto->length = $produtoDados['length'];
+        $produto->height = $produtoDados['height'];
 
 
-        // $produto->image = $data->image;
-        // $produto->fornecedor_id = $produtoDados['fornecedor'];
-        // $produto->termometro = 100;
-        // $produto->isVariation = 1;
-        // $produto->variation_data = json_encode($variations);
-        // $produto->save();
+        $produto->image = $data->image;
+        $produto->fornecedor_id = $produtoDados['fornecedor'];
+        $produto->termometro = 100;
+        $produto->isVariation = 1;
+        $produto->variation_data = json_encode($variations);
+        $produto->save();
 
-        //  return redirect()
-        // ->route('products.edit', ['id' => $produto->id])
-        // ->with('success', 'Produto com variações criado com sucesso!');
+         return redirect()
+        ->route('products.edit', ['id' => $produto->id])
+        ->with('success', 'Produto com variações criado com sucesso!');
 
     }
 
